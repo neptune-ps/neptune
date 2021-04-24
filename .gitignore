@@ -1,10 +1,17 @@
 .*
 !.editorconfig
 !.git*
+
+# Java files
 */build
 */out
 */target
 /build
 /out
 /target
+
+# JVM crash logs
 hs_err_pid*.log
+
+# Misc
+**/antlr
