@@ -9,16 +9,12 @@ INTEGER_VALUE
     : DIGIT+
     ;
 
-IDENTIFIER
-    : (LOWERCASE_LETTER | DIGIT | '_')+
-    ;
-
-fragment LOWERCASE_LETTER
-    : [a-z]
-    ;
-
 fragment DIGIT
     : [0-9]
+    ;
+
+IDENTIFIER
+    : [a-zA-Z0-9_+]+
     ;
 
 WHITESPACE
