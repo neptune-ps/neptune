@@ -11,7 +11,7 @@ class TestRuneScriptParser {
     fun testScript() {
         val script = ScriptParser.createScript("[opheld1,abyssal_whip]")
         val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"))
-        assertEquals(script, expected)
+        assertEquals(expected, script)
     }
 
 }
