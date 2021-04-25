@@ -14,4 +14,5 @@ script
 
 identifier
     : IDENTIFIER
+    | identifier COLON identifier
     ;

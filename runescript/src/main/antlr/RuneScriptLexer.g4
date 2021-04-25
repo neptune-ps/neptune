@@ -1,5 +1,6 @@
 lexer grammar RuneScriptLexer;
 
+COLON   : ':' ;
 COMMA   : ',' ;
 LBRACK  : '[' ;
 RBRACK  : ']' ;
