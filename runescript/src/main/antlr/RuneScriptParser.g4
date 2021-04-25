@@ -4,10 +4,14 @@ parser grammar RuneScriptParser;
 
 options { tokenVocab = RuneScriptLexer; }
 
-file
+scriptFile
     : script* EOF
     ;
 
 script
-    : LBRACK trigger=IDENTIFIER COMMA name=IDENTIFIER RBRACK
+    : LBRACK trigger=identifier COMMA name=identifier RBRACK
+    ;
+
+identifier
+    : IDENTIFIER
     ;
