@@ -5,7 +5,7 @@ package me.filby.neptune.runescript.ast
  */
 public abstract class Node {
 
-    public open fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitNode(this)
+    public abstract fun <R> accept(visitor: AstVisitor<R>): R
 
     // mark abstract so all nodes have to implement
     public abstract override fun hashCode(): Int
