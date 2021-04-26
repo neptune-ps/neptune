@@ -35,9 +35,7 @@ class TestRuneScriptParser {
     fun testIntegerLiteral() {
         assertEquals(IntegerLiteral(1337),
             invokeParser("1337", RuneScriptParser::literal))
-        assertThrows<ParsingException>("line 1:0: mismatched input '1337_' expecting INTEGER_LITERAL") {
-            invokeParser("1337_", RuneScriptParser::literal)
-        }
+        assertThrows<ParsingException> { invokeParser("1337_", RuneScriptParser::literal) }
     }
 
     @Test
