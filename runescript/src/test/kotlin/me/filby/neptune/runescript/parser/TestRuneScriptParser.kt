@@ -29,6 +29,10 @@ class TestRuneScriptParser {
 
         assertEquals(IntegerLiteral(0xFFFFFF),
             invokeParser("0xFFFFFF", RuneScriptParser::literal))
+        assertEquals(IntegerLiteral(-1),
+            invokeParser("0xFFFFFFFF", RuneScriptParser::literal))
+        assertEquals(IntegerLiteral(0xFFFFFF),
+            invokeParser("0XFFFFFF", RuneScriptParser::literal))
     }
 
     @Test
