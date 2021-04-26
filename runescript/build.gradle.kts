@@ -23,6 +23,10 @@ task("antlrOutputDir") {
     }
 }
 
+tasks.sourcesJar {
+    dependsOn(tasks.generateGrammarSource)
+}
+
 tasks.generateGrammarSource {
     dependsOn("antlrOutputDir")
 
