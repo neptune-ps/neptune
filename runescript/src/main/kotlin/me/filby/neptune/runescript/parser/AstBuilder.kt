@@ -7,6 +7,7 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
+import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 
@@ -26,6 +27,11 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitBooleanLiteral(ctx: RuneScriptParser.BooleanLiteralContext): BooleanLiteral {
         return BooleanLiteral(ctx.text.toBoolean())
+    }
+
+    override fun visitCharacterLiteral(ctx: RuneScriptParser.CharacterLiteralContext): Node {
+        // TODO support for escaping
+        return CharacterLiteral(ctx.text[1])
     }
 
     override fun visitNullLiteral(ctx: RuneScriptParser.NullLiteralContext?): NullLiteral {

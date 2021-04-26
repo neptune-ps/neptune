@@ -15,6 +15,7 @@ script
 literal
     : INTEGER_LITERAL   # IntegerLiteral
     | BOOLEAN_LITERAL   # BooleanLiteral
+    | CHAR_LITERAL      # CharacterLiteral
     | NULL_LITERAL      # NullLiteral
     ;
 

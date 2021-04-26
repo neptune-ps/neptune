@@ -4,6 +4,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Identifier
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
+import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
@@ -45,6 +46,14 @@ class TestRuneScriptParser {
             invokeParser("true", RuneScriptParser::literal))
         assertEquals(BooleanLiteral(false),
             invokeParser("false", RuneScriptParser::literal))
+    }
+
+    @Test
+    fun testCharacterLiteral() {
+        assertEquals(CharacterLiteral('t'),
+            invokeParser("'t'", RuneScriptParser::literal))
+
+        assertThrows<ParsingException> { invokeParser("'test'", RuneScriptParser::literal) }
     }
 
     @Test

@@ -13,6 +13,7 @@ MINUS   : '-' ;
 // literals
 INTEGER_LITERAL : [0-9]+ ;
 BOOLEAN_LITERAL : 'true' | 'false' ;
+CHAR_LITERAL    : '\'' ~['\\\r\n] '\'' ; // TODO escaping
 NULL_LITERAL    : 'null' ;
 
 IDENTIFIER

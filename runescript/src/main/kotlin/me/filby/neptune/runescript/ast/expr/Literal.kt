@@ -48,6 +48,14 @@ public class BooleanLiteral(value: Boolean) : Literal<Boolean>(value) {
 
 }
 
+public class CharacterLiteral(value: Char) : Literal<Char>(value) {
+
+    override fun <R> accept(visitor: AstVisitor<R>): R {
+        return visitor.visitCharacterLiteral(this)
+    }
+
+}
+
 // object because the value is always the same
 public object NullLiteral : Literal<Int>(-1) {
 
