@@ -25,11 +25,12 @@ class TestRuneScriptParser {
         // component identifier (mostly)
         assertEquals(Identifier("smithing:arrowheads"),
             invokeParser("smithing:arrowheads", RuneScriptParser::identifier))
+
+        // TODO: test for keywords when used as an identifier that is prefixed with something ($, ^, and %)
     }
 
     @Test
     fun testIntegerLiteral() {
-        // integer literal
         assertEquals(IntegerLiteral(1337),
             invokeParser("1337", RuneScriptParser::literal))
         assertThrows<ParsingException>("line 1:0: mismatched input '1337_' expecting INTEGER_LITERAL") {
