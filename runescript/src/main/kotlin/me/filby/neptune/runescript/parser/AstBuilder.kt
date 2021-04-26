@@ -22,7 +22,12 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitIntegerLiteral(ctx: RuneScriptParser.IntegerLiteralContext): IntegerLiteral {
-        return IntegerLiteral(ctx.text.toInt())
+        val text = ctx.text
+        if (text[0] == '0' && text[1] == 'x') {
+            // hex, trim 0x
+            return IntegerLiteral(text.substring(2).toInt(16))
+        }
+        return IntegerLiteral(text.toInt())
     }
 
     override fun visitBooleanLiteral(ctx: RuneScriptParser.BooleanLiteralContext): BooleanLiteral {

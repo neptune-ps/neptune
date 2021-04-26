@@ -26,6 +26,9 @@ class TestRuneScriptParser {
         assertEquals(IntegerLiteral(1337),
             invokeParser("1337", RuneScriptParser::literal))
         assertThrows<ParsingException> { invokeParser("1337_", RuneScriptParser::literal) }
+
+        assertEquals(IntegerLiteral(0xFFFFFF),
+            invokeParser("0xFFFFFF", RuneScriptParser::literal))
     }
 
     @Test
@@ -63,6 +66,10 @@ class TestRuneScriptParser {
         // component identifier (mostly)
         assertEquals(Identifier("smithing:arrowheads"),
             invokeParser("smithing:arrowheads", RuneScriptParser::identifier))
+
+        // identifier that looks like a hex literal
+        assertEquals(Identifier("0x123"),
+            invokeParser("0x123", RuneScriptParser::identifier))
 
         // TODO: test for keywords when used as an identifier that is prefixed with something ($, ^, and %)
     }

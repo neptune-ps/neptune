@@ -14,6 +14,7 @@ script
 
 literal
     : INTEGER_LITERAL   # IntegerLiteral
+    | HEX_LITERAL       # IntegerLiteral
     | BOOLEAN_LITERAL   # BooleanLiteral
     | CHAR_LITERAL      # CharacterLiteral
     | NULL_LITERAL      # NullLiteral
@@ -21,6 +22,7 @@ literal
 
 identifier
     : IDENTIFIER
+    | HEX_LITERAL
     | BOOLEAN_LITERAL
     | NULL_LITERAL
     | identifier COLON identifier
