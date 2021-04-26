@@ -9,17 +9,11 @@ PLUS    : '+' ;
 MINUS   : '-' ;
 
 // keywords
-TRUE    : 'true' ;
-FALSE   : 'false' ;
-NULL    : 'null' ;
 
-INTEGER_LITERAL
-    : DIGIT+
-    ;
-
-fragment DIGIT
-    : [0-9]
-    ;
+// literals
+BOOLEAN_LITERAL : 'true' | 'false' ;
+NULL_LITERAL    : 'null' ;
+INTEGER_LITERAL : [0-9]+ ;
 
 IDENTIFIER
     : [a-zA-Z0-9_+]+

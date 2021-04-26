@@ -14,13 +14,13 @@ script
 
 literal
     : INTEGER_LITERAL   # IntegerLiteral
-    | (FALSE | TRUE)    # BooleanLiteral
-    | NULL              # NullLiteral
+    | BOOLEAN_LITERAL   # BooleanLiteral
+    | NULL_LITERAL      # NullLiteral
     ;
 
 identifier
     : IDENTIFIER
+    | BOOLEAN_LITERAL
+    | NULL_LITERAL
     | identifier COLON identifier
-    | FALSE
-    | TRUE
     ;
