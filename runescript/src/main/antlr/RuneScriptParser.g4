@@ -14,6 +14,7 @@ script
 
 literal
     : INTEGER_LITERAL   # IntegerLiteral
+    | (FALSE | TRUE)    # BooleanLiteral
     ;
 
 identifier

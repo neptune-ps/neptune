@@ -6,6 +6,7 @@ import me.filby.neptune.runescript.ast.Identifier
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
+import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 
 public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
@@ -20,6 +21,10 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitIntegerLiteral(ctx: RuneScriptParser.IntegerLiteralContext): IntegerLiteral {
         return IntegerLiteral(ctx.text.toInt())
+    }
+
+    override fun visitBooleanLiteral(ctx: RuneScriptParser.BooleanLiteralContext): BooleanLiteral {
+        return BooleanLiteral(ctx.text.toBoolean())
     }
 
     override fun visitIdentifier(ctx: RuneScriptParser.IdentifierContext): Identifier {

@@ -1,11 +1,16 @@
 lexer grammar RuneScriptLexer;
 
+// symbols
 COLON   : ':' ;
 COMMA   : ',' ;
 LBRACK  : '[' ;
 RBRACK  : ']' ;
 PLUS    : '+' ;
 MINUS   : '-' ;
+
+// keywords
+TRUE    : 'true' ;
+FALSE   : 'false' ;
 
 INTEGER_LITERAL
     : DIGIT+

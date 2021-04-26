@@ -39,3 +39,11 @@ public class IntegerLiteral(value: Int) : Literal<Int>(value) {
     }
 
 }
+
+public class BooleanLiteral(value: Boolean) : Literal<Boolean>(value) {
+
+    override fun <R> accept(visitor: AstVisitor<R>): R {
+        return visitor.visitBooleanLiteral(this)
+    }
+
+}

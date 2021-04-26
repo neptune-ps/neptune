@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.parser
 import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Identifier
 import me.filby.neptune.runescript.ast.Script
+import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
@@ -34,6 +35,14 @@ class TestRuneScriptParser {
         assertThrows<ParsingException>("line 1:0: mismatched input '1337_' expecting INTEGER_LITERAL") {
             invokeParser("1337_", RuneScriptParser::literal)
         }
+    }
+
+    @Test
+    fun testBooleanLiteral() {
+        assertEquals(BooleanLiteral(true),
+            invokeParser("true", RuneScriptParser::literal))
+        assertEquals(BooleanLiteral(false),
+            invokeParser("false", RuneScriptParser::literal))
     }
 
     @Test

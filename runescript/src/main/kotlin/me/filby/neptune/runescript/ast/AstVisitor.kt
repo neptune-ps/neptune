@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.ast
 
+import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.Literal
 
@@ -15,6 +16,10 @@ public interface AstVisitor<R> {
 
     public fun visitIntegerLiteral(integerLiteral: IntegerLiteral): R {
         return visitLiteral(integerLiteral)
+    }
+
+    public fun visitBooleanLiteral(booleanLiteral: BooleanLiteral): R {
+        return visitLiteral(booleanLiteral)
     }
 
     public fun visitLiteral(literal: Literal<*>): R {
