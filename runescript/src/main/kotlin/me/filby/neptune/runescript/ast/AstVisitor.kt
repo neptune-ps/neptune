@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.ast
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.Literal
+import me.filby.neptune.runescript.ast.expr.NullLiteral
 
 public interface AstVisitor<R> {
 
@@ -20,6 +21,10 @@ public interface AstVisitor<R> {
 
     public fun visitBooleanLiteral(booleanLiteral: BooleanLiteral): R {
         return visitLiteral(booleanLiteral)
+    }
+
+    public fun visitNullLiteral(nullLiteral: NullLiteral): R {
+        return visitLiteral(nullLiteral)
     }
 
     public fun visitLiteral(literal: Literal<*>): R {

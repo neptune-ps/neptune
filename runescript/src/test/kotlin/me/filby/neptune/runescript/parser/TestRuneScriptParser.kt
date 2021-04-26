@@ -5,6 +5,7 @@ import me.filby.neptune.runescript.ast.Identifier
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
+import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
@@ -44,6 +45,12 @@ class TestRuneScriptParser {
             invokeParser("true", RuneScriptParser::literal))
         assertEquals(BooleanLiteral(false),
             invokeParser("false", RuneScriptParser::literal))
+    }
+
+    @Test
+    fun testNullLiteral() {
+        assertEquals(NullLiteral,
+            invokeParser("null", RuneScriptParser::literal))
     }
 
     @Test

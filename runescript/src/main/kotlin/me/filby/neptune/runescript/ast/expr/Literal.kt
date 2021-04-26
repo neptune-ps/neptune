@@ -47,3 +47,12 @@ public class BooleanLiteral(value: Boolean) : Literal<Boolean>(value) {
     }
 
 }
+
+// object because the value is always the same
+public object NullLiteral : Literal<Int>(-1) {
+
+    override fun <R> accept(visitor: AstVisitor<R>): R {
+        return visitor.visitNullLiteral(this)
+    }
+
+}

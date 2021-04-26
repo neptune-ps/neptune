@@ -11,6 +11,7 @@ MINUS   : '-' ;
 // keywords
 TRUE    : 'true' ;
 FALSE   : 'false' ;
+NULL    : 'null' ;
 
 INTEGER_LITERAL
     : DIGIT+
