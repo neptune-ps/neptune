@@ -25,7 +25,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         val text = ctx.text
         if (text[0] == '0' && text[1] == 'x') {
             // hex, trim 0x
-            return IntegerLiteral(text.substring(2).toInt(16))
+            return IntegerLiteral(text.substring(2).toLong(16).toInt())
         }
         return IntegerLiteral(text.toInt())
     }
