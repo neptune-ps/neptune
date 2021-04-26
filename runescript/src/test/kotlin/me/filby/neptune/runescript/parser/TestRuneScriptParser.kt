@@ -15,20 +15,10 @@ import kotlin.test.assertEquals
 class TestRuneScriptParser {
 
     @Test
-    fun testIdentifier() {
-        // normal identifier
-        assertEquals(Identifier("abyssal_whip"),
-            invokeParser("abyssal_whip", RuneScriptParser::identifier))
-
-        // normal identifier beginning with digit
-        assertEquals(Identifier("100_coral_flower"),
-            invokeParser("100_coral_flower", RuneScriptParser::identifier))
-
-        // component identifier (mostly)
-        assertEquals(Identifier("smithing:arrowheads"),
-            invokeParser("smithing:arrowheads", RuneScriptParser::identifier))
-
-        // TODO: test for keywords when used as an identifier that is prefixed with something ($, ^, and %)
+    fun testScript() {
+        val script = ScriptParser.createScript("[opheld1,abyssal_whip]")
+        val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"))
+        assertEquals(expected, script)
     }
 
     @Test
@@ -61,10 +51,20 @@ class TestRuneScriptParser {
     }
 
     @Test
-    fun testScript() {
-        val script = ScriptParser.createScript("[opheld1,abyssal_whip]")
-        val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"))
-        assertEquals(expected, script)
+    fun testIdentifier() {
+        // normal identifier
+        assertEquals(Identifier("abyssal_whip"),
+            invokeParser("abyssal_whip", RuneScriptParser::identifier))
+
+        // normal identifier beginning with digit
+        assertEquals(Identifier("100_coral_flower"),
+            invokeParser("100_coral_flower", RuneScriptParser::identifier))
+
+        // component identifier (mostly)
+        assertEquals(Identifier("smithing:arrowheads"),
+            invokeParser("smithing:arrowheads", RuneScriptParser::identifier))
+
+        // TODO: test for keywords when used as an identifier that is prefixed with something ($, ^, and %)
     }
 
 }
