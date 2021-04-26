@@ -29,5 +29,5 @@ tasks.generateGrammarSource {
     outputDirectory = file(antlrOutput)
 
     val grammars = fileTree(antlrSource) { include("**/*.g4") }.files.map { it.toString() }
-    arguments = listOf("-visitor", "-package", antlrPackage) + grammars
+    arguments = listOf("-no-listener", "-visitor", "-package", antlrPackage) + grammars
 }
