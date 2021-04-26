@@ -12,6 +12,10 @@ script
     : LBRACK trigger=identifier COMMA name=identifier RBRACK
     ;
 
+literal
+    : INTEGER_LITERAL   # IntegerLiteral
+    ;
+
 identifier
     : IDENTIFIER
     | identifier COLON identifier

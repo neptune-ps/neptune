@@ -4,8 +4,10 @@ COLON   : ':' ;
 COMMA   : ',' ;
 LBRACK  : '[' ;
 RBRACK  : ']' ;
+PLUS    : '+' ;
+MINUS   : '-' ;
 
-INTEGER_VALUE
+INTEGER_LITERAL
     : DIGIT+
     ;
 
