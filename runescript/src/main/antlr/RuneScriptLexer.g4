@@ -11,9 +11,9 @@ MINUS   : '-' ;
 // keywords
 
 // literals
+INTEGER_LITERAL : [0-9]+ ;
 BOOLEAN_LITERAL : 'true' | 'false' ;
 NULL_LITERAL    : 'null' ;
-INTEGER_LITERAL : [0-9]+ ;
 
 IDENTIFIER
     : [a-zA-Z0-9_+]+
