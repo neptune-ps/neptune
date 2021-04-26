@@ -20,4 +20,6 @@ literal
 identifier
     : IDENTIFIER
     | identifier COLON identifier
+    | FALSE
+    | TRUE
     ;
