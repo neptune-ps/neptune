@@ -1,7 +1,7 @@
 package me.filby.neptune.runescript.parser
 
 import me.filby.neptune.runescript.antlr.RuneScriptParser
-import me.filby.neptune.runescript.ast.Identifier
+import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral

@@ -5,6 +5,7 @@ import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
+import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.NullLiteral

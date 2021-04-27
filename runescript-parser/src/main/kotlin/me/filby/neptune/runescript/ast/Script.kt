@@ -1,6 +1,7 @@
 package me.filby.neptune.runescript.ast
 
 import com.google.common.base.MoreObjects
+import me.filby.neptune.runescript.ast.expr.Identifier
 import java.util.*
 
 public class Script(
