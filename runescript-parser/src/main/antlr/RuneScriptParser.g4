@@ -13,7 +13,12 @@ scriptFile
     ;
 
 script
-    : LBRACK trigger=identifier COMMA name=identifier RBRACK
+    : LBRACK trigger=identifier COMMA name=identifier RBRACK statement*
+    ;
+
+// statements
+statement
+    : expression SEMICOLON                                                      # ExpressionStatement
     ;
 
 // expressions

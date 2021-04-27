@@ -9,6 +9,8 @@ import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.NullLiteral
+import me.filby.neptune.runescript.ast.statement.ExpressionStatement
+import me.filby.neptune.runescript.ast.statement.Statement
 
 public interface AstVisitor<R> {
 
@@ -18,6 +20,14 @@ public interface AstVisitor<R> {
 
     public fun visitScript(script: Script): R {
         return visitNode(script)
+    }
+
+    public fun visitExpressionStatement(expressionStatement: ExpressionStatement): R {
+        return visitStatement(expressionStatement)
+    }
+
+    public fun visitStatement(statement: Statement): R {
+        return visitNode(statement)
     }
 
     public fun visitBinaryExpression(binaryExpression: BinaryExpression): R {

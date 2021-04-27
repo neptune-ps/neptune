@@ -9,6 +9,7 @@ import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.NullLiteral
+import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
@@ -19,8 +20,15 @@ class TestRuneScriptParser {
     @Test
     fun testScript() {
         val script = ScriptParser.createScript("[opheld1,abyssal_whip]")
-        val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"))
+        val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"), emptyList())
         assertEquals(expected, script)
+    }
+
+    @Test
+    fun testExpressionStatement() {
+        val statement = invokeParser("calc(1 + 1);", RuneScriptParser::statement)
+        val expected = ExpressionStatement(CalcExpression(BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1))))
+        assertEquals(expected, statement)
     }
 
     @Test
