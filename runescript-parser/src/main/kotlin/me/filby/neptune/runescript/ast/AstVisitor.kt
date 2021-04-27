@@ -49,11 +49,11 @@ public interface AstVisitor<R> {
     }
 
     public fun visitLiteral(literal: Literal<*>): R {
-        return visitNode(literal)
+        return visitExpression(literal)
     }
 
     public fun visitIdentifier(identifier: Identifier): R {
-        return visitNode(identifier)
+        return visitExpression(identifier)
     }
 
     public fun visitNode(node: Node): R {
