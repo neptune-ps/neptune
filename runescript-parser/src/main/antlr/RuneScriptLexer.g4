@@ -24,7 +24,3 @@ IDENTIFIER
 WHITESPACE
     : [ \t\n\r]+ -> channel(HIDDEN)
     ;
-
-UNKNOWN
-	: . -> channel(HIDDEN)
-	;
