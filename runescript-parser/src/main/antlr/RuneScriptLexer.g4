@@ -1,14 +1,20 @@
 lexer grammar RuneScriptLexer;
 
 // symbols
-COLON   : ':' ;
-COMMA   : ',' ;
-LBRACK  : '[' ;
-RBRACK  : ']' ;
-PLUS    : '+' ;
-MINUS   : '-' ;
+LPAREN      : '(' ;
+RPAREN      : ')' ;
+COLON       : ':' ;
+SEMICOLON   : ';' ;
+COMMA       : ',' ;
+LBRACK      : '[' ;
+RBRACK      : ']' ;
+PLUS        : '+' ;
+MINUS       : '-' ;
+MUL         : '*' ;
+DIV         : '/' ;
 
 // keywords
+CALC        : 'calc' ;
 
 // literals
 INTEGER_LITERAL : [0-9]+ ;

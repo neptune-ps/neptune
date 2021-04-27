@@ -6,7 +6,7 @@ import me.filby.neptune.runescript.ast.Node
 import java.util.*
 
 // base literal class that has a constant value
-public sealed class Literal<T>(public val value: T) : Node() {
+public sealed class Literal<T>(public val value: T) : Expression() {
 
     override fun hashCode(): Int {
         return Objects.hashCode(value)

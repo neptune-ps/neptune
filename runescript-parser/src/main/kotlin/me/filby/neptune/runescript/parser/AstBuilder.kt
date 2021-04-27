@@ -6,8 +6,11 @@ import me.filby.neptune.runescript.ast.Identifier
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
+import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
+import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 
@@ -19,6 +22,18 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitScript(ctx: RuneScriptParser.ScriptContext): Script {
         return Script(visitIdentifier(ctx.trigger), visitIdentifier(ctx.name))
+    }
+
+    override fun visitArithmticBinaryExpression(ctx: RuneScriptParser.ArithmticBinaryExpressionContext): Node {
+        return BinaryExpression(
+            left = visit(ctx.expression(0)) as Expression,
+            operator = ctx.op.text,
+            right = visit(ctx.expression(1)) as Expression
+        )
+    }
+
+    override fun visitCalcExpression(ctx: RuneScriptParser.CalcExpressionContext): Node {
+        return CalcExpression(visit(ctx.expression()) as Expression)
     }
 
     override fun visitIntegerLiteral(ctx: RuneScriptParser.IntegerLiteralContext): IntegerLiteral {

@@ -1,5 +1,9 @@
 parser grammar RuneScriptParser;
 
+@members {
+boolean inCalc = false;
+}
+
 @lexer::header {package me.filby.neptune.runescript.antlr;}
 
 options { tokenVocab = RuneScriptLexer; }
@@ -10,6 +14,15 @@ scriptFile
 
 script
     : LBRACK trigger=identifier COMMA name=identifier RBRACK
+    ;
+
+// expressions
+expression
+    : expression {inCalc}? op=(MUL | DIV) expression                            # ArithmticBinaryExpression
+    | expression {inCalc}? op=(PLUS | MINUS) expression                         # ArithmticBinaryExpression
+    | {!inCalc}? CALC {inCalc=true;} LPAREN expression RPAREN {inCalc=false;}   # CalcExpression
+    | literal                                                                   # LiteralExpression
+    | identifier                                                                # IdentifierExpression
     ;
 
 literal

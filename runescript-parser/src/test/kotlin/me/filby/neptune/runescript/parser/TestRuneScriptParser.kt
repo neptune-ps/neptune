@@ -3,7 +3,9 @@ package me.filby.neptune.runescript.parser
 import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Identifier
 import me.filby.neptune.runescript.ast.Script
+import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
+import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.NullLiteral
@@ -19,6 +21,27 @@ class TestRuneScriptParser {
         val script = ScriptParser.createScript("[opheld1,abyssal_whip]")
         val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"))
         assertEquals(expected, script)
+    }
+
+    @Test
+    fun testCalcExpression() {
+        // calc(1 + 1)
+        val onePlusOne = BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1))
+        assertEquals(CalcExpression(onePlusOne),
+            invokeParser("calc(1 + 1)", RuneScriptParser::expression))
+
+        // calc(1 * 1)
+        val oneTimesOne = BinaryExpression(IntegerLiteral(1), "*", IntegerLiteral(1))
+        assertEquals(CalcExpression(oneTimesOne),
+            invokeParser("calc(1 * 1)", RuneScriptParser::expression))
+
+        // calc(1 + 1 * 1)
+        val mixed = BinaryExpression(IntegerLiteral(1), "+", oneTimesOne)
+        assertEquals(CalcExpression(mixed),
+            invokeParser("calc(1 + 1 * 1)", RuneScriptParser::expression))
+
+        // verify addition only works inside of calc()
+        assertThrows<ParsingException> { invokeParser("1 + 1", RuneScriptParser::expression) }
     }
 
     @Test
