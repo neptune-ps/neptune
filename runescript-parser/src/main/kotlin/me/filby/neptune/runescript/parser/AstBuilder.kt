@@ -48,7 +48,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitIntegerLiteral(ctx: RuneScriptParser.IntegerLiteralContext): IntegerLiteral {
         val text = ctx.text
-        if (text[0] == '0' && (text[1] == 'x' || text[1] == 'X')) {
+        if (text.length > 1 && text[0] == '0' && (text[1] == 'x' || text[1] == 'X')) {
             // hex, trim 0x
             return IntegerLiteral(text.substring(2).toLong(16).toInt())
         }
