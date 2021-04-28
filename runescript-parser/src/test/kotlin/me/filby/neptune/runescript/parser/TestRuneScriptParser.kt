@@ -33,20 +33,51 @@ class TestRuneScriptParser {
 
     @Test
     fun testCalcExpression() {
+        val one = IntegerLiteral(1)
+
         // calc(1 + 1)
-        val onePlusOne = BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1))
+        val onePlusOne = BinaryExpression(one, "+", one)
         assertEquals(CalcExpression(onePlusOne),
             invokeParser("calc(1 + 1)", RuneScriptParser::expression))
 
+        // calc(1 - 1)
+        val oneMinusOne = BinaryExpression(one, "-", one)
+        assertEquals(CalcExpression(oneMinusOne),
+            invokeParser("calc(1 - 1)", RuneScriptParser::expression))
+
         // calc(1 * 1)
-        val oneTimesOne = BinaryExpression(IntegerLiteral(1), "*", IntegerLiteral(1))
+        val oneTimesOne = BinaryExpression(one, "*", one)
         assertEquals(CalcExpression(oneTimesOne),
             invokeParser("calc(1 * 1)", RuneScriptParser::expression))
 
-        // calc(1 + 1 * 1)
-        val mixed = BinaryExpression(IntegerLiteral(1), "+", oneTimesOne)
-        assertEquals(CalcExpression(mixed),
-            invokeParser("calc(1 + 1 * 1)", RuneScriptParser::expression))
+        // calc(1 / 1)
+        val oneDivOne = BinaryExpression(one, "/", one)
+        assertEquals(CalcExpression(oneDivOne),
+            invokeParser("calc(1 / 1)", RuneScriptParser::expression))
+
+        // calc(1 % 1)
+        val oneModOne = BinaryExpression(one, "%", one)
+        assertEquals(CalcExpression(oneModOne),
+            invokeParser("calc(1 % 1)", RuneScriptParser::expression))
+
+        // calc(1 & 1)
+        val oneAndOne = BinaryExpression(one, "&", one)
+        assertEquals(CalcExpression(oneAndOne),
+            invokeParser("calc(1 & 1)", RuneScriptParser::expression))
+
+        // calc(1 | 1)
+        val oneOrOne = BinaryExpression(one, "|", one)
+        assertEquals(CalcExpression(oneOrOne),
+            invokeParser("calc(1 | 1)", RuneScriptParser::expression))
+
+        // calc(1 + 1 - 1 * 1 / 1 % 1) should parse as calc((1 + 1) - (((1 * 1) / 1) % 1))
+        val mul = BinaryExpression(one, "*", one)
+        val div = BinaryExpression(mul, "/", one)
+        val mod = BinaryExpression(div, "%", one)
+        val add = BinaryExpression(one, "+", one)
+        val sub = BinaryExpression(add, "-", mod)
+        assertEquals(CalcExpression(sub),
+            invokeParser("calc(1 + 1 - 1 * 1 / 1 % 1)", RuneScriptParser::expression))
 
         // verify addition only works inside of calc()
         assertThrows<ParsingException> { invokeParser("1 + 1", RuneScriptParser::expression) }

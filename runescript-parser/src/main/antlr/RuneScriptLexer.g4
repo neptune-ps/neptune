@@ -12,6 +12,9 @@ PLUS        : '+' ;
 MINUS       : '-' ;
 MUL         : '*' ;
 DIV         : '/' ;
+MOD         : '%' ;
+AND         : '&' ;
+OR          : '|' ;
 
 // keywords
 CALC        : 'calc' ;
