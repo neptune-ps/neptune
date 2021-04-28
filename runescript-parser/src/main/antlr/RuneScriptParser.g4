@@ -43,5 +43,6 @@ identifier
     | HEX_LITERAL
     | BOOLEAN_LITERAL
     | NULL_LITERAL
+    | CALC
     | identifier COLON identifier
     ;
