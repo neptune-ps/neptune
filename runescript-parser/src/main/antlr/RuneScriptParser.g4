@@ -23,8 +23,8 @@ statement
 
 // expressions
 expression
-    : expression {inCalc}? op=(MUL | DIV) expression                            # ArithmticBinaryExpression
-    | expression {inCalc}? op=(PLUS | MINUS) expression                         # ArithmticBinaryExpression
+    : expression {inCalc}? op=(MUL | DIV) expression                            # BinaryExpression
+    | expression {inCalc}? op=(PLUS | MINUS) expression                         # BinaryExpression
     | {!inCalc}? CALC {inCalc=true;} LPAREN expression RPAREN {inCalc=false;}   # CalcExpression
     | literal                                                                   # LiteralExpression
     | identifier                                                                # IdentifierExpression

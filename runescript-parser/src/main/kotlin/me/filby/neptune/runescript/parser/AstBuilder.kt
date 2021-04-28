@@ -34,7 +34,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return ExpressionStatement(visit(ctx.expression()) as Expression)
     }
 
-    override fun visitArithmticBinaryExpression(ctx: RuneScriptParser.ArithmticBinaryExpressionContext): Node {
+    override fun visitBinaryExpression(ctx: RuneScriptParser.BinaryExpressionContext): Node {
         return BinaryExpression(
             left = visit(ctx.expression(0)) as Expression,
             operator = ctx.op.text,
