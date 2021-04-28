@@ -6,6 +6,7 @@ import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
+import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.NullLiteral
@@ -81,6 +82,14 @@ class TestRuneScriptParser {
 
         // verify addition only works inside of calc()
         assertThrows<ParsingException> { invokeParser("1 + 1", RuneScriptParser::expression) }
+    }
+
+    @Test
+    fun testCallExpression() {
+        assertEquals(CallExpression(Identifier("clientclock"), emptyList()),
+            invokeParser("clientclock()", RuneScriptParser::expression))
+
+        // TODO test for call without arguments? currently will parse as a normal identifier
     }
 
     @Test

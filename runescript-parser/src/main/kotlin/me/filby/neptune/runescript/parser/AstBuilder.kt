@@ -9,6 +9,7 @@ import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
+import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
@@ -46,6 +47,13 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return CalcExpression(visit(ctx.expression()) as Expression)
     }
 
+    override fun visitCallExpression(ctx: RuneScriptParser.CallExpressionContext): Node {
+        return CallExpression(
+            name = visit(ctx.identifier()) as Identifier,
+            arguments = ctx.expressionList().visit()
+        )
+    }
+
     override fun visitIntegerLiteral(ctx: RuneScriptParser.IntegerLiteralContext): IntegerLiteral {
         val text = ctx.text
         if (text.length > 1 && text[0] == '0' && (text[1] == 'x' || text[1] == 'X')) {
@@ -70,6 +78,16 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitIdentifier(ctx: RuneScriptParser.IdentifierContext): Identifier {
         return Identifier(ctx.text)
+    }
+
+    /**
+     * Helper that converts an [RuneScriptParser.ExpressionListContext] to a [List] of [Expression]s.
+     *
+     * @return A list of expression if defined. If there are no expressions the list will be empty.
+     */
+    private fun RuneScriptParser.ExpressionListContext?.visit(): List<Expression> {
+        val expressions = this?.expression() ?: return emptyList()
+        return expressions.map { visit(it) as Expression }
     }
 
 }

@@ -21,6 +21,14 @@ statement
     : expression SEMICOLON                                                      # ExpressionStatement
     ;
 
+expressionList
+    : expression (COMMA expression)*
+    ;
+
+parenthesis
+    : LPAREN expression RPAREN
+    ;
+
 // expressions
 expression
     : expression {inCalc}? op=(MUL | DIV | MOD) expression                      # BinaryExpression
@@ -28,6 +36,7 @@ expression
     | expression {inCalc}? op=AND expression                                    # BinaryExpression
     | expression {inCalc}? op=OR expression                                     # BinaryExpression
     | {!inCalc}? CALC {inCalc=true;} LPAREN expression RPAREN {inCalc=false;}   # CalcExpression
+    | identifier LPAREN expressionList? RPAREN                                  # CallExpression
     | literal                                                                   # LiteralExpression
     | identifier                                                                # IdentifierExpression
     ;
