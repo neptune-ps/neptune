@@ -30,11 +30,11 @@ import me.filby.neptune.runescript.ast.statement.Statement
 
 public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
-    override fun visitScriptFile(ctx: ScriptFileContext): ScriptFile {
+    override fun visitScriptFile(ctx: ScriptFileContext): Node {
         return ScriptFile(ctx.script().map { visit(it) as Script })
     }
 
-    override fun visitScript(ctx: ScriptContext): Script {
+    override fun visitScript(ctx: ScriptContext): Node {
         return Script(
             trigger = visit(ctx.trigger) as Identifier,
             name = visit(ctx.name) as Identifier,
@@ -42,7 +42,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         )
     }
 
-    override fun visitExpressionStatement(ctx: ExpressionStatementContext): ExpressionStatement {
+    override fun visitExpressionStatement(ctx: ExpressionStatementContext): Node {
         return ExpressionStatement(visit(ctx.expression()) as Expression)
     }
 
@@ -65,7 +65,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         )
     }
 
-    override fun visitIntegerLiteral(ctx: IntegerLiteralContext): IntegerLiteral {
+    override fun visitIntegerLiteral(ctx: IntegerLiteralContext): Node {
         val text = ctx.text
         if (text.length > 1 && text[0] == '0' && (text[1] == 'x' || text[1] == 'X')) {
             // hex, trim 0x
@@ -74,7 +74,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return IntegerLiteral(text.toInt())
     }
 
-    override fun visitBooleanLiteral(ctx: BooleanLiteralContext): BooleanLiteral {
+    override fun visitBooleanLiteral(ctx: BooleanLiteralContext): Node {
         return BooleanLiteral(ctx.text.toBoolean())
     }
 
@@ -83,11 +83,11 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return CharacterLiteral(ctx.text[1])
     }
 
-    override fun visitNullLiteral(ctx: NullLiteralContext?): NullLiteral {
+    override fun visitNullLiteral(ctx: NullLiteralContext?): Node {
         return NullLiteral
     }
 
-    override fun visitIdentifier(ctx: IdentifierContext): Identifier {
+    override fun visitIdentifier(ctx: IdentifierContext): Node {
         return Identifier(ctx.text)
     }
 
