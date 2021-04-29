@@ -27,7 +27,7 @@ CHAR_LITERAL    : '\'' ~['\\\r\n] '\'' ; // TODO escaping
 NULL_LITERAL    : 'null' ;
 
 IDENTIFIER
-    : [a-zA-Z0-9_+]+
+    : [a-zA-Z0-9_+.]+
     ;
 
 WHITESPACE

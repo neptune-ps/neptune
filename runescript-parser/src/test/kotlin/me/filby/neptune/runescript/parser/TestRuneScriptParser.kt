@@ -89,6 +89,9 @@ class TestRuneScriptParser {
         assertEquals(CallExpression(Identifier("clientclock"), emptyList()),
             invokeParser("clientclock()", RuneScriptParser::expression))
 
+        assertEquals(CallExpression(Identifier(".npc_find"), emptyList()),
+            invokeParser(".npc_find()", RuneScriptParser::expression))
+
         // TODO test for call without arguments? currently will parse as a normal identifier
     }
 
@@ -145,6 +148,10 @@ class TestRuneScriptParser {
         // identifier that looks like a hex literal
         assertEquals(Identifier("0x123"),
             invokeParser("0x123", RuneScriptParser::identifier))
+
+        // identifier with a .
+        assertEquals(Identifier(".abyssal_whip"),
+            invokeParser(".abyssal_whip", RuneScriptParser::identifier))
 
         // TODO: test for keywords when used as an identifier that is prefixed with something ($, ^, and %)
     }
