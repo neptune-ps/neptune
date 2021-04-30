@@ -62,7 +62,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitCalcExpression(ctx: CalcExpressionContext): Node {
-        return CalcExpression(ctx.expression().visit())
+        return CalcExpression(ctx.parenthesis().visit())
     }
 
     override fun visitCallExpression(ctx: CallExpressionContext): Node {
@@ -75,7 +75,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitLocalVariable(ctx: LocalVariableContext): Node {
         return LocalVariableExpression(
             name = ctx.identifier().visit(),
-            index = ctx.parenthesis().visit()
+            index = ctx.parenthesis()?.visit()
         )
     }
 
@@ -134,13 +134,12 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     /**
-     * Helper that converts an [ParenthesisContext] to a [Expression] if defined.
+     * Helper that converts an [ParenthesisContext] to an [Expression].
      *
-     * @return An expression if defined. Returns `null` if the context or expression is null.
+     * @return The expression within `(` and `)`.
      */
-    private fun ParenthesisContext?.visit(): Expression? {
-        val expression = this?.expression() ?: return null
-        return expression.visit()
+    private fun ParenthesisContext.visit(): Expression {
+        return expression().visit()
     }
 
 }

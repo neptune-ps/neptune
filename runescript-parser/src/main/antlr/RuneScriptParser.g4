@@ -35,7 +35,7 @@ expression
     | expression {inCalc}? op=(PLUS | MINUS) expression                         # BinaryExpression
     | expression {inCalc}? op=AND expression                                    # BinaryExpression
     | expression {inCalc}? op=OR expression                                     # BinaryExpression
-    | {!inCalc}? CALC {inCalc=true;} LPAREN expression RPAREN {inCalc=false;}   # CalcExpression
+    | {!inCalc}? CALC {inCalc=true;} parenthesis {inCalc=false;}                # CalcExpression
     | identifier LPAREN expressionList? RPAREN                                  # CallExpression
     | localVariable                                                             # LocalVariableExpression
     | gameVariable                                                              # GameVariableExpression
