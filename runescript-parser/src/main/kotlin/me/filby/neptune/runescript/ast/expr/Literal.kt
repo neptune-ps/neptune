@@ -21,7 +21,7 @@ public sealed class Literal<T>(public val value: T) : Expression() {
             return false;
         }
 
-        return Objects.equals(value, other.value)
+        return value == other.value
     }
 
     override fun toString(): String {

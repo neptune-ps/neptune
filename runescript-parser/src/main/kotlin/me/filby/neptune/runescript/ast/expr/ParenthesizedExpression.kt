@@ -23,7 +23,7 @@ public class ParenthesizedExpression(public val expression: Expression) : Expres
             return false
         }
 
-        return Objects.equals(expression, other.expression)
+        return expression == other.expression
     }
 
     override fun toString(): String {

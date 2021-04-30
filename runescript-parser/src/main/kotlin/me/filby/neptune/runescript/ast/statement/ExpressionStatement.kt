@@ -24,7 +24,7 @@ public class ExpressionStatement(public val expression: Expression) : Statement(
             return false
         }
 
-        return Objects.equals(expression, other.expression)
+        return expression == other.expression
     }
 
     override fun toString(): String {

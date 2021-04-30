@@ -22,7 +22,7 @@ public class ScriptFile(public val scripts: List<Script>) : Node() {
             return false
         }
 
-        return Objects.equals(scripts, other.scripts)
+        return scripts == other.scripts
     }
 
     override fun toString(): String {

@@ -28,9 +28,9 @@ public class Script(
             return false
         }
 
-        return Objects.equals(trigger, other.trigger)
-            && Objects.equals(name, other.name)
-            && Objects.equals(statements, other.statements)
+        return trigger == other.trigger
+            && name == other.name
+            && statements == other.statements
     }
 
     override fun toString(): String {

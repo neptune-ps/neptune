@@ -27,9 +27,9 @@ public class BinaryExpression(
             return false
         }
 
-        return Objects.equals(left, other.left)
-            && Objects.equals(operator, other.operator)
-            && Objects.equals(right, other.right)
+        return left == other.left
+            && operator == other.operator
+            && right == other.right
     }
 
     override fun toString(): String {

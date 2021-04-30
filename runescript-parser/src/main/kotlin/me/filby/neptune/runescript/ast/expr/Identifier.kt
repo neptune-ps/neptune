@@ -23,7 +23,7 @@ public class Identifier(public val text: String) : Expression() {
             return false;
         }
 
-        return Objects.equals(text, other.text)
+        return text == other.text
     }
 
     override fun toString(): String {

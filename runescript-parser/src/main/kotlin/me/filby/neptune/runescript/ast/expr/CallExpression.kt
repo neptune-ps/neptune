@@ -26,8 +26,8 @@ public class CallExpression(
             return false
         }
 
-        return Objects.equals(name, other.name)
-            && Objects.equals(arguments, other.arguments)
+        return name == other.name
+            && arguments == other.arguments
     }
 
     override fun toString(): String {

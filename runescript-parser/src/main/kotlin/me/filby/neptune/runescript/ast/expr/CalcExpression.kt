@@ -23,7 +23,7 @@ public class CalcExpression(public val expression: Expression) : Expression() {
             return false
         }
 
-        return Objects.equals(expression, other.expression)
+        return expression == other.expression
     }
 
     override fun toString(): String {

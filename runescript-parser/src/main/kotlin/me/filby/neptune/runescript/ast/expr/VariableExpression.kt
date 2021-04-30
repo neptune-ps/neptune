@@ -42,8 +42,8 @@ public class LocalVariableExpression(
             return false
         }
 
-        return Objects.equals(name, other.name)
-            && Objects.equals(index, other.index)
+        return name == other.name
+            && index == other.index
     }
 
     override fun toString(): String {
@@ -74,7 +74,7 @@ public class GameVariableExpression(name: Identifier) : VariableExpression(name)
             return false
         }
 
-        return Objects.equals(name, other.name)
+        return name == other.name
     }
 
 }
@@ -98,7 +98,7 @@ public class ConstantVariableExpression(name: Identifier) : VariableExpression(n
             return false
         }
 
-        return Objects.equals(name, other.name)
+        return name == other.name
     }
 
 }
