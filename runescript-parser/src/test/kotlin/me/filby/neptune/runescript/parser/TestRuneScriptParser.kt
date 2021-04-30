@@ -80,6 +80,10 @@ class TestRuneScriptParser {
         assertEquals(CalcExpression(sub),
             invokeParser("calc(1 + 1 - 1 * 1 / 1 % 1)", RuneScriptParser::expression))
 
+        // calc(1 | 1 & 1) should parse as calc(1 | (1 & 1))
+        assertEquals(CalcExpression(BinaryExpression(one, "|", BinaryExpression(one, "&", one))),
+            invokeParser("calc(1 | 1 & 1)", RuneScriptParser::expression))
+
         // verify addition only works inside of calc()
         assertThrows<ParsingException> { invokeParser("1 + 1", RuneScriptParser::expression) }
     }
