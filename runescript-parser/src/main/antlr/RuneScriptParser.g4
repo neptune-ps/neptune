@@ -37,8 +37,23 @@ expression
     | expression {inCalc}? op=OR expression                                     # BinaryExpression
     | {!inCalc}? CALC {inCalc=true;} LPAREN expression RPAREN {inCalc=false;}   # CalcExpression
     | identifier LPAREN expressionList? RPAREN                                  # CallExpression
+    | localVariable                                                             # LocalVariableExpression
+    | gameVariable                                                              # GameVariableExpression
+    | constantVariable                                                          # ConstantVariableExpression
     | literal                                                                   # LiteralExpression
     | identifier                                                                # IdentifierExpression
+    ;
+
+localVariable
+    : DOLLAR identifier parenthesis?
+    ;
+
+gameVariable
+    : MOD identifier
+    ;
+
+constantVariable
+    : CARET identifier
     ;
 
 literal

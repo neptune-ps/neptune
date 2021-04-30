@@ -8,7 +8,10 @@ import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
+import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
+import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
@@ -100,6 +103,25 @@ class TestRuneScriptParser {
     }
 
     @Test
+    fun testLocalVariableExpression() {
+        // $var
+        assertEquals(LocalVariableExpression(Identifier("var")),
+            invokeParser("${'$'}var", RuneScriptParser::expression))
+
+        // $var(1)
+        assertEquals(LocalVariableExpression(Identifier("var"), IntegerLiteral(1)),
+            invokeParser("${'$'}var(1)", RuneScriptParser::expression))
+
+        // %var
+        assertEquals(GameVariableExpression(Identifier("var")),
+            invokeParser("%var", RuneScriptParser::expression))
+
+        // ^var
+        assertEquals(ConstantVariableExpression(Identifier("var")),
+            invokeParser("^var", RuneScriptParser::expression))
+    }
+
+    @Test
     fun testIntegerLiteral() {
         assertEquals(IntegerLiteral(1337),
             invokeParser("1337", RuneScriptParser::literal))
@@ -157,7 +179,9 @@ class TestRuneScriptParser {
         assertEquals(Identifier(".abyssal_whip"),
             invokeParser(".abyssal_whip", RuneScriptParser::identifier))
 
-        // TODO: test for keywords when used as an identifier that is prefixed with something ($, ^, and %)
+        // identifier that is a keyword
+        assertEquals(Identifier("true"),
+            invokeParser("true", RuneScriptParser::identifier))
     }
 
 }

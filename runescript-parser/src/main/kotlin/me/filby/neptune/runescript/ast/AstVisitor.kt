@@ -4,11 +4,15 @@ import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
+import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.Literal
+import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
+import me.filby.neptune.runescript.ast.expr.VariableExpression
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.Statement
 
@@ -36,6 +40,22 @@ public interface AstVisitor<R> {
 
     public fun visitCalcExpression(calcExpression: CalcExpression): R {
         return visitExpression(calcExpression)
+    }
+
+    public fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression): R {
+        return visitVariableExpression(localVariableExpression)
+    }
+
+    public fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression): R {
+        return visitVariableExpression(gameVariableExpression)
+    }
+
+    public fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression): R {
+        return visitVariableExpression(constantVariableExpression)
+    }
+
+    public fun visitVariableExpression(variableExpression: VariableExpression): R {
+        return visitExpression(variableExpression)
     }
 
     public fun visitExpression(expression: Expression): R {

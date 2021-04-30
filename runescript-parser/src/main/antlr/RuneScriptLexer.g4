@@ -15,6 +15,8 @@ DIV         : '/' ;
 MOD         : '%' ;
 AND         : '&' ;
 OR          : '|' ;
+DOLLAR      : '$' ;
+CARET       : '^' ;
 
 // keywords
 CALC        : 'calc' ;
