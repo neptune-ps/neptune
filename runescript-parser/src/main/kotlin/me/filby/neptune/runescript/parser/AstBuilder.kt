@@ -33,58 +33,58 @@ import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
-import me.filby.neptune.runescript.ast.statement.Statement
+import org.antlr.v4.runtime.ParserRuleContext
 
 public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitScriptFile(ctx: ScriptFileContext): Node {
-        return ScriptFile(ctx.script().map { visit(it) as Script })
+        return ScriptFile(ctx.script().map { it.visit() })
     }
 
     override fun visitScript(ctx: ScriptContext): Node {
         return Script(
-            trigger = visit(ctx.trigger) as Identifier,
-            name = visit(ctx.name) as Identifier,
-            statements = ctx.statement().map { visit(it) as Statement }
+            trigger = ctx.trigger.visit(),
+            name = ctx.name.visit(),
+            statements = ctx.statement().map { it.visit() }
         )
     }
 
     override fun visitExpressionStatement(ctx: ExpressionStatementContext): Node {
-        return ExpressionStatement(visit(ctx.expression()) as Expression)
+        return ExpressionStatement(ctx.expression().visit())
     }
 
     override fun visitBinaryExpression(ctx: BinaryExpressionContext): Node {
         return BinaryExpression(
-            left = visit(ctx.expression(0)) as Expression,
+            left = ctx.expression(0).visit(),
             operator = ctx.op.text,
-            right = visit(ctx.expression(1)) as Expression
+            right = ctx.expression(1).visit()
         )
     }
 
     override fun visitCalcExpression(ctx: CalcExpressionContext): Node {
-        return CalcExpression(visit(ctx.expression()) as Expression)
+        return CalcExpression(ctx.expression().visit())
     }
 
     override fun visitCallExpression(ctx: CallExpressionContext): Node {
         return CallExpression(
-            name = visit(ctx.identifier()) as Identifier,
+            name = ctx.identifier().visit(),
             arguments = ctx.expressionList().visit()
         )
     }
 
     override fun visitLocalVariable(ctx: LocalVariableContext): Node {
         return LocalVariableExpression(
-            name = visit(ctx.identifier()) as Identifier,
+            name = ctx.identifier().visit(),
             index = ctx.parenthesis().visit()
         )
     }
 
     override fun visitGameVariable(ctx: GameVariableContext): Node {
-        return GameVariableExpression(visit(ctx.identifier()) as Identifier)
+        return GameVariableExpression(ctx.identifier().visit())
     }
 
     override fun visitConstantVariable(ctx: ConstantVariableContext): Node {
-        return ConstantVariableExpression(visit(ctx.identifier()) as Identifier)
+        return ConstantVariableExpression(ctx.identifier().visit())
     }
 
     override fun visitIntegerLiteral(ctx: IntegerLiteralContext): Node {
@@ -114,13 +114,23 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     /**
+     * Helper that calls [RuneScriptParserBaseVisitor.visit] on the current context.
+     *
+     * @return The [Node] casted to [T].
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Node> ParserRuleContext.visit(): T {
+        return visit(this) as T
+    }
+
+    /**
      * Helper that converts an [ExpressionListContext] to a [List] of [Expression]s.
      *
      * @return A list of expression if defined. If there are no expressions the list will be empty.
      */
     private fun ExpressionListContext?.visit(): List<Expression> {
         val expressions = this?.expression() ?: return emptyList()
-        return expressions.map { visit(it) as Expression }
+        return expressions.map { it.visit() }
     }
 
     /**
@@ -130,7 +140,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
      */
     private fun ParenthesisContext?.visit(): Expression? {
         val expression = this?.expression() ?: return null
-        return visit(expression) as Expression
+        return expression.visit()
     }
 
 }
