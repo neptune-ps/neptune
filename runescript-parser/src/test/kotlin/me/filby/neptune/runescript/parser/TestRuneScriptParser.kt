@@ -13,6 +13,7 @@ import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
+import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
@@ -33,6 +34,16 @@ class TestRuneScriptParser {
         val statement = invokeParser("calc(1 + 1);", RuneScriptParser::statement)
         val expected = ExpressionStatement(CalcExpression(BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1))))
         assertEquals(expected, statement)
+    }
+
+    @Test
+    fun testParenthesizedExpression() {
+        // calc((1 + 1) * 1)
+        val addition = ParenthesizedExpression(BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1)))
+        val combined = BinaryExpression(addition, "*", IntegerLiteral(1))
+        val calc = CalcExpression(combined)
+        assertEquals(calc,
+            invokeParser("calc((1 + 1) * 1)", RuneScriptParser::expression))
     }
 
     @Test

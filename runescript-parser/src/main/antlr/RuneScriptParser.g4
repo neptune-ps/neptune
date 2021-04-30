@@ -31,7 +31,8 @@ parenthesis
 
 // expressions
 expression
-    : expression {inCalc}? op=(MUL | DIV | MOD) expression                      # BinaryExpression
+    : parenthesis                                                               # ParenthesizedExpression
+    | expression {inCalc}? op=(MUL | DIV | MOD) expression                      # BinaryExpression
     | expression {inCalc}? op=(PLUS | MINUS) expression                         # BinaryExpression
     | expression {inCalc}? op=AND expression                                    # BinaryExpression
     | expression {inCalc}? op=OR expression                                     # BinaryExpression
