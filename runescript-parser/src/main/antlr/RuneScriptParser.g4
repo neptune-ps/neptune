@@ -80,7 +80,7 @@ stringLiteral
 // TODO tag support
 stringLiteralContent
     : STRING_TEXT
-//    | STRING_ESCAPED_CHAR
+    | STRING_ESCAPED_CHAR
     ;
 
 joinedString

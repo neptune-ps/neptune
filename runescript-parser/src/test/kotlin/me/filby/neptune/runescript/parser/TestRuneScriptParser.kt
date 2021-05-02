@@ -192,9 +192,13 @@ class TestRuneScriptParser {
     @Test
     fun testStringLiteral() {
         // TODO test with tags
-        // TODO test with escaping
+        // basic string test
         assertEquals(StringLiteral("this is a test"),
             invokeParser("\"this is a test\"", RuneScriptParser::literal))
+
+        // test escaping "\< \" \\"
+        assertEquals(StringLiteral("< \" \\"),
+            invokeParser("\"\\< \\\" \\\\\"", RuneScriptParser::literal))
     }
 
     @Test
@@ -206,13 +210,17 @@ class TestRuneScriptParser {
     @Test
     fun testJoinedStringExpression() {
         // TODO test with tags
-        // TODO test with escaping
         val part1 = StringLiteral("1 + 1 = ")
         val part2 = CalcExpression(BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1)))
         val part3 = StringLiteral(".")
         val joined = JoinedStringExpression(listOf(part1, part2, part3))
         assertEquals(joined,
             invokeParser("\"1 + 1 = <calc(1 + 1)>.\"", RuneScriptParser::expression))
+
+        val part4 = StringLiteral("\\")
+        val joined2 = JoinedStringExpression(listOf(part1, part2, part3, part4))
+        assertEquals(joined2,
+            invokeParser("\"1 + 1 = <calc(1 + 1)>.\\\\\"", RuneScriptParser::expression))
     }
 
     @Test

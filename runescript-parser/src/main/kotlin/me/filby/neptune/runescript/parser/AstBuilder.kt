@@ -131,14 +131,16 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitCharacterLiteral(ctx: CharacterLiteralContext): Node {
-        // TODO support for escaping
-        return CharacterLiteral(ctx.text[1])
+        val cleaned = ctx.text.substring(1, ctx.text.length - 1).unescape()
+        if (cleaned.length != 1) {
+            error("invalid character literal: text=${ctx.text}, cleaned=$cleaned")
+        }
+        return CharacterLiteral(cleaned[0])
     }
 
     override fun visitStringLiteral(ctx: StringLiteralContext): Node {
-        // TODO support for escaping
-        // trim off the quotes
-        return StringLiteral(ctx.text.substring(1, ctx.text.length - 1))
+        // trim off the quotes and remove escape sequences
+        return StringLiteral(ctx.text.substring(1, ctx.text.length - 1).unescape())
     }
 
     override fun visitNullLiteral(ctx: NullLiteralContext?): Node {
@@ -151,9 +153,8 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         for (child in ctx.children) {
             when (child) {
                 is StringLiteralContentContext -> {
-                    // TODO support for escaping
                     // create a new literal since the rule only allows valid string parts
-                    parts += StringLiteral(child.text)
+                    parts += StringLiteral(child.text.unescape())
                 }
                 is StringExpressionContext -> {
                     // visit the inner expression
@@ -199,6 +200,32 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
      */
     private fun ParenthesisContext.visit(): Expression {
         return expression().visit()
+    }
+
+    /**
+     * Replaces escape sequences in a string.
+     *
+     * @return The string with all escape sequences replaced.
+     */
+    private fun String.unescape(): String {
+        val builder = StringBuilder(length)
+        var i = 0
+        while (i < length) {
+            val curr = this[i]
+            if (curr == '\\') {
+                // start of escape sequence, so fetch the next character
+                val next = if (i == length - 1) '\\' else this[i + 1]
+                builder.append(when(next) {
+                    '\\', '\'', '"', '<' -> next
+                    else -> error("unsupported escape sequence: \\$next")
+                })
+                i++
+            } else {
+                builder.append(curr)
+            }
+            i++
+        }
+        return builder.toString()
     }
 
 }

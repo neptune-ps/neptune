@@ -45,6 +45,6 @@ mode String ;
 
 QUOTE_CLOSE         : '"' {depth--;} -> popMode ;
 STRING_TEXT         : ~('\\' | '"' | '<')+ ;
-STRING_ESCAPED_CHAR : '\\' ('"' | '<') ;
+STRING_ESCAPED_CHAR : '\\' ('\\' | '"' | '<') ;
 STRING_EXPR_START   : '<' -> pushMode(DEFAULT_MODE) ;
 STRING_EXPR_END     : '>' ;
