@@ -8,6 +8,7 @@ import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
@@ -103,11 +104,11 @@ class TestRuneScriptParser {
     }
 
     @Test
-    fun testCallExpression() {
-        assertEquals(CallExpression(Identifier("clientclock"), emptyList()),
+    fun testCommandCallExpression() {
+        assertEquals(CommandCallExpression(Identifier("clientclock"), emptyList()),
             invokeParser("clientclock()", RuneScriptParser::expression))
 
-        assertEquals(CallExpression(Identifier(".npc_find"), emptyList()),
+        assertEquals(CommandCallExpression(Identifier(".npc_find"), emptyList()),
             invokeParser(".npc_find()", RuneScriptParser::expression))
 
         // TODO test for call without arguments? currently will parse as a normal identifier

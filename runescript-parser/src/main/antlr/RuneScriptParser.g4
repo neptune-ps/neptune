@@ -37,7 +37,7 @@ expression
     | expression {inCalc}? op=AND expression                                    # BinaryExpression
     | expression {inCalc}? op=OR expression                                     # BinaryExpression
     | {!inCalc}? CALC {inCalc=true;} parenthesis {inCalc=false;}                # CalcExpression
-    | identifier LPAREN expressionList? RPAREN                                  # CallExpression
+    | identifier LPAREN expressionList? RPAREN                                  # CommandCallExpression
     | localVariable                                                             # LocalVariableExpression
     | gameVariable                                                              # GameVariableExpression
     | constantVariable                                                          # ConstantVariableExpression

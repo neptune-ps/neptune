@@ -4,8 +4,8 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BinaryExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BooleanLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.CalcExpressionContext
-import me.filby.neptune.runescript.antlr.RuneScriptParser.CallExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.CharacterLiteralContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.CommandCallExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ConstantVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionListContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionStatementContext
@@ -24,8 +24,8 @@ import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
-import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
@@ -71,8 +71,8 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return CalcExpression(ctx.parenthesis().visit())
     }
 
-    override fun visitCallExpression(ctx: CallExpressionContext): Node {
-        return CallExpression(
+    override fun visitCommandCallExpression(ctx: CommandCallExpressionContext): Node {
+        return CommandCallExpression(
             name = ctx.identifier().visit(),
             arguments = ctx.expressionList().visit()
         )
