@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.ast
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
+import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
@@ -45,6 +46,10 @@ public interface AstVisitor<R> {
 
     public fun visitCalcExpression(calcExpression: CalcExpression): R {
         return visitExpression(calcExpression)
+    }
+
+    public fun visitCallExpression(callExpression: CallExpression): R {
+        return visitExpression(callExpression)
     }
 
     public fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression): R {

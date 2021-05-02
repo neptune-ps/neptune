@@ -10,7 +10,7 @@ public class CallExpression(
 ) : Expression() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
-        TODO("Not yet implemented")
+        return visitor.visitCallExpression(this)
     }
 
     override fun hashCode(): Int {
