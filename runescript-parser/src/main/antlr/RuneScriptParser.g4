@@ -37,12 +37,18 @@ expression
     | expression {inCalc}? op=AND expression                                    # BinaryExpression
     | expression {inCalc}? op=OR expression                                     # BinaryExpression
     | {!inCalc}? CALC {inCalc=true;} parenthesis {inCalc=false;}                # CalcExpression
-    | identifier LPAREN expressionList? RPAREN                                  # CommandCallExpression
+    | call                                                                      # CallExpression
     | localVariable                                                             # LocalVariableExpression
     | gameVariable                                                              # GameVariableExpression
     | constantVariable                                                          # ConstantVariableExpression
     | literal                                                                   # LiteralExpression
     | identifier                                                                # IdentifierExpression
+    ;
+
+call
+    : identifier LPAREN expressionList? RPAREN                                  # CommandCallExpression
+    | TILDE identifier (LPAREN expressionList? RPAREN)?                         # ProcCallExpression
+    | AT identifier (LPAREN expressionList? RPAREN)?                            # JumpCallExpression
     ;
 
 localVariable

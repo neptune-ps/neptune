@@ -1,6 +1,5 @@
 package me.filby.neptune.runescript.parser
 
-import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BinaryExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BooleanLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.CalcExpressionContext
@@ -12,9 +11,12 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionStatementCon
 import me.filby.neptune.runescript.antlr.RuneScriptParser.GameVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IdentifierContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IntegerLiteralContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.JumpCallExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.LocalVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.NullLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ParenthesisContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.ParenthesizedExpressionContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.ProcCallExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptFileContext
 import me.filby.neptune.runescript.antlr.RuneScriptParserBaseVisitor
@@ -31,9 +33,11 @@ import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
+import me.filby.neptune.runescript.ast.expr.JumpCallExpression
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
+import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -55,7 +59,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return ExpressionStatement(ctx.expression().visit())
     }
 
-    override fun visitParenthesizedExpression(ctx: RuneScriptParser.ParenthesizedExpressionContext): Node {
+    override fun visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): Node {
         return ParenthesizedExpression(ctx.parenthesis().visit())
     }
 
@@ -73,6 +77,20 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitCommandCallExpression(ctx: CommandCallExpressionContext): Node {
         return CommandCallExpression(
+            name = ctx.identifier().visit(),
+            arguments = ctx.expressionList().visit()
+        )
+    }
+
+    override fun visitProcCallExpression(ctx: ProcCallExpressionContext): Node {
+        return ProcCallExpression(
+            name = ctx.identifier().visit(),
+            arguments = ctx.expressionList().visit()
+        )
+    }
+
+    override fun visitJumpCallExpression(ctx: JumpCallExpressionContext): Node {
+        return JumpCallExpression(
             name = ctx.identifier().visit(),
             arguments = ctx.expressionList().visit()
         )

@@ -17,6 +17,8 @@ AND         : '&' ;
 OR          : '|' ;
 DOLLAR      : '$' ;
 CARET       : '^' ;
+TILDE       : '~' ;
+AT          : '@' ;
 
 // keywords
 CALC        : 'calc' ;

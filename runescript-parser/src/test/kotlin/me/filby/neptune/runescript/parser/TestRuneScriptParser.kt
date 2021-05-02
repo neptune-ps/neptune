@@ -12,9 +12,11 @@ import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
+import me.filby.neptune.runescript.ast.expr.JumpCallExpression
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
+import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
@@ -112,6 +114,28 @@ class TestRuneScriptParser {
             invokeParser(".npc_find()", RuneScriptParser::expression))
 
         // TODO test for call without arguments? currently will parse as a normal identifier
+    }
+
+    @Test
+    fun testProcCallExpression() {
+        // call with no arguments
+        assertEquals(ProcCallExpression(Identifier("testing"), emptyList()),
+            invokeParser("~testing", RuneScriptParser::expression))
+
+        // call with argument
+        assertEquals(ProcCallExpression(Identifier("testing"), listOf(IntegerLiteral(1))),
+            invokeParser("~testing(1)", RuneScriptParser::expression))
+    }
+
+    @Test
+    fun testJumpCallExpression() {
+        // call with no arguments
+        assertEquals(JumpCallExpression(Identifier("testing"), emptyList()),
+            invokeParser("@testing", RuneScriptParser::expression))
+
+        // call with argument
+        assertEquals(JumpCallExpression(Identifier("testing"), listOf(IntegerLiteral(1))),
+            invokeParser("@testing(1)", RuneScriptParser::expression))
     }
 
     @Test
