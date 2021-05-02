@@ -11,6 +11,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionStatementCon
 import me.filby.neptune.runescript.antlr.RuneScriptParser.GameVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IdentifierContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IntegerLiteralContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.JoinedStringContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.JumpCallExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.LocalVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.NullLiteralContext
@@ -19,6 +20,9 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.ParenthesizedExpressio
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ProcCallExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptFileContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.StringExpressionContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContentContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParserBaseVisitor
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Script
@@ -33,11 +37,13 @@ import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
+import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
 import me.filby.neptune.runescript.ast.expr.JumpCallExpression
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
+import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -129,8 +135,37 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return CharacterLiteral(ctx.text[1])
     }
 
+    override fun visitStringLiteral(ctx: StringLiteralContext): Node {
+        // TODO support for escaping
+        // trim off the quotes
+        return StringLiteral(ctx.text.substring(1, ctx.text.length - 1))
+    }
+
     override fun visitNullLiteral(ctx: NullLiteralContext?): Node {
         return NullLiteral
+    }
+
+    override fun visitJoinedString(ctx: JoinedStringContext): Node {
+        val parts = mutableListOf<Expression>()
+
+        for (child in ctx.children) {
+            when (child) {
+                is StringLiteralContentContext -> {
+                    // TODO support for escaping
+                    // create a new literal since the rule only allows valid string parts
+                    parts += StringLiteral(child.text)
+                }
+                is StringExpressionContext -> {
+                    // visit the inner expression
+                    parts += child.expression().visit<Expression>()
+                }
+                else -> {
+                    // noop, any other rules are things we don't care about (e.g. double quotes)
+                }
+            }
+        }
+
+        return JoinedStringExpression(parts.toList())
     }
 
     override fun visitIdentifier(ctx: IdentifierContext): Node {

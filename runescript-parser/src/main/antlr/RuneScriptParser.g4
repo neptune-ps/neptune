@@ -42,6 +42,7 @@ expression
     | gameVariable                                                              # GameVariableExpression
     | constantVariable                                                          # ConstantVariableExpression
     | literal                                                                   # LiteralExpression
+    | joinedString                                                              # JoinedStringExpression
     | identifier                                                                # IdentifierExpression
     ;
 
@@ -69,6 +70,25 @@ literal
     | BOOLEAN_LITERAL   # BooleanLiteral
     | CHAR_LITERAL      # CharacterLiteral
     | NULL_LITERAL      # NullLiteral
+    | stringLiteral     # StringLiteralExpression
+    ;
+
+stringLiteral
+    : QUOTE_OPEN stringLiteralContent* QUOTE_CLOSE
+    ;
+
+// TODO tag support
+stringLiteralContent
+    : STRING_TEXT
+//    | STRING_ESCAPED_CHAR
+    ;
+
+joinedString
+    : QUOTE_OPEN (stringLiteralContent | stringExpression)* QUOTE_CLOSE
+    ;
+
+stringExpression
+    : STRING_EXPR_START expression STRING_EXPR_END
     ;
 
 identifier

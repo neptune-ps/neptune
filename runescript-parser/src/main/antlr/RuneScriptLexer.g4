@@ -1,5 +1,9 @@
 lexer grammar RuneScriptLexer;
 
+@members {
+private int depth = 0;
+}
+
 // symbols
 LPAREN      : '(' ;
 RPAREN      : ')' ;
@@ -19,6 +23,7 @@ DOLLAR      : '$' ;
 CARET       : '^' ;
 TILDE       : '~' ;
 AT          : '@' ;
+GT          : '>' {if (depth > 0) {setType(STRING_EXPR_END); popMode();}} ;
 
 // keywords
 CALC        : 'calc' ;
@@ -30,10 +35,16 @@ BOOLEAN_LITERAL : 'true' | 'false' ;
 CHAR_LITERAL    : '\'' ~['\\\r\n] '\'' ; // TODO escaping
 NULL_LITERAL    : 'null' ;
 
-IDENTIFIER
-    : [a-zA-Z0-9_+.]+
-    ;
+// special
+QUOTE_OPEN      : '"' {depth++;} -> pushMode(String) ;
+IDENTIFIER      : [a-zA-Z0-9_+.]+ ;
+WHITESPACE      : [ \t\n\r]+ -> channel(HIDDEN) ;
 
-WHITESPACE
-    : [ \t\n\r]+ -> channel(HIDDEN)
-    ;
+// string interpolation support
+mode String ;
+
+QUOTE_CLOSE         : '"' {depth--;} -> popMode ;
+STRING_TEXT         : ~('\\' | '"' | '<')+ ;
+STRING_ESCAPED_CHAR : '\\' ('"' | '<') ;
+STRING_EXPR_START   : '<' -> pushMode(DEFAULT_MODE) ;
+STRING_EXPR_END     : '>' ;

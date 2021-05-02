@@ -12,11 +12,13 @@ import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
+import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
 import me.filby.neptune.runescript.ast.expr.JumpCallExpression
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
+import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
@@ -188,9 +190,29 @@ class TestRuneScriptParser {
     }
 
     @Test
+    fun testStringLiteral() {
+        // TODO test with tags
+        // TODO test with escaping
+        assertEquals(StringLiteral("this is a test"),
+            invokeParser("\"this is a test\"", RuneScriptParser::literal))
+    }
+
+    @Test
     fun testNullLiteral() {
         assertEquals(NullLiteral,
             invokeParser("null", RuneScriptParser::literal))
+    }
+
+    @Test
+    fun testJoinedStringExpression() {
+        // TODO test with tags
+        // TODO test with escaping
+        val part1 = StringLiteral("1 + 1 = ")
+        val part2 = CalcExpression(BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1)))
+        val part3 = StringLiteral(".")
+        val joined = JoinedStringExpression(listOf(part1, part2, part3))
+        assertEquals(joined,
+            invokeParser("\"1 + 1 = <calc(1 + 1)>.\"", RuneScriptParser::expression))
     }
 
     @Test

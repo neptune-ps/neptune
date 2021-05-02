@@ -56,6 +56,14 @@ public class CharacterLiteral(value: Char) : Literal<Char>(value) {
 
 }
 
+public class StringLiteral(value: String) : Literal<String>(value) {
+
+    override fun <R> accept(visitor: AstVisitor<R>): R {
+        return visitor.visitStringLiteral(this)
+    }
+
+}
+
 // object because the value is always the same
 public object NullLiteral : Literal<Int>(-1) {
 
