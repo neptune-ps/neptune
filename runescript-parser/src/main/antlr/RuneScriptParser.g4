@@ -77,9 +77,9 @@ stringLiteral
     : QUOTE_OPEN stringLiteralContent* QUOTE_CLOSE
     ;
 
-// TODO tag support
 stringLiteralContent
     : STRING_TEXT
+    | STRING_TAG
     | STRING_ESCAPED_CHAR
     ;
 

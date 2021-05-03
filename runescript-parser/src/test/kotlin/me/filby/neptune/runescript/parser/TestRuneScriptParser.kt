@@ -1,16 +1,16 @@
 package me.filby.neptune.runescript.parser
 
 import me.filby.neptune.runescript.antlr.RuneScriptParser
-import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
-import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
+import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
+import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
 import me.filby.neptune.runescript.ast.expr.JumpCallExpression
@@ -191,7 +191,6 @@ class TestRuneScriptParser {
 
     @Test
     fun testStringLiteral() {
-        // TODO test with tags
         // basic string test
         assertEquals(StringLiteral("this is a test"),
             invokeParser("\"this is a test\"", RuneScriptParser::literal))
@@ -199,6 +198,10 @@ class TestRuneScriptParser {
         // test escaping "\< \" \\"
         assertEquals(StringLiteral("< \" \\"),
             invokeParser("\"\\< \\\" \\\\\"", RuneScriptParser::literal))
+
+        // test tags
+        assertEquals(StringLiteral("<col=ffffff><br> testing"),
+            invokeParser("\"<col=ffffff><br> testing\"", RuneScriptParser::literal))
     }
 
     @Test
@@ -209,7 +212,7 @@ class TestRuneScriptParser {
 
     @Test
     fun testJoinedStringExpression() {
-        // TODO test with tags
+        // normal
         val part1 = StringLiteral("1 + 1 = ")
         val part2 = CalcExpression(BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1)))
         val part3 = StringLiteral(".")
@@ -217,10 +220,16 @@ class TestRuneScriptParser {
         assertEquals(joined,
             invokeParser("\"1 + 1 = <calc(1 + 1)>.\"", RuneScriptParser::expression))
 
+        // escaping
         val part4 = StringLiteral("\\")
         val joined2 = JoinedStringExpression(listOf(part1, part2, part3, part4))
         assertEquals(joined2,
             invokeParser("\"1 + 1 = <calc(1 + 1)>.\\\\\"", RuneScriptParser::expression))
+
+        // tags
+        val exprs: List<Expression> = listOf(StringLiteral("<col=ffffff>"), IntegerLiteral(1), StringLiteral("</col>"))
+        assertEquals(JoinedStringExpression(exprs),
+            invokeParser("\"<col=ffffff><1></col>\"", RuneScriptParser::expression))
     }
 
     @Test

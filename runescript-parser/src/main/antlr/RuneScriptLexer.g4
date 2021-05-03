@@ -45,6 +45,19 @@ mode String ;
 
 QUOTE_CLOSE         : '"' {depth--;} -> popMode ;
 STRING_TEXT         : ~('\\' | '"' | '<')+ ;
+STRING_TAG          : '<' '/'? Tag ('=' ~'>'+)? '>' ;
 STRING_ESCAPED_CHAR : '\\' ('\\' | '"' | '<') ;
 STRING_EXPR_START   : '<' -> pushMode(DEFAULT_MODE) ;
 STRING_EXPR_END     : '>' ;
+
+// possible tags used in strings
+fragment Tag
+    : 'br'
+    | 'col'
+    | 'str'
+    | 'shad'
+    | 'u'
+    | 'img'
+    | 'gt'
+    | 'lt'
+    ;
