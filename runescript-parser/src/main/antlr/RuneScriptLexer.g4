@@ -32,8 +32,13 @@ CALC        : 'calc' ;
 INTEGER_LITERAL : [0-9]+ ;
 HEX_LITERAL     : '0' [xX] [0-9a-fA-F]+ ;
 BOOLEAN_LITERAL : 'true' | 'false' ;
-CHAR_LITERAL    : '\'' ~['\\\r\n] '\'' ; // TODO escaping
+CHAR_LITERAL    : '\'' (CharEscapeSequence | ~['\\\r\n]) '\'' ;
 NULL_LITERAL    : 'null' ;
+
+// allows escaping specific characters in a char literal
+fragment CharEscapeSequence
+    : '\\' ('\\' | '\'')
+    ;
 
 // special
 QUOTE_OPEN      : '"' {depth++;} -> pushMode(String) ;
@@ -44,11 +49,15 @@ WHITESPACE      : [ \t\n\r]+ -> channel(HIDDEN) ;
 mode String ;
 
 QUOTE_CLOSE         : '"' {depth--;} -> popMode ;
-STRING_TEXT         : ~('\\' | '"' | '<')+ ;
+STRING_TEXT         : StringEscapeSequence | ~('\\' | '"' | '<')+ ;
 STRING_TAG          : '<' '/'? Tag ('=' ~'>'+)? '>' ;
-STRING_ESCAPED_CHAR : '\\' ('\\' | '"' | '<') ;
 STRING_EXPR_START   : '<' -> pushMode(DEFAULT_MODE) ;
 STRING_EXPR_END     : '>' ;
+
+// allows escaping specific characters in a string
+fragment StringEscapeSequence
+    : '\\' ('\\' | '"' | '<')
+    ;
 
 // possible tags used in strings
 fragment Tag

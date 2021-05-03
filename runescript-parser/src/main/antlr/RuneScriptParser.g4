@@ -80,7 +80,6 @@ stringLiteral
 stringLiteralContent
     : STRING_TEXT
     | STRING_TAG
-    | STRING_ESCAPED_CHAR
     ;
 
 joinedString

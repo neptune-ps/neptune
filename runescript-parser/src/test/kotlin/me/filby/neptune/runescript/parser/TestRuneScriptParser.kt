@@ -186,6 +186,10 @@ class TestRuneScriptParser {
         assertEquals(CharacterLiteral('t'),
             invokeParser("'t'", RuneScriptParser::literal))
 
+        // escaped '
+        assertEquals(CharacterLiteral('\''),
+            invokeParser("'\\''", RuneScriptParser::literal))
+
         assertThrows<ParsingException> { invokeParser("'test'", RuneScriptParser::literal) }
     }
 
