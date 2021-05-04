@@ -20,6 +20,7 @@ import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.VariableExpression
+import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.Statement
 
@@ -31,6 +32,10 @@ public interface AstVisitor<R> {
 
     public fun visitScript(script: Script): R {
         return visitNode(script)
+    }
+
+    public fun visitBlockStatement(blockStatement: BlockStatement): R {
+        return visitStatement(blockStatement)
     }
 
     public fun visitExpressionStatement(expressionStatement: ExpressionStatement): R {

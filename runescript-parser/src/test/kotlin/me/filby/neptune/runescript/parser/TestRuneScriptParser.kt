@@ -19,6 +19,7 @@ import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
+import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
@@ -32,6 +33,13 @@ class TestRuneScriptParser {
         val script = ScriptParser.createScript("[opheld1,abyssal_whip]")
         val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"), emptyList())
         assertEquals(expected, script)
+    }
+
+    @Test
+    fun testBlockStatement() {
+        val statement = invokeParser("{}", RuneScriptParser::statement)
+        val expected = BlockStatement(emptyList())
+        assertEquals(expected, statement)
     }
 
     @Test

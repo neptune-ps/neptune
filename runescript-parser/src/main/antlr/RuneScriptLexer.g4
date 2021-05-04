@@ -12,6 +12,8 @@ SEMICOLON   : ';' ;
 COMMA       : ',' ;
 LBRACK      : '[' ;
 RBRACK      : ']' ;
+LBRACE      : '{' ;
+RBRACE      : '}' ;
 PLUS        : '+' ;
 MINUS       : '-' ;
 MUL         : '*' ;

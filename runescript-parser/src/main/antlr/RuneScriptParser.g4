@@ -18,7 +18,16 @@ script
 
 // statements
 statement
-    : expression SEMICOLON                                                      # ExpressionStatement
+    : blockStatement
+    | expressionStatement
+    ;
+
+blockStatement
+    : LBRACE statement* RBRACE
+    ;
+
+expressionStatement
+    : expression SEMICOLON
     ;
 
 expressionList
