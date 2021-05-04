@@ -19,11 +19,16 @@ script
 // statements
 statement
     : blockStatement
+    | returnStatement
     | expressionStatement
     ;
 
 blockStatement
     : LBRACE statement* RBRACE
+    ;
+
+returnStatement
+    : RETURN (LPAREN expressionList? RPAREN)? SEMICOLON
     ;
 
 expressionStatement
@@ -104,6 +109,7 @@ identifier
     | HEX_LITERAL
     | BOOLEAN_LITERAL
     | NULL_LITERAL
+    | RETURN
     | CALC
     | identifier COLON identifier
     ;

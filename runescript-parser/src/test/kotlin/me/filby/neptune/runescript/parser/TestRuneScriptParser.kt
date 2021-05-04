@@ -21,6 +21,7 @@ import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
+import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
@@ -39,6 +40,14 @@ class TestRuneScriptParser {
     fun testBlockStatement() {
         val statement = invokeParser("{}", RuneScriptParser::statement)
         val expected = BlockStatement(emptyList())
+        assertEquals(expected, statement)
+    }
+
+    @Test
+    fun testReturnStatement() {
+        val one = IntegerLiteral(1)
+        val statement = invokeParser("return(1);", RuneScriptParser::statement)
+        val expected = ReturnStatement(listOf(one))
         assertEquals(expected, statement)
     }
 

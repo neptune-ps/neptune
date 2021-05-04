@@ -19,6 +19,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.NullLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ParenthesisContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ParenthesizedExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ProcCallExpressionContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.ReturnStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptFileContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringExpressionContext
@@ -47,6 +48,7 @@ import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
+import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import org.antlr.v4.runtime.ParserRuleContext
 
 public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
@@ -65,6 +67,10 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitBlockStatement(ctx: BlockStatementContext): Node {
         return BlockStatement(ctx.statement().map { it.visit() })
+    }
+
+    override fun visitReturnStatement(ctx: ReturnStatementContext): Node {
+        return ReturnStatement(ctx.expressionList().visit())
     }
 
     override fun visitExpressionStatement(ctx: ExpressionStatementContext): Node {

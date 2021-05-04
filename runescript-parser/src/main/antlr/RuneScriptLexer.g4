@@ -28,6 +28,7 @@ AT          : '@' ;
 GT          : '>' {if (depth > 0) {setType(STRING_EXPR_END); popMode();}} ;
 
 // keywords
+RETURN      : 'return' ;
 CALC        : 'calc' ;
 
 // literals
