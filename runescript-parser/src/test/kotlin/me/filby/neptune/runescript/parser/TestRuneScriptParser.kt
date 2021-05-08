@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.parser
 
+import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
@@ -19,7 +20,9 @@ import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
+import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
+import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
@@ -49,6 +52,27 @@ class TestRuneScriptParser {
         val statement = invokeParser("return(1);", RuneScriptParser::statement)
         val expected = ReturnStatement(listOf(one))
         assertEquals(expected, statement)
+    }
+
+    @Test
+    fun testDeclarationStatement() {
+        // test with initializer
+        assertEquals(DeclarationStatement(ScriptVarType.INTEGER, Identifier("test"), IntegerLiteral(1)),
+            invokeParser("def_int ${'$'}test = 1;", RuneScriptParser::statement))
+
+        // test without initializer
+        assertEquals(DeclarationStatement(ScriptVarType.INTEGER, Identifier("test"), null),
+            invokeParser("def_int ${'$'}test;", RuneScriptParser::statement))
+    }
+
+    @Test
+    fun testArrayDeclarationStatement() {
+        // test with size initializer
+        assertEquals(ArrayDeclarationStatement(ScriptVarType.INTEGER, Identifier("test"), IntegerLiteral(1)),
+            invokeParser("def_int ${'$'}test(1);", RuneScriptParser::statement))
+
+        // test without initializer
+        assertThrows<ParsingException> { invokeParser("def_int ${'$'}test();", RuneScriptParser::statement) }
     }
 
     @Test

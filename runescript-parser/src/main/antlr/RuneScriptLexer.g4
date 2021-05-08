@@ -21,6 +21,7 @@ DIV         : '/' ;
 MOD         : '%' ;
 AND         : '&' ;
 OR          : '|' ;
+EQ          : '=' ;
 DOLLAR      : '$' ;
 CARET       : '^' ;
 TILDE       : '~' ;
@@ -30,6 +31,8 @@ GT          : '>' {if (depth > 0) {setType(STRING_EXPR_END); popMode();}} ;
 // keywords
 RETURN      : 'return' ;
 CALC        : 'calc' ;
+TYPE        : 'int' | 'string' | 'long' ; // TODO allow passing valid types to lexer
+DEF_TYPE    : 'def_' TYPE ; // TODO allow passing declarable types to lexer
 
 // literals
 INTEGER_LITERAL : [0-9]+ ;

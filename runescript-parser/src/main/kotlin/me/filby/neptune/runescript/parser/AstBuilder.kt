@@ -1,5 +1,7 @@
 package me.filby.neptune.runescript.parser
 
+import me.filby.neptune.runescript.ScriptVarType
+import me.filby.neptune.runescript.antlr.RuneScriptParser.ArrayDeclarationStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BinaryExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BlockStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BooleanLiteralContext
@@ -7,6 +9,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.CalcExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.CharacterLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.CommandCallExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ConstantVariableContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.DeclarationStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionListContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.GameVariableContext
@@ -14,6 +17,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.IdentifierContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IntegerLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.JoinedStringContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.JumpCallExpressionContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.LocalArrayVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.LocalVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.NullLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ParenthesisContext
@@ -46,7 +50,9 @@ import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
+import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
+import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import org.antlr.v4.runtime.ParserRuleContext
@@ -71,6 +77,24 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitReturnStatement(ctx: ReturnStatementContext): Node {
         return ReturnStatement(ctx.expressionList().visit())
+    }
+
+    override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node {
+        val typeString = ctx.DEF_TYPE().text.substringAfter("def_")
+        return DeclarationStatement(
+            type = ScriptVarType.lookup(typeString) ?: error("$typeString is not a registered type"),
+            name = ctx.identifier().visit(),
+            initializer = ctx.expression()?.visit()
+        )
+    }
+
+    override fun visitArrayDeclarationStatement(ctx: ArrayDeclarationStatementContext): Node {
+        val typeString = ctx.DEF_TYPE().text.substringAfter("def_")
+        return ArrayDeclarationStatement(
+            type = ScriptVarType.lookup(typeString) ?: error("$typeString is not a registered type"),
+            name = ctx.identifier().visit(),
+            initializer = ctx.parenthesis().visit()
+        )
     }
 
     override fun visitExpressionStatement(ctx: ExpressionStatementContext): Node {
@@ -117,7 +141,14 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitLocalVariable(ctx: LocalVariableContext): Node {
         return LocalVariableExpression(
             name = ctx.identifier().visit(),
-            index = ctx.parenthesis()?.visit()
+            index = null
+        )
+    }
+
+    override fun visitLocalArrayVariable(ctx: LocalArrayVariableContext): Node {
+        return LocalVariableExpression(
+            name = ctx.identifier().visit(),
+            index = ctx.parenthesis().visit()
         )
     }
 

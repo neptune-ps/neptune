@@ -20,6 +20,8 @@ script
 statement
     : blockStatement
     | returnStatement
+    | declarationStatement
+    | arrayDeclarationStatement
     | expressionStatement
     ;
 
@@ -29,6 +31,14 @@ blockStatement
 
 returnStatement
     : RETURN (LPAREN expressionList? RPAREN)? SEMICOLON
+    ;
+
+declarationStatement
+    : DEF_TYPE DOLLAR identifier (EQ expression)? SEMICOLON
+    ;
+
+arrayDeclarationStatement
+    : DEF_TYPE DOLLAR identifier parenthesis SEMICOLON
     ;
 
 expressionStatement
@@ -67,7 +77,11 @@ call
     ;
 
 localVariable
-    : DOLLAR identifier parenthesis?
+    : DOLLAR identifier
+    ;
+
+localArrayVariable
+    : DOLLAR identifier parenthesis
     ;
 
 gameVariable
@@ -111,5 +125,7 @@ identifier
     | NULL_LITERAL
     | RETURN
     | CALC
+    | TYPE
+    | DEF_TYPE
     | identifier COLON identifier
     ;

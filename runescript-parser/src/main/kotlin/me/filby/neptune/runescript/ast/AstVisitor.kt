@@ -20,7 +20,9 @@ import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.VariableExpression
+import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
+import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.ast.statement.Statement
@@ -41,6 +43,14 @@ public interface AstVisitor<R> {
 
     public fun visitReturnStatement(returnStatement: ReturnStatement): R {
         return visitStatement(returnStatement)
+    }
+
+    public fun visitDeclarationStatement(declarationStatement: DeclarationStatement): R {
+        return visitStatement(declarationStatement)
+    }
+
+    public fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement): R {
+        return visitStatement(arrayDeclarationStatement)
     }
 
     public fun visitExpressionStatement(expressionStatement: ExpressionStatement): R {
