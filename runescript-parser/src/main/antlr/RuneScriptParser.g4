@@ -63,6 +63,7 @@ expression
     | {!inCalc}? CALC {inCalc=true;} parenthesis {inCalc=false;}                # CalcExpression
     | call                                                                      # CallExpression
     | localVariable                                                             # LocalVariableExpression
+    | localArrayVariable                                                        # LocalArrayVariableExpression
     | gameVariable                                                              # GameVariableExpression
     | constantVariable                                                          # ConstantVariableExpression
     | literal                                                                   # LiteralExpression
