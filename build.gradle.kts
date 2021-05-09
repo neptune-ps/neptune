@@ -52,7 +52,7 @@ allprojects {
 subprojects {
     plugins.withType<KotlinPluginWrapper> {
         dependencies {
-            api(libs.kotlin.stdlib)
+            api(kotlin("stdlib"))
 
             implementation(kotlin("reflect"))
             implementation(libs.inlineLogger)
