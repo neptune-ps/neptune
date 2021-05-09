@@ -21,6 +21,7 @@ import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.VariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
+import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
@@ -51,6 +52,10 @@ public interface AstVisitor<R> {
 
     public fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement): R {
         return visitStatement(arrayDeclarationStatement)
+    }
+
+    public fun visitAssignmentStatement(assignmentStatement: AssignmentStatement): R {
+        return visitStatement(assignmentStatement)
     }
 
     public fun visitExpressionStatement(expressionStatement: ExpressionStatement): R {

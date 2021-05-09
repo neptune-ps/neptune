@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.parser
 
 import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ArrayDeclarationStatementContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.AssignmentStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BinaryExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BlockStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BooleanLiteralContext
@@ -51,6 +52,7 @@ import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
+import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
@@ -94,6 +96,13 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
             type = ScriptVarType.lookup(typeString) ?: error("$typeString is not a registered type"),
             name = ctx.identifier().visit(),
             initializer = ctx.parenthesis().visit()
+        )
+    }
+
+    override fun visitAssignmentStatement(ctx: AssignmentStatementContext): Node {
+        return AssignmentStatement(
+            vars = ctx.assignableVariableList().assignableVariable().map { it.visit() },
+            expressions = ctx.expressionList().visit()
         )
     }
 

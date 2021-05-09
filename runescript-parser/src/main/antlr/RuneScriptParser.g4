@@ -22,6 +22,7 @@ statement
     | returnStatement
     | declarationStatement
     | arrayDeclarationStatement
+    | assignmentStatement
     | expressionStatement
     ;
 
@@ -39,6 +40,10 @@ declarationStatement
 
 arrayDeclarationStatement
     : DEF_TYPE DOLLAR identifier parenthesis SEMICOLON
+    ;
+
+assignmentStatement
+    : assignableVariableList EQ expressionList SEMICOLON
     ;
 
 expressionStatement
@@ -75,6 +80,16 @@ call
     : identifier LPAREN expressionList? RPAREN                                  # CommandCallExpression
     | TILDE identifier (LPAREN expressionList? RPAREN)?                         # ProcCallExpression
     | AT identifier (LPAREN expressionList? RPAREN)?                            # JumpCallExpression
+    ;
+
+assignableVariableList
+    : assignableVariable (COMMA assignableVariable)*
+    ;
+
+assignableVariable
+    : localVariable
+    | localArrayVariable
+    | gameVariable
     ;
 
 localVariable

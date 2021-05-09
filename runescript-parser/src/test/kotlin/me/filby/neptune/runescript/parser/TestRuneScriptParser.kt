@@ -21,6 +21,7 @@ import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
+import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
@@ -73,6 +74,34 @@ class TestRuneScriptParser {
 
         // test without initializer
         assertThrows<ParsingException> { invokeParser("def_int ${'$'}test();", RuneScriptParser::statement) }
+    }
+
+    @Test
+    fun testAssignmentStatement() {
+        val one = IntegerLiteral(1)
+        val localVar = LocalVariableExpression(Identifier("test"))
+        val localArrayVar = LocalVariableExpression(Identifier("test"), one)
+        val gameVar = GameVariableExpression(Identifier("test"))
+
+        // simple assignment with 1 var and expression
+        assertEquals(AssignmentStatement(listOf(localVar), listOf(one)),
+            invokeParser("${'$'}test = 1;", RuneScriptParser::statement))
+
+        // simple assignment with 1 array var and expression
+        assertEquals(AssignmentStatement(listOf(localArrayVar), listOf(one)),
+            invokeParser("${'$'}test(1) = 1;", RuneScriptParser::statement))
+
+        // multi assignment
+        assertEquals(AssignmentStatement(listOf(localVar, localVar), listOf(one, one)),
+            invokeParser("${'$'}test, ${'$'}test = 1, 1;", RuneScriptParser::statement))
+
+        // test game var assignment
+        assertEquals(AssignmentStatement(listOf(gameVar), listOf(one)),
+            invokeParser("%test = 1;", RuneScriptParser::statement))
+
+        // test multi mixed var assignment
+        assertEquals(AssignmentStatement(listOf(localVar, localArrayVar, gameVar), listOf(one, one, one)),
+            invokeParser("${'$'}test, ${'$'}test(1), %test = 1, 1, 1;", RuneScriptParser::statement))
     }
 
     @Test
