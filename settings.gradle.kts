@@ -1,4 +1,4 @@
-rootProject.name = "Neptune"
+rootProject.name = "neptune"
 
 dependencyResolutionManagement {
     repositories {
