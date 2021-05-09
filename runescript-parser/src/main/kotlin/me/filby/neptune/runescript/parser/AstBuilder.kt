@@ -21,6 +21,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.JumpCallExpressionCont
 import me.filby.neptune.runescript.antlr.RuneScriptParser.LocalArrayVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.LocalVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.NullLiteralContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.ParameterContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ParenthesisContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ParenthesizedExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ProcCallExpressionContext
@@ -32,6 +33,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContentCo
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParserBaseVisitor
 import me.filby.neptune.runescript.ast.Node
+import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
@@ -69,7 +71,23 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return Script(
             trigger = ctx.trigger.visit(),
             name = ctx.name.visit(),
+            parameters = ctx.parameterList()?.parameter()?.map { it.visit() } ?: emptyList(),
+            returns = ctx.typeList()?.TYPE()?.map { ScriptVarType.lookup(it.text) } ?: emptyList(),
             statements = ctx.statement().map { it.visit() }
+        )
+    }
+
+    override fun visitParameter(ctx: ParameterContext): Node {
+        val isArray = ctx.type.text.endsWith("array")
+        val type = if (!isArray) {
+            ScriptVarType.lookup(ctx.type.text)
+        } else {
+            ScriptVarType.lookup(ctx.type.text.substringBefore("array"))
+        }
+        return Parameter(
+            type = type,
+            name = ctx.identifier().visit(),
+            isArray = isArray
         )
     }
 
@@ -84,7 +102,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node {
         val typeString = ctx.DEF_TYPE().text.substringAfter("def_")
         return DeclarationStatement(
-            type = ScriptVarType.lookup(typeString) ?: error("$typeString is not a registered type"),
+            type = ScriptVarType.lookup(typeString),
             name = ctx.identifier().visit(),
             initializer = ctx.expression()?.visit()
         )
@@ -93,7 +111,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitArrayDeclarationStatement(ctx: ArrayDeclarationStatementContext): Node {
         val typeString = ctx.DEF_TYPE().text.substringAfter("def_")
         return ArrayDeclarationStatement(
-            type = ScriptVarType.lookup(typeString) ?: error("$typeString is not a registered type"),
+            type = ScriptVarType.lookup(typeString),
             name = ctx.identifier().visit(),
             initializer = ctx.parenthesis().visit()
         )

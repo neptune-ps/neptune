@@ -1,6 +1,7 @@
 package me.filby.neptune.runescript.ast
 
 import com.google.common.base.MoreObjects
+import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.statement.Statement
 import java.util.*
@@ -8,6 +9,8 @@ import java.util.*
 public class Script(
     public val trigger: Identifier,
     public val name: Identifier,
+    public val parameters: List<Parameter>,
+    public val returns: List<ScriptVarType>,
     public val statements: List<Statement>
 ) : Node() {
 
@@ -16,7 +19,7 @@ public class Script(
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(trigger, name, statements)
+        return Objects.hash(trigger, name, parameters, returns, statements)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -30,6 +33,8 @@ public class Script(
 
         return trigger == other.trigger
             && name == other.name
+            && parameters == other.parameters
+            && returns == other.returns
             && statements == other.statements
     }
 
@@ -37,6 +42,8 @@ public class Script(
         return MoreObjects.toStringHelper(this)
             .add("trigger", trigger)
             .add("name", name)
+            .add("parameters", parameters)
+            .add("returns", returns)
             .add("statements", statements)
             .toString()
     }

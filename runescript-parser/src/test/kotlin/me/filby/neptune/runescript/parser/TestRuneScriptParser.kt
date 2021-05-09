@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.parser
 
 import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.antlr.RuneScriptParser
+import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
@@ -35,8 +36,10 @@ class TestRuneScriptParser {
 
     @Test
     fun testScript() {
-        val script = ScriptParser.createScript("[opheld1,abyssal_whip]")
-        val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"), emptyList())
+        val script = ScriptParser.createScript("[opheld1,abyssal_whip](int ${'$'}test)(int)")
+        val parameters = listOf(Parameter(ScriptVarType.INTEGER, Identifier("test")))
+        val returns = listOf(ScriptVarType.INTEGER)
+        val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"), parameters, returns, emptyList())
         assertEquals(expected, script)
     }
 

@@ -32,6 +32,7 @@ GT          : '>' {if (depth > 0) {setType(STRING_EXPR_END); popMode();}} ;
 RETURN      : 'return' ;
 CALC        : 'calc' ;
 TYPE        : 'int' | 'string' | 'long' ; // TODO allow passing valid types to lexer
+TYPE_ARRAY  : TYPE 'array' ; // TODO allow passing valid arrays types to lexer
 DEF_TYPE    : 'def_' TYPE ; // TODO allow passing declarable types to lexer
 
 // literals

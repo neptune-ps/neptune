@@ -13,7 +13,22 @@ scriptFile
     ;
 
 script
-    : LBRACK trigger=identifier COMMA name=identifier RBRACK statement*
+    : LBRACK trigger=identifier COMMA name=identifier RBRACK
+      (LPAREN parameterList? RPAREN)?
+      (LPAREN typeList? RPAREN)?
+      statement*
+    ;
+
+parameterList
+    : parameter (COMMA parameter)*
+    ;
+
+parameter
+    : type=(TYPE | TYPE_ARRAY) DOLLAR identifier
+    ;
+
+typeList
+    : TYPE (COMMA TYPE)*
     ;
 
 // statements
@@ -142,6 +157,7 @@ identifier
     | RETURN
     | CALC
     | TYPE
+    | TYPE_ARRAY
     | DEF_TYPE
     | identifier COLON identifier
     ;

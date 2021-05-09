@@ -37,8 +37,8 @@ public enum class ScriptVarType(
          *
          * @return The [ScriptVarType] if it exists, otherwise `null`.
          */
-        public fun lookup(name: String): ScriptVarType? {
-            return nameToType[name]
+        public fun lookup(name: String): ScriptVarType {
+            return nameToType[name] ?: throw IllegalArgumentException("$name is not a valid ScriptVarType.")
         }
 
     }

@@ -38,6 +38,10 @@ public interface AstVisitor<R> {
         return visitNode(script)
     }
 
+    public fun visitParameter(parameter: Parameter): R {
+        return visitNode(parameter)
+    }
+
     public fun visitBlockStatement(blockStatement: BlockStatement): R {
         return visitStatement(blockStatement)
     }
