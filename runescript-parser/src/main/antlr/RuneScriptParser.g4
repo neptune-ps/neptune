@@ -2,6 +2,7 @@ parser grammar RuneScriptParser;
 
 @members {
 boolean inCalc = false;
+boolean inCondition = false;
 }
 
 @lexer::header {package me.filby.neptune.runescript.antlr;}
@@ -35,6 +36,7 @@ typeList
 statement
     : blockStatement
     | returnStatement
+    | ifStatement
     | declarationStatement
     | arrayDeclarationStatement
     | assignmentStatement
@@ -47,6 +49,10 @@ blockStatement
 
 returnStatement
     : RETURN (LPAREN expressionList? RPAREN)? SEMICOLON
+    ;
+
+ifStatement
+    : IF {inCondition=true;} parenthesis {inCondition=false;} statement (ELSE statement)?
     ;
 
 declarationStatement
@@ -78,8 +84,10 @@ expression
     : parenthesis                                                               # ParenthesizedExpression
     | expression {inCalc}? op=(MUL | DIV | MOD) expression                      # BinaryExpression
     | expression {inCalc}? op=(PLUS | MINUS) expression                         # BinaryExpression
-    | expression {inCalc}? op=AND expression                                    # BinaryExpression
-    | expression {inCalc}? op=OR expression                                     # BinaryExpression
+    | expression {inCondition}? op=(LT | GT | LTE | GTE) expression             # BinaryExpression
+    | expression {inCondition}? op=(EQ | EXCL) expression                       # BinaryExpression
+    | expression {inCalc || inCondition}? op=AND expression                     # BinaryExpression
+    | expression {inCalc || inCondition}? op=OR expression                      # BinaryExpression
     | {!inCalc}? CALC {inCalc=true;} parenthesis {inCalc=false;}                # CalcExpression
     | call                                                                      # CallExpression
     | localVariable                                                             # LocalVariableExpression
@@ -154,6 +162,8 @@ identifier
     | HEX_LITERAL
     | BOOLEAN_LITERAL
     | NULL_LITERAL
+    | IF
+    | ELSE
     | RETURN
     | CALC
     | TYPE

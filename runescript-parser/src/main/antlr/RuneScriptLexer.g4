@@ -22,16 +22,22 @@ MOD         : '%' ;
 AND         : '&' ;
 OR          : '|' ;
 EQ          : '=' ;
+EXCL        : '!' ;
 DOLLAR      : '$' ;
 CARET       : '^' ;
 TILDE       : '~' ;
 AT          : '@' ;
 GT          : '>' {if (depth > 0) {setType(STRING_EXPR_END); popMode();}} ;
+GTE         : '>=' ;
+LT          : '<' ;
+LTE         : '<=' ;
 
 // keywords
+IF          : 'if' ;
+ELSE        : 'else' ;
 RETURN      : 'return' ;
 CALC        : 'calc' ;
-TYPE        : 'int' | 'string' | 'long' ; // TODO allow passing valid types to lexer
+TYPE        : 'int' | 'string' | 'long' | 'enum' ; // TODO allow passing valid types to lexer
 TYPE_ARRAY  : TYPE 'array' ; // TODO allow passing valid arrays types to lexer
 DEF_TYPE    : 'def_' TYPE ; // TODO allow passing declarable types to lexer
 

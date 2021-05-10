@@ -26,6 +26,7 @@ import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
+import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
@@ -56,6 +57,27 @@ class TestRuneScriptParser {
         val statement = invokeParser("return(1);", RuneScriptParser::statement)
         val expected = ReturnStatement(listOf(one))
         assertEquals(expected, statement)
+    }
+
+    @Test
+    fun testIfStatement() {
+        // if (1 = 1) {}
+        val simpleIf = IfStatement(
+            BinaryExpression(IntegerLiteral(1), "=", IntegerLiteral(1)),
+            BlockStatement(emptyList()),
+            null
+        )
+        assertEquals(simpleIf, invokeParser("if (1 = 1) {}", RuneScriptParser::statement))
+
+        // if (2 = 2) { } else if (1 = 1) {}
+        val extraBlock = IfStatement(
+            BinaryExpression(IntegerLiteral(2), "=", IntegerLiteral(2)),
+            BlockStatement(emptyList()),
+            simpleIf
+        )
+        assertEquals(extraBlock, invokeParser("if (2 = 2) {} else if (1 = 1) {}", RuneScriptParser::statement))
+
+        // TODO test logical or and and
     }
 
     @Test

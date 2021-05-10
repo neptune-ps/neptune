@@ -55,7 +55,7 @@ subprojects {
             api(kotlin("stdlib"))
 
             implementation(kotlin("reflect"))
-            implementation(libs.inlineLogger)
+//            implementation(libs.inlineLogger)
             implementation(libs.guava)
 
             testImplementation(kotlin("test-junit5"))

@@ -15,6 +15,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionListContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.GameVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IdentifierContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.IfStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IntegerLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.JoinedStringContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.JumpCallExpressionContext
@@ -58,6 +59,7 @@ import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
+import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -97,6 +99,14 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitReturnStatement(ctx: ReturnStatementContext): Node {
         return ReturnStatement(ctx.expressionList().visit())
+    }
+
+    override fun visitIfStatement(ctx: IfStatementContext): Node {
+        return IfStatement(
+            condition = ctx.parenthesis().visit(),
+            thenStatement = ctx.statement(0).visit(),
+            elseStatement = ctx.statement(1)?.visit()
+        )
     }
 
     override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node {
