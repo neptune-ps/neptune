@@ -28,6 +28,7 @@ import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
+import me.filby.neptune.runescript.ast.statement.WhileStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
@@ -78,6 +79,16 @@ class TestRuneScriptParser {
         assertEquals(extraBlock, invokeParser("if (2 = 2) {} else if (1 = 1) {}", RuneScriptParser::statement))
 
         // TODO test logical or and and
+    }
+
+    @Test
+    fun testWhileStatement() {
+        // while (1 = 1) {}
+        val simpleWhile = WhileStatement(
+            BinaryExpression(IntegerLiteral(1), "=", IntegerLiteral(1)),
+            BlockStatement(emptyList()),
+        )
+        assertEquals(simpleWhile, invokeParser("while (1 = 1) {}", RuneScriptParser::statement))
     }
 
     @Test

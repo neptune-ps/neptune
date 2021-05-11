@@ -32,6 +32,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptFileContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContentContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.WhileStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParserBaseVisitor
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
@@ -61,6 +62,7 @@ import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
+import me.filby.neptune.runescript.ast.statement.WhileStatement
 import org.antlr.v4.runtime.ParserRuleContext
 
 public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
@@ -106,6 +108,13 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
             condition = ctx.parenthesis().visit(),
             thenStatement = ctx.statement(0).visit(),
             elseStatement = ctx.statement(1)?.visit()
+        )
+    }
+
+    override fun visitWhileStatement(ctx: WhileStatementContext): Node {
+        return WhileStatement(
+            condition = ctx.parenthesis().visit(),
+            thenStatement = ctx.statement().visit()
         )
     }
 

@@ -35,6 +35,7 @@ LTE         : '<=' ;
 // keywords
 IF          : 'if' ;
 ELSE        : 'else' ;
+WHILE       : 'while' ;
 RETURN      : 'return' ;
 CALC        : 'calc' ;
 TYPE        : 'int' | 'string' | 'long' | 'enum' ; // TODO allow passing valid types to lexer

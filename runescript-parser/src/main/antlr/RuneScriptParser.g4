@@ -37,6 +37,7 @@ statement
     : blockStatement
     | returnStatement
     | ifStatement
+    | whileStatement
     | declarationStatement
     | arrayDeclarationStatement
     | assignmentStatement
@@ -53,6 +54,10 @@ returnStatement
 
 ifStatement
     : IF {inCondition=true;} parenthesis {inCondition=false;} statement (ELSE statement)?
+    ;
+
+whileStatement
+    : WHILE {inCondition=true;} parenthesis {inCondition=false;} statement
     ;
 
 declarationStatement
@@ -164,6 +169,7 @@ identifier
     | NULL_LITERAL
     | IF
     | ELSE
+    | WHILE
     | RETURN
     | CALC
     | TYPE
