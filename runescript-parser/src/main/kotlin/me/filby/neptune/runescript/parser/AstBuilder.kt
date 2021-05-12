@@ -32,6 +32,8 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptFileContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContentContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.SwitchCaseContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.SwitchStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.WhileStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParserBaseVisitor
 import me.filby.neptune.runescript.ast.Node
@@ -62,6 +64,8 @@ import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
+import me.filby.neptune.runescript.ast.statement.SwitchCase
+import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import org.antlr.v4.runtime.ParserRuleContext
 
@@ -115,6 +119,22 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return WhileStatement(
             condition = ctx.parenthesis().visit(),
             thenStatement = ctx.statement().visit()
+        )
+    }
+
+    override fun visitSwitchStatement(ctx: SwitchStatementContext): Node {
+        val typeString = ctx.SWITCH_TYPE().text.substringAfter("switch_")
+        return SwitchStatement(
+            type = ScriptVarType.lookup(typeString),
+            condition = ctx.parenthesis().visit(),
+            cases = ctx.switchCase().map { it.visit() }
+        )
+    }
+
+    override fun visitSwitchCase(ctx: SwitchCaseContext): Node {
+        return SwitchCase(
+            keys = ctx.expressionList()?.visit() ?: emptyList(),
+            statements = ctx.statement()?.map { it.visit() } ?: emptyList()
         )
     }
 

@@ -28,6 +28,8 @@ import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
+import me.filby.neptune.runescript.ast.statement.SwitchCase
+import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
@@ -89,6 +91,33 @@ class TestRuneScriptParser {
             BlockStatement(emptyList()),
         )
         assertEquals(simpleWhile, invokeParser("while (1 = 1) {}", RuneScriptParser::statement))
+    }
+
+    @Test
+    fun testSwitchStatement() {
+        // switch_int ($test) {}
+        val simpleSwitch = SwitchStatement(
+            ScriptVarType.INTEGER,
+            LocalVariableExpression(Identifier("test")),
+            emptyList()
+        )
+        assertEquals(simpleSwitch, invokeParser("switch_int (\$test) {}", RuneScriptParser::statement))
+
+        val simpleCase = SwitchCase(
+            listOf(IntegerLiteral(1)),
+            listOf(ReturnStatement(listOf(BooleanLiteral(true))))
+        )
+        val simpleSwitchWithCase = SwitchStatement(
+            ScriptVarType.INTEGER,
+            LocalVariableExpression(Identifier("test")),
+            listOf(simpleCase)
+        )
+        assertEquals(simpleSwitchWithCase, invokeParser("""
+            switch_int (${'$'}test) {
+                case 1:
+                    return(true);
+            }
+        """.trimIndent(), RuneScriptParser::statement))
     }
 
     @Test

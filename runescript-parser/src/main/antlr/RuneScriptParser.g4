@@ -38,6 +38,7 @@ statement
     | returnStatement
     | ifStatement
     | whileStatement
+    | switchStatement
     | declarationStatement
     | arrayDeclarationStatement
     | assignmentStatement
@@ -58,6 +59,14 @@ ifStatement
 
 whileStatement
     : WHILE {inCondition=true;} parenthesis {inCondition=false;} statement
+    ;
+
+switchStatement
+    : SWITCH_TYPE parenthesis LBRACE switchCase* RBRACE
+    ;
+
+switchCase
+    : CASE (DEFAULT | expressionList) COLON statement*
     ;
 
 declarationStatement

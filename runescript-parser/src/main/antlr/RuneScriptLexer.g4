@@ -36,11 +36,14 @@ LTE         : '<=' ;
 IF          : 'if' ;
 ELSE        : 'else' ;
 WHILE       : 'while' ;
+CASE        : 'case' ;
+DEFAULT     : 'default' ;
 RETURN      : 'return' ;
 CALC        : 'calc' ;
 TYPE        : 'int' | 'string' | 'long' | 'enum' ; // TODO allow passing valid types to lexer
 TYPE_ARRAY  : TYPE 'array' ; // TODO allow passing valid arrays types to lexer
 DEF_TYPE    : 'def_' TYPE ; // TODO allow passing declarable types to lexer
+SWITCH_TYPE : 'switch_' TYPE ; // TODO allow passing switchable types to lexer
 
 // literals
 INTEGER_LITERAL : [0-9]+ ;
