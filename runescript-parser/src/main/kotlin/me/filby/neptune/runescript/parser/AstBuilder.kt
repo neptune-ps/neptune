@@ -88,11 +88,11 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitParameter(ctx: ParameterContext): Node {
-        val isArray = ctx.type.text.endsWith("array")
+        val isArray = ctx.type.text.endsWith(TYPE_ARRAY_SUFFIX)
         val type = if (!isArray) {
             ScriptVarType.lookup(ctx.type.text)
         } else {
-            ScriptVarType.lookup(ctx.type.text.substringBefore("array"))
+            ScriptVarType.lookup(ctx.type.text.substringBefore(TYPE_ARRAY_SUFFIX))
         }
         return Parameter(
             type = type,
@@ -125,7 +125,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitSwitchStatement(ctx: SwitchStatementContext): Node {
-        val typeString = ctx.SWITCH_TYPE().text.substringAfter("switch_")
+        val typeString = ctx.SWITCH_TYPE().text.substringAfter(SWITCH_TYPE_PREFIX)
         return SwitchStatement(
             type = ScriptVarType.lookup(typeString),
             condition = ctx.parenthesis().visit(),
@@ -141,7 +141,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node {
-        val typeString = ctx.DEF_TYPE().text.substringAfter("def_")
+        val typeString = ctx.DEF_TYPE().text.substringAfter(DEF_TYPE_PREFIX)
         return DeclarationStatement(
             type = ScriptVarType.lookup(typeString),
             name = ctx.identifier().visit(),
@@ -150,7 +150,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitArrayDeclarationStatement(ctx: ArrayDeclarationStatementContext): Node {
-        val typeString = ctx.DEF_TYPE().text.substringAfter("def_")
+        val typeString = ctx.DEF_TYPE().text.substringAfter(DEF_TYPE_PREFIX)
         return ArrayDeclarationStatement(
             type = ScriptVarType.lookup(typeString),
             name = ctx.identifier().visit(),
@@ -341,6 +341,25 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
             i++
         }
         return builder.toString()
+    }
+
+    private companion object {
+
+        /**
+         * The prefix used when specifying a switch type.
+         */
+        private const val SWITCH_TYPE_PREFIX = "switch_"
+
+        /**
+         * The prefix used when specifying the type of a local variable.
+         */
+        private const val DEF_TYPE_PREFIX = "def_"
+
+        /**
+         * The suffix used for specifying a parameter that is an array.
+         */
+        private const val TYPE_ARRAY_SUFFIX = "array"
+
     }
 
 }
