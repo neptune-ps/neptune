@@ -5,7 +5,7 @@ inlineLogger = "1.0.3"
 junit = "5.7.1"
 
 [libraries]
-antlr-runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
+antlr = { module = "org.antlr:antlr4", version.ref = "antlr" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 inlineLogger = { module = "com.michael-bull.kotlin-inline-logger:kotlin-inline-logger", version.ref = "inlineLogger" }
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }

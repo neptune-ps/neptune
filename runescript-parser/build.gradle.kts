@@ -8,8 +8,7 @@ val antlrOutput = "src/main/java/me/filby/neptune/runescript/antlr"
 val antlrPackage = "me.filby.neptune.runescript.antlr"
 
 dependencies {
-    antlr("org.antlr:antlr4:4.9.2")
-    implementation(libs.antlr.runtime)
+    antlr(libs.antlr)
 }
 
 tasks.compileKotlin {
