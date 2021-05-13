@@ -4,6 +4,14 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import java.util.*
 
+/**
+ * Represents an expression that was wrapped in parenthesis.
+ *
+ * Example:
+ * ```
+ * ($var1 = 0 | $var2 = 0) & $var3 = 1
+ * ```
+ */
 public class ParenthesizedExpression(public val expression: Expression) : Expression() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

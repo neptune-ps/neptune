@@ -5,7 +5,9 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.Node
 import java.util.*
 
-// base literal class that has a constant value
+/**
+ * An [Expression] that represents a constant value of [T].
+ */
 public sealed class Literal<T>(public val value: T) : Expression() {
 
     override fun hashCode(): Int {
@@ -32,6 +34,14 @@ public sealed class Literal<T>(public val value: T) : Expression() {
 
 }
 
+/**
+ * An implementation of [Literal] for numeric literals.
+ *
+ * Example:
+ * ```
+ * 123456
+ * ```
+ */
 public class IntegerLiteral(value: Int) : Literal<Int>(value) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
@@ -40,6 +50,14 @@ public class IntegerLiteral(value: Int) : Literal<Int>(value) {
 
 }
 
+/**
+ * An implementation of [Literal] for boolean (`true`/`false`) literals.
+ *
+ * Example:
+ * ```
+ * true
+ * ```
+ */
 public class BooleanLiteral(value: Boolean) : Literal<Boolean>(value) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
@@ -48,6 +66,14 @@ public class BooleanLiteral(value: Boolean) : Literal<Boolean>(value) {
 
 }
 
+/**
+ * An implementation of [Literal] for character literals.
+ *
+ * Example:
+ * ```
+ * 'c'
+ * ```
+ */
 public class CharacterLiteral(value: Char) : Literal<Char>(value) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
@@ -56,6 +82,15 @@ public class CharacterLiteral(value: Char) : Literal<Char>(value) {
 
 }
 
+/**
+ * An implementation of [Literal] for string literals. Not to be confused with [JoinedStringExpression] which supports
+ * interpolation within the string.
+ *
+ * Example:
+ * ```
+ * "Some string"
+ * ```
+ */
 public class StringLiteral(value: String) : Literal<String>(value) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
@@ -64,6 +99,14 @@ public class StringLiteral(value: String) : Literal<String>(value) {
 
 }
 
+/**
+ * An implementation of [Literal] with a constant value of `-1` which is used to represent `null`.
+ *
+ * Example:
+ * ```
+ * null
+ * ```
+ */
 // object because the value is always the same
 public object NullLiteral : Literal<Int>(-1) {
 

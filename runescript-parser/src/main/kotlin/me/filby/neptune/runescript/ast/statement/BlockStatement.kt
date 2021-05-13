@@ -4,6 +4,16 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import java.util.*
 
+/**
+ * Represents a block of statements.
+ *
+ * Example:
+ * ```
+ * {
+ *    <code here>
+ * }
+ * ```
+ */
 public class BlockStatement(public val statements: List<Statement>) : Statement() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

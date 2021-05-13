@@ -7,6 +7,15 @@ import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import java.util.*
 
+/**
+ * Represents a local variable declaration statement that defines the variables [type], [name], and an optional
+ * [initializer].
+ *
+ * Example:
+ * ```
+ * def_int $var1 = 0;
+ * ```
+ */
 public class DeclarationStatement(
     public val type: ScriptVarType,
     public val name: Identifier,

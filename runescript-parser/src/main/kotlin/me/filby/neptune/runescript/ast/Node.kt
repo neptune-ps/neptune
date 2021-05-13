@@ -5,6 +5,9 @@ package me.filby.neptune.runescript.ast
  */
 public abstract class Node {
 
+    /**
+     * Calls the node specific method on the [visitor].
+     */
     public abstract fun <R> accept(visitor: AstVisitor<R>): R
 
     // mark abstract so all nodes have to implement

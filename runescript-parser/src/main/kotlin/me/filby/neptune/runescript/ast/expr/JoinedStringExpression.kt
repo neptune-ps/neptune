@@ -4,6 +4,14 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import java.util.*
 
+/**
+ * Represents an interpolated string that contains multiple [parts] to make it up.
+ *
+ * Example:
+ * ```
+ * "The value of $var is <$var>."
+ * ```
+ */
 public class JoinedStringExpression(public val parts: List<Expression>) : Expression() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

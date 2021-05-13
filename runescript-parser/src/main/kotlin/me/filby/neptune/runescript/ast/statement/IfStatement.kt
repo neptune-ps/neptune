@@ -5,6 +5,18 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.*
 
+/**
+ * Represents an if statement that has a [condition], [thenStatement], and an optional [elseStatement].
+ *
+ * Example:
+ * ```
+ * if ($var1 = $var2) {
+ *     mes("equal");
+ * } else {
+ *     mes("not equal");
+ * }
+ * ```
+ */
 public class IfStatement(
     public val condition: Expression,
     public val thenStatement: Statement,

@@ -6,6 +6,19 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.*
 
+/**
+ * Represents a switch statement for a given [type]. Switch statements contain a single [condition] (what to switch on)
+ * and a list of [cases].
+ *
+ * Example:
+ * ```
+ * switch_int ($var) {
+ *     case 1 : mes("matched 1");
+ *     case 2 : mes("matched 2");
+ *     case default : mes("unmatched: <tostring($var)>");
+ * }
+ * ```
+ */
 public class SwitchStatement(
     public val type: ScriptVarType,
     public val condition: Expression,

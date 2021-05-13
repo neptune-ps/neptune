@@ -5,6 +5,14 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.*
 
+/**
+ * Represents a return statement that can have any number of [expressions].
+ *
+ * Example:
+ * ```
+ * return(1, 2, 3);
+ * ```
+ */
 public class ReturnStatement(public val expressions: List<Expression>) : Statement() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

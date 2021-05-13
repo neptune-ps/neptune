@@ -6,6 +6,21 @@ import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.statement.Statement
 import java.util.*
 
+/**
+ * A script declaration containing the header and code of a script.
+ *
+ * Example:
+ * ```
+ * [proc,minmax](int $min, int $max, int $value)
+ * if ($max <= $min) {
+ *     $min, $max = $max, $min;
+ * }
+ *
+ * $value = ~min($max, $value);
+ * $value = ~max($min, $value);
+ * return($value);
+ * ```
+ */
 public class Script(
     public val trigger: Identifier,
     public val name: Identifier,

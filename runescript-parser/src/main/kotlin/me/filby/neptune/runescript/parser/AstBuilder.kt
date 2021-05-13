@@ -72,6 +72,10 @@ import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import org.antlr.v4.runtime.ParserRuleContext
 
+/**
+ * A visitor that converts an antlr parse tree into an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree). See
+ * [Node] implementations for all possible pieces of the tree.
+ */
 public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitScriptFile(ctx: ScriptFileContext): Node {

@@ -6,6 +6,12 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.*
 
+/**
+ * Represents a single [SwitchStatement] case. Contains the [keys] and the [statements] to run when the switch
+ * statements condition matches one of the keys.
+ *
+ * See [SwitchStatement] for example.
+ */
 public class SwitchCase(
     public val keys: List<Expression>,
     public val statements: List<Statement>

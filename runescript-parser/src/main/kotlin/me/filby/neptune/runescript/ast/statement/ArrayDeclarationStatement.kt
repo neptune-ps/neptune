@@ -7,6 +7,15 @@ import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import java.util.*
 
+/**
+ * Represents a local array variable declaration with the given [type] and [name]. The [initializer] is what determines
+ * the array size.
+ *
+ * Example:
+ * ```
+ * def_int $ints(50);
+ * ```
+ */
 public class ArrayDeclarationStatement(
     public val type: ScriptVarType,
     public val name: Identifier,

@@ -4,6 +4,9 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import java.util.*
 
+/**
+ * A base representation of a variable being used as an [Expression].
+ */
 // base class for a variable reference, all have an identifier
 public sealed class VariableExpression(public val name: Identifier) : Expression() {
 
@@ -15,6 +18,14 @@ public sealed class VariableExpression(public val name: Identifier) : Expression
 
 }
 
+/**
+ * A [VariableExpression] implementation used for local variables within a script.
+ *
+ * Example:
+ * ```
+ * $var
+ * ```
+ */
 public class LocalVariableExpression(
     name: Identifier,
     public val index: Expression? = null
@@ -55,6 +66,14 @@ public class LocalVariableExpression(
 
 }
 
+/**
+ * A [VariableExpression] implementation used for game variables within a script.
+ *
+ * Example:
+ * ```
+ * %var
+ * ```
+ */
 public class GameVariableExpression(name: Identifier) : VariableExpression(name) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
@@ -79,6 +98,14 @@ public class GameVariableExpression(name: Identifier) : VariableExpression(name)
 
 }
 
+/**
+ * A [VariableExpression] implementation that represents a constant variable reference.
+ *
+ * Example:
+ * ```
+ * ^var
+ * ```
+ */
 public class ConstantVariableExpression(name: Identifier) : VariableExpression(name) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

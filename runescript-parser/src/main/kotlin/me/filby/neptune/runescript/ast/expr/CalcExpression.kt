@@ -4,6 +4,14 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import java.util.*
 
+/**
+ * An expression that allows doing math operations inside.
+ *
+ * Example:
+ * ```
+ * calc(1 + 1 / 2)
+ * ```
+ */
 public class CalcExpression(public val expression: Expression) : Expression() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

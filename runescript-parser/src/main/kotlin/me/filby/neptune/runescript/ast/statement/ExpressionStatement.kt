@@ -5,6 +5,14 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.*
 
+/**
+ * Represents an [Expression] that is being called as a statement.
+ *
+ * Example:
+ * ```
+ * <cc_settext("Example text")>;
+ * ```
+ */
 public class ExpressionStatement(public val expression: Expression) : Statement() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

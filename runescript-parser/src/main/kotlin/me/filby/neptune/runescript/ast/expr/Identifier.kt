@@ -4,6 +4,11 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import java.util.*
 
+/**
+ * Represents some kind of identifier within code.
+ *
+ * Examples: `abyssal_whip`, `smithing:arrowheads`.
+ */
 public class Identifier(public val text: String) : Expression() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

@@ -5,6 +5,14 @@ import com.google.common.base.Objects
 import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.ast.expr.Identifier
 
+/**
+ * Represents a single parameter in a [Script].
+ *
+ * Example:
+ * ```
+ * int $some_name
+ * ```
+ */
 public class Parameter(
     public val type: ScriptVarType,
     public val name: Identifier,

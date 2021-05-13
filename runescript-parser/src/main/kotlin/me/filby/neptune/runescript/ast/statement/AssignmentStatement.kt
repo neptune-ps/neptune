@@ -6,6 +6,14 @@ import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.VariableExpression
 import java.util.*
 
+/**
+ * Represents a statement that defines [vars] (LHS) to set their values to the result of [expressions] (RHS).
+ *
+ * Syntax:
+ * ```
+ * $var1, $var2 = 1, 2;
+ * ```
+ */
 public class AssignmentStatement(
     public val vars: List<VariableExpression>,
     public val expressions: List<Expression>

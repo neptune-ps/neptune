@@ -4,6 +4,9 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import java.util.*
 
+/**
+ * The base expression for all types of call expressions.
+ */
 public sealed class CallExpression(
     public val name: Identifier,
     public val arguments: List<Expression>
@@ -18,6 +21,14 @@ public sealed class CallExpression(
 
 }
 
+/**
+ * A [CallExpression] for command calls.
+ *
+ * Example:
+ * ```
+ * cc_settext("Example text")
+ * ```
+ */
 public class CommandCallExpression(name: Identifier, arguments: List<Expression>) : CallExpression(name, arguments) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
@@ -43,6 +54,13 @@ public class CommandCallExpression(name: Identifier, arguments: List<Expression>
 
 }
 
+/**
+ * A [CallExpression] for calling other (proc) scripts.
+ *
+ * ```
+ * ~some_user_defined_script(true);
+ * ```
+ */
 public class ProcCallExpression(name: Identifier, arguments: List<Expression>) : CallExpression(name, arguments) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
@@ -68,6 +86,14 @@ public class ProcCallExpression(name: Identifier, arguments: List<Expression>) :
 
 }
 
+/**
+ * A [CallExpression] for jumping to a label.
+ *
+ * Example:
+ * ```
+ * @some_label(42);
+ * ```
+ */
 public class JumpCallExpression(name: Identifier, arguments: List<Expression>) : CallExpression(name, arguments) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

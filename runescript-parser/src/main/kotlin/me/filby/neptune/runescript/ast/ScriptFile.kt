@@ -3,6 +3,11 @@ package me.filby.neptune.runescript.ast
 import com.google.common.base.MoreObjects
 import java.util.*
 
+/**
+ * The top level node type that represents a full file of [scripts].
+ *
+ * See [Script] for an example of what a script is.
+ */
 public class ScriptFile(public val scripts: List<Script>) : Node() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {

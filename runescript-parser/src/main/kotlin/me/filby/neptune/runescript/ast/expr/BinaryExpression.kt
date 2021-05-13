@@ -4,6 +4,15 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import java.util.*
 
+/**
+ * An expression that has a [left] hand side and [right] hand side with an [operator] that specifies what to do
+ * with both of them.
+ *
+ * Example:
+ * ```
+ * 1 + 1
+ * ```
+ */
 public class BinaryExpression(
     public val left: Expression,
     public val operator: String,

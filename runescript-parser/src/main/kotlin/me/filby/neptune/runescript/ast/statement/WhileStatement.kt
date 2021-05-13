@@ -5,6 +5,17 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.*
 
+/**
+ * Represents a while statement with a [condition] and the [thenStatement] that is ran when the condition is `true`.
+ *
+ * Example:
+ * ```
+ * while ($var < 10) {
+ *     mes(tostring($var));
+ *     $var = calc($var + 1);
+ * }
+ * ```
+ */
 public class WhileStatement(
     public val condition: Expression,
     public val thenStatement: Statement,
