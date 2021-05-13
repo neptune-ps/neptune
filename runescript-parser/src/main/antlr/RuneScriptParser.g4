@@ -43,6 +43,7 @@ statement
     | arrayDeclarationStatement
     | assignmentStatement
     | expressionStatement
+    | emptyStatement
     ;
 
 blockStatement
@@ -83,6 +84,10 @@ assignmentStatement
 
 expressionStatement
     : expression SEMICOLON
+    ;
+
+emptyStatement
+    : SEMICOLON
     ;
 
 expressionList

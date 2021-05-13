@@ -25,6 +25,7 @@ import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
+import me.filby.neptune.runescript.ast.statement.EmptyStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
@@ -174,6 +175,11 @@ class TestRuneScriptParser {
         val statement = invokeParser("calc(1 + 1);", RuneScriptParser::statement)
         val expected = ExpressionStatement(CalcExpression(BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1))))
         assertEquals(expected, statement)
+    }
+
+    @Test
+    fun testEmptyStatement() {
+        assertEquals(EmptyStatement, invokeParser(";", RuneScriptParser::statement))
     }
 
     @Test
