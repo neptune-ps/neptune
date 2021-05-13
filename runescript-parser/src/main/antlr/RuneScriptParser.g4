@@ -25,7 +25,7 @@ parameterList
     ;
 
 parameter
-    : type=(TYPE | TYPE_ARRAY) DOLLAR identifier
+    : type=(TYPE | TYPE_ARRAY) DOLLAR advancedIdentifier
     ;
 
 typeList
@@ -71,11 +71,11 @@ switchCase
     ;
 
 declarationStatement
-    : DEF_TYPE DOLLAR identifier (EQ expression)? SEMICOLON
+    : DEF_TYPE DOLLAR advancedIdentifier (EQ expression)? SEMICOLON
     ;
 
 arrayDeclarationStatement
-    : DEF_TYPE DOLLAR identifier parenthesis SEMICOLON
+    : DEF_TYPE DOLLAR advancedIdentifier parenthesis SEMICOLON
     ;
 
 assignmentStatement
@@ -135,19 +135,19 @@ assignableVariable
     ;
 
 localVariable
-    : DOLLAR identifier
+    : DOLLAR advancedIdentifier
     ;
 
 localArrayVariable
-    : DOLLAR identifier parenthesis
+    : DOLLAR advancedIdentifier parenthesis
     ;
 
 gameVariable
-    : MOD identifier
+    : MOD advancedIdentifier
     ;
 
 constantVariable
-    : CARET identifier
+    : CARET advancedIdentifier
     ;
 
 literal
@@ -176,18 +176,23 @@ stringExpression
     : STRING_EXPR_START expression STRING_EXPR_END
     ;
 
+// simple identifier with limited amount of keywords allowed
 identifier
     : IDENTIFIER
     | HEX_LITERAL
     | BOOLEAN_LITERAL
     | NULL_LITERAL
+    | TYPE_ARRAY
+    | DEF_TYPE
+    | TYPE
+    ;
+
+// advanced identifier that allows more keywords
+advancedIdentifier
+    : identifier
     | IF
     | ELSE
     | WHILE
     | RETURN
     | CALC
-    | TYPE
-    | TYPE_ARRAY
-    | DEF_TYPE
-    | identifier COLON identifier
     ;

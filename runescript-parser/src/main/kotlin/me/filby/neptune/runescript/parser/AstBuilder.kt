@@ -1,6 +1,7 @@
 package me.filby.neptune.runescript.parser
 
 import me.filby.neptune.runescript.ScriptVarType
+import me.filby.neptune.runescript.antlr.RuneScriptParser.AdvancedIdentifierContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ArrayDeclarationStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.AssignmentStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BinaryExpressionContext
@@ -96,7 +97,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         }
         return Parameter(
             type = type,
-            name = ctx.identifier().visit(),
+            name = ctx.advancedIdentifier().visit(),
             isArray = isArray
         )
     }
@@ -144,7 +145,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         val typeString = ctx.DEF_TYPE().text.substringAfter(DEF_TYPE_PREFIX)
         return DeclarationStatement(
             type = ScriptVarType.lookup(typeString),
-            name = ctx.identifier().visit(),
+            name = ctx.advancedIdentifier().visit(),
             initializer = ctx.expression()?.visit()
         )
     }
@@ -153,7 +154,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         val typeString = ctx.DEF_TYPE().text.substringAfter(DEF_TYPE_PREFIX)
         return ArrayDeclarationStatement(
             type = ScriptVarType.lookup(typeString),
-            name = ctx.identifier().visit(),
+            name = ctx.advancedIdentifier().visit(),
             initializer = ctx.parenthesis().visit()
         )
     }
@@ -212,24 +213,24 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitLocalVariable(ctx: LocalVariableContext): Node {
         return LocalVariableExpression(
-            name = ctx.identifier().visit(),
+            name = ctx.advancedIdentifier().visit(),
             index = null
         )
     }
 
     override fun visitLocalArrayVariable(ctx: LocalArrayVariableContext): Node {
         return LocalVariableExpression(
-            name = ctx.identifier().visit(),
+            name = ctx.advancedIdentifier().visit(),
             index = ctx.parenthesis().visit()
         )
     }
 
     override fun visitGameVariable(ctx: GameVariableContext): Node {
-        return GameVariableExpression(ctx.identifier().visit())
+        return GameVariableExpression(ctx.advancedIdentifier().visit())
     }
 
     override fun visitConstantVariable(ctx: ConstantVariableContext): Node {
-        return ConstantVariableExpression(ctx.identifier().visit())
+        return ConstantVariableExpression(ctx.advancedIdentifier().visit())
     }
 
     override fun visitIntegerLiteral(ctx: IntegerLiteralContext): Node {
@@ -285,6 +286,10 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitIdentifier(ctx: IdentifierContext): Node {
+        return Identifier(ctx.text)
+    }
+
+    override fun visitAdvancedIdentifier(ctx: AdvancedIdentifierContext): Node {
         return Identifier(ctx.text)
     }
 
