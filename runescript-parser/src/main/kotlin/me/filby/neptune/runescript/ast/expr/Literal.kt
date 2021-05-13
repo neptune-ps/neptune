@@ -18,7 +18,7 @@ public sealed class Literal<T>(public val value: T) : Expression() {
         }
 
         if (other !is Literal<*>) {
-            return false;
+            return false
         }
 
         return value == other.value

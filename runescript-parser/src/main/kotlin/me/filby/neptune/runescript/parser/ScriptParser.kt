@@ -43,7 +43,7 @@ public object ScriptParser {
     private fun invokeParser(stream: CharStream, entry: (RuneScriptParser) -> ParserRuleContext): Node {
         val lexer = RuneScriptLexer(stream)
         val tokens = CommonTokenStream(lexer)
-        val parser = RuneScriptParser(tokens);
+        val parser = RuneScriptParser(tokens)
 
         lexer.removeErrorListeners()
         lexer.addErrorListener(ERROR_LISTENER)

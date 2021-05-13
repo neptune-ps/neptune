@@ -16,11 +16,11 @@ public class Identifier(public val text: String) : Expression() {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
-            return true;
+            return true
         }
 
         if (other !is Identifier) {
-            return false;
+            return false
         }
 
         return text == other.text

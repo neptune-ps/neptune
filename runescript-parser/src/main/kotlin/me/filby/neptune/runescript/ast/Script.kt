@@ -24,7 +24,7 @@ public class Script(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
-            return true;
+            return true
         }
 
         if (other !is Script) {
