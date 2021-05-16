@@ -14,7 +14,7 @@ public abstract class Node {
     public var parent: Node? = null
         private set(value) {
             if (field != null) {
-                throw IllegalStateException("parent already set $this")
+                throw IllegalStateException("parent already set")
             }
             field = value
         }
