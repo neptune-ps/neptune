@@ -12,6 +12,11 @@ public sealed class CallExpression(
     public val arguments: List<Expression>
 ) : Expression() {
 
+    init {
+        addChild(name)
+        addChild(arguments)
+    }
+
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
             .add("name", name)

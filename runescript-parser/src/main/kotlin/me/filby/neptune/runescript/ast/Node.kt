@@ -9,6 +9,27 @@ import kotlin.reflect.KProperty
 public abstract class Node {
 
     /**
+     * This nodes parent node if it belongs to one.
+     */
+    public var parent: Node? = null
+        private set(value) {
+            if (field != null) {
+                throw IllegalStateException("parent already set $this")
+            }
+            field = value
+        }
+
+    /**
+     * A [MutableList] of children for our use only.
+     */
+    private val _children = mutableListOf<Node>()
+
+    /**
+     * All nodes that belong (directly) to this node.
+     */
+    public val children: List<Node> get() = _children
+
+    /**
      * A map of attributes that allows external code to add extra information to the node.
      */
     private val attributes = mutableMapOf<String, Any>()
@@ -17,6 +38,32 @@ public abstract class Node {
      * Calls the node specific method on the [visitor].
      */
     public abstract fun <R> accept(visitor: AstVisitor<R>): R
+
+    /**
+     * Adds [node] as a child of this node and sets its parent to this node.
+     */
+    protected fun addChild(node: Node?) {
+        if (node == null) {
+            return
+        }
+
+        node.parent = this
+        _children += node
+    }
+
+    /**
+     * Adds all [nodes] to this node as a child and sets their parent to this node.
+     */
+    protected fun addChild(nodes: List<Node?>) {
+        for (node in nodes) {
+            if (node == null) {
+                continue
+            }
+
+            node.parent = this
+            _children += node
+        }
+    }
 
     /**
      * Returns an attribute based on the given [key].

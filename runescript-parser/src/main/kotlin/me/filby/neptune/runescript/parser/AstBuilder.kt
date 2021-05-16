@@ -175,7 +175,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitEmptyStatement(ctx: EmptyStatementContext?): Node {
-        return EmptyStatement
+        return EmptyStatement()
     }
 
     override fun visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): Node {
@@ -264,7 +264,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitNullLiteral(ctx: NullLiteralContext?): Node {
-        return NullLiteral
+        return NullLiteral()
     }
 
     override fun visitJoinedString(ctx: JoinedStringContext): Node {

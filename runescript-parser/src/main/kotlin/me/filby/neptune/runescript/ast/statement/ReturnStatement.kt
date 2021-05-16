@@ -15,6 +15,10 @@ import java.util.*
  */
 public class ReturnStatement(public val expressions: List<Expression>) : Statement() {
 
+    init {
+        addChild(expressions)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitReturnStatement(this)
     }

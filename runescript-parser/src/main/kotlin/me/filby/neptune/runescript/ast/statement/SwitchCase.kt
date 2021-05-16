@@ -17,6 +17,11 @@ public class SwitchCase(
     public val statements: List<Statement>
 ) : Node() {
 
+    init {
+        addChild(keys)
+        addChild(statements)
+    }
+
     /**
      * Whether or not this switch case qualifies as the default case.
      */

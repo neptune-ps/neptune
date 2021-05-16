@@ -16,6 +16,10 @@ import java.util.*
  */
 public class BlockStatement(public val statements: List<Statement>) : Statement() {
 
+    init {
+        addChild(statements)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitBlockStatement(this)
     }

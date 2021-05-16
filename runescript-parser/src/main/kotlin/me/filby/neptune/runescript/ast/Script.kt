@@ -29,6 +29,13 @@ public class Script(
     public val statements: List<Statement>
 ) : Node() {
 
+    init {
+        addChild(trigger)
+        addChild(name)
+        addChild(parameters)
+        addChild(statements)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitScript(this)
     }

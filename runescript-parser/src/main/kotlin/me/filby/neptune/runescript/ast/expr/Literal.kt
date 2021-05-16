@@ -2,7 +2,6 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
-import me.filby.neptune.runescript.ast.Node
 import java.util.*
 
 /**
@@ -108,7 +107,7 @@ public class StringLiteral(value: String) : Literal<String>(value) {
  * ```
  */
 // object because the value is always the same
-public object NullLiteral : Literal<Int>(-1) {
+public class NullLiteral : Literal<Int>(-1) {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitNullLiteral(this)

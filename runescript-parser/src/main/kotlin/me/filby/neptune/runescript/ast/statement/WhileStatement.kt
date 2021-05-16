@@ -21,6 +21,11 @@ public class WhileStatement(
     public val thenStatement: Statement,
 ) : Statement() {
 
+    init {
+        addChild(condition)
+        addChild(thenStatement)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitWhileStatement(this)
     }

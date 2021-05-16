@@ -23,6 +23,12 @@ public class IfStatement(
     public val elseStatement: Statement?
 ) : Statement() {
 
+    init {
+        addChild(condition)
+        addChild(thenStatement)
+        addChild(elseStatement)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitIfStatement(this)
     }

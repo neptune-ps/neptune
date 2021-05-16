@@ -25,6 +25,11 @@ public class SwitchStatement(
     public val cases: List<SwitchCase>
 ) : Statement() {
 
+    init {
+        addChild(condition)
+        addChild(cases)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitSwitchStatement(this)
     }

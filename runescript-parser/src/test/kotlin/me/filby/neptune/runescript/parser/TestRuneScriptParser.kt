@@ -34,6 +34,7 @@ import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.junit.jupiter.api.assertThrows
+import kotlin.properties.ReadOnlyProperty
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -144,10 +145,10 @@ class TestRuneScriptParser {
 
     @Test
     fun testAssignmentStatement() {
-        val one = IntegerLiteral(1)
-        val localVar = LocalVariableExpression(Identifier("test"))
-        val localArrayVar = LocalVariableExpression(Identifier("test"), one)
-        val gameVar = GameVariableExpression(Identifier("test"))
+        val one by dupe { IntegerLiteral(1) }
+        val localVar by dupe { LocalVariableExpression(Identifier("test")) }
+        val localArrayVar by dupe { LocalVariableExpression(Identifier("test"), one) }
+        val gameVar by dupe { GameVariableExpression(Identifier("test")) }
 
         // simple assignment with 1 var and expression
         assertEquals(AssignmentStatement(listOf(localVar), listOf(one)),
@@ -179,7 +180,7 @@ class TestRuneScriptParser {
 
     @Test
     fun testEmptyStatement() {
-        assertEquals(EmptyStatement, invokeParser(";", RuneScriptParser::statement))
+        assertEquals(EmptyStatement(), invokeParser(";", RuneScriptParser::statement))
     }
 
     @Test
@@ -194,7 +195,7 @@ class TestRuneScriptParser {
 
     @Test
     fun testCalcExpression() {
-        val one = IntegerLiteral(1)
+        val one by dupe { IntegerLiteral(1) }
 
         // calc(1 + 1)
         val onePlusOne = BinaryExpression(one, "+", one)
@@ -351,16 +352,16 @@ class TestRuneScriptParser {
 
     @Test
     fun testNullLiteral() {
-        assertEquals(NullLiteral,
+        assertEquals(NullLiteral(),
             invokeParser("null", RuneScriptParser::literal))
     }
 
     @Test
     fun testJoinedStringExpression() {
         // normal
-        val part1 = StringLiteral("1 + 1 = ")
-        val part2 = CalcExpression(BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1)))
-        val part3 = StringLiteral(".")
+        val part1 by dupe { StringLiteral("1 + 1 = ") }
+        val part2 by dupe { CalcExpression(BinaryExpression(IntegerLiteral(1), "+", IntegerLiteral(1))) }
+        val part3 by dupe { StringLiteral(".") }
         val joined = JoinedStringExpression(listOf(part1, part2, part3))
         assertEquals(joined,
             invokeParser("\"1 + 1 = <calc(1 + 1)>.\"", RuneScriptParser::expression))
@@ -402,6 +403,18 @@ class TestRuneScriptParser {
         // identifier that is a keyword
         assertEquals(Identifier("true"),
             invokeParser("true", RuneScriptParser::identifier))
+    }
+
+    companion object {
+
+        /**
+         * Returns whatever [initializer] returns each time the property is fetched. This is only used so we can easily
+         * "re-use" a variable when doing tests since nodes will throw an error when trying to set their parent after
+         * it was already set.
+         */
+        private inline fun <T, V> dupe(crossinline initializer: () -> V) =
+            ReadOnlyProperty<T, V> { _, _ -> initializer() }
+
     }
 
 }

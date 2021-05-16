@@ -14,6 +14,10 @@ import java.util.*
  */
 public class CalcExpression(public val expression: Expression) : Expression() {
 
+    init {
+        addChild(expression)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitCalcExpression(this)
     }

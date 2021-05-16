@@ -19,6 +19,11 @@ public class AssignmentStatement(
     public val expressions: List<Expression>
 ) : Statement() {
 
+    init {
+        addChild(vars)
+        addChild(expressions)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitAssignmentStatement(this)
     }

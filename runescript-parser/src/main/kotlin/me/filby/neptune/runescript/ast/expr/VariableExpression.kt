@@ -10,6 +10,10 @@ import java.util.*
 // base class for a variable reference, all have an identifier
 public sealed class VariableExpression(public val name: Identifier) : Expression() {
 
+    init {
+        addChild(name)
+    }
+
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
             .add("name", name)
@@ -30,6 +34,10 @@ public class LocalVariableExpression(
     name: Identifier,
     public val index: Expression? = null
 ) : VariableExpression(name) {
+
+    init {
+        addChild(index)
+    }
 
     /**
      * Whether or not this variable expression references a local array variable.

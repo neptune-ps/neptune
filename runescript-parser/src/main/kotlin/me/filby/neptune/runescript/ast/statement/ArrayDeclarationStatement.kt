@@ -22,6 +22,11 @@ public class ArrayDeclarationStatement(
     public val initializer: Expression
 ) : Statement() {
 
+    init {
+        addChild(name)
+        addChild(initializer)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitArrayDeclarationStatement(this)
     }

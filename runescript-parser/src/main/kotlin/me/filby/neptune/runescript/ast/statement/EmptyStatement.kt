@@ -11,7 +11,7 @@ import me.filby.neptune.runescript.ast.AstVisitor
  * ;
  * ```
  */
-public object EmptyStatement : Statement() {
+public class EmptyStatement : Statement() {
 
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitEmptyStatement(this)
@@ -22,7 +22,10 @@ public object EmptyStatement : Statement() {
     }
 
     override fun equals(other: Any?): Boolean {
-        return this === other
+        if (other is EmptyStatement) {
+            return true
+        }
+        return false
     }
 
     override fun toString(): String {

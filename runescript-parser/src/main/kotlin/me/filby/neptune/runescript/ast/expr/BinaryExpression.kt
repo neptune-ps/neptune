@@ -19,6 +19,11 @@ public class BinaryExpression(
     public val right: Expression
 ) : Expression() {
 
+    init {
+        addChild(left)
+        addChild(right)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitBinaryExpression(this)
     }

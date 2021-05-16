@@ -10,6 +10,10 @@ import java.util.*
  */
 public class ScriptFile(public val scripts: List<Script>) : Node() {
 
+    init {
+        addChild(scripts)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitScriptFile(this)
     }

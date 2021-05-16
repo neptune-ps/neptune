@@ -14,6 +14,10 @@ import java.util.*
  */
 public class JoinedStringExpression(public val parts: List<Expression>) : Expression() {
 
+    init {
+        addChild(parts)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitJoinedStringExpression(this)
     }
