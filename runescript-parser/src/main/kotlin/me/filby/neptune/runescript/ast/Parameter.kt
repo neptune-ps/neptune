@@ -19,6 +19,10 @@ public class Parameter(
     public val isArray: Boolean = false
 ) : Node() {
 
+    init {
+        addChild(name)
+    }
+
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitParameter(this)
     }
