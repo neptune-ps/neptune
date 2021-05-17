@@ -1,7 +1,5 @@
 package me.filby.neptune.runescript.parser
 
-import java.lang.RuntimeException
-
 public class ParsingException(
     message: String?,
     cause: Throwable?,
