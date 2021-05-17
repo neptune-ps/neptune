@@ -1,9 +1,9 @@
 package me.filby.neptune.runescript.ast
 
 import com.google.common.base.MoreObjects
-import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.statement.Statement
+import me.filby.neptune.runescript.type.Type
 import java.util.*
 
 /**
@@ -25,7 +25,7 @@ public class Script(
     public val trigger: Identifier,
     public val name: Identifier,
     public val parameters: List<Parameter>,
-    public val returns: List<ScriptVarType>,
+    public val returns: Type,
     public val statements: List<Statement>
 ) : Node() {
 

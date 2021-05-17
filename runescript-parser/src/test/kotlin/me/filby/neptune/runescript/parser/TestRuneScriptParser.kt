@@ -1,6 +1,5 @@
 package me.filby.neptune.runescript.parser
 
-import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
@@ -33,6 +32,7 @@ import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
+import me.filby.neptune.runescript.type.PrimitiveType
 import org.junit.jupiter.api.assertThrows
 import kotlin.properties.ReadOnlyProperty
 import kotlin.test.Test
@@ -43,8 +43,8 @@ class TestRuneScriptParser {
     @Test
     fun testScript() {
         val script = ScriptParser.createScript("[opheld1,abyssal_whip](int ${'$'}test)(int)")
-        val parameters = listOf(Parameter(ScriptVarType.INTEGER, Identifier("test")))
-        val returns = listOf(ScriptVarType.INTEGER)
+        val parameters = listOf(Parameter(PrimitiveType.INT, Identifier("test")))
+        val returns = PrimitiveType.INT
         val expected = Script(Identifier("opheld1"), Identifier("abyssal_whip"), parameters, returns, emptyList())
         assertEquals(expected, script)
     }
@@ -99,7 +99,7 @@ class TestRuneScriptParser {
     fun testSwitchStatement() {
         // switch_int ($test) {}
         val simpleSwitch = SwitchStatement(
-            ScriptVarType.INTEGER,
+            PrimitiveType.INT,
             LocalVariableExpression(Identifier("test")),
             emptyList()
         )
@@ -110,7 +110,7 @@ class TestRuneScriptParser {
             listOf(ReturnStatement(listOf(BooleanLiteral(true))))
         )
         val simpleSwitchWithCase = SwitchStatement(
-            ScriptVarType.INTEGER,
+            PrimitiveType.INT,
             LocalVariableExpression(Identifier("test")),
             listOf(simpleCase)
         )
@@ -125,19 +125,25 @@ class TestRuneScriptParser {
     @Test
     fun testDeclarationStatement() {
         // test with initializer
-        assertEquals(DeclarationStatement(ScriptVarType.INTEGER, Identifier("test"), IntegerLiteral(1)),
-            invokeParser("def_int ${'$'}test = 1;", RuneScriptParser::statement))
+        assertEquals(
+            DeclarationStatement(PrimitiveType.INT, Identifier("test"), IntegerLiteral(1)),
+            invokeParser("def_int ${'$'}test = 1;", RuneScriptParser::statement)
+        )
 
         // test without initializer
-        assertEquals(DeclarationStatement(ScriptVarType.INTEGER, Identifier("test"), null),
-            invokeParser("def_int ${'$'}test;", RuneScriptParser::statement))
+        assertEquals(
+            DeclarationStatement(PrimitiveType.INT, Identifier("test"), null),
+            invokeParser("def_int ${'$'}test;", RuneScriptParser::statement)
+        )
     }
 
     @Test
     fun testArrayDeclarationStatement() {
         // test with size initializer
-        assertEquals(ArrayDeclarationStatement(ScriptVarType.INTEGER, Identifier("test"), IntegerLiteral(1)),
-            invokeParser("def_int ${'$'}test(1);", RuneScriptParser::statement))
+        assertEquals(
+            ArrayDeclarationStatement(PrimitiveType.INT, Identifier("test"), IntegerLiteral(1)),
+            invokeParser("def_int ${'$'}test(1);", RuneScriptParser::statement)
+        )
 
         // test without initializer
         assertThrows<ParsingException> { invokeParser("def_int ${'$'}test();", RuneScriptParser::statement) }

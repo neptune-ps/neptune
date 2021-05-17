@@ -1,10 +1,10 @@
 package me.filby.neptune.runescript.ast.statement
 
 import com.google.common.base.MoreObjects
-import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
+import me.filby.neptune.runescript.type.Type
 import java.util.*
 
 /**
@@ -17,7 +17,7 @@ import java.util.*
  * ```
  */
 public class ArrayDeclarationStatement(
-    public val type: ScriptVarType,
+    public val type: Type,
     public val name: Identifier,
     public val initializer: Expression
 ) : Statement() {

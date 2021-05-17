@@ -2,8 +2,8 @@ package me.filby.neptune.runescript.ast
 
 import com.google.common.base.MoreObjects
 import com.google.common.base.Objects
-import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.ast.expr.Identifier
+import me.filby.neptune.runescript.type.Type
 
 /**
  * Represents a single parameter in a [Script].
@@ -14,7 +14,7 @@ import me.filby.neptune.runescript.ast.expr.Identifier
  * ```
  */
 public class Parameter(
-    public val type: ScriptVarType,
+    public val type: Type,
     public val name: Identifier,
     public val isArray: Boolean = false
 ) : Node() {

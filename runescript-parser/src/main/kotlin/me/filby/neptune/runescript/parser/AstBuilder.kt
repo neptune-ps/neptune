@@ -1,6 +1,5 @@
 package me.filby.neptune.runescript.parser
 
-import me.filby.neptune.runescript.ScriptVarType
 import me.filby.neptune.runescript.antlr.RuneScriptParser.AdvancedIdentifierContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ArrayDeclarationStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.AssignmentStatementContext
@@ -70,6 +69,9 @@ import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
+import me.filby.neptune.runescript.type.PrimitiveType
+import me.filby.neptune.runescript.type.TupleType
+import me.filby.neptune.runescript.type.Type
 import org.antlr.v4.runtime.ParserRuleContext
 
 /**
@@ -83,21 +85,33 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitScript(ctx: ScriptContext): Node {
+        val returns = ctx.typeList()?.TYPE()
+            ?.map { PrimitiveType.lookup(it.text) }
+            ?: emptyList()
         return Script(
             trigger = ctx.trigger.visit(),
             name = ctx.name.visit(),
             parameters = ctx.parameterList()?.parameter()?.map { it.visit() } ?: emptyList(),
-            returns = ctx.typeList()?.TYPE()?.map { ScriptVarType.lookup(it.text) } ?: emptyList(),
+            returns = returns.toType(),
             statements = ctx.statement().map { it.visit() }
         )
+    }
+
+    /**
+     * Converts a [List] of [PrimitiveType] to a [Type]. When there is more than 1 element, a [TupleType] is used.
+     */
+    private fun List<PrimitiveType>.toType() = when (size) {
+        0 -> PrimitiveType.VOID
+        1 -> first()
+        else -> TupleType(*this.toTypedArray())
     }
 
     override fun visitParameter(ctx: ParameterContext): Node {
         val isArray = ctx.type.text.endsWith(TYPE_ARRAY_SUFFIX)
         val type = if (!isArray) {
-            ScriptVarType.lookup(ctx.type.text)
+            PrimitiveType.lookup(ctx.type.text)
         } else {
-            ScriptVarType.lookup(ctx.type.text.substringBefore(TYPE_ARRAY_SUFFIX))
+            PrimitiveType.lookup(ctx.type.text.substringBefore(TYPE_ARRAY_SUFFIX))
         }
         return Parameter(
             type = type,
@@ -132,7 +146,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitSwitchStatement(ctx: SwitchStatementContext): Node {
         val typeString = ctx.SWITCH_TYPE().text.substringAfter(SWITCH_TYPE_PREFIX)
         return SwitchStatement(
-            type = ScriptVarType.lookup(typeString),
+            type = PrimitiveType.lookup(typeString),
             condition = ctx.parenthesis().visit(),
             cases = ctx.switchCase().map { it.visit() }
         )
@@ -148,7 +162,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node {
         val typeString = ctx.DEF_TYPE().text.substringAfter(DEF_TYPE_PREFIX)
         return DeclarationStatement(
-            type = ScriptVarType.lookup(typeString),
+            type = PrimitiveType.lookup(typeString),
             name = ctx.advancedIdentifier().visit(),
             initializer = ctx.expression()?.visit()
         )
@@ -157,7 +171,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitArrayDeclarationStatement(ctx: ArrayDeclarationStatementContext): Node {
         val typeString = ctx.DEF_TYPE().text.substringAfter(DEF_TYPE_PREFIX)
         return ArrayDeclarationStatement(
-            type = ScriptVarType.lookup(typeString),
+            type = PrimitiveType.lookup(typeString),
             name = ctx.advancedIdentifier().visit(),
             initializer = ctx.parenthesis().visit()
         )
