@@ -28,4 +28,18 @@ public enum class PrimitiveType(
     constructor(baseType: BaseVarType = BaseVarType.INTEGER, defaultValue: Any? = null):
         this(null, baseType, defaultValue)
 
+    public companion object {
+
+        /**
+         * A map of [representation] to [PrimitiveType].
+         */
+        private val lookupMap = values().associateBy { it.representation }
+
+        /**
+         * Finds a [PrimitiveType] by its [name].
+         */
+        public fun lookup(name: String): PrimitiveType = lookupMap[name] ?: error("unknown type: $name")
+
+    }
+
 }
