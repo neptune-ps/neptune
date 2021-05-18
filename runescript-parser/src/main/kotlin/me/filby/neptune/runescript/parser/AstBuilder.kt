@@ -91,7 +91,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         return Script(
             trigger = ctx.trigger.visit(),
             name = ctx.name.visit(),
-            parameters = ctx.parameterList()?.parameter()?.map { it.visit() } ?: emptyList(),
+            parameters = ctx.parameterList()?.parameter()?.map { it.visit() },
             returns = returns.toType(),
             statements = ctx.statement().map { it.visit() }
         )
@@ -101,7 +101,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
      * Converts a [List] of [PrimitiveType] to a [Type]. When there is more than 1 element, a [TupleType] is used.
      */
     private fun List<PrimitiveType>.toType() = when (size) {
-        0 -> PrimitiveType.VOID
+        0 -> null
         1 -> first()
         else -> TupleType(*this.toTypedArray())
     }

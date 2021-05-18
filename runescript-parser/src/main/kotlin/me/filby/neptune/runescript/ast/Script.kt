@@ -24,15 +24,17 @@ import java.util.*
 public class Script(
     public val trigger: Identifier,
     public val name: Identifier,
-    public val parameters: List<Parameter>,
-    public val returns: Type,
+    public val parameters: List<Parameter>?,
+    public val returns: Type?,
     public val statements: List<Statement>
 ) : Node() {
 
     init {
         addChild(trigger)
         addChild(name)
-        addChild(parameters)
+        if (parameters != null) {
+            addChild(parameters)
+        }
         addChild(statements)
     }
 

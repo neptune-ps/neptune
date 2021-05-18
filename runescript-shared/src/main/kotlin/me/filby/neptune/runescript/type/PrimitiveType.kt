@@ -11,7 +11,6 @@ public enum class PrimitiveType(
 ) : Type {
     // custom types
     UNDEFINED,
-    VOID,
     NULL,
 
     // verified script var types
