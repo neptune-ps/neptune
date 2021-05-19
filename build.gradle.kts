@@ -52,10 +52,15 @@ allprojects {
 subprojects {
     plugins.withType<KotlinPluginWrapper> {
         dependencies {
-            api(kotlin("stdlib"))
+            for (module in listOf("stdlib", "stdlib-common", "stdlib-jdk7", "stdlib-jdk8")) {
+                api("org.jetbrains.kotlin:kotlin-$module") {
+                    version {
+                        strictly(kotlinPluginVersion)
+                    }
+                }
+            }
 
-            implementation(kotlin("reflect"))
-//            implementation(libs.inlineLogger)
+            implementation(libs.inlineLogger)
             implementation(libs.guava)
 
             testImplementation(kotlin("test-junit5"))
