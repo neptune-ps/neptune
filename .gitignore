@@ -1,6 +1,7 @@
 .*
 !.editorconfig
 !.git*
+!.idea
 
 # Java files
 */build

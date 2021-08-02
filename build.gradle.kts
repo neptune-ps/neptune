@@ -6,6 +6,7 @@ defaultTasks("build")
 plugins {
     base
     kotlin("jvm")
+    id("org.jmailen.kotlinter") apply false
 }
 
 allprojects {
@@ -51,6 +52,8 @@ allprojects {
 
 subprojects {
     plugins.withType<KotlinPluginWrapper> {
+        apply(plugin = "org.jmailen.kotlinter")
+
         dependencies {
             for (module in listOf("stdlib", "stdlib-common", "stdlib-jdk7", "stdlib-jdk8")) {
                 api("org.jetbrains.kotlin:kotlin-$module") {
