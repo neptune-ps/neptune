@@ -2,7 +2,7 @@ package me.filby.neptune.runescript.ast.statement
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents a block of statements.
@@ -15,7 +15,6 @@ import java.util.*
  * ```
  */
 public class BlockStatement(public val statements: List<Statement>) : Statement() {
-
     init {
         addChild(statements)
     }
@@ -45,5 +44,4 @@ public class BlockStatement(public val statements: List<Statement>) : Statement(
             .add("statements", statements)
             .toString()
     }
-
 }

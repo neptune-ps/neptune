@@ -5,7 +5,7 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.type.Type
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents a local variable declaration statement that defines the variables [type], [name], and an optional
@@ -21,7 +21,6 @@ public class DeclarationStatement(
     public val name: Identifier,
     public val initializer: Expression?
 ) : Statement() {
-
     init {
         addChild(name)
         addChild(initializer)
@@ -44,9 +43,7 @@ public class DeclarationStatement(
             return false
         }
 
-        return type == other.type
-            && name == other.name
-            && initializer == other.initializer
+        return type == other.type && name == other.name && initializer == other.initializer
     }
 
     override fun toString(): String {
@@ -56,5 +53,4 @@ public class DeclarationStatement(
             .add("initializer", initializer)
             .toString()
     }
-
 }

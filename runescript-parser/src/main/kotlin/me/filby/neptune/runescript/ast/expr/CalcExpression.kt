@@ -2,7 +2,7 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
-import java.util.*
+import java.util.Objects
 
 /**
  * An expression that allows doing math operations inside.
@@ -13,7 +13,6 @@ import java.util.*
  * ```
  */
 public class CalcExpression(public val expression: Expression) : Expression() {
-
     init {
         addChild(expression)
     }
@@ -43,5 +42,4 @@ public class CalcExpression(public val expression: Expression) : Expression() {
             .add("expression", expression)
             .toString()
     }
-
 }

@@ -4,7 +4,7 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.expr.Expression
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents a single [SwitchStatement] case. Contains the [keys] and the [statements] to run when the switch
@@ -16,7 +16,6 @@ public class SwitchCase(
     public val keys: List<Expression>,
     public val statements: List<Statement>
 ) : Node() {
-
     init {
         addChild(keys)
         addChild(statements)
@@ -44,8 +43,7 @@ public class SwitchCase(
             return false
         }
 
-        return keys == other.keys
-            && statements == other.statements
+        return keys == other.keys && statements == other.statements
     }
 
     override fun toString(): String {
@@ -54,5 +52,4 @@ public class SwitchCase(
             .add("statements", statements)
             .toString()
     }
-
 }

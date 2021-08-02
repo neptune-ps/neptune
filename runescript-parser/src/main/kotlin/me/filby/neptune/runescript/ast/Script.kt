@@ -4,7 +4,7 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.statement.Statement
 import me.filby.neptune.runescript.type.Type
-import java.util.*
+import java.util.Objects
 
 /**
  * A script declaration containing the header and code of a script.
@@ -28,7 +28,6 @@ public class Script(
     public val returns: Type?,
     public val statements: List<Statement>
 ) : Node() {
-
     init {
         addChild(trigger)
         addChild(name)
@@ -55,11 +54,8 @@ public class Script(
             return false
         }
 
-        return trigger == other.trigger
-            && name == other.name
-            && parameters == other.parameters
-            && returns == other.returns
-            && statements == other.statements
+        return trigger == other.trigger && name == other.name && parameters == other.parameters &&
+            returns == other.returns && statements == other.statements
     }
 
     override fun toString(): String {
@@ -71,5 +67,4 @@ public class Script(
             .add("statements", statements)
             .toString()
     }
-
 }

@@ -18,7 +18,6 @@ public class Parameter(
     public val name: Identifier,
     public val isArray: Boolean = false
 ) : Node() {
-
     init {
         addChild(name)
     }
@@ -40,9 +39,7 @@ public class Parameter(
             return false
         }
 
-        return type == other.type
-            && name == other.name
-            && isArray == other.isArray
+        return type == other.type && name == other.name && isArray == other.isArray
     }
 
     override fun toString(): String {
@@ -52,5 +49,4 @@ public class Parameter(
             .add("isArray", isArray)
             .toString()
     }
-
 }

@@ -79,7 +79,6 @@ import org.antlr.v4.runtime.ParserRuleContext
  * [Node] implementations for all possible pieces of the tree.
  */
 public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
-
     override fun visitScriptFile(ctx: ScriptFileContext): Node {
         return ScriptFile(ctx.script().map { it.visit() })
     }
@@ -353,10 +352,12 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
             if (curr == '\\') {
                 // start of escape sequence, so fetch the next character
                 val next = if (i == length - 1) '\\' else this[i + 1]
-                builder.append(when(next) {
-                    '\\', '\'', '"', '<' -> next
-                    else -> error("unsupported escape sequence: \\$next")
-                })
+                builder.append(
+                    when (next) {
+                        '\\', '\'', '"', '<' -> next
+                        else -> error("unsupported escape sequence: \\$next")
+                    }
+                )
                 i++
             } else {
                 builder.append(curr)
@@ -367,7 +368,6 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     private companion object {
-
         /**
          * The prefix used when specifying a switch type.
          */
@@ -382,7 +382,5 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
          * The suffix used for specifying a parameter that is an array.
          */
         private const val TYPE_ARRAY_SUFFIX = "array"
-
     }
-
 }

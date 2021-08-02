@@ -7,7 +7,6 @@ import kotlin.reflect.KProperty
  * The base [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) node.
  */
 public abstract class Node {
-
     /**
      * This nodes parent node if it belongs to one.
      */
@@ -96,14 +95,12 @@ public abstract class Node {
     public abstract override fun toString(): String
 
     public companion object {
-
         /**
          * Returns a [ReadWriteProperty] for accessing attributes through delegation. If the attribute is not found an
          * error is thrown.
          */
         internal fun <N : Node, T : Any> attribute(key: String): ReadWriteProperty<N, T> =
             object : ReadWriteProperty<N, T> {
-
                 @Suppress("UNCHECKED_CAST")
                 override fun getValue(thisRef: N, property: KProperty<*>): T {
                     return thisRef.getAttribute(key)
@@ -113,7 +110,6 @@ public abstract class Node {
                 override fun setValue(thisRef: N, property: KProperty<*>, value: T) {
                     thisRef.putAttribute(key, value)
                 }
-
             }
 
         /**
@@ -122,7 +118,6 @@ public abstract class Node {
          */
         public fun <T : Any> attributeOrNull(key: String): ReadWriteProperty<Node, T?> =
             object : ReadWriteProperty<Node, T?> {
-
                 @Suppress("UNCHECKED_CAST")
                 override fun getValue(thisRef: Node, property: KProperty<*>): T? {
                     return thisRef.getAttribute(key) as T?
@@ -134,9 +129,6 @@ public abstract class Node {
                     }
                     thisRef.putAttribute(key, value)
                 }
-
             }
-
     }
-
 }

@@ -34,7 +34,6 @@ import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 
 public interface AstVisitor<R> {
-
     public fun visitScriptFile(scriptFile: ScriptFile): R {
         return visitNode(scriptFile)
     }
@@ -178,5 +177,4 @@ public interface AstVisitor<R> {
     public fun visitNode(node: Node): R {
         throw UnsupportedOperationException("not implemented: $node")
     }
-
 }

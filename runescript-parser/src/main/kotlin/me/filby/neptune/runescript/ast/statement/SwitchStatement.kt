@@ -4,7 +4,7 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.type.Type
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents a switch statement for a given [type]. Switch statements contain a single [condition] (what to switch on)
@@ -24,7 +24,6 @@ public class SwitchStatement(
     public val condition: Expression,
     public val cases: List<SwitchCase>
 ) : Statement() {
-
     init {
         addChild(condition)
         addChild(cases)
@@ -47,9 +46,7 @@ public class SwitchStatement(
             return false
         }
 
-        return type == other.type
-            && condition == other.condition
-            && cases == other.cases
+        return type == other.type && condition == other.condition && cases == other.cases
     }
 
     override fun toString(): String {
@@ -59,5 +56,4 @@ public class SwitchStatement(
             .add("cases", cases)
             .toString()
     }
-
 }

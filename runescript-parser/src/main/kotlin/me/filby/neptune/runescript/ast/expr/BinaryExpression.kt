@@ -2,7 +2,7 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
-import java.util.*
+import java.util.Objects
 
 /**
  * An expression that has a [left] hand side and [right] hand side with an [operator] that specifies what to do
@@ -18,7 +18,6 @@ public class BinaryExpression(
     public val operator: String,
     public val right: Expression
 ) : Expression() {
-
     init {
         addChild(left)
         addChild(right)
@@ -41,9 +40,9 @@ public class BinaryExpression(
             return false
         }
 
-        return left == other.left
-            && operator == other.operator
-            && right == other.right
+        return left == other.left &&
+            operator == other.operator &&
+            right == other.right
     }
 
     override fun toString(): String {
@@ -53,5 +52,4 @@ public class BinaryExpression(
             .add("right", right)
             .toString()
     }
-
 }

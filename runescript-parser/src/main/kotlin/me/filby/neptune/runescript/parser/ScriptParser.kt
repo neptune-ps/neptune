@@ -14,7 +14,6 @@ import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 
 public object ScriptParser {
-
     private val ERROR_LISTENER = object : BaseErrorListener() {
         override fun syntaxError(
             recognizer: Recognizer<*, *>?,
@@ -55,5 +54,4 @@ public object ScriptParser {
 
         return AstBuilder().visit(tree)
     }
-
 }

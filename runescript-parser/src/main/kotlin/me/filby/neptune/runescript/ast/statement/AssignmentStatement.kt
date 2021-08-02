@@ -4,7 +4,7 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.VariableExpression
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents a statement that defines [vars] (LHS) to set their values to the result of [expressions] (RHS).
@@ -18,7 +18,6 @@ public class AssignmentStatement(
     public val vars: List<VariableExpression>,
     public val expressions: List<Expression>
 ) : Statement() {
-
     init {
         addChild(vars)
         addChild(expressions)
@@ -41,8 +40,7 @@ public class AssignmentStatement(
             return false
         }
 
-        return vars == other.vars
-            && expressions == other.expressions
+        return vars == other.vars && expressions == other.expressions
     }
 
     override fun toString(): String {
@@ -51,5 +49,4 @@ public class AssignmentStatement(
             .add("expressions", expressions)
             .toString()
     }
-
 }

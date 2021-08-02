@@ -3,7 +3,7 @@ package me.filby.neptune.runescript.ast.statement
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents an if statement that has a [condition], [thenStatement], and an optional [elseStatement].
@@ -22,7 +22,6 @@ public class IfStatement(
     public val thenStatement: Statement,
     public val elseStatement: Statement?
 ) : Statement() {
-
     init {
         addChild(condition)
         addChild(thenStatement)
@@ -46,9 +45,8 @@ public class IfStatement(
             return false
         }
 
-        return condition == other.condition
-            && thenStatement == other.thenStatement
-            && elseStatement == other.elseStatement
+        return condition == other.condition && thenStatement == other.thenStatement &&
+            elseStatement == other.elseStatement
     }
 
     override fun toString(): String {
@@ -58,5 +56,4 @@ public class IfStatement(
             .add("elseStatement", elseStatement)
             .toString()
     }
-
 }

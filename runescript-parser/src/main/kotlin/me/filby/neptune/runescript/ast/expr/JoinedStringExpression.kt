@@ -2,7 +2,7 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents an interpolated string that contains multiple [parts] to make it up.
@@ -13,7 +13,6 @@ import java.util.*
  * ```
  */
 public class JoinedStringExpression(public val parts: List<Expression>) : Expression() {
-
     init {
         addChild(parts)
     }
@@ -43,5 +42,4 @@ public class JoinedStringExpression(public val parts: List<Expression>) : Expres
             .add("parts", parts)
             .toString()
     }
-
 }

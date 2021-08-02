@@ -9,6 +9,8 @@ val antlrPackage = "me.filby.neptune.runescript.antlr"
 
 dependencies {
     antlr(libs.antlr)
+
+    implementation(project(":runescript-shared"))
 }
 
 tasks.compileKotlin {
@@ -34,3 +36,6 @@ tasks.generateGrammarSource {
     val grammars = fileTree(antlrSource) { include("**/*.g4") }.files.map { it.toString() }
     arguments = listOf("-no-listener", "-visitor", "-package", antlrPackage) + grammars
 }
+
+// disable ktlint on tests for now, currently not happy with tests in general
+tasks.getByPath(":runescript-parser:lintKotlinTest").enabled = false

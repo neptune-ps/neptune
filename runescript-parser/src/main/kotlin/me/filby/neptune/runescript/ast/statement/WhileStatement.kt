@@ -3,7 +3,7 @@ package me.filby.neptune.runescript.ast.statement
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents a while statement with a [condition] and the [thenStatement] that is ran when the condition is `true`.
@@ -20,7 +20,6 @@ public class WhileStatement(
     public val condition: Expression,
     public val thenStatement: Statement,
 ) : Statement() {
-
     init {
         addChild(condition)
         addChild(thenStatement)
@@ -43,8 +42,7 @@ public class WhileStatement(
             return false
         }
 
-        return condition == other.condition
-            && thenStatement == other.thenStatement
+        return condition == other.condition && thenStatement == other.thenStatement
     }
 
     override fun toString(): String {
@@ -53,5 +51,4 @@ public class WhileStatement(
             .add("thenStatement", thenStatement)
             .toString()
     }
-
 }

@@ -2,7 +2,7 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents some kind of identifier within code.
@@ -10,7 +10,6 @@ import java.util.*
  * Examples: `abyssal_whip`, `smithing:arrowheads`.
  */
 public class Identifier(public val text: String) : Expression() {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitIdentifier(this)
     }
@@ -36,5 +35,4 @@ public class Identifier(public val text: String) : Expression() {
             .add("text", text)
             .toString()
     }
-
 }

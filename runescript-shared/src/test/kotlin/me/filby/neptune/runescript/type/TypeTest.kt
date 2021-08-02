@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 
 class TypeTest {
-
     @Test
     fun testTupleType() {
         val type = TupleType(
@@ -47,5 +46,4 @@ class TypeTest {
             type.children
         )
     }
-
 }

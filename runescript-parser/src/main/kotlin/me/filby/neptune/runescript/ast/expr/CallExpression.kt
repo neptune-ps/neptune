@@ -2,7 +2,7 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
-import java.util.*
+import java.util.Objects
 
 /**
  * The base expression for all types of call expressions.
@@ -11,7 +11,6 @@ public sealed class CallExpression(
     public val name: Identifier,
     public val arguments: List<Expression>
 ) : Expression() {
-
     init {
         addChild(name)
         addChild(arguments)
@@ -23,7 +22,6 @@ public sealed class CallExpression(
             .add("arguments", arguments)
             .toString()
     }
-
 }
 
 /**
@@ -35,7 +33,6 @@ public sealed class CallExpression(
  * ```
  */
 public class CommandCallExpression(name: Identifier, arguments: List<Expression>) : CallExpression(name, arguments) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitCommandCallExpression(this)
     }
@@ -53,10 +50,8 @@ public class CommandCallExpression(name: Identifier, arguments: List<Expression>
             return false
         }
 
-        return name == other.name
-            && arguments == other.arguments
+        return name == other.name && arguments == other.arguments
     }
-
 }
 
 /**
@@ -67,7 +62,6 @@ public class CommandCallExpression(name: Identifier, arguments: List<Expression>
  * ```
  */
 public class ProcCallExpression(name: Identifier, arguments: List<Expression>) : CallExpression(name, arguments) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitProcCallExpression(this)
     }
@@ -85,10 +79,8 @@ public class ProcCallExpression(name: Identifier, arguments: List<Expression>) :
             return false
         }
 
-        return name == other.name
-            && arguments == other.arguments
+        return name == other.name && arguments == other.arguments
     }
-
 }
 
 /**
@@ -100,7 +92,6 @@ public class ProcCallExpression(name: Identifier, arguments: List<Expression>) :
  * ```
  */
 public class JumpCallExpression(name: Identifier, arguments: List<Expression>) : CallExpression(name, arguments) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitJumpCallExpression(this)
     }
@@ -118,8 +109,6 @@ public class JumpCallExpression(name: Identifier, arguments: List<Expression>) :
             return false
         }
 
-        return name == other.name
-            && arguments == other.arguments
+        return name == other.name && arguments == other.arguments
     }
-
 }

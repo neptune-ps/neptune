@@ -12,7 +12,6 @@ import me.filby.neptune.runescript.ast.AstVisitor
  * ```
  */
 public class EmptyStatement : Statement() {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitEmptyStatement(this)
     }
@@ -32,5 +31,4 @@ public class EmptyStatement : Statement() {
         return MoreObjects.toStringHelper(this)
             .toString()
     }
-
 }

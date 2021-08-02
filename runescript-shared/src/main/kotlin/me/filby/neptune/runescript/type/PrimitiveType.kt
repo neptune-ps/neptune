@@ -17,6 +17,7 @@ public enum class PrimitiveType(
     INT('i', defaultValue = 0),
     BOOLEAN('1', defaultValue = 0),
     STRING('s', BaseVarType.STRING, defaultValue = ""),
+    MAPELEMENT('µ', defaultValue = -1),
     LONG('Ï', BaseVarType.LONG, defaultValue = 1L),
     ;
 
@@ -25,11 +26,13 @@ public enum class PrimitiveType(
     /**
      * A [PrimitiveType] type that only defines the [baseType] and [defaultValue].
      */
-    constructor(baseType: BaseVarType = BaseVarType.INTEGER, defaultValue: Any? = null):
-        this(null, baseType, defaultValue)
+    constructor(baseType: BaseVarType = BaseVarType.INTEGER, defaultValue: Any? = null) : this(
+        null,
+        baseType,
+        defaultValue
+    )
 
     public companion object {
-
         /**
          * A map of [representation] to [PrimitiveType].
          */
@@ -39,7 +42,5 @@ public enum class PrimitiveType(
          * Finds a [PrimitiveType] by its [name].
          */
         public fun lookup(name: String): PrimitiveType = lookupMap[name] ?: error("unknown type: $name")
-
     }
-
 }

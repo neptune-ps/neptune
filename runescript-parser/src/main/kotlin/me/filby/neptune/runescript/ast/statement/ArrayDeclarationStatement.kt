@@ -5,7 +5,7 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.type.Type
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents a local array variable declaration with the given [type] and [name]. The [initializer] is what determines
@@ -21,7 +21,6 @@ public class ArrayDeclarationStatement(
     public val name: Identifier,
     public val initializer: Expression
 ) : Statement() {
-
     init {
         addChild(name)
         addChild(initializer)
@@ -44,9 +43,7 @@ public class ArrayDeclarationStatement(
             return false
         }
 
-        return type == other.type
-            && name == other.name
-            && initializer == other.initializer
+        return type == other.type && name == other.name && initializer == other.initializer
     }
 
     override fun toString(): String {
@@ -56,5 +53,4 @@ public class ArrayDeclarationStatement(
             .add("initializer", initializer)
             .toString()
     }
-
 }

@@ -2,13 +2,12 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
-import java.util.*
+import java.util.Objects
 
 /**
  * An [Expression] that represents a constant value of [T].
  */
 public sealed class Literal<T>(public val value: T) : Expression() {
-
     override fun hashCode(): Int {
         return Objects.hashCode(value)
     }
@@ -30,7 +29,6 @@ public sealed class Literal<T>(public val value: T) : Expression() {
             .add("value", value)
             .toString()
     }
-
 }
 
 /**
@@ -42,11 +40,9 @@ public sealed class Literal<T>(public val value: T) : Expression() {
  * ```
  */
 public class IntegerLiteral(value: Int) : Literal<Int>(value) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitIntegerLiteral(this)
     }
-
 }
 
 /**
@@ -58,11 +54,9 @@ public class IntegerLiteral(value: Int) : Literal<Int>(value) {
  * ```
  */
 public class BooleanLiteral(value: Boolean) : Literal<Boolean>(value) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitBooleanLiteral(this)
     }
-
 }
 
 /**
@@ -74,11 +68,9 @@ public class BooleanLiteral(value: Boolean) : Literal<Boolean>(value) {
  * ```
  */
 public class CharacterLiteral(value: Char) : Literal<Char>(value) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitCharacterLiteral(this)
     }
-
 }
 
 /**
@@ -91,11 +83,9 @@ public class CharacterLiteral(value: Char) : Literal<Char>(value) {
  * ```
  */
 public class StringLiteral(value: String) : Literal<String>(value) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitStringLiteral(this)
     }
-
 }
 
 /**
@@ -108,9 +98,7 @@ public class StringLiteral(value: String) : Literal<String>(value) {
  */
 // object because the value is always the same
 public class NullLiteral : Literal<Int>(-1) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitNullLiteral(this)
     }
-
 }

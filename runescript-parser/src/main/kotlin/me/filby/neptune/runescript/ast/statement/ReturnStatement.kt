@@ -3,7 +3,7 @@ package me.filby.neptune.runescript.ast.statement
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.expr.Expression
-import java.util.*
+import java.util.Objects
 
 /**
  * Represents a return statement that can have any number of [expressions].
@@ -14,7 +14,6 @@ import java.util.*
  * ```
  */
 public class ReturnStatement(public val expressions: List<Expression>) : Statement() {
-
     init {
         addChild(expressions)
     }
@@ -44,5 +43,4 @@ public class ReturnStatement(public val expressions: List<Expression>) : Stateme
             .add("expressions", expressions)
             .toString()
     }
-
 }

@@ -6,8 +6,6 @@ public class ParsingException(
     private val line: Int,
     private val column: Int
 ) : RuntimeException(message, cause) {
-
     override val message: String
         get() = "line %s:%s: %s".format(line, column, super.message)
-
 }

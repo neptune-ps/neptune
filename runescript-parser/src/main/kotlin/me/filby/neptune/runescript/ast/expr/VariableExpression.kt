@@ -2,14 +2,13 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
-import java.util.*
+import java.util.Objects
 
 /**
  * A base representation of a variable being used as an [Expression].
  */
 // base class for a variable reference, all have an identifier
 public sealed class VariableExpression(public val name: Identifier) : Expression() {
-
     init {
         addChild(name)
     }
@@ -19,7 +18,6 @@ public sealed class VariableExpression(public val name: Identifier) : Expression
             .add("name", name)
             .toString()
     }
-
 }
 
 /**
@@ -34,7 +32,6 @@ public class LocalVariableExpression(
     name: Identifier,
     public val index: Expression? = null
 ) : VariableExpression(name) {
-
     init {
         addChild(index)
     }
@@ -61,8 +58,7 @@ public class LocalVariableExpression(
             return false
         }
 
-        return name == other.name
-            && index == other.index
+        return name == other.name && index == other.index
     }
 
     override fun toString(): String {
@@ -71,7 +67,6 @@ public class LocalVariableExpression(
             .add("index", index)
             .toString()
     }
-
 }
 
 /**
@@ -83,7 +78,6 @@ public class LocalVariableExpression(
  * ```
  */
 public class GameVariableExpression(name: Identifier) : VariableExpression(name) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitGameVariableExpression(this)
     }
@@ -103,7 +97,6 @@ public class GameVariableExpression(name: Identifier) : VariableExpression(name)
 
         return name == other.name
     }
-
 }
 
 /**
@@ -115,7 +108,6 @@ public class GameVariableExpression(name: Identifier) : VariableExpression(name)
  * ```
  */
 public class ConstantVariableExpression(name: Identifier) : VariableExpression(name) {
-
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitConstantVariableExpression(this)
     }
@@ -135,5 +127,4 @@ public class ConstantVariableExpression(name: Identifier) : VariableExpression(n
 
         return name == other.name
     }
-
 }

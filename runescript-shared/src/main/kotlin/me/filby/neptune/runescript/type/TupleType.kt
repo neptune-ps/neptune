@@ -6,7 +6,6 @@ import com.google.common.base.MoreObjects
  * A single type that combines multiple other types into one while still providing access to the other types.
  */
 public class TupleType(vararg children: Type) : Type {
-
     /**
      * A flattened array of types this tuple contains.
      */
@@ -43,7 +42,6 @@ public class TupleType(vararg children: Type) : Type {
     }
 
     private companion object {
-
         private fun flatten(types: Array<out Type>): Array<Type> {
             val flattened = mutableListOf<Type>()
             for (type in types) {
@@ -55,7 +53,5 @@ public class TupleType(vararg children: Type) : Type {
             }
             return flattened.toTypedArray()
         }
-
     }
-
 }
