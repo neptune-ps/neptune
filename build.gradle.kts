@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 defaultTasks("build")
@@ -14,8 +15,8 @@ allprojects {
     version = "0.0.1-SNAPSHOT"
 
     plugins.withType<BasePlugin> {
-        configure<BasePluginConvention> {
-            archivesBaseName = "${rootProject.name}-$name"
+        configure<BasePluginExtension> {
+            archivesName.set("${rootProject.name}-$name")
         }
     }
 
@@ -58,7 +59,7 @@ subprojects {
             for (module in listOf("stdlib", "stdlib-common", "stdlib-jdk7", "stdlib-jdk8")) {
                 api("org.jetbrains.kotlin:kotlin-$module") {
                     version {
-                        strictly(kotlinPluginVersion)
+                        strictly(project.getKotlinPluginVersion())
                     }
                 }
             }
