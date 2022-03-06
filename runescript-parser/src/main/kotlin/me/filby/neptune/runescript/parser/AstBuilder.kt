@@ -303,7 +303,7 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
             when (child) {
                 is StringLiteralContentContext -> {
                     // create a new literal since the rule only allows valid string parts
-                    parts += StringLiteral(ctx.location, child.text.unescape())
+                    parts += StringLiteral(child.location, child.text.unescape())
                 }
                 is StringExpressionContext -> {
                     // visit the inner expression
