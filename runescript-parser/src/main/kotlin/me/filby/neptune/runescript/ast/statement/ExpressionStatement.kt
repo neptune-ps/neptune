@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.ast.statement
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.Objects
 
@@ -13,7 +14,7 @@ import java.util.Objects
  * <cc_settext("Example text")>;
  * ```
  */
-public class ExpressionStatement(public val expression: Expression) : Statement() {
+public class ExpressionStatement(source: NodeSourceLocation, public val expression: Expression) : Statement(source) {
     init {
         addChild(expression)
     }

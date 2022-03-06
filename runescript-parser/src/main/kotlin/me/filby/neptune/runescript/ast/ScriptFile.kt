@@ -8,7 +8,7 @@ import java.util.Objects
  *
  * See [Script] for an example of what a script is.
  */
-public class ScriptFile(public val scripts: List<Script>) : Node() {
+public class ScriptFile(source: NodeSourceLocation, public val scripts: List<Script>) : Node(source) {
     init {
         addChild(scripts)
     }

@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.ast.statement
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.VariableExpression
 import java.util.Objects
@@ -15,9 +16,10 @@ import java.util.Objects
  * ```
  */
 public class AssignmentStatement(
+    source: NodeSourceLocation,
     public val vars: List<VariableExpression>,
     public val expressions: List<Expression>
-) : Statement() {
+) : Statement(source) {
     init {
         addChild(vars)
         addChild(expressions)

@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.ast.statement
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.Node
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.Objects
 
@@ -13,9 +14,10 @@ import java.util.Objects
  * See [SwitchStatement] for example.
  */
 public class SwitchCase(
+    source: NodeSourceLocation,
     public val keys: List<Expression>,
     public val statements: List<Statement>
-) : Node() {
+) : Node(source) {
     init {
         addChild(keys)
         addChild(statements)

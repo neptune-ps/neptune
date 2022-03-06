@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.ast.statement
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.Objects
 
@@ -13,7 +14,7 @@ import java.util.Objects
  * return(1, 2, 3);
  * ```
  */
-public class ReturnStatement(public val expressions: List<Expression>) : Statement() {
+public class ReturnStatement(source: NodeSourceLocation, public val expressions: List<Expression>) : Statement(source) {
     init {
         addChild(expressions)
     }

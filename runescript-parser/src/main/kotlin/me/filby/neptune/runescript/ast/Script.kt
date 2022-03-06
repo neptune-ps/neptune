@@ -22,12 +22,13 @@ import java.util.Objects
  * ```
  */
 public class Script(
+    source: NodeSourceLocation,
     public val trigger: Identifier,
     public val name: Identifier,
     public val parameters: List<Parameter>?,
     public val returns: Type?,
     public val statements: List<Statement>
-) : Node() {
+) : Node(source) {
     init {
         addChild(trigger)
         addChild(name)

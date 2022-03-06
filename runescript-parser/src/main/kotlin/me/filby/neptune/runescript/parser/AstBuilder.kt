@@ -38,6 +38,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.SwitchStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.WhileStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParserBaseVisitor
 import me.filby.neptune.runescript.ast.Node
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
@@ -78,9 +79,9 @@ import org.antlr.v4.runtime.ParserRuleContext
  * A visitor that converts an antlr parse tree into an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree). See
  * [Node] implementations for all possible pieces of the tree.
  */
-public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
+public class AstBuilder(private val source: String) : RuneScriptParserBaseVisitor<Node>() {
     override fun visitScriptFile(ctx: ScriptFileContext): Node {
-        return ScriptFile(ctx.script().map { it.visit() })
+        return ScriptFile(ctx.location, ctx.script().map { it.visit() })
     }
 
     override fun visitScript(ctx: ScriptContext): Node {
@@ -88,6 +89,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
             ?.map { PrimitiveType.lookup(it.text) }
             ?: emptyList()
         return Script(
+            source = ctx.location,
             trigger = ctx.trigger.visit(),
             name = ctx.name.visit(),
             parameters = ctx.parameterList()?.parameter()?.map { it.visit() },
@@ -113,6 +115,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
             PrimitiveType.lookup(ctx.type.text.substringBefore(TYPE_ARRAY_SUFFIX))
         }
         return Parameter(
+            source = ctx.location,
             type = type,
             name = ctx.advancedIdentifier().visit(),
             isArray = isArray
@@ -120,15 +123,16 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitBlockStatement(ctx: BlockStatementContext): Node {
-        return BlockStatement(ctx.statement().map { it.visit() })
+        return BlockStatement(ctx.location, ctx.statement().map { it.visit() })
     }
 
     override fun visitReturnStatement(ctx: ReturnStatementContext): Node {
-        return ReturnStatement(ctx.expressionList().visit())
+        return ReturnStatement(ctx.location, ctx.expressionList().visit())
     }
 
     override fun visitIfStatement(ctx: IfStatementContext): Node {
         return IfStatement(
+            source = ctx.location,
             condition = ctx.parenthesis().visit(),
             thenStatement = ctx.statement(0).visit(),
             elseStatement = ctx.statement(1)?.visit()
@@ -137,6 +141,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitWhileStatement(ctx: WhileStatementContext): Node {
         return WhileStatement(
+            source = ctx.location,
             condition = ctx.parenthesis().visit(),
             thenStatement = ctx.statement().visit()
         )
@@ -145,6 +150,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitSwitchStatement(ctx: SwitchStatementContext): Node {
         val typeString = ctx.SWITCH_TYPE().text.substringAfter(SWITCH_TYPE_PREFIX)
         return SwitchStatement(
+            source = ctx.location,
             type = PrimitiveType.lookup(typeString),
             condition = ctx.parenthesis().visit(),
             cases = ctx.switchCase().map { it.visit() }
@@ -153,6 +159,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitSwitchCase(ctx: SwitchCaseContext): Node {
         return SwitchCase(
+            source = ctx.location,
             keys = ctx.expressionList()?.visit() ?: emptyList(),
             statements = ctx.statement()?.map { it.visit() } ?: emptyList()
         )
@@ -161,6 +168,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node {
         val typeString = ctx.DEF_TYPE().text.substringAfter(DEF_TYPE_PREFIX)
         return DeclarationStatement(
+            source = ctx.location,
             type = PrimitiveType.lookup(typeString),
             name = ctx.advancedIdentifier().visit(),
             initializer = ctx.expression()?.visit()
@@ -170,6 +178,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     override fun visitArrayDeclarationStatement(ctx: ArrayDeclarationStatementContext): Node {
         val typeString = ctx.DEF_TYPE().text.substringAfter(DEF_TYPE_PREFIX)
         return ArrayDeclarationStatement(
+            source = ctx.location,
             type = PrimitiveType.lookup(typeString),
             name = ctx.advancedIdentifier().visit(),
             initializer = ctx.parenthesis().visit()
@@ -178,25 +187,27 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitAssignmentStatement(ctx: AssignmentStatementContext): Node {
         return AssignmentStatement(
+            source = ctx.location,
             vars = ctx.assignableVariableList().assignableVariable().map { it.visit() },
             expressions = ctx.expressionList().visit()
         )
     }
 
     override fun visitExpressionStatement(ctx: ExpressionStatementContext): Node {
-        return ExpressionStatement(ctx.expression().visit())
+        return ExpressionStatement(ctx.location, ctx.expression().visit())
     }
 
-    override fun visitEmptyStatement(ctx: EmptyStatementContext?): Node {
-        return EmptyStatement()
+    override fun visitEmptyStatement(ctx: EmptyStatementContext): Node {
+        return EmptyStatement(ctx.location)
     }
 
     override fun visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): Node {
-        return ParenthesizedExpression(ctx.parenthesis().visit())
+        return ParenthesizedExpression(ctx.location, ctx.parenthesis().visit())
     }
 
     override fun visitBinaryExpression(ctx: BinaryExpressionContext): Node {
         return BinaryExpression(
+            source = ctx.location,
             left = ctx.expression(0).visit(),
             operator = ctx.op.text,
             right = ctx.expression(1).visit()
@@ -204,11 +215,12 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
     }
 
     override fun visitCalcExpression(ctx: CalcExpressionContext): Node {
-        return CalcExpression(ctx.parenthesis().visit())
+        return CalcExpression(ctx.location, ctx.parenthesis().visit())
     }
 
     override fun visitCommandCallExpression(ctx: CommandCallExpressionContext): Node {
         return CommandCallExpression(
+            source = ctx.location,
             name = ctx.identifier().visit(),
             arguments = ctx.expressionList().visit()
         )
@@ -216,6 +228,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitProcCallExpression(ctx: ProcCallExpressionContext): Node {
         return ProcCallExpression(
+            source = ctx.location,
             name = ctx.identifier().visit(),
             arguments = ctx.expressionList().visit()
         )
@@ -223,6 +236,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitJumpCallExpression(ctx: JumpCallExpressionContext): Node {
         return JumpCallExpression(
+            source = ctx.location,
             name = ctx.identifier().visit(),
             arguments = ctx.expressionList().visit()
         )
@@ -230,6 +244,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitLocalVariable(ctx: LocalVariableContext): Node {
         return LocalVariableExpression(
+            source = ctx.location,
             name = ctx.advancedIdentifier().visit(),
             index = null
         )
@@ -237,30 +252,31 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
 
     override fun visitLocalArrayVariable(ctx: LocalArrayVariableContext): Node {
         return LocalVariableExpression(
+            source = ctx.location,
             name = ctx.advancedIdentifier().visit(),
             index = ctx.parenthesis().visit()
         )
     }
 
     override fun visitGameVariable(ctx: GameVariableContext): Node {
-        return GameVariableExpression(ctx.advancedIdentifier().visit())
+        return GameVariableExpression(ctx.location, ctx.advancedIdentifier().visit())
     }
 
     override fun visitConstantVariable(ctx: ConstantVariableContext): Node {
-        return ConstantVariableExpression(ctx.advancedIdentifier().visit())
+        return ConstantVariableExpression(ctx.location, ctx.advancedIdentifier().visit())
     }
 
     override fun visitIntegerLiteral(ctx: IntegerLiteralContext): Node {
         val text = ctx.text
         if (text.length > 1 && text[0] == '0' && (text[1] == 'x' || text[1] == 'X')) {
             // hex, trim 0x
-            return IntegerLiteral(text.substring(2).toLong(16).toInt())
+            return IntegerLiteral(ctx.location, text.substring(2).toLong(16).toInt())
         }
-        return IntegerLiteral(text.toInt())
+        return IntegerLiteral(ctx.location, text.toInt())
     }
 
     override fun visitBooleanLiteral(ctx: BooleanLiteralContext): Node {
-        return BooleanLiteral(ctx.text.toBoolean())
+        return BooleanLiteral(ctx.location, ctx.text.toBoolean())
     }
 
     override fun visitCharacterLiteral(ctx: CharacterLiteralContext): Node {
@@ -268,16 +284,16 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
         if (cleaned.length != 1) {
             error("invalid character literal: text=${ctx.text}, cleaned=$cleaned")
         }
-        return CharacterLiteral(cleaned[0])
+        return CharacterLiteral(ctx.location, cleaned[0])
     }
 
     override fun visitStringLiteral(ctx: StringLiteralContext): Node {
         // trim off the quotes and remove escape sequences
-        return StringLiteral(ctx.text.substring(1, ctx.text.length - 1).unescape())
+        return StringLiteral(ctx.location, ctx.text.substring(1, ctx.text.length - 1).unescape())
     }
 
-    override fun visitNullLiteral(ctx: NullLiteralContext?): Node {
-        return NullLiteral()
+    override fun visitNullLiteral(ctx: NullLiteralContext): Node {
+        return NullLiteral(ctx.location)
     }
 
     override fun visitJoinedString(ctx: JoinedStringContext): Node {
@@ -287,7 +303,7 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
             when (child) {
                 is StringLiteralContentContext -> {
                     // create a new literal since the rule only allows valid string parts
-                    parts += StringLiteral(child.text.unescape())
+                    parts += StringLiteral(ctx.location, child.text.unescape())
                 }
                 is StringExpressionContext -> {
                     // visit the inner expression
@@ -299,16 +315,22 @@ public class AstBuilder : RuneScriptParserBaseVisitor<Node>() {
             }
         }
 
-        return JoinedStringExpression(parts.toList())
+        return JoinedStringExpression(ctx.location, parts.toList())
     }
 
     override fun visitIdentifier(ctx: IdentifierContext): Node {
-        return Identifier(ctx.text)
+        return Identifier(ctx.location, ctx.text)
     }
 
     override fun visitAdvancedIdentifier(ctx: AdvancedIdentifierContext): Node {
-        return Identifier(ctx.text)
+        return Identifier(ctx.location, ctx.text)
     }
+
+    /**
+     * The source location of the [ParserRuleContext].
+     */
+    private inline val ParserRuleContext.location
+        get() = NodeSourceLocation(source, start.line, start.charPositionInLine + 1)
 
     /**
      * Helper that calls [RuneScriptParserBaseVisitor.visit] on the current context.

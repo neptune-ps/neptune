@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.ast.statement
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.expr.Expression
 import java.util.Objects
 
@@ -18,10 +19,11 @@ import java.util.Objects
  * ```
  */
 public class IfStatement(
+    source: NodeSourceLocation,
     public val condition: Expression,
     public val thenStatement: Statement,
     public val elseStatement: Statement?
-) : Statement() {
+) : Statement(source) {
     init {
         addChild(condition)
         addChild(thenStatement)

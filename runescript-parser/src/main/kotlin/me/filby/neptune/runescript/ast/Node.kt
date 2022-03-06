@@ -6,15 +6,13 @@ import kotlin.reflect.KProperty
 /**
  * The base [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) node.
  */
-public abstract class Node {
+public abstract class Node(public val source: NodeSourceLocation) {
     /**
-     * This nodes parent node if it belongs to one.
+     * The nodes parent node if it belongs to one.
      */
     public var parent: Node? = null
         private set(value) {
-            if (field != null) {
-                throw IllegalStateException("parent already set")
-            }
+            assert(field == null) { "parent already set" }
             field = value
         }
 

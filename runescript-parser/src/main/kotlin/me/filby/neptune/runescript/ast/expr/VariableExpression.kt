@@ -2,13 +2,14 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import java.util.Objects
 
 /**
  * A base representation of a variable being used as an [Expression].
  */
 // base class for a variable reference, all have an identifier
-public sealed class VariableExpression(public val name: Identifier) : Expression() {
+public sealed class VariableExpression(source: NodeSourceLocation, public val name: Identifier) : Expression(source) {
     init {
         addChild(name)
     }
@@ -29,9 +30,10 @@ public sealed class VariableExpression(public val name: Identifier) : Expression
  * ```
  */
 public class LocalVariableExpression(
+    source: NodeSourceLocation,
     name: Identifier,
     public val index: Expression? = null
-) : VariableExpression(name) {
+) : VariableExpression(source, name) {
     init {
         addChild(index)
     }
@@ -77,7 +79,7 @@ public class LocalVariableExpression(
  * %var
  * ```
  */
-public class GameVariableExpression(name: Identifier) : VariableExpression(name) {
+public class GameVariableExpression(source: NodeSourceLocation, name: Identifier) : VariableExpression(source, name) {
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitGameVariableExpression(this)
     }
@@ -107,7 +109,10 @@ public class GameVariableExpression(name: Identifier) : VariableExpression(name)
  * ^var
  * ```
  */
-public class ConstantVariableExpression(name: Identifier) : VariableExpression(name) {
+public class ConstantVariableExpression(
+    source: NodeSourceLocation,
+    name: Identifier
+) : VariableExpression(source, name) {
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitConstantVariableExpression(this)
     }

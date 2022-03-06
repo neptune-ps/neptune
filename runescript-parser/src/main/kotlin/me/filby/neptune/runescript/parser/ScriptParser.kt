@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
+import java.nio.file.Path
 
 public object ScriptParser {
     private val ERROR_LISTENER = object : BaseErrorListener() {
@@ -27,12 +28,17 @@ public object ScriptParser {
         }
     }
 
+    public fun createScriptFile(input: Path): ScriptFile {
+        val absoluteNormalized = input.toAbsolutePath().normalize()
+        return invokeParser(CharStreams.fromPath(absoluteNormalized), RuneScriptParser::scriptFile) as ScriptFile
+    }
+
     public fun createScriptFile(scriptFile: String): ScriptFile {
-        return invokeParser(CharStreams.fromString(scriptFile, "file"), RuneScriptParser::scriptFile) as ScriptFile
+        return invokeParser(CharStreams.fromString(scriptFile, "<source>"), RuneScriptParser::scriptFile) as ScriptFile
     }
 
     public fun createScript(script: String): Script {
-        return invokeParser(CharStreams.fromString(script, "script"), RuneScriptParser::script) as Script
+        return invokeParser(CharStreams.fromString(script, "<source>"), RuneScriptParser::script) as Script
     }
 
     internal fun invokeParser(str: String, entry: (RuneScriptParser) -> ParserRuleContext): Node {
@@ -50,8 +56,8 @@ public object ScriptParser {
         parser.removeErrorListeners()
         parser.addErrorListener(ERROR_LISTENER)
 
-        val tree = entry.invoke(parser)
+        val tree = entry(parser)
 
-        return AstBuilder().visit(tree)
+        return AstBuilder(stream.sourceName).visit(tree)
     }
 }

@@ -2,15 +2,17 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import java.util.Objects
 
 /**
  * The base expression for all types of call expressions.
  */
 public sealed class CallExpression(
+    source: NodeSourceLocation,
     public val name: Identifier,
     public val arguments: List<Expression>
-) : Expression() {
+) : Expression(source) {
     init {
         addChild(name)
         addChild(arguments)
@@ -32,7 +34,11 @@ public sealed class CallExpression(
  * cc_settext("Example text")
  * ```
  */
-public class CommandCallExpression(name: Identifier, arguments: List<Expression>) : CallExpression(name, arguments) {
+public class CommandCallExpression(
+    source: NodeSourceLocation,
+    name: Identifier,
+    arguments: List<Expression>
+) : CallExpression(source, name, arguments) {
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitCommandCallExpression(this)
     }
@@ -61,7 +67,11 @@ public class CommandCallExpression(name: Identifier, arguments: List<Expression>
  * ~some_user_defined_script(true);
  * ```
  */
-public class ProcCallExpression(name: Identifier, arguments: List<Expression>) : CallExpression(name, arguments) {
+public class ProcCallExpression(
+    source: NodeSourceLocation,
+    name: Identifier,
+    arguments: List<Expression>
+) : CallExpression(source, name, arguments) {
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitProcCallExpression(this)
     }
@@ -91,7 +101,11 @@ public class ProcCallExpression(name: Identifier, arguments: List<Expression>) :
  * @some_label(42);
  * ```
  */
-public class JumpCallExpression(name: Identifier, arguments: List<Expression>) : CallExpression(name, arguments) {
+public class JumpCallExpression(
+    source: NodeSourceLocation,
+    name: Identifier,
+    arguments: List<Expression>
+) : CallExpression(source, name, arguments) {
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitJumpCallExpression(this)
     }

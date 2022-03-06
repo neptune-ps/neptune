@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import java.util.Objects
 
 /**
@@ -12,7 +13,7 @@ import java.util.Objects
  * calc(1 + 1 / 2)
  * ```
  */
-public class CalcExpression(public val expression: Expression) : Expression() {
+public class CalcExpression(source: NodeSourceLocation, public val expression: Expression) : Expression(source) {
     init {
         addChild(expression)
     }

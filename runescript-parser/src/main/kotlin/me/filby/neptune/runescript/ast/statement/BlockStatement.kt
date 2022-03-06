@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.ast.statement
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import java.util.Objects
 
 /**
@@ -14,7 +15,7 @@ import java.util.Objects
  * }
  * ```
  */
-public class BlockStatement(public val statements: List<Statement>) : Statement() {
+public class BlockStatement(source: NodeSourceLocation, public val statements: List<Statement>) : Statement(source) {
     init {
         addChild(statements)
     }

@@ -14,10 +14,11 @@ import me.filby.neptune.runescript.type.Type
  * ```
  */
 public class Parameter(
+    source: NodeSourceLocation,
     public val type: Type,
     public val name: Identifier,
     public val isArray: Boolean = false
-) : Node() {
+) : Node(source) {
     init {
         addChild(name)
     }

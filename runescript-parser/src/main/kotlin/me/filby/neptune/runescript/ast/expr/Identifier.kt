@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import java.util.Objects
 
 /**
@@ -9,7 +10,7 @@ import java.util.Objects
  *
  * Examples: `abyssal_whip`, `smithing:arrowheads`.
  */
-public class Identifier(public val text: String) : Expression() {
+public class Identifier(source: NodeSourceLocation, public val text: String) : Expression(source) {
     override fun <R> accept(visitor: AstVisitor<R>): R {
         return visitor.visitIdentifier(this)
     }

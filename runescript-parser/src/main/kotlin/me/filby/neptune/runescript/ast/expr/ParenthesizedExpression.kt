@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.ast.expr
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import java.util.Objects
 
 /**
@@ -12,7 +13,10 @@ import java.util.Objects
  * ($var1 = 0 | $var2 = 0) & $var3 = 1
  * ```
  */
-public class ParenthesizedExpression(public val expression: Expression) : Expression() {
+public class ParenthesizedExpression(
+    source: NodeSourceLocation,
+    public val expression: Expression
+) : Expression(source) {
     init {
         addChild(expression)
     }
