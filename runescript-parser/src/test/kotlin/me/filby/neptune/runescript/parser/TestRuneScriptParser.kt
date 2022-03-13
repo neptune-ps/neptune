@@ -8,6 +8,7 @@ import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.StringLiteral
+import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
@@ -199,9 +200,12 @@ class TestRuneScriptParser {
             with(this@toStringTree) {
                 append(
                     when (this) {
-                        is Script -> "Script(returns=${returns?.representation})"
-                        is Parameter -> "Parameter(type=${type.representation}, array=$isArray)"
-                        is DeclarationStatement -> "DeclarationStatement(type=${type.representation})"
+                        is Script -> "Script(returns=${returnTokens?.joinToString { it.text }})"
+                        is Parameter -> "Parameter(type=${typeToken.text})"
+                        is DeclarationStatement ->
+                            "DeclarationStatement(type=${typeToken.text.removePrefix("def_")})"
+                        is ArrayDeclarationStatement ->
+                            "ArrayDeclarationStatement(type=${typeToken.text.removePrefix("def_")})"
                         is BinaryExpression -> "BinaryExpression(op=\"$operator\")"
                         is SwitchCase -> "SwitchCase(default=$isDefault)"
                         is Identifier -> "Identifier(text=\"$text\")"

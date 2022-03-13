@@ -3,7 +3,7 @@ package me.filby.neptune.runescript.ast
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.statement.Statement
-import me.filby.neptune.runescript.type.Type
+import org.antlr.v4.runtime.Token
 import java.util.Objects
 
 /**
@@ -26,7 +26,7 @@ public class Script(
     public val trigger: Identifier,
     public val name: Identifier,
     public val parameters: List<Parameter>?,
-    public val returns: Type?,
+    public val returnTokens: List<Token>?,
     public val statements: List<Statement>
 ) : Node(source) {
     init {
@@ -43,7 +43,7 @@ public class Script(
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(trigger, name, parameters, returns, statements)
+        return Objects.hash(trigger, name, parameters, returnTokens, statements)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -56,7 +56,7 @@ public class Script(
         }
 
         return trigger == other.trigger && name == other.name && parameters == other.parameters &&
-            returns == other.returns && statements == other.statements
+            returnTokens == other.returnTokens && statements == other.statements
     }
 
     override fun toString(): String {
@@ -64,7 +64,7 @@ public class Script(
             .add("trigger", trigger)
             .add("name", name)
             .add("parameters", parameters)
-            .add("returns", returns)
+            .add("returnTokens", returnTokens?.joinToString { it.text })
             .add("statements", statements)
             .toString()
     }

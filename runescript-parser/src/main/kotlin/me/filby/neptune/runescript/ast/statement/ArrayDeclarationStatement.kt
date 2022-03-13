@@ -5,11 +5,11 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
-import me.filby.neptune.runescript.type.Type
+import org.antlr.v4.runtime.Token
 import java.util.Objects
 
 /**
- * Represents a local array variable declaration with the given [type] and [name]. The [initializer] is what determines
+ * Represents a local array variable declaration with the given [typeToken] and [name]. The [initializer] is what determines
  * the array size.
  *
  * Example:
@@ -19,7 +19,7 @@ import java.util.Objects
  */
 public class ArrayDeclarationStatement(
     source: NodeSourceLocation,
-    public val type: Type,
+    public val typeToken: Token,
     public val name: Identifier,
     public val initializer: Expression
 ) : Statement(source) {
@@ -33,7 +33,7 @@ public class ArrayDeclarationStatement(
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(type, name, initializer)
+        return Objects.hash(typeToken, name, initializer)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -45,12 +45,12 @@ public class ArrayDeclarationStatement(
             return false
         }
 
-        return type == other.type && name == other.name && initializer == other.initializer
+        return typeToken == other.typeToken && name == other.name && initializer == other.initializer
     }
 
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
-            .add("type", type)
+            .add("typeToken", typeToken.text)
             .add("name", name)
             .add("initializer", initializer)
             .toString()

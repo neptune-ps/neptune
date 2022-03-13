@@ -4,11 +4,11 @@ import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.expr.Expression
-import me.filby.neptune.runescript.type.Type
+import org.antlr.v4.runtime.Token
 import java.util.Objects
 
 /**
- * Represents a switch statement for a given [type]. Switch statements contain a single [condition] (what to switch on)
+ * Represents a switch statement for a given [typeToken]. Switch statements contain a single [condition] (what to switch on)
  * and a list of [cases].
  *
  * Example:
@@ -22,7 +22,7 @@ import java.util.Objects
  */
 public class SwitchStatement(
     source: NodeSourceLocation,
-    public val type: Type,
+    public val typeToken: Token,
     public val condition: Expression,
     public val cases: List<SwitchCase>
 ) : Statement(source) {
@@ -36,7 +36,7 @@ public class SwitchStatement(
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(type, condition, cases)
+        return Objects.hash(typeToken, condition, cases)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -48,12 +48,12 @@ public class SwitchStatement(
             return false
         }
 
-        return type == other.type && condition == other.condition && cases == other.cases
+        return typeToken == other.typeToken && condition == other.condition && cases == other.cases
     }
 
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
-            .add("type", type)
+            .add("typeToken", typeToken.text)
             .add("condition", condition)
             .add("cases", cases)
             .toString()

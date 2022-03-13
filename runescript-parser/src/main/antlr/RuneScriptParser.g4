@@ -25,11 +25,11 @@ parameterList
     ;
 
 parameter
-    : type=(TYPE | TYPE_ARRAY) DOLLAR advancedIdentifier
+    : type=(IDENTIFIER | TYPE_ARRAY) DOLLAR advancedIdentifier
     ;
 
 typeList
-    : TYPE (COMMA TYPE)*
+    : IDENTIFIER (COMMA IDENTIFIER)*
     ;
 
 // statements
@@ -184,7 +184,6 @@ identifier
     | NULL_LITERAL
     | TYPE_ARRAY
     | DEF_TYPE
-    | TYPE
     ;
 
 // advanced identifier that allows more keywords

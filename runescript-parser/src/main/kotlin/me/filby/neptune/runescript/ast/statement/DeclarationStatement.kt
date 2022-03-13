@@ -5,11 +5,11 @@ import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
-import me.filby.neptune.runescript.type.Type
+import org.antlr.v4.runtime.Token
 import java.util.Objects
 
 /**
- * Represents a local variable declaration statement that defines the variables [type], [name], and an optional
+ * Represents a local variable declaration statement that defines the variables [typeToken], [name], and an optional
  * [initializer].
  *
  * Example:
@@ -19,7 +19,7 @@ import java.util.Objects
  */
 public class DeclarationStatement(
     source: NodeSourceLocation,
-    public val type: Type,
+    public val typeToken: Token,
     public val name: Identifier,
     public val initializer: Expression?
 ) : Statement(source) {
@@ -33,7 +33,7 @@ public class DeclarationStatement(
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(type, name, initializer)
+        return Objects.hash(typeToken, name, initializer)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -45,12 +45,12 @@ public class DeclarationStatement(
             return false
         }
 
-        return type == other.type && name == other.name && initializer == other.initializer
+        return typeToken == other.typeToken && name == other.name && initializer == other.initializer
     }
 
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
-            .add("type", type)
+            .add("typeToken", typeToken.text)
             .add("name", name)
             .add("initializer", initializer)
             .toString()

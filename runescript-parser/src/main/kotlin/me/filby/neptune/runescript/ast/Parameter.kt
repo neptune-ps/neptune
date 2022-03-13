@@ -3,7 +3,7 @@ package me.filby.neptune.runescript.ast
 import com.google.common.base.MoreObjects
 import com.google.common.base.Objects
 import me.filby.neptune.runescript.ast.expr.Identifier
-import me.filby.neptune.runescript.type.Type
+import org.antlr.v4.runtime.Token
 
 /**
  * Represents a single parameter in a [Script].
@@ -15,9 +15,8 @@ import me.filby.neptune.runescript.type.Type
  */
 public class Parameter(
     source: NodeSourceLocation,
-    public val type: Type,
-    public val name: Identifier,
-    public val isArray: Boolean = false
+    public val typeToken: Token,
+    public val name: Identifier
 ) : Node(source) {
     init {
         addChild(name)
@@ -28,7 +27,7 @@ public class Parameter(
     }
 
     override fun hashCode(): Int {
-        return Objects.hashCode(type, name, isArray)
+        return Objects.hashCode(typeToken, name)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -40,14 +39,13 @@ public class Parameter(
             return false
         }
 
-        return type == other.type && name == other.name && isArray == other.isArray
+        return typeToken == other.typeToken && name == other.name
     }
 
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
-            .add("type", type)
+            .add("typeToken", typeToken.text)
             .add("name", name)
-            .add("isArray", isArray)
             .toString()
     }
 }
