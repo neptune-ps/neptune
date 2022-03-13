@@ -1,0 +1,5 @@
+AssignmentStatement() 1:1
+ LocalVariableExpression() 1:1
+  Identifier(text="test") 1:2
+  IntegerLiteral(value=1) 1:7
+ IntegerLiteral(value=1) 1:12

@@ -1,0 +1,16 @@
+Script(returns=null) 1:1
+ Identifier(text="proc") 1:2
+ Identifier(text="test_script") 1:7
+ Parameter(type=string, array=false) 1:20
+  Identifier(text="text") 1:28
+ ExpressionStatement() 2:1
+  CommandCallExpression() 2:1
+   Identifier(text="mes") 2:1
+   JoinedStringExpression() 2:5
+    StringLiteral(value="TEST: ") 2:6
+    StringLiteral(value="<col=ffffff>") 2:12
+    CommandCallExpression() 2:25
+     Identifier(text="escape") 2:25
+     LocalVariableExpression() 2:32
+      Identifier(text="text") 2:33
+    StringLiteral(value="</col>") 2:39

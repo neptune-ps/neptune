@@ -1,0 +1,18 @@
+IfStatement() 1:1
+ BinaryExpression(op="=") 1:5
+  IntegerLiteral(value=1) 1:5
+  IntegerLiteral(value=1) 1:9
+ BlockStatement() 1:12
+  ExpressionStatement() 2:5
+   CommandCallExpression() 2:5
+    Identifier(text="mes") 2:5
+    StringLiteral(value="1 = 1") 2:9
+ IfStatement() 3:8
+  BinaryExpression(op="=") 3:12
+   IntegerLiteral(value=2) 3:12
+   IntegerLiteral(value=2) 3:16
+  BlockStatement() 3:19
+   ExpressionStatement() 4:5
+    CommandCallExpression() 4:5
+     Identifier(text="mes") 4:5
+     StringLiteral(value="2 = 2") 4:9

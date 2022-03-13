@@ -1,0 +1,9 @@
+WhileStatement() 1:1
+ BinaryExpression(op="=") 1:8
+  BooleanLiteral(value=true) 1:8
+  BooleanLiteral(value=true) 1:15
+ BlockStatement() 1:21
+  ExpressionStatement() 2:5
+   CommandCallExpression() 2:5
+    Identifier(text="mes") 2:5
+    StringLiteral(value="1") 2:9

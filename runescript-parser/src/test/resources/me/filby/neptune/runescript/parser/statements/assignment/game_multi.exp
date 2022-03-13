@@ -1,0 +1,10 @@
+AssignmentStatement() 1:1
+ GameVariableExpression() 1:1
+  Identifier(text="test1") 1:2
+ GameVariableExpression() 1:9
+  Identifier(text="test2") 1:10
+ GameVariableExpression() 1:17
+  Identifier(text="test3") 1:18
+ IntegerLiteral(value=1) 1:26
+ IntegerLiteral(value=2) 1:29
+ IntegerLiteral(value=3) 1:32

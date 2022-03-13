@@ -45,7 +45,7 @@ public object ScriptParser {
         return invokeParser(CharStreams.fromString(str), entry)
     }
 
-    private fun invokeParser(stream: CharStream, entry: (RuneScriptParser) -> ParserRuleContext): Node {
+    internal fun invokeParser(stream: CharStream, entry: (RuneScriptParser) -> ParserRuleContext): Node {
         val lexer = RuneScriptLexer(stream)
         val tokens = CommonTokenStream(lexer)
         val parser = RuneScriptParser(tokens)

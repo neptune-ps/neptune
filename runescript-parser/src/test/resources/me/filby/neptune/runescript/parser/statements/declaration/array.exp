@@ -1,0 +1,3 @@
+ArrayDeclarationStatement() 1:1
+ Identifier(text="test") 1:10
+ IntegerLiteral(value=1) 1:15

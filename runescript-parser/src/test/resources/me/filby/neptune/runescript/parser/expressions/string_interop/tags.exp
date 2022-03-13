@@ -1,0 +1,4 @@
+JoinedStringExpression() 1:1
+ StringLiteral(value="<col=ffffff>") 1:2
+ IntegerLiteral(value=1) 1:15
+ StringLiteral(value="</col>") 1:17

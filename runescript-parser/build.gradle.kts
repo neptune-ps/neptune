@@ -41,6 +41,3 @@ tasks.withType<org.jmailen.gradle.kotlinter.tasks.LintTask> {
     // explicit dependency
     dependsOn(tasks.generateGrammarSource)
 }
-
-// disable ktlint on tests for now, currently not happy with tests in general
-tasks.getByPath(":runescript-parser:lintKotlinTest").enabled = false

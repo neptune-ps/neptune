@@ -1,0 +1,4 @@
+CalcExpression() 1:1
+ BinaryExpression(op="&") 1:6
+  IntegerLiteral(value=1) 1:6
+  IntegerLiteral(value=1) 1:10

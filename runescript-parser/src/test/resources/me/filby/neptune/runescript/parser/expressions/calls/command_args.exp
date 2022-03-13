@@ -1,0 +1,4 @@
+CommandCallExpression() 1:1
+ Identifier(text="add") 1:1
+ IntegerLiteral(value=1) 1:5
+ IntegerLiteral(value=2) 1:8

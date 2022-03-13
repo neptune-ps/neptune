@@ -1,0 +1,21 @@
+SwitchStatement() 1:1
+ LocalVariableExpression() 1:13
+  Identifier(text="test") 1:14
+ SwitchCase(default=false) 2:5
+  IntegerLiteral(value=0) 2:10
+  ExpressionStatement() 2:14
+   CommandCallExpression() 2:14
+    Identifier(text="mes") 2:14
+    StringLiteral(value="0") 2:18
+ SwitchCase(default=false) 3:5
+  IntegerLiteral(value=1) 3:10
+  IntegerLiteral(value=2) 3:13
+  ExpressionStatement() 3:17
+   CommandCallExpression() 3:17
+    Identifier(text="mes") 3:17
+    StringLiteral(value="1 or 2") 3:21
+ SwitchCase(default=true) 4:5
+  ExpressionStatement() 4:20
+   CommandCallExpression() 4:20
+    Identifier(text="mes") 4:20
+    StringLiteral(value="default") 4:24
