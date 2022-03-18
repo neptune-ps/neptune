@@ -45,7 +45,24 @@ public class TupleType(vararg children: Type) : Type {
             .toString()
     }
 
-    private companion object {
+    public companion object {
+        /**
+         * Converts a `List<Type>` into a singular [Type].
+         *
+         * - If the list is `null` or empty, `null` is returned.
+         * - If the list has a size of `1`, the first entry is returned.
+         * - If the list has a size of over 1, a [TupleType] is returned with all types.
+         */
+        public fun fromList(types: List<Type>?): Type? {
+            if (types == null || types.isEmpty()) {
+                return null
+            }
+            if (types.size == 1) {
+                return types.first()
+            }
+            return TupleType(*types.toTypedArray())
+        }
+
         private fun flatten(types: Array<out Type>): Array<Type> {
             val flattened = mutableListOf<Type>()
             for (type in types) {
