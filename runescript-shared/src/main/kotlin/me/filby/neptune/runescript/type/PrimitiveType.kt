@@ -41,6 +41,6 @@ public enum class PrimitiveType(
         /**
          * Finds a [PrimitiveType] by its [name].
          */
-        public fun lookup(name: String): PrimitiveType = lookupMap[name] ?: error("unknown type: $name")
+        public fun lookup(name: String): PrimitiveType? = lookupMap[name]
     }
 }
