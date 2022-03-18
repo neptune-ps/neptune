@@ -29,7 +29,7 @@ public abstract class Node(public val source: NodeSourceLocation) {
     /**
      * A map of attributes that allows external code to add extra information to the node.
      */
-    private val attributes = mutableMapOf<String, Any>()
+    private val attributes = mutableMapOf<String, Any?>()
 
     /**
      * Calls the node specific method on the [visitor].
@@ -66,14 +66,14 @@ public abstract class Node(public val source: NodeSourceLocation) {
      * Returns an attribute based on the given [key].
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T : Any> getAttribute(key: String): T? {
+    public fun <T> getAttribute(key: String): T? {
         return attributes[key] as T?
     }
 
     /**
      * Adds (or replaces) an attribute with the given [key] with a value [value].
      */
-    public fun <T : Any> putAttribute(key: String, value: T): T {
+    public fun <T> putAttribute(key: String, value: T?): T? {
         attributes[key] = value
         return value
     }
@@ -97,15 +97,17 @@ public abstract class Node(public val source: NodeSourceLocation) {
          * Returns a [ReadWriteProperty] for accessing attributes through delegation. If the attribute is not found an
          * error is thrown.
          */
-        internal fun <N : Node, T : Any> attribute(key: String): ReadWriteProperty<N, T> =
-            object : ReadWriteProperty<N, T> {
+        public fun <T> attribute(key: String): ReadWriteProperty<Node, T> =
+            object : ReadWriteProperty<Node, T> {
                 @Suppress("UNCHECKED_CAST")
-                override fun getValue(thisRef: N, property: KProperty<*>): T {
-                    return thisRef.getAttribute(key)
-                        ?: throw IllegalStateException("Property ${property.name} should be initialized before get.")
+                override fun getValue(thisRef: Node, property: KProperty<*>): T {
+                    if (thisRef.attributes.containsKey(key)) {
+                        return thisRef.getAttribute<T>(key) as T
+                    }
+                    throw IllegalStateException("Property ${property.name} should be initialized before get.")
                 }
 
-                override fun setValue(thisRef: N, property: KProperty<*>, value: T) {
+                override fun setValue(thisRef: Node, property: KProperty<*>, value: T) {
                     thisRef.putAttribute(key, value)
                 }
             }
@@ -122,9 +124,6 @@ public abstract class Node(public val source: NodeSourceLocation) {
                 }
 
                 override fun setValue(thisRef: Node, property: KProperty<*>, value: T?) {
-                    if (value == null) {
-                        throw IllegalArgumentException("Property ${property.name} is not able to be set to null.")
-                    }
                     thisRef.putAttribute(key, value)
                 }
             }
