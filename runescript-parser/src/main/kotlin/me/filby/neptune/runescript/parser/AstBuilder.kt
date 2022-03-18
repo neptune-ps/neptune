@@ -42,6 +42,7 @@ import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
+import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
@@ -82,7 +83,7 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
     }
 
     override fun visitScript(ctx: ScriptContext): Node {
-        val returns = ctx.typeList()?.IDENTIFIER()?.map { it.symbol }
+        val returns = ctx.typeList()?.IDENTIFIER()?.map { it.symbol.toAstToken() }
         return Script(
             source = ctx.location,
             trigger = ctx.trigger.visit(),
@@ -96,7 +97,7 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
     override fun visitParameter(ctx: ParameterContext): Node {
         return Parameter(
             source = ctx.location,
-            typeToken = ctx.type,
+            typeToken = ctx.type.toAstToken(),
             name = ctx.advancedIdentifier().visit()
         )
     }
@@ -129,7 +130,7 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
     override fun visitSwitchStatement(ctx: SwitchStatementContext): Node {
         return SwitchStatement(
             source = ctx.location,
-            typeToken = ctx.SWITCH_TYPE().symbol,
+            typeToken = ctx.SWITCH_TYPE().symbol.toAstToken(),
             condition = ctx.parenthesis().visit(),
             cases = ctx.switchCase().map { it.visit() }
         )
@@ -146,7 +147,7 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
     override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node {
         return DeclarationStatement(
             source = ctx.location,
-            typeToken = ctx.DEF_TYPE().symbol,
+            typeToken = ctx.DEF_TYPE().symbol.toAstToken(),
             name = ctx.advancedIdentifier().visit(),
             initializer = ctx.expression()?.visit()
         )
@@ -155,7 +156,7 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
     override fun visitArrayDeclarationStatement(ctx: ArrayDeclarationStatementContext): Node {
         return ArrayDeclarationStatement(
             source = ctx.location,
-            typeToken = ctx.DEF_TYPE().symbol,
+            typeToken = ctx.DEF_TYPE().symbol.toAstToken(),
             name = ctx.advancedIdentifier().visit(),
             initializer = ctx.parenthesis().visit()
         )
@@ -307,6 +308,19 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
      */
     private inline val ParserRuleContext.location
         get() = NodeSourceLocation(source, start.line, start.charPositionInLine + 1)
+
+    /**
+     * The source location of the [Token].
+     */
+    private inline val org.antlr.v4.runtime.Token.location
+        get() = NodeSourceLocation(source, line, charPositionInLine + 1)
+
+    /**
+     * Converts a [org.antlr.v4.runtime.Token] into a [Token] AST node.
+     */
+    private fun org.antlr.v4.runtime.Token.toAstToken(): Token {
+        return Token(location, text)
+    }
 
     /**
      * Helper that calls [RuneScriptParserBaseVisitor.visit] on the current context.

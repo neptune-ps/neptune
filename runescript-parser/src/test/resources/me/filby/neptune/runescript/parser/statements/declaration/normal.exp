@@ -1,3 +1,4 @@
-DeclarationStatement(type=int) 1:1
+DeclarationStatement() 1:1
+ Token(text=def_int) 1:1
  Identifier(text="test") 1:10
  IntegerLiteral(value=0) 1:17

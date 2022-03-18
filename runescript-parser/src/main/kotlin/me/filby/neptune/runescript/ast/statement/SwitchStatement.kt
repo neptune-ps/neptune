@@ -3,8 +3,8 @@ package me.filby.neptune.runescript.ast.statement
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.NodeSourceLocation
+import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.Expression
-import org.antlr.v4.runtime.Token
 import java.util.Objects
 
 /**
@@ -27,6 +27,7 @@ public class SwitchStatement(
     public val cases: List<SwitchCase>
 ) : Statement(source) {
     init {
+        addChild(typeToken)
         addChild(condition)
         addChild(cases)
     }
@@ -53,7 +54,7 @@ public class SwitchStatement(
 
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
-            .add("typeToken", typeToken.text)
+            .add("typeToken", typeToken)
             .add("condition", condition)
             .add("cases", cases)
             .toString()

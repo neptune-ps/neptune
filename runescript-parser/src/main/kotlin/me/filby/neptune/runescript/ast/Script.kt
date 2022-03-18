@@ -3,7 +3,6 @@ package me.filby.neptune.runescript.ast
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.statement.Statement
-import org.antlr.v4.runtime.Token
 import java.util.Objects
 
 /**
@@ -35,6 +34,9 @@ public class Script(
         if (parameters != null) {
             addChild(parameters)
         }
+        if (returnTokens != null) {
+            addChild(returnTokens)
+        }
         addChild(statements)
     }
 
@@ -64,7 +66,7 @@ public class Script(
             .add("trigger", trigger)
             .add("name", name)
             .add("parameters", parameters)
-            .add("returnTokens", returnTokens?.joinToString { it.text })
+            .add("returnTokens", returnTokens)
             .add("statements", statements)
             .toString()
     }

@@ -1,7 +1,8 @@
-Script(returns=null) 1:1
+Script() 1:1
  Identifier(text="proc") 1:2
  Identifier(text="test_script") 1:7
- Parameter(type=string) 1:20
+ Parameter() 1:20
+  Token(text=string) 1:20
   Identifier(text="text") 1:28
  ExpressionStatement() 2:1
   CommandCallExpression() 2:1

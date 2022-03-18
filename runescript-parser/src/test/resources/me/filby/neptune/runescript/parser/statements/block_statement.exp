@@ -1,4 +1,5 @@
 BlockStatement() 1:1
- DeclarationStatement(type=int) 2:5
+ DeclarationStatement() 2:5
+  Token(text=def_int) 2:5
   Identifier(text="test") 2:14
   IntegerLiteral(value=0) 2:21

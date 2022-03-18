@@ -3,7 +3,6 @@ package me.filby.neptune.runescript.ast
 import com.google.common.base.MoreObjects
 import com.google.common.base.Objects
 import me.filby.neptune.runescript.ast.expr.Identifier
-import org.antlr.v4.runtime.Token
 
 /**
  * Represents a single parameter in a [Script].
@@ -19,6 +18,7 @@ public class Parameter(
     public val name: Identifier
 ) : Node(source) {
     init {
+        addChild(typeToken)
         addChild(name)
     }
 
@@ -44,7 +44,7 @@ public class Parameter(
 
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
-            .add("typeToken", typeToken.text)
+            .add("typeToken", typeToken)
             .add("name", name)
             .toString()
     }

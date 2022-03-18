@@ -4,6 +4,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
+import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.Literal
@@ -200,17 +201,12 @@ class TestRuneScriptParser {
             with(this@toStringTree) {
                 append(
                     when (this) {
-                        is Script -> "Script(returns=${returnTokens?.joinToString { it.text }})"
-                        is Parameter -> "Parameter(type=${typeToken.text})"
-                        is DeclarationStatement ->
-                            "DeclarationStatement(type=${typeToken.text.removePrefix("def_")})"
-                        is ArrayDeclarationStatement ->
-                            "ArrayDeclarationStatement(type=${typeToken.text.removePrefix("def_")})"
                         is BinaryExpression -> "BinaryExpression(op=\"$operator\")"
                         is SwitchCase -> "SwitchCase(default=$isDefault)"
                         is Identifier -> "Identifier(text=\"$text\")"
                         is StringLiteral -> "StringLiteral(value=\"$value\")"
                         is Literal<*> -> "${this::class.simpleName}(value=$value)"
+                        is Token -> "Token(text=$text)"
                         else -> "${this::class.simpleName}()"
                     }
                 )

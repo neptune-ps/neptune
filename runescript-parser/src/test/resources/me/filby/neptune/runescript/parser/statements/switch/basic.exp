@@ -1,3 +1,4 @@
 SwitchStatement() 1:1
+ Token(text=switch_int) 1:1
  LocalVariableExpression() 1:13
   Identifier(text="test") 1:14
