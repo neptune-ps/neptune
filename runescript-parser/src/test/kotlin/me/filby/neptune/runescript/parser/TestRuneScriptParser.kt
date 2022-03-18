@@ -2,15 +2,11 @@ package me.filby.neptune.runescript.parser
 
 import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Node
-import me.filby.neptune.runescript.ast.Parameter
-import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.StringLiteral
-import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
-import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.parser.ScriptParser.invokeParser
 import org.antlr.v4.runtime.CharStreams
