@@ -93,7 +93,6 @@ internal class SemanticChecker(private val diagnostics: Diagnostics) : AstVisito
                 expectedParameterType,
                 currentParameterType
             )
-            script.reportInfo("test")
         }
     }
 
