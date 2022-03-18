@@ -175,6 +175,6 @@ public interface AstVisitor<R> {
     }
 
     public fun visitNode(node: Node): R {
-        throw UnsupportedOperationException("not implemented: $node")
+        throw UnsupportedOperationException("not implemented: ${node::class}")
     }
 }
