@@ -19,6 +19,10 @@ public class TupleType(vararg children: Type) : Type {
 
     override val defaultValue: Any? = null
 
+    init {
+        assert(this.children.size >= 2) { "tuple type should not be used when type count is < 2" }
+    }
+
     override fun hashCode(): Int {
         return children.hashCode()
     }
