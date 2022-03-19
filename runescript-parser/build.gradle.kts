@@ -9,8 +9,6 @@ val antlrPackage = "me.filby.neptune.runescript.antlr"
 
 dependencies {
     antlr(libs.antlr)
-
-    implementation(project(":runescript-shared"))
 }
 
 tasks.compileKotlin {
