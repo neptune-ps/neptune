@@ -9,7 +9,9 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
+import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
+import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.type.ArrayType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
@@ -83,6 +85,14 @@ internal class SemanticChecker(
         if (trigger == null) {
             script.trigger.reportError(DiagnosticMessage.SCRIPT_TRIGGER_INVALID, script.trigger.text)
             return
+        }
+
+        // attempt to insert the script into the root table and error if failed to insert
+        val scriptSymbol = ClientScriptSymbol(script.name.text)
+        val inserted = rootTable.insert(SymbolType.ClientScript(trigger), scriptSymbol)
+        if (!inserted) {
+            // TODO somehow report original declaration location?
+            script.reportError(DiagnosticMessage.SCRIPT_REDECLARATION, trigger.identifier, script.name.text)
         }
 
         // TODO check subject if it's meant to refer to a specific thing
