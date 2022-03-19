@@ -39,9 +39,11 @@ internal class SemanticChecker(private val diagnostics: Diagnostics) : AstVisito
     override fun visitScript(script: Script) {
         val trigger = ClientTriggerType.lookup(script.trigger.text)
         if (trigger == null) {
-            script.reportError(DiagnosticMessage.SCRIPT_TRIGGER_INVALID, script.trigger.text)
+            script.trigger.reportError(DiagnosticMessage.SCRIPT_TRIGGER_INVALID, script.trigger.text)
             return
         }
+
+        // TODO check subject if it's meant to refer to a specific thing
 
         // visit the parameters
         val parameters = script.parameters
