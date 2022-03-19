@@ -84,15 +84,16 @@ internal class SemanticChecker(
         val trigger = ClientTriggerType.lookup(script.trigger.text)
         if (trigger == null) {
             script.trigger.reportError(DiagnosticMessage.SCRIPT_TRIGGER_INVALID, script.trigger.text)
-            return
         }
 
-        // attempt to insert the script into the root table and error if failed to insert
-        val scriptSymbol = ClientScriptSymbol(script.name.text)
-        val inserted = rootTable.insert(SymbolType.ClientScript(trigger), scriptSymbol)
-        if (!inserted) {
-            // TODO somehow report original declaration location?
-            script.reportError(DiagnosticMessage.SCRIPT_REDECLARATION, trigger.identifier, script.name.text)
+        if (trigger != null) {
+            // attempt to insert the script into the root table and error if failed to insert
+            val scriptSymbol = ClientScriptSymbol(script.name.text)
+            val inserted = rootTable.insert(SymbolType.ClientScript(trigger), scriptSymbol)
+            if (!inserted) {
+                // TODO somehow report original declaration location?
+                script.reportError(DiagnosticMessage.SCRIPT_REDECLARATION, trigger.identifier, script.name.text)
+            }
         }
 
         // TODO check subject if it's meant to refer to a specific thing
@@ -112,10 +113,9 @@ internal class SemanticChecker(
         if (!returnTokens.isNullOrEmpty()) {
             val returns = mutableListOf<Type>()
             for (token in returnTokens) {
-                val type = lookupType(token.text)
-                if (type == null) {
+                val type = lookupType(token.text) ?: PrimitiveType.UNDEFINED
+                if (type == PrimitiveType.UNDEFINED) {
                     token.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, token.text)
-                    return
                 }
                 returns += type
             }
@@ -132,10 +132,10 @@ internal class SemanticChecker(
     /**
      * Verifies the [script]s parameter types are what is allowed by the [trigger].
      */
-    private fun checkScriptParameters(trigger: ClientTriggerType, script: Script, parameters: List<Parameter>?) {
-        val triggerParameterType = trigger.parameters
+    private fun checkScriptParameters(trigger: ClientTriggerType?, script: Script, parameters: List<Parameter>?) {
+        val triggerParameterType = trigger?.parameters
         val scriptParameterType = script.parameterType
-        if (!trigger.allowParameters && !parameters.isNullOrEmpty()) {
+        if (trigger != null && !trigger.allowParameters && !parameters.isNullOrEmpty()) {
             parameters.first().reportError(DiagnosticMessage.SCRIPT_TRIGGER_NO_PARAMETERS, trigger.identifier)
         } else if (triggerParameterType != null && scriptParameterType != triggerParameterType) {
             // TODO be smarter on where to place the error location to the first type mismatch?
@@ -153,10 +153,10 @@ internal class SemanticChecker(
     /**
      * Verifies the [script] returns what is allowed by the [trigger].
      */
-    private fun checkScriptReturns(trigger: ClientTriggerType, script: Script) {
-        val triggerReturns = trigger.returns
+    private fun checkScriptReturns(trigger: ClientTriggerType?, script: Script) {
+        val triggerReturns = trigger?.returns
         val scriptReturns = script.returnType
-        if (!trigger.allowReturns && scriptReturns != null) {
+        if (trigger != null && !trigger.allowReturns && scriptReturns != null) {
             script.reportError(DiagnosticMessage.SCRIPT_TRIGGER_NO_RETURNS, trigger.identifier)
         } else if (triggerReturns != null && scriptReturns != triggerReturns) {
             // TODO be smarter on where to place the error location to the first type mismatch?
