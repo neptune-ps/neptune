@@ -1,4 +1,4 @@
-package me.filby.neptune.runescript.symbol
+package me.filby.neptune.runescript.compiler.symbol
 
 import com.google.common.collect.HashBasedTable
 import kotlin.reflect.KClass

@@ -1,6 +1,6 @@
-package me.filby.neptune.runescript.symbol
+package me.filby.neptune.runescript.compiler.symbol
 
-import me.filby.neptune.runescript.type.PrimitiveType
+import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 import kotlin.test.assertFalse

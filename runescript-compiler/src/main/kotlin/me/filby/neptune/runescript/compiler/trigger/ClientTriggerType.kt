@@ -1,8 +1,8 @@
 package me.filby.neptune.runescript.compiler.trigger
 
-import me.filby.neptune.runescript.type.PrimitiveType
-import me.filby.neptune.runescript.type.TupleType
-import me.filby.neptune.runescript.type.Type
+import me.filby.neptune.runescript.compiler.type.PrimitiveType
+import me.filby.neptune.runescript.compiler.type.TupleType
+import me.filby.neptune.runescript.compiler.type.Type
 
 /**
  * An enumeration of valid trigger types for use in ClientScript.

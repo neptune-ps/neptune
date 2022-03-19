@@ -1,6 +1,6 @@
 package me.filby.neptune.runescript.compiler.trigger
 
-import me.filby.neptune.runescript.type.Type
+import me.filby.neptune.runescript.compiler.type.Type
 
 /**
  * A trigger type of a script. The trigger type is the first part of a script declaration (`[trigger,_]`) where

@@ -1,4 +1,4 @@
-package me.filby.neptune.runescript.type
+package me.filby.neptune.runescript.compiler.type
 
 /**
  * Represents a type that we use in the type system to make sure everything is only assigned the correct thing.

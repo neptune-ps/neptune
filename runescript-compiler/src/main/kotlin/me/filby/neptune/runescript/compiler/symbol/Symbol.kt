@@ -1,6 +1,6 @@
-package me.filby.neptune.runescript.symbol
+package me.filby.neptune.runescript.compiler.symbol
 
-import me.filby.neptune.runescript.type.PrimitiveType
+import me.filby.neptune.runescript.compiler.type.PrimitiveType
 
 /**
  * A basic representation of a symbol for RuneScript. A symbol can represent

@@ -1,4 +1,4 @@
-package me.filby.neptune.runescript.type
+package me.filby.neptune.runescript.compiler.type
 
 /**
  * An enumeration of types used in our type system, including any that would normally be used in RuneScript or

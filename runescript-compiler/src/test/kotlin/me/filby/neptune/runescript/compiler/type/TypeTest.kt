@@ -1,4 +1,4 @@
-package me.filby.neptune.runescript.type
+package me.filby.neptune.runescript.compiler.type
 
 import kotlin.test.Test
 import kotlin.test.assertContentEquals

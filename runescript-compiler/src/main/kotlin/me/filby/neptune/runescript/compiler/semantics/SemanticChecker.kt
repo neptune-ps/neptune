@@ -11,9 +11,9 @@ import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.type.ArrayType
-import me.filby.neptune.runescript.type.PrimitiveType
-import me.filby.neptune.runescript.type.TupleType
-import me.filby.neptune.runescript.type.Type
+import me.filby.neptune.runescript.compiler.type.PrimitiveType
+import me.filby.neptune.runescript.compiler.type.TupleType
+import me.filby.neptune.runescript.compiler.type.Type
 
 /**
  * The script parameter type(s) if it returns any.

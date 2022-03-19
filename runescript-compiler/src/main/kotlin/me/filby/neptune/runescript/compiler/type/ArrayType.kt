@@ -1,8 +1,6 @@
 package me.filby.neptune.runescript.compiler.type
 
 import com.google.common.base.MoreObjects
-import me.filby.neptune.runescript.type.BaseVarType
-import me.filby.neptune.runescript.type.Type
 
 /**
  * A [Type] that represents an array of another type.
