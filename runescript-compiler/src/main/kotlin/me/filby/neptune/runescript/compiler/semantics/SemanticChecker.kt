@@ -9,11 +9,13 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
+import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.type.ArrayType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
+import java.util.LinkedList
 
 /**
  * The script parameter type(s) if it returns any.
@@ -30,10 +32,50 @@ private var Script.returnType by Node.attributeOrNull<Type>("returnType")
  */
 private var Parameter.type by Node.attribute<Type>("type")
 
+/**
+ * The scope defined for the node. This should only ever be set for node types that
+ * would create a new scope.
+ */
+private var Node.scope by Node.attribute<SymbolTable>("scope")
+
 // TODO rename class
-internal class SemanticChecker(private val diagnostics: Diagnostics) : AstVisitor<Unit> {
+internal class SemanticChecker(
+    private val rootTable: SymbolTable,
+    private val diagnostics: Diagnostics
+) : AstVisitor<Unit> {
+    /**
+     * A stack of symbol tables to use through the script file.
+     */
+    private val tables = LinkedList<SymbolTable>()
+
+    /**
+     * The current active symbol table.
+     */
+    private var table = SymbolTable()
+
+    init {
+        // init with a base table for the file
+        tables.addFirst(table)
+    }
+
+    /**
+     * Wraps [block] with creating a new [SymbolTable], pushing it to [tables] and then popping it back
+     * out after the block is run.
+     */
+    private inline fun createScopedTable(crossinline block: () -> Unit) {
+        table = table.createSubTable()
+        tables.push(table)
+        block()
+        table = tables.pop()
+    }
+
     override fun visitScriptFile(scriptFile: ScriptFile) {
-        scriptFile.scripts.map { it.accept(this) }
+        for (script in scriptFile.scripts) {
+            createScopedTable {
+                script.scope = table
+                script.accept(this)
+            }
+        }
     }
 
     override fun visitScript(script: Script) {
