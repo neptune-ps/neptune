@@ -10,6 +10,7 @@ import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
+import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
@@ -170,13 +171,19 @@ internal class SemanticChecker(
     }
 
     override fun visitParameter(parameter: Parameter) {
+        val name = parameter.name.text
         val typeText = parameter.typeToken.text
-        val type = lookupType(typeText, allowArray = true)
+        val type = lookupType(typeText, allowArray = true) ?: PrimitiveType.UNDEFINED
 
-        if (type == null) {
+        // type isn't valid, report the error
+        if (type == PrimitiveType.UNDEFINED) {
             parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
-            parameter.type = PrimitiveType.UNDEFINED
-            return
+        }
+
+        // attempt to insert the local variable into the symbol table and display error if failed to insert
+        val inserted = table.insert(SymbolType.LocalVariable, LocalVariableSymbol(name, type))
+        if (!inserted) {
+            parameter.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
         }
 
         parameter.type = type
