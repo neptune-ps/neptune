@@ -54,11 +54,11 @@ internal class SemanticChecker(
     /**
      * The current active symbol table.
      */
-    private var table = SymbolTable()
+    private val table get() = tables.first
 
     init {
         // init with a base table for the file
-        tables.addFirst(table)
+        tables.addFirst(SymbolTable())
     }
 
     /**
@@ -66,10 +66,9 @@ internal class SemanticChecker(
      * out after the block is run.
      */
     private inline fun createScopedTable(crossinline block: () -> Unit) {
-        table = table.createSubTable()
-        tables.push(table)
+        tables.push(table.createSubTable())
         block()
-        table = tables.pop()
+        tables.pop()
     }
 
     override fun visitScriptFile(scriptFile: ScriptFile) {
