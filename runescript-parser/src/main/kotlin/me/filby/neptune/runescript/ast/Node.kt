@@ -104,7 +104,7 @@ public abstract class Node(public val source: NodeSourceLocation) {
                     if (thisRef.attributes.containsKey(key)) {
                         return thisRef.getAttribute<T>(key) as T
                     }
-                    throw IllegalStateException("Property ${property.name} should be initialized before get.")
+                    throw IllegalStateException("Property '${property.name}' should be initialized before get.")
                 }
 
                 override fun setValue(thisRef: Node, property: KProperty<*>, value: T) {
