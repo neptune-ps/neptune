@@ -175,6 +175,8 @@ internal class PreTypeChecking(
         parameter.type = type
     }
 
+    // TODO add scoping for blocks and cases
+
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
         val typeName = declarationStatement.typeToken.text.removePrefix("def_")
         val name = declarationStatement.name.text
