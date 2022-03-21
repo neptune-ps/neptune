@@ -29,7 +29,6 @@ import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ServerScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
-import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.ArrayType
 import me.filby.neptune.runescript.compiler.type.BaseVarType
@@ -129,20 +128,20 @@ internal class TypeChecking(
         // TODO lookup command and fall through to the rest of the code if it doesn't exist
 
         val name = identifier.text
-        var hint: Type? = null
-        var hintSymbolType: SymbolType<*>? = null
+        var hint: Type? = null // identifier.typeHint
 
         // assume component if the name contains a colon
         if (identifier.text.contains(":")) {
             hint = PrimitiveType.COMPONENT
-            hintSymbolType = SymbolType.Component
         }
 
-        // TODO make global lookup smarter somehow?
-        val symbol = if (hintSymbolType == null) {
-            rootTable.findAll<Symbol>(name).firstOrNull()
-        } else {
-            rootTable.find(hintSymbolType, name)
+        // look through the global table for a symbol with the given name and type
+        var symbol: Symbol? = null
+        for (temp in rootTable.findAll<Symbol>(name)) {
+            if (hint == null || hint == symbolToType(temp)) {
+                symbol = temp
+                break
+            }
         }
 
         if (symbol == null) {
@@ -164,17 +163,6 @@ internal class TypeChecking(
         identifier.type = typeFromSymbol
     }
 
-    override fun visitNode(node: Node) {
-        if (node !is Token) {
-            val parent = node.parent
-            if (parent == null) {
-                node.reportInfo("Unhandled node: %s.", node::class.simpleName!!)
-            } else {
-                node.reportInfo("Unhandled node: %s. Parent: %s", node::class.simpleName!!, parent::class.simpleName!!)
-            }
-        }
-    }
-
     /**
      * Converts a [Symbol] to its equivalent [Type].
      */
@@ -184,6 +172,17 @@ internal class TypeChecking(
         is LocalVariableSymbol -> symbol.type
         is ComponentSymbol -> PrimitiveType.COMPONENT
         is ConfigSymbol -> symbol.type
+    }
+
+    override fun visitNode(node: Node) {
+        if (node !is Token) {
+            val parent = node.parent
+            if (parent == null) {
+                node.reportInfo("Unhandled node: %s.", node::class.simpleName!!)
+            } else {
+                node.reportInfo("Unhandled node: %s. Parent: %s", node::class.simpleName!!, parent::class.simpleName!!)
+            }
+        }
     }
 
     /**
