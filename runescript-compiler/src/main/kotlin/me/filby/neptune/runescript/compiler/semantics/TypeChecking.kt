@@ -7,7 +7,6 @@ import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
-import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
@@ -99,10 +98,6 @@ internal class TypeChecking(
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
         stringLiteral.type = PrimitiveType.STRING
-    }
-
-    override fun visitIdentifier(identifier: Identifier) {
-        println(identifier.type)
     }
 
     override fun visitNode(node: Node) {
