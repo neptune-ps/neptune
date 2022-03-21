@@ -5,7 +5,6 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
-import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
