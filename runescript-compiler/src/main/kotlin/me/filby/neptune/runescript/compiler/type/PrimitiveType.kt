@@ -16,6 +16,7 @@ public enum class PrimitiveType(
     // verified script var types
     INT('i', defaultValue = 0),
     BOOLEAN('1', defaultValue = 0),
+    COMPONENT('I', defaultValue = -1),
     STRING('s', BaseVarType.STRING, defaultValue = ""),
     MAPELEMENT('µ', defaultValue = -1),
     CHAR('z', defaultValue = -1),

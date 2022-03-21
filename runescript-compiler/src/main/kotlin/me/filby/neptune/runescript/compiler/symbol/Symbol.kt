@@ -19,6 +19,7 @@ public sealed interface Symbol {
 // symbol type declarations
 
 public data class ConfigSymbol(override val name: String, val type: PrimitiveType) : Symbol
+public data class ComponentSymbol(override val name: String) : Symbol
 public data class ServerScriptSymbol(override val name: String) : Symbol
 public data class ClientScriptSymbol(override val name: String) : Symbol
 public data class LocalVariableSymbol(override val name: String, val type: Type) : Symbol

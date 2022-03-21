@@ -272,9 +272,9 @@ internal class PreTypeChecking(
     override fun visitIdentifier(identifier: Identifier) {
         val arraySymbol = table.find(SymbolType.LocalVariable, identifier.text)
         if (arraySymbol != null && arraySymbol.type is ArrayType) {
-            // Note: array references without index just looks up using a normal identifier
+            // Note: array references without index just looks up using a normal identifier,
             // so we prevent accessing an array using a $ without an index in visitLocalVariableExpression.
-            // TODO store the symbol?
+            identifier.reference = arraySymbol
             identifier.type = arraySymbol.type
         }
     }

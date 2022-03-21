@@ -4,6 +4,9 @@ package me.filby.neptune.runescript.compiler.diagnostics
  * A class containing different types of diagnostic message texts.
  */
 internal object DiagnosticMessage {
+    // internal compiler errors
+    const val UNSUPPORTED_SYMBOLTYPE_TO_TYPE = "Internal compiler error: Unsupported SymbolType -> Type conversion: %s"
+
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
     const val GENERIC_TYPE_MISMATCH = "Type mismatch: '%s' was given but '%s' was expected."

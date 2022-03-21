@@ -7,6 +7,7 @@ import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
@@ -21,7 +22,14 @@ import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.symbol
+import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
+import me.filby.neptune.runescript.compiler.symbol.ComponentSymbol
+import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
+import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
+import me.filby.neptune.runescript.compiler.symbol.ServerScriptSymbol
+import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
+import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.ArrayType
 import me.filby.neptune.runescript.compiler.type.BaseVarType
@@ -98,6 +106,7 @@ internal class TypeChecking(
     }
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
+        // TODO support for specifying type as graphic
         stringLiteral.type = PrimitiveType.STRING
     }
 
@@ -111,6 +120,50 @@ internal class TypeChecking(
         joinedStringExpression.type = PrimitiveType.STRING
     }
 
+    override fun visitIdentifier(identifier: Identifier) {
+        if (identifier.reference != null) {
+            // handled already in pre-type checking for array references.
+            return
+        }
+
+        // TODO lookup command and fall through to the rest of the code if it doesn't exist
+
+        val name = identifier.text
+        var hint: Type? = null
+        var hintSymbolType: SymbolType<*>? = null
+
+        // assume component if the name contains a colon
+        if (identifier.text.contains(":")) {
+            hint = PrimitiveType.COMPONENT
+            hintSymbolType = SymbolType.Component
+        }
+
+        // TODO make global lookup smarter somehow?
+        val symbol = if (hintSymbolType == null) {
+            rootTable.findAll<Symbol>(name).firstOrNull()
+        } else {
+            rootTable.find(hintSymbolType, name)
+        }
+
+        if (symbol == null) {
+            // unable to resolve the symbol
+            identifier.reportError("'%s' could not be resolved to a symbol.", name)
+            identifier.type = PrimitiveType.UNDEFINED
+            return
+        }
+
+        // try to convert the symbol into a type that can be stored on the node
+        val typeFromSymbol = symbolToType(symbol)
+        if (typeFromSymbol == null) {
+            identifier.type = PrimitiveType.UNDEFINED
+            identifier.reportError(DiagnosticMessage.UNSUPPORTED_SYMBOLTYPE_TO_TYPE, symbol::class.java.simpleName)
+            return
+        }
+
+        identifier.reference = symbol
+        identifier.type = typeFromSymbol
+    }
+
     override fun visitNode(node: Node) {
         if (node !is Token) {
             val parent = node.parent
@@ -120,6 +173,17 @@ internal class TypeChecking(
                 node.reportInfo("Unhandled node: %s. Parent: %s", node::class.simpleName!!, parent::class.simpleName!!)
             }
         }
+    }
+
+    /**
+     * Converts a [Symbol] to its equivalent [Type].
+     */
+    private fun symbolToType(symbol: Symbol) = when (symbol) {
+        is ServerScriptSymbol -> null
+        is ClientScriptSymbol -> null
+        is LocalVariableSymbol -> symbol.type
+        is ComponentSymbol -> PrimitiveType.COMPONENT
+        is ConfigSymbol -> symbol.type
     }
 
     /**
