@@ -9,36 +9,19 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
+import me.filby.neptune.runescript.compiler.parameterType
+import me.filby.neptune.runescript.compiler.returnType
+import me.filby.neptune.runescript.compiler.scope
 import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
+import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.ArrayType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
-
-/**
- * The script parameter type(s) if it returns any.
- */
-private var Script.parameterType by Node.attributeOrNull<Type>("parameterType")
-
-/**
- * The script return type(s) if it returns any.
- */
-private var Script.returnType by Node.attributeOrNull<Type>("returnType")
-
-/**
- * The defined type of the parameter.
- */
-private var Parameter.type by Node.attribute<Type>("type")
-
-/**
- * The scope defined for the node. This should only ever be set for node types that
- * would create a new scope.
- */
-private var Node.scope by Node.attribute<SymbolTable>("scope")
 
 // TODO rename class
 internal class SemanticChecker(
