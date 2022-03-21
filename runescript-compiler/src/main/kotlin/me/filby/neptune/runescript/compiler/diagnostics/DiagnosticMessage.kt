@@ -18,6 +18,6 @@ internal object DiagnosticMessage {
 
     // local variable specific
     const val LOCAL_REFERENCE_UNRESOLVED = "'$%s' cannot be resolved to a local variable."
-    const val LOCAL_REFERENCE_NOT_ARRAY = "Attempting to access indexed value of non-array type variable '$%s'."
+    const val LOCAL_REFERENCE_NOT_ARRAY = "Access of indexed value of non-array type variable '$%s'."
     const val LOCAL_ARRAY_REFERENCE_NOINDEX = "'$%s' is a reference to an array variable without specifying the index."
 }

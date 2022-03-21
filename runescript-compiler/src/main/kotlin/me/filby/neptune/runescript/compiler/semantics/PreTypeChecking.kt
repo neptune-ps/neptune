@@ -263,7 +263,7 @@ internal class PreTypeChecking(
     }
 
     override fun visitNode(node: Node) {
-        // All other nodes we purposely ignore.
+        node.children.visit()
     }
 
     /**
