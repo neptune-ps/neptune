@@ -5,9 +5,12 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
+import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
+import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
+import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
@@ -98,7 +101,7 @@ internal class PreTypeChecking(
         if (!returnTokens.isNullOrEmpty()) {
             val returns = mutableListOf<Type>()
             for (token in returnTokens) {
-                val type = lookupType(token.text) ?: PrimitiveType.UNDEFINED
+                val type = lookupType(token.text)
                 if (type == PrimitiveType.UNDEFINED) {
                     token.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, token.text)
                 }
@@ -157,7 +160,7 @@ internal class PreTypeChecking(
     override fun visitParameter(parameter: Parameter) {
         val name = parameter.name.text
         val typeText = parameter.typeToken.text
-        val type = lookupType(typeText, allowArray = true) ?: PrimitiveType.UNDEFINED
+        val type = lookupType(typeText, allowArray = true)
 
         // type isn't valid, report the error
         if (type == PrimitiveType.UNDEFINED) {
@@ -171,6 +174,48 @@ internal class PreTypeChecking(
         }
 
         parameter.type = type
+    }
+
+    override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
+        val typeName = declarationStatement.typeToken.text.removePrefix("def_")
+        val name = declarationStatement.name.text
+        val type = lookupType(typeName)
+
+        // TODO check if type is allowed to be declared
+
+        // notify invalid type
+        if (type == PrimitiveType.UNDEFINED) {
+            declarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
+        }
+
+        // attempt to insert the local variable into the symbol table and display error if failed to insert
+        val inserted = table.insert(SymbolType.LocalVariable, LocalVariableSymbol(name, type))
+        if (!inserted) {
+            declarationStatement.name.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
+        }
+    }
+
+    override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
+        val typeName = arrayDeclarationStatement.typeToken.text.removePrefix("def_")
+        val name = arrayDeclarationStatement.name.text
+        var type = lookupType(typeName)
+
+        // TODO check if type is allowed to be declared
+        // TODO check if type is allowed to be an array
+
+        // notify invalid type
+        if (type == PrimitiveType.UNDEFINED) {
+            arrayDeclarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
+        } else {
+            // convert type into an array of type
+            type = ArrayType(type)
+        }
+
+        // attempt to insert the local variable into the symbol table and display error if failed to insert
+        val inserted = table.insert(SymbolType.LocalVariable, LocalVariableSymbol(name, type))
+        if (!inserted) {
+            arrayDeclarationStatement.name.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
+        }
     }
 
     override fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression) {
@@ -218,7 +263,7 @@ internal class PreTypeChecking(
     }
 
     override fun visitNode(node: Node) {
-        node.children.visit()
+        // All other nodes we purposely ignore.
     }
 
     /**
@@ -255,15 +300,18 @@ internal class PreTypeChecking(
     /**
      * Lookup a type by its name. When [allowArray], types ending with `array` will return [ArrayType].
      */
-    private fun lookupType(name: String, allowArray: Boolean = false): Type? {
+    private fun lookupType(name: String, allowArray: Boolean = false): Type {
         if (allowArray && name.endsWith("array")) {
             // substring before last "array" to prevent requesting intarrayarray (or deeper)
             val baseType = name.substringBeforeLast("array")
-            val type = lookupType(baseType) ?: return null
+            val type = lookupType(baseType)
+            if (type == PrimitiveType.UNDEFINED) {
+                return type
+            }
             return ArrayType(type)
         }
         // TODO: lookup type from a type supplier
         // TODO: support for not allowing specific types (e.g. NULL)
-        return PrimitiveType.lookup(name)
+        return PrimitiveType.lookup(name) ?: PrimitiveType.UNDEFINED
     }
 }
