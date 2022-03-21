@@ -5,6 +5,7 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
+import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
@@ -199,6 +200,11 @@ internal class PreTypeChecking(
 
         // TODO store the symbol?
         localVariableExpression.type = if (symbol.type is ArrayType) symbol.type.type else symbol.type
+    }
+
+    override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
+        gameVariableExpression.reportError("Game var references are not supported yet.")
+        gameVariableExpression.type = PrimitiveType.UNDEFINED
     }
 
     override fun visitIdentifier(identifier: Identifier) {
