@@ -18,7 +18,6 @@ import me.filby.neptune.runescript.compiler.type.ArrayType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
-import java.util.LinkedList
 
 /**
  * The script parameter type(s) if it returns any.
@@ -49,12 +48,12 @@ internal class SemanticChecker(
     /**
      * A stack of symbol tables to use through the script file.
      */
-    private val tables = LinkedList<SymbolTable>()
+    private val tables = ArrayDeque<SymbolTable>()
 
     /**
      * The current active symbol table.
      */
-    private val table get() = tables.first
+    private val table get() = tables.first()
 
     init {
         // init with a base table for the file
@@ -66,9 +65,9 @@ internal class SemanticChecker(
      * out after the block is run.
      */
     private inline fun createScopedTable(crossinline block: () -> Unit) {
-        tables.push(table.createSubTable())
+        tables.addFirst(table.createSubTable())
         block()
-        tables.pop()
+        tables.removeFirst()
     }
 
     override fun visitScriptFile(scriptFile: ScriptFile) {
