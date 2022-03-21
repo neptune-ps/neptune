@@ -48,14 +48,14 @@ internal class TypeChecking(
         val initializer = declarationStatement.initializer
         if (initializer != null) {
             val symbol = declarationStatement.symbol
-            initializer.accept(this)
+            initializer.visit()
             checkTypeMatch(initializer, symbol.type, initializer.type)
         }
     }
 
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
         val initializer = arrayDeclarationStatement.initializer
-        initializer.accept(this)
+        initializer.visit()
         checkTypeMatch(initializer, PrimitiveType.INT, initializer.type)
     }
 
@@ -74,7 +74,7 @@ internal class TypeChecking(
 
         val indexExpression = localVariableExpression.index
         if (reference.type is ArrayType && indexExpression != null) {
-            indexExpression.accept(this)
+            indexExpression.visit()
             checkTypeMatch(indexExpression, PrimitiveType.INT, indexExpression.type)
         }
 
@@ -189,11 +189,20 @@ internal class TypeChecking(
     }
 
     /**
+     * Shortcut to [Node.accept] for nullable nodes.
+     */
+    private fun Node?.visit() {
+        this ?: return
+        accept(this@TypeChecking)
+    }
+
+    /**
      * Calls [Node.accept] on all nodes in a list.
      */
-    private fun List<Node>.visit() {
+    private fun List<Node>?.visit() {
+        this ?: return
         for (n in this) {
-            n.accept(this@TypeChecking)
+            n.visit()
         }
     }
 }
