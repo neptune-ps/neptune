@@ -8,6 +8,7 @@ import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
+import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.StringLiteral
@@ -98,6 +99,16 @@ internal class TypeChecking(
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
         stringLiteral.type = PrimitiveType.STRING
+    }
+
+    override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {
+        // visit the parts and verify they're all strings
+        joinedStringExpression.parts.visit()
+        for (part in joinedStringExpression.parts) {
+            checkTypeMatch(part, PrimitiveType.STRING, part.type)
+        }
+
+        joinedStringExpression.type = PrimitiveType.STRING
     }
 
     override fun visitNode(node: Node) {
