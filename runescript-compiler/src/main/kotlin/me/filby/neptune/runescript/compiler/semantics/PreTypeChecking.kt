@@ -5,6 +5,8 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
+import me.filby.neptune.runescript.ast.expr.Identifier
+import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
@@ -24,7 +26,7 @@ import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 
 // TODO rename class
-internal class SemanticChecker(
+internal class PreTypeChecking(
     private val rootTable: SymbolTable,
     private val diagnostics: Diagnostics
 ) : AstVisitor<Unit> {
@@ -170,7 +172,47 @@ internal class SemanticChecker(
         parameter.type = type
     }
 
+    override fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression) {
+        val name = localVariableExpression.name.text
+        val symbol = table.find(SymbolType.LocalVariable, localVariableExpression.name.text)
+        if (symbol == null) {
+            // trying to reference a variable that isn't defined
+            localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_UNRESOLVED, name)
+            localVariableExpression.type = PrimitiveType.UNDEFINED
+            return
+        }
+
+        val symbolIsArray = symbol.type is ArrayType
+        if (!symbolIsArray && localVariableExpression.isArray) {
+            // trying to reference non-array local variable and specifying an index
+            localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_NOT_ARRAY, name)
+            localVariableExpression.type = PrimitiveType.UNDEFINED
+            return
+        }
+
+        if (symbolIsArray && !localVariableExpression.isArray) {
+            // trying to reference array variable without specifying the index in which to access
+            localVariableExpression.reportError(DiagnosticMessage.LOCAL_ARRAY_REFERENCE_NOINDEX, name)
+            localVariableExpression.type = PrimitiveType.UNDEFINED
+            return
+        }
+
+        // TODO store the symbol?
+        localVariableExpression.type = if (symbol.type is ArrayType) symbol.type.type else symbol.type
+    }
+
+    override fun visitIdentifier(identifier: Identifier) {
+        val arraySymbol = table.find(SymbolType.LocalVariable, identifier.text)
+        if (arraySymbol != null && arraySymbol.type is ArrayType) {
+            // Note: array references without index just looks up using a normal identifier
+            // so we prevent accessing an array using a $ without an index in visitLocalVariableExpression.
+            // TODO store the symbol?
+            identifier.type = arraySymbol.type
+        }
+    }
+
     override fun visitNode(node: Node) {
+        node.children.visit()
     }
 
     /**
@@ -200,7 +242,7 @@ internal class SemanticChecker(
     private fun List<Node>.visit() {
         for (n in this) {
             // TODO check return type to prevent continuing when we shouldn't, possibly configurable with params
-            n.accept(this@SemanticChecker)
+            n.accept(this@PreTypeChecking)
         }
     }
 
