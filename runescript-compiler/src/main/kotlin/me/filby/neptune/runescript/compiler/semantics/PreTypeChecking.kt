@@ -15,8 +15,10 @@ import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.parameterType
+import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.scope
+import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
@@ -189,11 +191,17 @@ internal class PreTypeChecking(
             declarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         }
 
+        // visit the initializer if it exists to resolve references in it
+        declarationStatement.initializer?.accept(this)
+
         // attempt to insert the local variable into the symbol table and display error if failed to insert
-        val inserted = table.insert(SymbolType.LocalVariable, LocalVariableSymbol(name, type))
+        val symbol = LocalVariableSymbol(name, type)
+        val inserted = table.insert(SymbolType.LocalVariable, symbol)
         if (!inserted) {
             declarationStatement.name.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
         }
+
+        declarationStatement.symbol = symbol
     }
 
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
@@ -212,6 +220,9 @@ internal class PreTypeChecking(
             type = ArrayType(type)
         }
 
+        // visit the initializer if it exists to resolve references in it
+        arrayDeclarationStatement.initializer.accept(this)
+
         // attempt to insert the local variable into the symbol table and display error if failed to insert
         val inserted = table.insert(SymbolType.LocalVariable, LocalVariableSymbol(name, type))
         if (!inserted) {
@@ -229,6 +240,9 @@ internal class PreTypeChecking(
             return
         }
 
+        // set the reference since it was actually found
+        localVariableExpression.reference = symbol
+
         val symbolIsArray = symbol.type is ArrayType
         if (!symbolIsArray && localVariableExpression.isArray) {
             // trying to reference non-array local variable and specifying an index
@@ -244,7 +258,9 @@ internal class PreTypeChecking(
             return
         }
 
-        // TODO store the symbol?
+        // visit the index to set the type of any references
+        localVariableExpression.index?.accept(this)
+
         localVariableExpression.type = if (symbol.type is ArrayType) symbol.type.type else symbol.type
     }
 

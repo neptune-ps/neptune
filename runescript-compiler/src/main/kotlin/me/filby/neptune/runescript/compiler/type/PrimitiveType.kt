@@ -18,6 +18,7 @@ public enum class PrimitiveType(
     BOOLEAN('1', defaultValue = 0),
     STRING('s', BaseVarType.STRING, defaultValue = ""),
     MAPELEMENT('µ', defaultValue = -1),
+    CHAR('z', defaultValue = -1),
     LONG('Ï', BaseVarType.LONG, defaultValue = 1L),
     ;
 

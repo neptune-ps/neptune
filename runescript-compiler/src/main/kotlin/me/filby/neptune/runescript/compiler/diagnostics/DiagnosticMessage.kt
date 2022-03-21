@@ -6,6 +6,7 @@ package me.filby.neptune.runescript.compiler.diagnostics
 internal object DiagnosticMessage {
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
+    const val GENERIC_TYPE_MISMATCH = "Type mismatch: '%s' was given but '%s' was expected."
 
     // script node specific
     const val SCRIPT_REDECLARATION = "[%s,%s] is already defined."
