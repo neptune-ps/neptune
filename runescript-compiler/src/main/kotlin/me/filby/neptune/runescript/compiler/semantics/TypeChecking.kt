@@ -35,6 +35,7 @@ import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
+import me.filby.neptune.runescript.compiler.typeHint
 
 internal class TypeChecking(
     private val rootTable: SymbolTable,
@@ -55,7 +56,11 @@ internal class TypeChecking(
         val initializer = declarationStatement.initializer
         if (initializer != null) {
             val symbol = declarationStatement.symbol
+
+            // type hint that we want whatever the declarations type is then visit
+            initializer.typeHint = symbol.type
             initializer.visit()
+
             checkTypeMatch(initializer, symbol.type, initializer.type)
         }
     }
@@ -125,22 +130,26 @@ internal class TypeChecking(
             return
         }
 
-        // TODO lookup command and fall through to the rest of the code if it doesn't exist
-
         val name = identifier.text
-        var hint: Type? = null // identifier.typeHint
+        var hint: Type? = identifier.typeHint
 
         // assume component if the name contains a colon
-        if (identifier.text.contains(":")) {
+        if (hint == null && identifier.text.contains(":")) {
             hint = PrimitiveType.COMPONENT
         }
 
         // look through the global table for a symbol with the given name and type
         var symbol: Symbol? = null
         for (temp in rootTable.findAll<Symbol>(name)) {
-            if (hint == null || hint == symbolToType(temp)) {
+            val symbolType = symbolToType(temp)
+            if (hint == null || symbolType != null && isTypeCompatible(hint, symbolType)) {
+                // hint type matches (or is null) so we can stop looking
                 symbol = temp
                 break
+            } else if (symbol == null) {
+                // default the symbol to the first thing found just in case
+                // no exact matches exist
+                symbol = temp
             }
         }
 
@@ -226,6 +235,10 @@ internal class TypeChecking(
             // any int based variable is nullable
             // TODO ability to configure this per type?
             return first.baseType == BaseVarType.INTEGER
+        }
+        if (first == PrimitiveType.OBJ) {
+            // allow assigning namedobj to obj but not obj to namedobj
+            return second == PrimitiveType.OBJ || second == PrimitiveType.NAMEDOBJ
         }
         return first == second
     }

@@ -48,6 +48,11 @@ internal var Identifier.reference by Node.attributeOrNull<Symbol>("reference")
 internal var Expression.type by Node.attribute<Type>("type")
 
 /**
+ * Allows parents of a node to define the expected type to help with identifier ambiguity.
+ */
+internal var Expression.typeHint by Node.attributeOrNull<Type>("typeHint")
+
+/**
  * The scope defined for the node. This should only ever be set for node types that
  * would create a new scope.
  */
