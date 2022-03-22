@@ -216,8 +216,7 @@ internal class TypeChecking(
         right: Expression
     ): Boolean {
         if (operator !in MATH_OPS) {
-            // parent _should_ be calc here, and we want to report error on it since the
-            // operation is not a Token currently
+            // TODO make operator a token so we can point to it in an error message
             parent.reportError(DiagnosticMessage.INVALID_MATHOP, operator)
             return false
         }
