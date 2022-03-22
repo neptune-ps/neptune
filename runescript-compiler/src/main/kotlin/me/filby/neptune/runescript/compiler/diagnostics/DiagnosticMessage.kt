@@ -24,8 +24,12 @@ internal object DiagnosticMessage {
     const val SCRIPT_TRIGGER_NO_RETURNS = "The trigger type '%s' is not allowed to return values."
     const val SCRIPT_TRIGGER_EXPECTED_RETURNS = "The trigger type '%s' is expected to return (%s)."
 
+    // condition expression specific
+    const val CONDITION_INVALID_NODE_TYPE = "Conditions are only allowed to be binary expressions."
+
     // binary expression specific
     const val BINOP_INVALID_TYPES = "Operator '%s' cannot be applied to '%s', '%s'."
+    const val BINOP_TUPLE_TYPE = "%s side of binary expressions can only have one type but has '%s'."
 
     // local variable specific
     const val LOCAL_REFERENCE_UNRESOLVED = "'$%s' cannot be resolved to a local variable."

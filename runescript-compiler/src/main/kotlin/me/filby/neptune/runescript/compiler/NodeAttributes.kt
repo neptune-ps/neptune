@@ -45,8 +45,17 @@ internal var Identifier.reference by Node.attributeOrNull<Symbol>("reference")
 
 /**
  * The type that the expression would evaluate to.
+ *
+ * @see Expression.nullableType
  */
 internal var Expression.type by Node.attribute<Type>("type")
+
+/**
+ * The type that the expression would evaluate to, or `null`.
+ *
+ * @see Expression.type
+ */
+internal var Expression.nullableType by Node.attributeOrNull<Type>("type")
 
 /**
  * Allows parents of a node to define the expected type to help with identifier ambiguity.

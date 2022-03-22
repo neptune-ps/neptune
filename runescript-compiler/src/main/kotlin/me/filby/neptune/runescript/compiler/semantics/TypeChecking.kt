@@ -23,10 +23,12 @@ import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.EmptyStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
+import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
+import me.filby.neptune.runescript.compiler.nullableType
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
@@ -62,6 +64,37 @@ internal class TypeChecking(
     override fun visitBlockStatement(blockStatement: BlockStatement) {
         // visit all statements
         blockStatement.statements.visit()
+    }
+
+    override fun visitIfStatement(ifStatement: IfStatement) {
+        val condition = ifStatement.condition
+
+        // type hint and visit condition
+        condition.typeHint = PrimitiveType.BOOLEAN
+        condition.visit()
+
+        // verify the condition expression is a binary expression or one wrapped in parentheses.
+        if (checkValidConditionExpression(condition)) {
+            checkTypeMatch(condition, PrimitiveType.BOOLEAN, condition.type)
+        } else {
+            // report invalid condition expression
+            condition.reportError(DiagnosticMessage.CONDITION_INVALID_NODE_TYPE)
+        }
+
+        ifStatement.thenStatement.visit()
+        ifStatement.elseStatement?.visit()
+    }
+
+    /**
+     * Checks if a give expression is a valid conditional expression. The expression is only valid
+     * if the expression is [BinaryExpression] or a [ParenthesizedExpression] with a
+     * [BinaryExpression]. If the expression is a [ParenthesizedExpression] it recursively calls
+     * this function until it finds a non-[ParenthesizedExpression].
+     */
+    private fun checkValidConditionExpression(expression: Expression): Boolean = when (expression) {
+        is BinaryExpression -> true
+        is ParenthesizedExpression -> checkValidConditionExpression(expression.expression)
+        else -> false
     }
 
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
@@ -157,13 +190,16 @@ internal class TypeChecking(
         val right = binaryExpression.right
         val operator = binaryExpression.operator
 
-        if (typeHint == PrimitiveType.INT && !checkBinaryMathOperation(binaryExpression, left, operator, right)) {
-            // math operation failed so, error is reported in checkBinaryMathOperation
+        // type hint should only ever be int or boolean here
+        val validOperation = when (typeHint) {
+            PrimitiveType.INT -> checkBinaryMathOperation(binaryExpression, left, operator, right)
+            PrimitiveType.BOOLEAN -> checkBinaryConditionOperation(binaryExpression, left, operator, right)
+            else -> false
+        }
+
+        // early return if it isn't a valid operation
+        if (!validOperation) {
             binaryExpression.type = PrimitiveType.UNDEFINED
-            return
-        } else if (typeHint == PrimitiveType.BOOLEAN) {
-            binaryExpression.type = PrimitiveType.UNDEFINED
-            binaryExpression.reportError("Conditional binary expressions are not implemented.")
             return
         }
 
@@ -210,6 +246,56 @@ internal class TypeChecking(
         }
 
         return bothMatch
+    }
+
+    /**
+     * Verifies the binary expression is a valid condition operation.
+     */
+    private fun checkBinaryConditionOperation(
+        parent: BinaryExpression,
+        left: Expression,
+        operator: String,
+        right: Expression
+    ): Boolean {
+        if (operator !in CONDITIONAL_OPS) {
+            // TODO make operator a token so we can point to it in an error message
+            parent.reportError(DiagnosticMessage.INVALID_MATHOP, operator)
+            return false
+        }
+
+        // assign the type hints using the opposite side if it isn't already assigned.
+        left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
+        right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
+
+        // visit both sides to evaluate types
+        left.visit()
+        right.visit()
+
+        // check if either side is a tuple type. the runtime only allows comparing two values
+        if (left.type is TupleType || right.type is TupleType) {
+            if (left.type is TupleType) {
+                left.reportError(DiagnosticMessage.BINOP_TUPLE_TYPE, "Left", left.type.representation)
+            }
+            if (right.type is TupleType) {
+                right.reportError(DiagnosticMessage.BINOP_TUPLE_TYPE, "Right", right.type.representation)
+            }
+            return false
+        }
+
+        // verify if both sides are equal
+        if (!checkTypeMatch(left, left.type, right.type, reportError = false)) {
+            // TODO make operator a token so we can point to it in an error message
+            parent.reportError(
+                DiagnosticMessage.BINOP_INVALID_TYPES,
+                operator,
+                left.type.representation,
+                right.type.representation
+            )
+            return false
+        }
+
+        // other cases are true
+        return true
     }
 
     override fun visitCalcExpression(calcExpression: CalcExpression) {
@@ -443,6 +529,15 @@ internal class TypeChecking(
         private val MATH_OPS = arrayOf(
             "*", "/", "%",
             "+", "-",
+            "&", "|"
+        )
+
+        /**
+         * Array of valid conditional operations allowed within `if` and `while` statements.
+         */
+        private val CONDITIONAL_OPS = arrayOf(
+            "<", ">", "<=", ">=",
+            "=", "!",
             "&", "|"
         )
     }
