@@ -14,6 +14,7 @@ import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
+import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
@@ -68,6 +69,44 @@ internal class TypeChecking(
         val initializer = arrayDeclarationStatement.initializer
         initializer.visit()
         checkTypeMatch(initializer, PrimitiveType.INT, initializer.type)
+    }
+
+    override fun visitAssignmentStatement(assignmentStatement: AssignmentStatement) {
+        // visit the lhs to fetch the references
+        assignmentStatement.vars.visit()
+
+        // store the lhs types to help with type hinting
+        val leftTypes = assignmentStatement.vars.map { it.type }
+        val rightTypes = mutableListOf<Type>()
+        var typeCounter = 0
+        for (expr in assignmentStatement.expressions) {
+            expr.typeHint = if (typeCounter < leftTypes.size) leftTypes[typeCounter] else null
+            expr.visit()
+
+            // add the evaluated type
+            rightTypes += expr.type
+
+            // increment the counter for type hinting
+            typeCounter += if (expr.type is TupleType) {
+                (expr.type as TupleType).children.size
+            } else {
+                1
+            }
+        }
+
+        // convert types to tuple type if necessary for easy comparison
+        val leftType = TupleType.fromList(leftTypes)
+        val rightType = TupleType.fromList(rightTypes)
+        if (leftType == null || rightType == null) {
+            assignmentStatement.reportError(
+                DiagnosticMessage.NULL_TYPE_IN_ASSIGNMENT,
+                leftType?.representation ?: "null",
+                rightType?.representation ?: "null"
+            )
+            return
+        }
+
+        checkTypeMatch(assignmentStatement, leftType, rightType)
     }
 
     /**

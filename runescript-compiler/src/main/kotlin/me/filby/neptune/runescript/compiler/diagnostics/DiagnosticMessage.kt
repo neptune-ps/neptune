@@ -6,6 +6,7 @@ package me.filby.neptune.runescript.compiler.diagnostics
 internal object DiagnosticMessage {
     // internal compiler errors
     const val UNSUPPORTED_SYMBOLTYPE_TO_TYPE = "Internal compiler error: Unsupported SymbolType -> Type conversion: %s"
+    const val NULL_TYPE_IN_ASSIGNMENT = "Internal compiler error: null type in assignment: lhs=%s, rhs=%s"
 
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."

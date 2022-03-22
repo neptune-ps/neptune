@@ -5,7 +5,7 @@ import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
-import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
+import me.filby.neptune.runescript.ast.expr.VariableExpression
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
@@ -33,9 +33,10 @@ internal var Parameter.type by Node.attribute<Type>("type")
 internal var DeclarationStatement.symbol by Node.attribute<LocalVariableSymbol>("symbol")
 
 /**
- * The symbol that variable references.
+ * The symbol that the variable references.
  */
-internal var LocalVariableExpression.reference by Node.attributeOrNull<LocalVariableSymbol>("reference")
+// TODO VariableSymbol?
+internal var VariableExpression.reference by Node.attributeOrNull<LocalVariableSymbol>("reference")
 
 /**
  * The symbol the identifier references.
