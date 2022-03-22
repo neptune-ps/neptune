@@ -7,6 +7,7 @@ import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.VariableExpression
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
+import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
@@ -26,6 +27,11 @@ internal var Script.returnType by Node.attributeOrNull<Type>("returnType")
  * The defined type of the parameter.
  */
 internal var Parameter.type by Node.attribute<Type>("type")
+
+/**
+ * The type the switch statement accepts.
+ */
+internal var SwitchStatement.type by Node.attribute<Type>("type")
 
 /**
  * The symbol that the statement declared.

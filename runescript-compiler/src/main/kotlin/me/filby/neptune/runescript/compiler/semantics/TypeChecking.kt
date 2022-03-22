@@ -9,10 +9,12 @@ import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
+import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
@@ -24,6 +26,8 @@ import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.EmptyStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.IfStatement
+import me.filby.neptune.runescript.ast.statement.SwitchCase
+import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
@@ -32,6 +36,7 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.nullableType
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.symbol
+import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.ComponentSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
@@ -106,6 +111,80 @@ internal class TypeChecking(
     private fun isValidConditionExpression(expression: Expression): Boolean = when (expression) {
         is BinaryExpression -> true
         is ParenthesizedExpression -> isValidConditionExpression(expression.expression)
+        else -> false
+    }
+
+    override fun visitSwitchStatement(switchStatement: SwitchStatement) {
+        val expectedType = switchStatement.type
+
+        // type hint the condition and visit it
+        val condition = switchStatement.condition
+        condition.typeHint = expectedType
+        condition.visit()
+        checkTypeMatch(condition, expectedType, condition.type)
+
+        // TODO check for duplicate case labels (other than default)
+        // visit all the cases, cases will be type checked there.
+        var defaultCase: SwitchCase? = null
+        for (case in switchStatement.cases) {
+            if (case.isDefault) {
+                if (defaultCase == null) {
+                    defaultCase = case
+                } else {
+                    case.reportError(DiagnosticMessage.SWITCH_DUPLICATE_DEFAULT)
+                }
+            }
+            case.visit()
+        }
+    }
+
+    override fun visitSwitchCase(switchCase: SwitchCase) {
+        val switchType = (switchCase.parent as? SwitchStatement)?.type
+        if (switchType == null) {
+            // the parent should always be a switch statement, if not we're in trouble...
+            switchCase.reportError(DiagnosticMessage.CASE_WITHOUT_SWITCH)
+            return
+        }
+
+        // visit the case keys
+        for (key in switchCase.keys) {
+            // type hint and visit so we can access more information in constant expression check
+            key.typeHint = switchType
+            key.visit()
+
+            if (!isConstantExpression(key)) {
+                key.reportError(DiagnosticMessage.SWITCH_CASE_NOT_CONSTANT)
+                continue
+            }
+
+            // expression is a constant, now we need to verify the types match
+            checkTypeMatch(key, switchType, key.type)
+        }
+
+        // visit the statements
+        switchCase.statements.visit()
+    }
+
+    /**
+     * Checks if the result of [expression] is known at compile time.
+     */
+    private fun isConstantExpression(expression: Expression): Boolean = when (expression) {
+        is ConstantVariableExpression -> true
+        is Literal<*> -> true
+        is Identifier -> {
+            val ref = expression.reference
+            ref != null && isConstantSymbol(ref)
+        }
+        else -> false
+    }
+
+    /**
+     * Checks if the value of [symbol] is known at compile time.
+     */
+    private fun isConstantSymbol(symbol: Symbol): Boolean = when (symbol) {
+        is BasicSymbol -> true
+        is ConfigSymbol -> true
+        is ComponentSymbol -> true
         else -> false
     }
 
@@ -439,8 +518,9 @@ internal class TypeChecking(
         is ServerScriptSymbol -> null
         is ClientScriptSymbol -> null
         is LocalVariableSymbol -> symbol.type
-        is ComponentSymbol -> PrimitiveType.COMPONENT
+        is BasicSymbol -> symbol.type
         is ConfigSymbol -> symbol.type
+        is ComponentSymbol -> PrimitiveType.COMPONENT
     }
 
     override fun visitNode(node: Node) {

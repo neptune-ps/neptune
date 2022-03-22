@@ -10,6 +10,7 @@ public sealed class SymbolType<T : Symbol> {
     public object LocalVariable : SymbolType<LocalVariableSymbol>()
 
     // global
+    public data class Basic(public val type: PrimitiveType) : SymbolType<BasicSymbol>()
     public data class Config(public val type: PrimitiveType) : SymbolType<ConfigSymbol>()
     public object Component : SymbolType<ComponentSymbol>()
 

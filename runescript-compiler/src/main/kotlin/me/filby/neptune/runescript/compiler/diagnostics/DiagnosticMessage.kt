@@ -9,6 +9,7 @@ internal object DiagnosticMessage {
     const val NULL_TYPE_IN_ASSIGNMENT = "Internal compiler error: null type in assignment: lhs=%s, rhs=%s"
     const val INVALID_BINARYEXPR_TYPEHINT = "Internal compiler error: int or boolean type hint expected: %s"
     const val INVALID_MATHOP = "Internal compiler error: '%s' is not a valid binary math operation."
+    const val CASE_WITHOUT_SWITCH = "Internal compiler error: Case without switch statement as parent."
 
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
@@ -23,6 +24,10 @@ internal object DiagnosticMessage {
     const val SCRIPT_TRIGGER_EXPECTED_PARAMETERS = "The trigger type '%s' is expected to accept (%s)."
     const val SCRIPT_TRIGGER_NO_RETURNS = "The trigger type '%s' is not allowed to return values."
     const val SCRIPT_TRIGGER_EXPECTED_RETURNS = "The trigger type '%s' is expected to return (%s)."
+
+    // switch statement node specific
+    const val SWITCH_DUPLICATE_DEFAULT = "Duplicate default label."
+    const val SWITCH_CASE_NOT_CONSTANT = "Switch case value is not a constant expression."
 
     // condition expression specific
     const val CONDITION_INVALID_NODE_TYPE = "Conditions are only allowed to be binary expressions."

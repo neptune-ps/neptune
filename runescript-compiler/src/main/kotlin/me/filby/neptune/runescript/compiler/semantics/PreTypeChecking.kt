@@ -11,6 +11,8 @@ import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
+import me.filby.neptune.runescript.ast.statement.SwitchCase
+import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
@@ -182,7 +184,30 @@ internal class PreTypeChecking(
         createScopedTable { blockStatement.statements.visit() }
     }
 
-    // TODO add scoping for cases
+    override fun visitSwitchStatement(switchStatement: SwitchStatement) {
+        val typeName = switchStatement.typeToken.text.removePrefix("switch_")
+        val type = lookupType(typeName)
+
+        // TODO check if type is allowed to be switch on
+
+        // notify invalid type
+        if (type == PrimitiveType.UNDEFINED) {
+            switchStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
+        }
+
+        // visit the condition to resolve any reference
+        switchStatement.condition.accept(this)
+
+        // visit the cases to resolve references in them
+        switchStatement.cases.visit()
+
+        // set the expected type of the switch cases
+        switchStatement.type = type
+    }
+
+    override fun visitSwitchCase(switchCase: SwitchCase) {
+        createScopedTable { switchCase.statements.visit() }
+    }
 
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
         val typeName = declarationStatement.typeToken.text.removePrefix("def_")
