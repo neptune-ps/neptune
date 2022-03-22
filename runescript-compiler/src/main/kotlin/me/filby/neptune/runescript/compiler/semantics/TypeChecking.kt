@@ -15,6 +15,7 @@ import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
+import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
@@ -122,6 +123,17 @@ internal class TypeChecking(
     override fun visitExpressionStatement(expressionStatement: ExpressionStatement) {
         // just visit the inside expression
         expressionStatement.expression.visit()
+    }
+
+    override fun visitParenthesizedExpression(parenthesizedExpression: ParenthesizedExpression) {
+        val innerExpression = parenthesizedExpression.expression
+
+        // relay the type hint to the inner expression and visit it
+        innerExpression.typeHint = parenthesizedExpression.typeHint
+        innerExpression.visit()
+
+        // set the type to the type of what the expression evaluates to
+        parenthesizedExpression.type = innerExpression.type
     }
 
     override fun visitBinaryExpression(binaryExpression: BinaryExpression) {
