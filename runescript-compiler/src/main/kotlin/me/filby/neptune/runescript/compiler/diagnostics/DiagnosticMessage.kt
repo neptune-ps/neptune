@@ -7,6 +7,8 @@ internal object DiagnosticMessage {
     // internal compiler errors
     const val UNSUPPORTED_SYMBOLTYPE_TO_TYPE = "Internal compiler error: Unsupported SymbolType -> Type conversion: %s"
     const val NULL_TYPE_IN_ASSIGNMENT = "Internal compiler error: null type in assignment: lhs=%s, rhs=%s"
+    const val INVALID_BINARYEXPR_TYPEHINT = "Internal compiler error: int or boolean type hint expected: %s"
+    const val INVALID_MATHOP = "Internal compiler error: '%s' is not a valid binary math operation."
 
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
@@ -21,6 +23,9 @@ internal object DiagnosticMessage {
     const val SCRIPT_TRIGGER_EXPECTED_PARAMETERS = "The trigger type '%s' is expected to accept (%s)."
     const val SCRIPT_TRIGGER_NO_RETURNS = "The trigger type '%s' is not allowed to return values."
     const val SCRIPT_TRIGGER_EXPECTED_RETURNS = "The trigger type '%s' is expected to return (%s)."
+
+    // binary expression specific
+    const val BINOP_INVALID_TYPES = "Operator '%s' cannot be applied to '%s', '%s'."
 
     // local variable specific
     const val LOCAL_REFERENCE_UNRESOLVED = "'$%s' cannot be resolved to a local variable."

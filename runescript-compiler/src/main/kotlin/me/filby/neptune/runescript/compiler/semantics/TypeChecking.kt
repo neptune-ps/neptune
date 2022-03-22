@@ -5,8 +5,11 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.Token
+import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
+import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
@@ -119,6 +122,93 @@ internal class TypeChecking(
     override fun visitExpressionStatement(expressionStatement: ExpressionStatement) {
         // just visit the inside expression
         expressionStatement.expression.visit()
+    }
+
+    override fun visitBinaryExpression(binaryExpression: BinaryExpression) {
+        // hint should be either int for `calc` or boolean for conditions
+        val typeHint = binaryExpression.typeHint
+
+        // binary expressions are syntactically only possible within calc and a condition,
+        // which requires with an int or boolean.
+        if (typeHint != PrimitiveType.INT && typeHint != PrimitiveType.BOOLEAN) {
+            binaryExpression.type = PrimitiveType.UNDEFINED
+            binaryExpression.reportError(DiagnosticMessage.INVALID_BINARYEXPR_TYPEHINT, typeHint ?: "null")
+            return
+        }
+
+        val left = binaryExpression.left
+        val right = binaryExpression.right
+        val operator = binaryExpression.operator
+
+        if (typeHint == PrimitiveType.INT && !checkBinaryMathOperation(binaryExpression, left, operator, right)) {
+            // math operation failed so, error is reported in checkBinaryMathOperation
+            binaryExpression.type = PrimitiveType.UNDEFINED
+            return
+        } else if (typeHint == PrimitiveType.BOOLEAN) {
+            binaryExpression.type = PrimitiveType.UNDEFINED
+            binaryExpression.reportError("Conditional binary expressions are not implemented.")
+            return
+        }
+
+        binaryExpression.type = typeHint
+    }
+
+    /**
+     * Verifies the binary expression is a valid math operation.
+     */
+    private fun checkBinaryMathOperation(
+        parent: BinaryExpression,
+        left: Expression,
+        operator: String,
+        right: Expression
+    ): Boolean {
+        if (operator !in MATH_OPS) {
+            // parent _should_ be calc here, and we want to report error on it since the
+            // operation is not a Token currently
+            parent.reportError(DiagnosticMessage.INVALID_MATHOP, operator)
+            return false
+        }
+
+        // visit left-hand side
+        left.typeHint = PrimitiveType.INT
+        left.visit()
+
+        // visit right-hand side
+        right.typeHint = PrimitiveType.INT
+        right.visit()
+
+        // verify if both sides are ints
+        var bothMatch = checkTypeMatch(left, PrimitiveType.INT, left.type, reportError = false)
+        bothMatch = bothMatch and checkTypeMatch(right, PrimitiveType.INT, right.type, reportError = false)
+
+        // one or both don't match so report an error
+        if (!bothMatch) {
+            // TODO make operator a token so we can point to it in an error message
+            parent.reportError(
+                DiagnosticMessage.BINOP_INVALID_TYPES,
+                operator,
+                left.type.representation,
+                right.type.representation
+            )
+        }
+
+        return bothMatch
+    }
+
+    override fun visitCalcExpression(calcExpression: CalcExpression) {
+        val innerExpression = calcExpression.expression
+
+        // hint to the expression that we expect an int
+        innerExpression.typeHint = PrimitiveType.INT
+        innerExpression.visit()
+
+        // verify type is an int
+        if (!checkTypeMatch(innerExpression, PrimitiveType.INT, innerExpression.type)) {
+            calcExpression.type = PrimitiveType.UNDEFINED
+            return
+        }
+
+        calcExpression.type = PrimitiveType.INT
     }
 
     /**
@@ -248,7 +338,7 @@ internal class TypeChecking(
      *
      * @see isTypeCompatible
      */
-    private fun checkTypeMatch(node: Node, expected: Type, actual: Type): Boolean {
+    private fun checkTypeMatch(node: Node, expected: Type, actual: Type, reportError: Boolean = true): Boolean {
         val expectedFlattened = if (expected is TupleType) expected.children else arrayOf(expected)
         val actualFlattened = if (actual is TupleType) actual.children else arrayOf(actual)
 
@@ -261,7 +351,7 @@ internal class TypeChecking(
             }
         }
 
-        if (!match) {
+        if (!match && reportError) {
             node.reportError(DiagnosticMessage.GENERIC_TYPE_MISMATCH, actual.representation, expected.representation)
         }
         return match
@@ -327,5 +417,16 @@ internal class TypeChecking(
         for (n in this) {
             n.visit()
         }
+    }
+
+    private companion object {
+        /**
+         * Array of valid math operations allowed within `calc` expressions.
+         */
+        private val MATH_OPS = arrayOf(
+            "*", "/", "%",
+            "+", "-",
+            "&", "|"
+        )
     }
 }
