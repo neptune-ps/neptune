@@ -398,15 +398,17 @@ internal class TypeChecking(
         var symbol: Symbol? = null
         var symbolType: Type? = null
         for (temp in rootTable.findAll<Symbol>(name)) {
-            symbolType = symbolToType(temp)
-            if (hint == null || symbolType != null && isTypeCompatible(hint, symbolType)) {
+            val tempSymbolType = symbolToType(temp)
+            if (hint == null || tempSymbolType != null && isTypeCompatible(hint, tempSymbolType)) {
                 // hint type matches (or is null) so we can stop looking
                 symbol = temp
+                symbolType = tempSymbolType
                 break
             } else if (symbol == null) {
                 // default the symbol to the first thing found just in case
                 // no exact matches exist
                 symbol = temp
+                symbolType = tempSymbolType
             }
         }
 
