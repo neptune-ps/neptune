@@ -15,7 +15,6 @@ import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
-import me.filby.neptune.runescript.ast.statement.Statement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
@@ -69,11 +68,6 @@ internal class TypeChecking(
         val initializer = arrayDeclarationStatement.initializer
         initializer.visit()
         checkTypeMatch(initializer, PrimitiveType.INT, initializer.type)
-    }
-
-    override fun visitStatement(statement: Statement) {
-        // TODO temporarily visit all statements
-        statement.children.visit()
     }
 
     /**
@@ -140,8 +134,9 @@ internal class TypeChecking(
 
         // look through the global table for a symbol with the given name and type
         var symbol: Symbol? = null
+        var symbolType: Type? = null
         for (temp in rootTable.findAll<Symbol>(name)) {
-            val symbolType = symbolToType(temp)
+            symbolType = symbolToType(temp)
             if (hint == null || symbolType != null && isTypeCompatible(hint, symbolType)) {
                 // hint type matches (or is null) so we can stop looking
                 symbol = temp
@@ -155,21 +150,22 @@ internal class TypeChecking(
 
         if (symbol == null) {
             // unable to resolve the symbol
-            identifier.reportError("'%s' could not be resolved to a symbol.", name)
             identifier.type = PrimitiveType.UNDEFINED
+            identifier.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, name)
             return
         }
 
-        // try to convert the symbol into a type that can be stored on the node
-        val typeFromSymbol = symbolToType(symbol)
-        if (typeFromSymbol == null) {
+        // identifier.reportInfo("hint=%s, symbol=%s", hint?.representation ?: "null", symbol)
+
+        // compiler error if the symbol type isn't defined here
+        if (symbolType == null) {
             identifier.type = PrimitiveType.UNDEFINED
             identifier.reportError(DiagnosticMessage.UNSUPPORTED_SYMBOLTYPE_TO_TYPE, symbol::class.java.simpleName)
             return
         }
 
         identifier.reference = symbol
-        identifier.type = typeFromSymbol
+        identifier.type = symbolType
     }
 
     /**

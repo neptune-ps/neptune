@@ -10,6 +10,7 @@ internal object DiagnosticMessage {
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
     const val GENERIC_TYPE_MISMATCH = "Type mismatch: '%s' was given but '%s' was expected."
+    const val GENERIC_UNRESOLVED_SYMBOL = "'%s' could not be resolved to a symbol."
 
     // script node specific
     const val SCRIPT_REDECLARATION = "[%s,%s] is already defined."
