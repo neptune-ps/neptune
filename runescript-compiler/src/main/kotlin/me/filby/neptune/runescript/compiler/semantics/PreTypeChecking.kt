@@ -9,6 +9,7 @@ import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
+import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
@@ -177,7 +178,11 @@ internal class PreTypeChecking(
         parameter.type = type
     }
 
-    // TODO add scoping for blocks and cases
+    override fun visitBlockStatement(blockStatement: BlockStatement) {
+        createScopedTable { blockStatement.statements.visit() }
+    }
+
+    // TODO add scoping for cases
 
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
         val typeName = declarationStatement.typeToken.text.removePrefix("def_")

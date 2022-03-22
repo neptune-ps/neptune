@@ -15,6 +15,7 @@ import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
+import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
@@ -50,6 +51,11 @@ internal class TypeChecking(
         // visit all statements, we don't need to do anything else with the script
         // since all the other stuff is handled in pre-type checking.
         script.statements.visit()
+    }
+
+    override fun visitBlockStatement(blockStatement: BlockStatement) {
+        // visit all statements
+        blockStatement.statements.visit()
     }
 
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
