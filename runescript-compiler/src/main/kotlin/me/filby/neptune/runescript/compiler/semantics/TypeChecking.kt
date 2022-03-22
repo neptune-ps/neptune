@@ -24,6 +24,7 @@ import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.EmptyStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.IfStatement
+import me.filby.neptune.runescript.ast.statement.WhileStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
@@ -67,22 +68,33 @@ internal class TypeChecking(
     }
 
     override fun visitIfStatement(ifStatement: IfStatement) {
-        val condition = ifStatement.condition
-
-        // type hint and visit condition
-        condition.typeHint = PrimitiveType.BOOLEAN
-        condition.visit()
-
-        // verify the condition expression is a binary expression or one wrapped in parentheses.
-        if (checkValidConditionExpression(condition)) {
-            checkTypeMatch(condition, PrimitiveType.BOOLEAN, condition.type)
-        } else {
-            // report invalid condition expression
-            condition.reportError(DiagnosticMessage.CONDITION_INVALID_NODE_TYPE)
-        }
-
+        checkCondition(ifStatement.condition)
         ifStatement.thenStatement.visit()
         ifStatement.elseStatement?.visit()
+    }
+
+    override fun visitWhileStatement(whileStatement: WhileStatement) {
+        checkCondition(whileStatement.condition)
+        whileStatement.thenStatement.visit()
+    }
+
+    /**
+     * Handles type hinting and visiting the expression, then checking if it is a valid conditional
+     * expression. If the condition returns anything other than `boolean`, or is not a valid
+     * condition expression, an error is emitted.
+     */
+    private fun checkCondition(expression: Expression) {
+        // type hint and visit condition
+        expression.typeHint = PrimitiveType.BOOLEAN
+        expression.visit()
+
+        // verify the condition expression is a binary expression or one wrapped in parentheses.
+        if (isValidConditionExpression(expression)) {
+            checkTypeMatch(expression, PrimitiveType.BOOLEAN, expression.type)
+        } else {
+            // report invalid condition expression
+            expression.reportError(DiagnosticMessage.CONDITION_INVALID_NODE_TYPE)
+        }
     }
 
     /**
@@ -91,9 +103,9 @@ internal class TypeChecking(
      * [BinaryExpression]. If the expression is a [ParenthesizedExpression] it recursively calls
      * this function until it finds a non-[ParenthesizedExpression].
      */
-    private fun checkValidConditionExpression(expression: Expression): Boolean = when (expression) {
+    private fun isValidConditionExpression(expression: Expression): Boolean = when (expression) {
         is BinaryExpression -> true
-        is ParenthesizedExpression -> checkValidConditionExpression(expression.expression)
+        is ParenthesizedExpression -> isValidConditionExpression(expression.expression)
         else -> false
     }
 
@@ -262,9 +274,16 @@ internal class TypeChecking(
             return false
         }
 
-        // assign the type hints using the opposite side if it isn't already assigned.
-        left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
-        right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
+        if (operator == "&" || operator == "|") {
+            // assign boolean type hints since the operator is logical and or logical or,
+            // which MUST evaluate to boolean
+            left.typeHint = PrimitiveType.BOOLEAN
+            right.typeHint = PrimitiveType.BOOLEAN
+        } else {
+            // assign the type hints using the opposite side if it isn't already assigned.
+            left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
+            right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
+        }
 
         // visit both sides to evaluate types
         left.visit()
