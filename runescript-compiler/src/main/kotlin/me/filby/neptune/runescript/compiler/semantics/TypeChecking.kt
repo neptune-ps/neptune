@@ -17,6 +17,7 @@ import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
+import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
@@ -113,6 +114,11 @@ internal class TypeChecking(
         }
 
         checkTypeMatch(assignmentStatement, leftType, rightType)
+    }
+
+    override fun visitExpressionStatement(expressionStatement: ExpressionStatement) {
+        // just visit the inside expression
+        expressionStatement.expression.visit()
     }
 
     /**
