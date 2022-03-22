@@ -21,6 +21,7 @@ import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
+import me.filby.neptune.runescript.ast.statement.EmptyStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
@@ -123,6 +124,10 @@ internal class TypeChecking(
     override fun visitExpressionStatement(expressionStatement: ExpressionStatement) {
         // just visit the inside expression
         expressionStatement.expression.visit()
+    }
+
+    override fun visitEmptyStatement(emptyStatement: EmptyStatement) {
+        // NO-OP
     }
 
     override fun visitParenthesizedExpression(parenthesizedExpression: ParenthesizedExpression) {
