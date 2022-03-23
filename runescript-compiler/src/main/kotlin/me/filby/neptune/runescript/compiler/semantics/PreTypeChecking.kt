@@ -152,7 +152,7 @@ internal class PreTypeChecking(
     private fun checkScriptReturns(trigger: ClientTriggerType?, script: Script) {
         val triggerReturns = trigger?.returns
         val scriptReturns = script.returnType
-        if (trigger != null && !trigger.allowReturns && scriptReturns != null) {
+        if (trigger != null && !trigger.allowReturns && scriptReturns != MetaType.UNIT) {
             script.reportError(DiagnosticMessage.SCRIPT_TRIGGER_NO_RETURNS, trigger.identifier)
         } else if (triggerReturns != null && scriptReturns != triggerReturns) {
             // TODO be smarter on where to place the error location to the first type mismatch?
