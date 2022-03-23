@@ -21,7 +21,9 @@ public data class ServerScriptSymbol(override val name: String) : Symbol
 public data class ClientScriptSymbol(override val name: String) : Symbol
 public data class LocalVariableSymbol(override val name: String, val type: Type) : Symbol
 
+// TODO store the value the symbol becomes to help during codegen
 // symbols with constant values, new ones should also be included in TypeChecking.isConstantSymbol
 public data class BasicSymbol(override val name: String, val type: PrimitiveType) : Symbol
+public data class ConstantSymbol(override val name: String, val type: PrimitiveType) : Symbol
 public data class ConfigSymbol(override val name: String, val type: PrimitiveType) : Symbol
 public data class ComponentSymbol(override val name: String) : Symbol

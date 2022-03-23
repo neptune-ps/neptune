@@ -10,6 +10,7 @@ internal object DiagnosticMessage {
     const val INVALID_BINARYEXPR_TYPEHINT = "Internal compiler error: int or boolean type hint expected: %s"
     const val INVALID_MATHOP = "Internal compiler error: '%s' is not a valid binary math operation."
     const val CASE_WITHOUT_SWITCH = "Internal compiler error: Case without switch statement as parent."
+    const val LOCAL_REFERENCE_WRONG = "Internal compiler error: '$%s' refers to a non-local variable symbol: %s"
 
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
@@ -40,4 +41,7 @@ internal object DiagnosticMessage {
     const val LOCAL_REFERENCE_UNRESOLVED = "'$%s' cannot be resolved to a local variable."
     const val LOCAL_REFERENCE_NOT_ARRAY = "Access of indexed value of non-array type variable '$%s'."
     const val LOCAL_ARRAY_REFERENCE_NOINDEX = "'$%s' is a reference to an array variable without specifying the index."
+
+    // constant variable specific
+    const val CONSTANT_REFERENCE_UNRESOLVED = "'^%s' cannot be resolved to a constant."
 }

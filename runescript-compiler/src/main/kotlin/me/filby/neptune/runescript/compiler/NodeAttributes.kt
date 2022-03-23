@@ -42,7 +42,7 @@ internal var DeclarationStatement.symbol by Node.attribute<LocalVariableSymbol>(
  * The symbol that the variable references.
  */
 // TODO VariableSymbol?
-internal var VariableExpression.reference by Node.attributeOrNull<LocalVariableSymbol>("reference")
+internal var VariableExpression.reference by Node.attributeOrNull<Symbol>("reference")
 
 /**
  * The symbol the identifier references.

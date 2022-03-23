@@ -40,6 +40,7 @@ import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.ComponentSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
+import me.filby.neptune.runescript.compiler.symbol.ConstantSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ServerScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
@@ -185,6 +186,7 @@ internal class TypeChecking(
      */
     private fun isConstantSymbol(symbol: Symbol): Boolean = when (symbol) {
         is BasicSymbol -> true
+        is ConstantSymbol -> true
         is ConfigSymbol -> true
         is ComponentSymbol -> true
         else -> false
@@ -420,6 +422,14 @@ internal class TypeChecking(
         // if the reference is null, that means it failed to find the symbol associated with it
         // in pre-type checking and would have already been reported.
         val reference = localVariableExpression.reference ?: return
+        if (reference !is LocalVariableSymbol) {
+            localVariableExpression.reportError(
+                DiagnosticMessage.LOCAL_REFERENCE_WRONG,
+                reference.name,
+                reference::class.simpleName!!
+            )
+            return
+        }
 
         val indexExpression = localVariableExpression.index
         if (reference.type is ArrayType && indexExpression != null) {
@@ -428,6 +438,10 @@ internal class TypeChecking(
         }
 
         // type is set in PreTypeChecking
+    }
+
+    override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {
+        // NO-OP, constants are handled in pre-type checking.
     }
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
@@ -490,6 +504,7 @@ internal class TypeChecking(
         var symbol: Symbol? = null
         var symbolType: Type? = null
         for (temp in rootTable.findAll<Symbol>(name)) {
+            // TODO filter specific types of symbols from this so they can't be accessed in the wrong way.
             val tempSymbolType = symbolToType(temp)
             if (hint == null || tempSymbolType != null && isTypeCompatible(hint, tempSymbolType)) {
                 // hint type matches (or is null) so we can stop looking
@@ -532,6 +547,7 @@ internal class TypeChecking(
         is ClientScriptSymbol -> null
         is LocalVariableSymbol -> symbol.type
         is BasicSymbol -> symbol.type
+        is ConstantSymbol -> symbol.type
         is ConfigSymbol -> symbol.type
         is ComponentSymbol -> PrimitiveType.COMPONENT
     }
