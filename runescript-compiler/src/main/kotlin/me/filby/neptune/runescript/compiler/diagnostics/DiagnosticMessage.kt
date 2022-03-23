@@ -37,6 +37,14 @@ internal object DiagnosticMessage {
     const val BINOP_INVALID_TYPES = "Operator '%s' cannot be applied to '%s', '%s'."
     const val BINOP_TUPLE_TYPE = "%s side of binary expressions can only have one type but has '%s'."
 
+    // call expression specific
+    const val COMMAND_REFERENCE_UNRESOLVED = "'%s' cannot be resolved to a command."
+    const val COMMAND_NOARGS_EXPECTED = "'%s' is expected to have no arguments but has '%s'."
+    const val PROC_REFERENCE_UNRESOLVED = "'~%s' cannot be resolved to a proc."
+    const val PROC_NOARGS_EXPECTED = "'~%s' is expected to have no arguments but has '%s'."
+    const val JUMP_REFERENCE_UNRESOLVED = "'%s' cannot be resolved to a label."
+
+    // jump expression specific
     const val JUMP_CALL_IN_CS2 = "Jumps are not allowed in ClientScript."
 
     // local variable specific

@@ -15,6 +15,7 @@ public enum class ClientTriggerType(
     override val allowReturns: Boolean = false,
     override val returns: Type? = null,
 ) : TriggerType {
+    COMMAND(-1, allowReturns = true, allowParameters = true),
     OPWORLDMAPELEMENT1(10, subjectType = PrimitiveType.MAPELEMENT),
     OPWORLDMAPELEMENT2(11, subjectType = PrimitiveType.MAPELEMENT),
     OPWORLDMAPELEMENT3(12, subjectType = PrimitiveType.MAPELEMENT),

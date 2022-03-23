@@ -15,6 +15,11 @@ public enum class MetaType : Type {
      * A type that represents a `null` literal.
      */
     NULL,
+
+    /**
+     * A type that signifies that nothing is returned.
+     */
+    UNIT,
     ;
 
     override val representation: String

@@ -8,7 +8,9 @@ import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
+import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
@@ -19,6 +21,7 @@ import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
+import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
@@ -47,6 +50,7 @@ import me.filby.neptune.runescript.compiler.symbol.ServerScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
+import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.ArrayType
 import me.filby.neptune.runescript.compiler.type.BaseVarType
@@ -60,6 +64,13 @@ internal class TypeChecking(
     private val rootTable: SymbolTable,
     private val diagnostics: Diagnostics
 ) : AstVisitor<Unit> {
+    // var Expression.type: Type
+    //     get() = getAttribute<Type>("type") ?: error("type not set")
+    //     set(value) {
+    //         putAttribute("type", value)
+    //         reportInfo("Type resolved to: '%s'", value.representation)
+    //     }
+
     override fun visitScriptFile(scriptFile: ScriptFile) {
         // visit all scripts in the file
         scriptFile.scripts.visit()
@@ -218,22 +229,7 @@ internal class TypeChecking(
 
         // store the lhs types to help with type hinting
         val leftTypes = assignmentStatement.vars.map { it.type }
-        val rightTypes = mutableListOf<Type>()
-        var typeCounter = 0
-        for (expr in assignmentStatement.expressions) {
-            expr.typeHint = if (typeCounter < leftTypes.size) leftTypes[typeCounter] else null
-            expr.visit()
-
-            // add the evaluated type
-            rightTypes += expr.type
-
-            // increment the counter for type hinting
-            typeCounter += if (expr.type is TupleType) {
-                (expr.type as TupleType).children.size
-            } else {
-                1
-            }
-        }
+        val rightTypes = typeHintExpressionList(leftTypes, assignmentStatement.expressions)
 
         // convert types to tuple type if necessary for easy comparison
         val leftType = TupleType.fromList(leftTypes)
@@ -416,10 +412,81 @@ internal class TypeChecking(
         calcExpression.type = PrimitiveType.INT
     }
 
+    /**
+     * Overrides original implementation that would fall through to [visitCallExpression]
+     * so that we can display an error for attempting to `jump` within a clientscript.
+     */
     override fun visitJumpCallExpression(jumpCallExpression: JumpCallExpression) {
         jumpCallExpression.reportError(DiagnosticMessage.JUMP_CALL_IN_CS2, jumpCallExpression.name.text)
-        // TODO some kind of meta type for no return?
-        jumpCallExpression.type = MetaType.ERROR
+        jumpCallExpression.type = MetaType.UNIT
+    }
+
+    /**
+     * Handles looking up and type checking all call expressions.
+     */
+    override fun visitCallExpression(callExpression: CallExpression) {
+        // lookup the expected symbol type based on the call expression type
+        val symbolType = when (callExpression) {
+            is CommandCallExpression -> SymbolType.ClientScript(ClientTriggerType.COMMAND)
+            is ProcCallExpression -> SymbolType.ClientScript(ClientTriggerType.PROC)
+            else -> error(callExpression)
+        }
+
+        // TODO support for custom implementation for special commands such as `enum`.
+        // lookup the symbol using the symbol type and name
+        val name = callExpression.name.text
+        val symbol = rootTable.find(symbolType, name)
+        if (symbol == null) {
+            val errorMessage = when (callExpression) {
+                is CommandCallExpression -> DiagnosticMessage.COMMAND_REFERENCE_UNRESOLVED
+                is ProcCallExpression -> DiagnosticMessage.PROC_REFERENCE_UNRESOLVED
+                else -> error(callExpression)
+            }
+            callExpression.type = MetaType.ERROR
+            callExpression.reportError(errorMessage, name)
+        } else {
+            callExpression.symbol = symbol
+            callExpression.type = symbol.returns
+        }
+
+        // Type check the parameters, use `unit` if there are no parameters
+        // we will display a special message if the parameter ends up having unit
+        // as the type but arguments are supplied.
+        //
+        // If the symbol is null then that means we failed to look up the symbol,
+        // therefore we should specify the parameter types as error, so we can continue
+        // analysis on all the arguments without worrying about a type mismatch.
+        val parameterTypes = if (symbol == null) MetaType.ERROR else symbol.parameters ?: MetaType.UNIT
+        val expectedTypes = if (parameterTypes is TupleType) {
+            parameterTypes.children.toList()
+        } else {
+            listOf(parameterTypes)
+        }
+        val actualTypes = typeHintExpressionList(expectedTypes, callExpression.arguments)
+
+        // convert the type lists into a singular type, used for type checking
+        val expectedType = TupleType.fromList(expectedTypes)
+        val actualType = TupleType.fromList(actualTypes)
+
+        // special case for the temporary state of using unit for no arguments
+        if (expectedType == MetaType.UNIT) {
+            val errorMessage = when (callExpression) {
+                is CommandCallExpression -> DiagnosticMessage.COMMAND_NOARGS_EXPECTED
+                is ProcCallExpression -> DiagnosticMessage.PROC_NOARGS_EXPECTED
+                else -> error(callExpression)
+            }
+            callExpression.reportError(
+                errorMessage,
+                name,
+                actualType?.representation ?: "null"
+            )
+            return
+        }
+
+        // do the actual type checking
+        if (expectedType != null) {
+            checkTypeMatch(callExpression, expectedType, actualType)
+        }
     }
 
     /**
@@ -551,7 +618,7 @@ internal class TypeChecking(
      */
     private fun symbolToType(symbol: Symbol) = when (symbol) {
         is ServerScriptSymbol -> null
-        is ClientScriptSymbol -> null
+        is ClientScriptSymbol -> symbol.returns
         is LocalVariableSymbol -> symbol.type
         is BasicSymbol -> symbol.type
         is ConstantSymbol -> symbol.type
@@ -571,27 +638,63 @@ internal class TypeChecking(
     }
 
     /**
+     * Takes [expectedTypes] and iterates over [expressions] assigning each [Expression.typeHint]
+     * a type from [expectedTypes]. All of the [expressions] types are then returned for comparison
+     * at call site.
+     *
+     * This is only useful when the expected types are known ahead of time (e.g. assignments and calls).
+     */
+    private fun typeHintExpressionList(expectedTypes: List<Type>, expressions: List<Expression>): List<Type> {
+        val actualTypes = mutableListOf<Type>()
+        var typeCounter = 0
+        for (expr in expressions) {
+            expr.typeHint = if (typeCounter < expectedTypes.size) expectedTypes[typeCounter] else null
+            expr.visit()
+
+            // add the evaluated type
+            actualTypes += expr.type
+
+            // increment the counter for type hinting
+            typeCounter += if (expr.type is TupleType) {
+                (expr.type as TupleType).children.size
+            } else {
+                1
+            }
+        }
+        return actualTypes
+    }
+
+    /**
      * Checks if the [expected] and [actual] match, including accepted casting.
      *
      * If the types passed in are a [TupleType] they will be compared using their flattened types.
      *
      * @see isTypeCompatible
      */
-    private fun checkTypeMatch(node: Node, expected: Type, actual: Type, reportError: Boolean = true): Boolean {
-        val expectedFlattened = if (expected is TupleType) expected.children else arrayOf(expected)
-        val actualFlattened = if (actual is TupleType) actual.children else arrayOf(actual)
-
+    private fun checkTypeMatch(node: Node, expected: Type, actual: Type?, reportError: Boolean = true): Boolean {
         var match = true
-        if (expectedFlattened.size != actualFlattened.size) {
+        if (actual == null) {
+            // actual type isn't defined, so it cannot match the expected type
             match = false
         } else {
-            for (i in expectedFlattened.indices) {
-                match = match and isTypeCompatible(expectedFlattened[i], actualFlattened[i])
+            val expectedFlattened = if (expected is TupleType) expected.children else arrayOf(expected)
+            val actualFlattened = if (actual is TupleType) actual.children else arrayOf(actual)
+            // compare the flattened types
+            if (expectedFlattened.size != actualFlattened.size) {
+                match = false
+            } else {
+                for (i in expectedFlattened.indices) {
+                    match = match and isTypeCompatible(expectedFlattened[i], actualFlattened[i])
+                }
             }
         }
 
         if (!match && reportError) {
-            node.reportError(DiagnosticMessage.GENERIC_TYPE_MISMATCH, actual.representation, expected.representation)
+            node.reportError(
+                DiagnosticMessage.GENERIC_TYPE_MISMATCH,
+                actual?.representation ?: "<nothing>",
+                expected.representation
+            )
         }
         return match
     }

@@ -80,16 +80,6 @@ internal class PreTypeChecking(
             script.trigger.reportError(DiagnosticMessage.SCRIPT_TRIGGER_INVALID, script.trigger.text)
         }
 
-        if (trigger != null) {
-            // attempt to insert the script into the root table and error if failed to insert
-            val scriptSymbol = ClientScriptSymbol(script.name.text)
-            val inserted = rootTable.insert(SymbolType.ClientScript(trigger), scriptSymbol)
-            if (!inserted) {
-                // TODO somehow report original declaration location?
-                script.reportError(DiagnosticMessage.SCRIPT_REDECLARATION, trigger.identifier, script.name.text)
-            }
-        }
-
         // TODO check subject if it's meant to refer to a specific thing
 
         // visit the parameters
@@ -113,11 +103,23 @@ internal class PreTypeChecking(
                 }
                 returns += type
             }
-            script.returnType = TupleType.fromList(returns)
+            script.returnType = TupleType.fromList(returns) ?: error("null returns")
+        } else {
+            script.returnType = MetaType.UNIT
         }
 
         // verify returns match what the trigger type allows
         checkScriptReturns(trigger, script)
+
+        if (trigger != null) {
+            // attempt to insert the script into the root table and error if failed to insert
+            val scriptSymbol = ClientScriptSymbol(script.name.text, script.parameterType, script.returnType)
+            val inserted = rootTable.insert(SymbolType.ClientScript(trigger), scriptSymbol)
+            if (!inserted) {
+                // TODO somehow report original declaration location?
+                script.reportError(DiagnosticMessage.SCRIPT_REDECLARATION, trigger.identifier, script.name.text)
+            }
+        }
 
         // visit the code
         script.statements.visit()

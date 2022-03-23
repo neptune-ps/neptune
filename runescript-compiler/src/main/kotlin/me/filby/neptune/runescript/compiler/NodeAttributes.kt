@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.compiler
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
+import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.VariableExpression
@@ -16,12 +17,12 @@ import me.filby.neptune.runescript.compiler.type.Type
 /**
  * The script parameter type(s) if it returns any.
  */
-internal var Script.parameterType by Node.attributeOrNull<Type>("parameterType")
+internal var Script.parameterType by Node.attribute<Type?>("parameterType")
 
 /**
  * The script return type(s) if it returns any.
  */
-internal var Script.returnType by Node.attributeOrNull<Type>("returnType")
+internal var Script.returnType by Node.attribute<Type>("returnType")
 
 /**
  * The defined type of the parameter.
@@ -41,8 +42,12 @@ internal var DeclarationStatement.symbol by Node.attribute<LocalVariableSymbol>(
 /**
  * The symbol that the variable references.
  */
-// TODO VariableSymbol?
 internal var VariableExpression.reference by Node.attributeOrNull<Symbol>("reference")
+
+/**
+ * The symbol that the expression references.
+ */
+internal var CallExpression.symbol by Node.attributeOrNull<Symbol>("symbol")
 
 /**
  * The symbol the identifier references.

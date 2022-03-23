@@ -18,7 +18,7 @@ public sealed interface Symbol {
 
 // script and script local variables
 public data class ServerScriptSymbol(override val name: String) : Symbol
-public data class ClientScriptSymbol(override val name: String) : Symbol
+public data class ClientScriptSymbol(override val name: String, val parameters: Type?, val returns: Type) : Symbol
 public data class LocalVariableSymbol(override val name: String, val type: Type) : Symbol
 
 // TODO store the value the symbol becomes to help during codegen
