@@ -9,10 +9,6 @@ public enum class PrimitiveType(
     public override val baseType: BaseVarType = BaseVarType.INTEGER,
     public override val defaultValue: Any?
 ) : Type {
-    // custom types
-    UNDEFINED,
-    NULL,
-
     // verified script var types
     INT('i', defaultValue = 0),
     BOOLEAN('1', defaultValue = 0),
@@ -20,6 +16,7 @@ public enum class PrimitiveType(
     NAMEDOBJ('O', defaultValue = -1),
     STAT('S', defaultValue = -1),
     NPC_STAT('T', defaultValue = -1),
+    GRAPHIC('d', defaultValue = -1),
     OBJ('o', defaultValue = -1),
     STRING('s', BaseVarType.STRING, defaultValue = ""),
     MAPELEMENT('µ', defaultValue = -1),

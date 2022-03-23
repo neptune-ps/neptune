@@ -44,9 +44,11 @@ import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ServerScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
+import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.ArrayType
 import me.filby.neptune.runescript.compiler.type.BaseVarType
+import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
@@ -272,7 +274,7 @@ internal class TypeChecking(
         // binary expressions are syntactically only possible within calc and a condition,
         // which requires with an int or boolean.
         if (typeHint != PrimitiveType.INT && typeHint != PrimitiveType.BOOLEAN) {
-            binaryExpression.type = PrimitiveType.UNDEFINED
+            binaryExpression.type = MetaType.ERROR
             binaryExpression.reportError(DiagnosticMessage.INVALID_BINARYEXPR_TYPEHINT, typeHint ?: "null")
             return
         }
@@ -290,7 +292,7 @@ internal class TypeChecking(
 
         // early return if it isn't a valid operation
         if (!validOperation) {
-            binaryExpression.type = PrimitiveType.UNDEFINED
+            binaryExpression.type = MetaType.ERROR
             return
         }
 
@@ -404,7 +406,7 @@ internal class TypeChecking(
 
         // verify type is an int
         if (!checkTypeMatch(innerExpression, PrimitiveType.INT, innerExpression.type)) {
-            calcExpression.type = PrimitiveType.UNDEFINED
+            calcExpression.type = MetaType.ERROR
             return
         }
 
@@ -441,11 +443,22 @@ internal class TypeChecking(
     }
 
     override fun visitNullLiteral(nullLiteral: NullLiteral) {
-        nullLiteral.type = PrimitiveType.NULL
+        nullLiteral.type = MetaType.NULL
     }
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
-        // TODO support for specifying type as graphic
+        val typeHint = stringLiteral.typeHint
+        if (typeHint == PrimitiveType.GRAPHIC) {
+            val symbol = rootTable.find(SymbolType.Basic(PrimitiveType.GRAPHIC), stringLiteral.value)
+            if (symbol == null) {
+                stringLiteral.type = MetaType.ERROR
+                stringLiteral.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, stringLiteral.value)
+                return
+            }
+            // TODO store symbol
+            stringLiteral.type = PrimitiveType.GRAPHIC
+            return
+        }
         stringLiteral.type = PrimitiveType.STRING
     }
 
@@ -493,7 +506,7 @@ internal class TypeChecking(
 
         if (symbol == null) {
             // unable to resolve the symbol
-            identifier.type = PrimitiveType.UNDEFINED
+            identifier.type = MetaType.ERROR
             identifier.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, name)
             return
         }
@@ -502,7 +515,7 @@ internal class TypeChecking(
 
         // compiler error if the symbol type isn't defined here
         if (symbolType == null) {
-            identifier.type = PrimitiveType.UNDEFINED
+            identifier.type = MetaType.ERROR
             identifier.reportError(DiagnosticMessage.UNSUPPORTED_SYMBOLTYPE_TO_TYPE, symbol::class.java.simpleName)
             return
         }
@@ -567,11 +580,11 @@ internal class TypeChecking(
      * Example: `graphic`s can be assigned to `fontmetrics`.
      */
     private fun isTypeCompatible(first: Type, second: Type): Boolean {
-        if (first == PrimitiveType.UNDEFINED || second == PrimitiveType.UNDEFINED) {
+        if (first == MetaType.ERROR || second == MetaType.ERROR) {
             // allow undefined to be compatible with anything to prevent error propagation
             return true
         }
-        if (second == PrimitiveType.NULL) {
+        if (second == MetaType.NULL) {
             // any int based variable is nullable
             // TODO ability to configure this per type?
             return first.baseType == BaseVarType.INTEGER

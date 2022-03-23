@@ -29,6 +29,7 @@ import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.ArrayType
+import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
@@ -106,7 +107,7 @@ internal class PreTypeChecking(
             val returns = mutableListOf<Type>()
             for (token in returnTokens) {
                 val type = lookupType(token.text)
-                if (type == PrimitiveType.UNDEFINED) {
+                if (type == MetaType.ERROR) {
                     token.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, token.text)
                 }
                 returns += type
@@ -167,7 +168,7 @@ internal class PreTypeChecking(
         val type = lookupType(typeText, allowArray = true)
 
         // type isn't valid, report the error
-        if (type == PrimitiveType.UNDEFINED) {
+        if (type == MetaType.ERROR) {
             parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
         }
 
@@ -191,7 +192,7 @@ internal class PreTypeChecking(
         // TODO check if type is allowed to be switch on
 
         // notify invalid type
-        if (type == PrimitiveType.UNDEFINED) {
+        if (type == MetaType.ERROR) {
             switchStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         }
 
@@ -217,7 +218,7 @@ internal class PreTypeChecking(
         // TODO check if type is allowed to be declared
 
         // notify invalid type
-        if (type == PrimitiveType.UNDEFINED) {
+        if (type == MetaType.ERROR) {
             declarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         }
 
@@ -243,7 +244,7 @@ internal class PreTypeChecking(
         // TODO check if type is allowed to be an array
 
         // notify invalid type
-        if (type == PrimitiveType.UNDEFINED) {
+        if (type == MetaType.ERROR) {
             arrayDeclarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         } else {
             // convert type into an array of type
@@ -266,7 +267,7 @@ internal class PreTypeChecking(
         if (symbol == null) {
             // trying to reference a variable that isn't defined
             localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_UNRESOLVED, name)
-            localVariableExpression.type = PrimitiveType.UNDEFINED
+            localVariableExpression.type = MetaType.ERROR
             return
         }
 
@@ -277,14 +278,14 @@ internal class PreTypeChecking(
         if (!symbolIsArray && localVariableExpression.isArray) {
             // trying to reference non-array local variable and specifying an index
             localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_NOT_ARRAY, name)
-            localVariableExpression.type = PrimitiveType.UNDEFINED
+            localVariableExpression.type = MetaType.ERROR
             return
         }
 
         if (symbolIsArray && !localVariableExpression.isArray) {
             // trying to reference array variable without specifying the index in which to access
             localVariableExpression.reportError(DiagnosticMessage.LOCAL_ARRAY_REFERENCE_NOINDEX, name)
-            localVariableExpression.type = PrimitiveType.UNDEFINED
+            localVariableExpression.type = MetaType.ERROR
             return
         }
 
@@ -296,7 +297,7 @@ internal class PreTypeChecking(
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
         gameVariableExpression.reportError("Game var references are not supported yet.")
-        gameVariableExpression.type = PrimitiveType.UNDEFINED
+        gameVariableExpression.type = MetaType.ERROR
     }
 
     override fun visitIdentifier(identifier: Identifier) {
@@ -352,13 +353,13 @@ internal class PreTypeChecking(
             // substring before last "array" to prevent requesting intarrayarray (or deeper)
             val baseType = name.substringBeforeLast("array")
             val type = lookupType(baseType)
-            if (type == PrimitiveType.UNDEFINED) {
+            if (type == MetaType.ERROR) {
                 return type
             }
             return ArrayType(type)
         }
         // TODO: lookup type from a type supplier
         // TODO: support for not allowing specific types (e.g. NULL)
-        return PrimitiveType.lookup(name) ?: PrimitiveType.UNDEFINED
+        return PrimitiveType.lookup(name) ?: MetaType.ERROR
     }
 }
