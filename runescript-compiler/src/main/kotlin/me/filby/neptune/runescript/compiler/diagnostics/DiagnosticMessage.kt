@@ -37,6 +37,8 @@ internal object DiagnosticMessage {
     const val BINOP_INVALID_TYPES = "Operator '%s' cannot be applied to '%s', '%s'."
     const val BINOP_TUPLE_TYPE = "%s side of binary expressions can only have one type but has '%s'."
 
+    const val JUMP_CALL_IN_CS2 = "Jumps are not allowed in ClientScript."
+
     // local variable specific
     const val LOCAL_REFERENCE_UNRESOLVED = "'$%s' cannot be resolved to a local variable."
     const val LOCAL_REFERENCE_NOT_ARRAY = "Access of indexed value of non-array type variable '$%s'."

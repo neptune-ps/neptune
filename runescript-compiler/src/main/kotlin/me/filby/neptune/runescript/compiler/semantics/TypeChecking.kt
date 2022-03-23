@@ -14,6 +14,7 @@ import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
+import me.filby.neptune.runescript.ast.expr.JumpCallExpression
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
@@ -413,6 +414,12 @@ internal class TypeChecking(
         }
 
         calcExpression.type = PrimitiveType.INT
+    }
+
+    override fun visitJumpCallExpression(jumpCallExpression: JumpCallExpression) {
+        jumpCallExpression.reportError(DiagnosticMessage.JUMP_CALL_IN_CS2, jumpCallExpression.name.text)
+        // TODO some kind of meta type for no return?
+        jumpCallExpression.type = MetaType.ERROR
     }
 
     /**
