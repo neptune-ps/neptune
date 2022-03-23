@@ -30,6 +30,7 @@ import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.EmptyStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.IfStatement
+import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
@@ -39,6 +40,7 @@ import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.nullableType
 import me.filby.neptune.runescript.compiler.reference
+import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
@@ -85,6 +87,27 @@ internal class TypeChecking(
     override fun visitBlockStatement(blockStatement: BlockStatement) {
         // visit all statements
         blockStatement.statements.visit()
+    }
+
+    override fun visitReturnStatement(returnStatement: ReturnStatement) {
+        val script = returnStatement.findParentByType<Script>()
+        if (script == null) {
+            // a return statement should always be within a script, if not
+            // then we have problems!
+            returnStatement.reportError(DiagnosticMessage.RETURN_ORPHAN)
+            return
+        }
+
+        // use the return types from the script node and get the types being returned
+        val expectedTypes = TupleType.toList(script.returnType)
+        val actualTypes = typeHintExpressionList(expectedTypes, returnStatement.expressions)
+
+        // convert the types into a single type
+        val expectedType = TupleType.fromList(expectedTypes) ?: TODO()
+        val actualType = TupleType.fromList(actualTypes)
+
+        // type check
+        checkTypeMatch(returnStatement, expectedType, actualType)
     }
 
     override fun visitIfStatement(ifStatement: IfStatement) {
@@ -680,7 +703,10 @@ internal class TypeChecking(
             val expectedFlattened = if (expected is TupleType) expected.children else arrayOf(expected)
             val actualFlattened = if (actual is TupleType) actual.children else arrayOf(actual)
             // compare the flattened types
-            if (expectedFlattened.size != actualFlattened.size) {
+            if (expected == MetaType.ERROR) {
+                // we need to do this to prevent error propagation due to expected type resolving to an error
+                match = true
+            } else if (expectedFlattened.size != actualFlattened.size) {
                 match = false
             } else {
                 for (i in expectedFlattened.indices) {

@@ -63,6 +63,20 @@ public abstract class Node(public val source: NodeSourceLocation) {
     }
 
     /**
+     * Finds the first parent node by the given type recursively, or `null`.
+     */
+    public inline fun <reified T> findParentByType(): T? {
+        var curParent = parent
+        while (curParent != null) {
+            if (T::class.isInstance(curParent)) {
+                return curParent as T
+            }
+            curParent = curParent.parent
+        }
+        return null
+    }
+
+    /**
      * Returns an attribute based on the given [key].
      */
     @Suppress("UNCHECKED_CAST")

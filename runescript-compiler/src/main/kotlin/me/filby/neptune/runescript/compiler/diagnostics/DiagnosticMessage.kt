@@ -11,6 +11,7 @@ internal object DiagnosticMessage {
     const val INVALID_MATHOP = "Internal compiler error: '%s' is not a valid binary math operation."
     const val CASE_WITHOUT_SWITCH = "Internal compiler error: Case without switch statement as parent."
     const val LOCAL_REFERENCE_WRONG = "Internal compiler error: '$%s' refers to a non-local variable symbol: %s"
+    const val RETURN_ORPHAN = "Internal compiler error: Orphaned `return` statement, no parent `script` node found."
 
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
