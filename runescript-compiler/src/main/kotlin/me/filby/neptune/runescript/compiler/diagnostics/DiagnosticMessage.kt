@@ -7,7 +7,7 @@ internal object DiagnosticMessage {
     // internal compiler errors
     const val UNSUPPORTED_SYMBOLTYPE_TO_TYPE = "Internal compiler error: Unsupported SymbolType -> Type conversion: %s"
     const val NULL_TYPE_IN_ASSIGNMENT = "Internal compiler error: null type in assignment: lhs=%s, rhs=%s"
-    const val INVALID_BINARYEXPR_TYPEHINT = "Internal compiler error: int or boolean type hint expected: %s"
+    const val INVALID_BINEXP_STATE = "Internal compiler error: not in condition or calc"
     const val INVALID_MATHOP = "Internal compiler error: '%s' is not a valid binary math operation."
     const val CASE_WITHOUT_SWITCH = "Internal compiler error: Case without switch statement as parent."
     const val LOCAL_REFERENCE_WRONG = "Internal compiler error: '$%s' refers to a non-local variable symbol: %s"

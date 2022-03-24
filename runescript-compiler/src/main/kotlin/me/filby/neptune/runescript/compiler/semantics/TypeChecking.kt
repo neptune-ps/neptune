@@ -79,6 +79,17 @@ internal class TypeChecking(
     //         reportInfo("Type resolved to: '%s'", value.representation)
     //     }
 
+    /**
+     * State for if we're currently within an expression that is meant to be
+     * evaluated as a condition.
+     */
+    private var inCondition = false
+
+    /**
+     * State for if we're currently within a `calc` expression.
+     */
+    private var inCalc = false
+
     override fun visitScriptFile(scriptFile: ScriptFile) {
         // visit all scripts in the file
         scriptFile.scripts.visit()
@@ -133,6 +144,9 @@ internal class TypeChecking(
      * condition expression, an error is emitted.
      */
     private fun checkCondition(expression: Expression) {
+        // update state to inside condition
+        inCondition = true
+
         // type hint and visit condition
         expression.typeHint = PrimitiveType.BOOLEAN
 
@@ -147,6 +161,9 @@ internal class TypeChecking(
             // report invalid condition expression on the erroneous node.
             invalidExpression.reportError(DiagnosticMessage.CONDITION_INVALID_NODE_TYPE)
         }
+
+        // update state to outside condition
+        inCondition = false
     }
 
     /**
@@ -305,26 +322,22 @@ internal class TypeChecking(
     }
 
     override fun visitBinaryExpression(binaryExpression: BinaryExpression) {
-        // hint should be either int for `calc` or boolean for conditions
-        val typeHint = binaryExpression.typeHint
-
-        // binary expressions are syntactically only possible within calc and a condition,
-        // which requires with an int or boolean.
-        if (typeHint != PrimitiveType.INT && typeHint != PrimitiveType.BOOLEAN) {
-            binaryExpression.type = MetaType.ERROR
-            binaryExpression.reportError(DiagnosticMessage.INVALID_BINARYEXPR_TYPEHINT, typeHint ?: "null")
-            return
-        }
-
         val left = binaryExpression.left
         val right = binaryExpression.right
         val operator = binaryExpression.operator
 
-        // type hint should only ever be int or boolean here
-        val validOperation = when (typeHint) {
-            PrimitiveType.INT -> checkBinaryMathOperation(binaryExpression, left, operator, right)
-            PrimitiveType.BOOLEAN -> checkBinaryConditionOperation(binaryExpression, left, operator, right)
-            else -> false
+        // we should only ever be within a condition or within calc at this point
+        if (!inCondition && !inCalc) {
+            binaryExpression.type = MetaType.ERROR
+            binaryExpression.reportError(DiagnosticMessage.INVALID_BINEXP_STATE)
+            return
+        }
+
+        // check for validation based on if we're within condition or calc.
+        val validOperation = if (inCondition) {
+            checkBinaryConditionOperation(binaryExpression, left, operator, right)
+        } else {
+            checkBinaryMathOperation(binaryExpression, left, operator, right)
         }
 
         // early return if it isn't a valid operation
@@ -333,7 +346,9 @@ internal class TypeChecking(
             return
         }
 
-        binaryExpression.type = typeHint
+        // conditions expect boolean, calc expects int
+        // we shouldn't get to this point without on of those two being true due to the above check
+        binaryExpression.type = if (inCondition) PrimitiveType.BOOLEAN else PrimitiveType.INT
     }
 
     /**
@@ -458,6 +473,8 @@ internal class TypeChecking(
     }
 
     override fun visitCalcExpression(calcExpression: CalcExpression) {
+        // update state to inside calc
+        inCalc = true
         val innerExpression = calcExpression.expression
 
         // hint to the expression that we expect an int
@@ -467,10 +484,11 @@ internal class TypeChecking(
         // verify type is an int
         if (!checkTypeMatch(innerExpression, PrimitiveType.INT, innerExpression.type)) {
             calcExpression.type = MetaType.ERROR
-            return
+        } else {
+            calcExpression.type = PrimitiveType.INT
         }
-
-        calcExpression.type = PrimitiveType.INT
+        // update state to outside of calc
+        inCalc = false
     }
 
     /**
