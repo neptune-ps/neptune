@@ -383,16 +383,16 @@ internal class TypeChecking(
             return false
         }
 
-        if (operator == "&" || operator == "|") {
-            // assign boolean type hints since the operator is logical and or logical or,
-            // which MUST evaluate to boolean
-            left.typeHint = PrimitiveType.BOOLEAN
-            right.typeHint = PrimitiveType.BOOLEAN
-        } else {
-            // assign the type hints using the opposite side if it isn't already assigned.
-            left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
-            right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
+        // some operators expect a specific type on both sides, specify that type here
+        val requiredTypes: Type? = when (operator) {
+            "&", "|" -> PrimitiveType.BOOLEAN
+            "<", ">", "<=", ">=" -> PrimitiveType.INT
+            else -> null
         }
+
+        // assign the type hints using the opposite side if it isn't already assigned.
+        left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
+        right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
 
         // visit both sides to evaluate types
         left.visit()
@@ -409,9 +409,25 @@ internal class TypeChecking(
             return false
         }
 
-        // verify if both sides are equal
+        // TODO make operator a token so we can point to it in an error message
+
+        // handle operator specific required types, this applies to all except `!` and `=`.
+        if (requiredTypes != null) {
+            val leftMatch = checkTypeMatch(left, requiredTypes, left.type, reportError = false)
+            val rightMatch = checkTypeMatch(right, requiredTypes, right.type, reportError = false)
+            if (!leftMatch || !rightMatch) {
+                parent.reportError(
+                    DiagnosticMessage.BINOP_INVALID_TYPES,
+                    operator,
+                    left.type.representation,
+                    right.type.representation
+                )
+                return false
+            }
+        }
+
+        // handle equality operator, which allows any type on either side as long as they match
         if (!checkTypeMatch(left, left.type, right.type, reportError = false)) {
-            // TODO make operator a token so we can point to it in an error message
             parent.reportError(
                 DiagnosticMessage.BINOP_INVALID_TYPES,
                 operator,
