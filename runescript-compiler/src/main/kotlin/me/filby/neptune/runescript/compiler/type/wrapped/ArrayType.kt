@@ -1,16 +1,18 @@
-package me.filby.neptune.runescript.compiler.type
+package me.filby.neptune.runescript.compiler.type.wrapped
 
 import com.google.common.base.MoreObjects
+import me.filby.neptune.runescript.compiler.type.BaseVarType
+import me.filby.neptune.runescript.compiler.type.Type
 
 /**
  * A [Type] that represents an array of another type.
  */
-public data class ArrayType(public val type: Type) : Type {
+public data class ArrayType(public override val inner: Type) : WrappedType {
     init {
-        assert(type !is ArrayType)
+        assert(inner !is ArrayType)
     }
 
-    override val representation: String = "${type.representation}array"
+    override val representation: String = "${inner.representation}array"
 
     override val code: Char
         get() = error("ArrayType has no character representation.")
@@ -23,7 +25,7 @@ public data class ArrayType(public val type: Type) : Type {
 
     override fun toString(): String {
         return MoreObjects.toStringHelper(this)
-            .add("type", type)
+            .add("inner", inner)
             .toString()
     }
 }

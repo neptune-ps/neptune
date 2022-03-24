@@ -29,11 +29,11 @@ import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.type
-import me.filby.neptune.runescript.compiler.type.ArrayType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
+import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
 // TODO rename class
 internal class PreTypeChecking(
@@ -295,7 +295,7 @@ internal class PreTypeChecking(
         // visit the index to set the type of any references
         localVariableExpression.index?.accept(this)
 
-        localVariableExpression.type = if (symbol.type is ArrayType) symbol.type.type else symbol.type
+        localVariableExpression.type = if (symbol.type is ArrayType) symbol.type.inner else symbol.type
     }
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
