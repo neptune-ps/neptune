@@ -135,27 +135,36 @@ internal class TypeChecking(
     private fun checkCondition(expression: Expression) {
         // type hint and visit condition
         expression.typeHint = PrimitiveType.BOOLEAN
-        expression.visit()
 
-        // verify the condition expression is a binary expression or one wrapped in parentheses.
-        if (isValidConditionExpression(expression)) {
+        // attempts to find the first expression that isn't a binary expression or parenthesis expression
+        val invalidExpression = findInvalidConditionExpression(expression)
+        if (invalidExpression == null) {
+            // visit expression and type check it, we don't visit outside this because we don't want
+            // to report type mismatches AND invalid conditions at the same time.
+            expression.visit()
             checkTypeMatch(expression, PrimitiveType.BOOLEAN, expression.type)
         } else {
-            // report invalid condition expression
-            expression.reportError(DiagnosticMessage.CONDITION_INVALID_NODE_TYPE)
+            // report invalid condition expression on the erroneous node.
+            invalidExpression.reportError(DiagnosticMessage.CONDITION_INVALID_NODE_TYPE)
         }
     }
 
     /**
-     * Checks if a give expression is a valid conditional expression. The expression is only valid
-     * if the expression is [BinaryExpression] or a [ParenthesizedExpression] with a
-     * [BinaryExpression]. If the expression is a [ParenthesizedExpression] it recursively calls
-     * this function until it finds a non-[ParenthesizedExpression].
+     * Finds the first [Expression] node in the tree that is not either a [BinaryExpression] or
+     * [ParenthesizedExpression]. If `null` is returned then that means the whole tree is valid
+     * is all valid conditional expressions.
      */
-    private fun isValidConditionExpression(expression: Expression): Boolean = when (expression) {
-        is BinaryExpression -> true
-        is ParenthesizedExpression -> isValidConditionExpression(expression.expression)
-        else -> false
+    private fun findInvalidConditionExpression(expression: Expression): Node? = when (expression) {
+        is BinaryExpression -> if (expression.operator == "|" || expression.operator == "&") {
+            // check the left side and return it if it isn't null, otherwise return the value
+            // of the right side
+            findInvalidConditionExpression(expression.left) ?: findInvalidConditionExpression(expression.right)
+        } else {
+            // all other operators are valid
+            null
+        }
+        is ParenthesizedExpression -> findInvalidConditionExpression(expression.expression)
+        else -> expression
     }
 
     override fun visitSwitchStatement(switchStatement: SwitchStatement) {
@@ -384,15 +393,22 @@ internal class TypeChecking(
         }
 
         // some operators expect a specific type on both sides, specify that type here
-        val requiredTypes: Type? = when (operator) {
+        val requiredType: Type? = when (operator) {
             "&", "|" -> PrimitiveType.BOOLEAN
             "<", ">", "<=", ">=" -> PrimitiveType.INT
             else -> null
         }
 
-        // assign the type hints using the opposite side if it isn't already assigned.
-        left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
-        right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
+        // if required type is set we should type hint with those, otherwise use the opposite
+        // sides type as a hint.
+        if (requiredType != null) {
+            left.typeHint = requiredType
+            right.typeHint = requiredType
+        } else {
+            // assign the type hints using the opposite side if it isn't already assigned.
+            left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
+            right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
+        }
 
         // visit both sides to evaluate types
         left.visit()
@@ -412,9 +428,9 @@ internal class TypeChecking(
         // TODO make operator a token so we can point to it in an error message
 
         // handle operator specific required types, this applies to all except `!` and `=`.
-        if (requiredTypes != null) {
-            val leftMatch = checkTypeMatch(left, requiredTypes, left.type, reportError = false)
-            val rightMatch = checkTypeMatch(right, requiredTypes, right.type, reportError = false)
+        if (requiredType != null) {
+            val leftMatch = checkTypeMatch(left, requiredType, left.type, reportError = false)
+            val rightMatch = checkTypeMatch(right, requiredType, right.type, reportError = false)
             if (!leftMatch || !rightMatch) {
                 parent.reportError(
                     DiagnosticMessage.BINOP_INVALID_TYPES,
