@@ -61,6 +61,7 @@ import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
+import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 import me.filby.neptune.runescript.compiler.typeHint
 
 /**
@@ -797,6 +798,11 @@ internal class TypeChecking(
         if (first == PrimitiveType.OBJ) {
             // allow assigning namedobj to obj but not obj to namedobj
             return second == PrimitiveType.OBJ || second == PrimitiveType.NAMEDOBJ
+        }
+        if (first is WrappedType && second is WrappedType) {
+            // if both are wrapped and they're the exact same implementation,
+            // we can then compare their inner types.
+            return first::class == second::class && isTypeCompatible(first.inner, second.inner)
         }
         return first == second
     }
