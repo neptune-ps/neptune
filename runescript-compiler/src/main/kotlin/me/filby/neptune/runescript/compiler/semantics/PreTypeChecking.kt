@@ -37,7 +37,17 @@ import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.type.wrapped.GameVarType
 
-// TODO rename class
+/**
+ * An [AstVisitor] implementation that handles the following.
+ *
+ * - Script declarations
+ * - Switch statement type declaration, which is used later on in [TypeChecking]
+ * - Local variable declarations
+ * - Local variable references
+ * - Local variably array references (without the `$`)
+ * - Game var references
+ * - Constant references
+ */
 internal class PreTypeChecking(
     private val rootTable: SymbolTable,
     private val diagnostics: Diagnostics

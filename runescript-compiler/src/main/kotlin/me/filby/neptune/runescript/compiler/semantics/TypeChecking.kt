@@ -63,6 +63,11 @@ import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.typeHint
 
+/**
+ * An implementation of [AstVisitor] that implements all remaining semantic/type
+ * checking required to safely build scripts. This implementation assumes [PreTypeChecking]
+ * is run beforehand.
+ */
 internal class TypeChecking(
     private val rootTable: SymbolTable,
     private val diagnostics: Diagnostics
