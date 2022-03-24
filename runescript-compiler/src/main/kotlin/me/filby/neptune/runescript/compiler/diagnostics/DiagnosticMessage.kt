@@ -53,6 +53,9 @@ internal object DiagnosticMessage {
     const val LOCAL_REFERENCE_NOT_ARRAY = "Access of indexed value of non-array type variable '$%s'."
     const val LOCAL_ARRAY_REFERENCE_NOINDEX = "'$%s' is a reference to an array variable without specifying the index."
 
+    // game var specific
+    const val GAME_REFERENCE_UNRESOLVED = "'%%%s' cannot be resolved to a game variable."
+
     // constant variable specific
     const val CONSTANT_REFERENCE_UNRESOLVED = "'^%s' cannot be resolved to a constant."
 }

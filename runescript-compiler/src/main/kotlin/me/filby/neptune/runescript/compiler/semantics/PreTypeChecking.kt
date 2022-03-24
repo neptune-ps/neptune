@@ -24,6 +24,7 @@ import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.scope
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
+import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
@@ -34,6 +35,7 @@ import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
+import me.filby.neptune.runescript.compiler.type.wrapped.GameVarType
 
 // TODO rename class
 internal class PreTypeChecking(
@@ -299,8 +301,24 @@ internal class PreTypeChecking(
     }
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
-        gameVariableExpression.reportError("Game var references are not supported yet.")
-        gameVariableExpression.type = MetaType.ERROR
+        val name = gameVariableExpression.name.text
+        var symbol: ConfigSymbol? = null
+        // Attempt to find the game var config symbol. We need to do it this way because
+        // we do not know the expected type to be able to fetch it by SymbolType.Config(Type).
+        for (temp in rootTable.findAll<ConfigSymbol>(name)) {
+            if (temp.type is GameVarType) {
+                symbol = temp
+                break
+            }
+        }
+
+        if (symbol != null) {
+            gameVariableExpression.reference = symbol
+            gameVariableExpression.type = (symbol.type as GameVarType).inner
+        } else {
+            gameVariableExpression.type = MetaType.ERROR
+            gameVariableExpression.reportError(DiagnosticMessage.GAME_REFERENCE_UNRESOLVED, name)
+        }
     }
 
     override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {

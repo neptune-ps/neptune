@@ -13,6 +13,7 @@ import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
+import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
@@ -535,6 +536,10 @@ internal class TypeChecking(
         }
 
         // type is set in PreTypeChecking
+    }
+
+    override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
+        // NO-OP, game vars are handled in pre-type checking.
     }
 
     override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {
