@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.ast.expr
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.NodeSourceLocation
+import me.filby.neptune.runescript.ast.Token
 import java.util.Objects
 
 /**
@@ -17,11 +18,12 @@ import java.util.Objects
 public class BinaryExpression(
     source: NodeSourceLocation,
     public val left: Expression,
-    public val operator: String,
+    public val operator: Token,
     public val right: Expression
 ) : Expression(source) {
     init {
         addChild(left)
+        addChild(operator)
         addChild(right)
     }
 

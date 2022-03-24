@@ -186,7 +186,7 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
         return BinaryExpression(
             source = ctx.location,
             left = ctx.expression(0).visit(),
-            operator = ctx.op.text,
+            operator = ctx.op.toAstToken(),
             right = ctx.expression(1).visit()
         )
     }

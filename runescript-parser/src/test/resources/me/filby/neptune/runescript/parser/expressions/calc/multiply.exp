@@ -1,4 +1,5 @@
 CalcExpression() 1:1
- BinaryExpression(op="*") 1:6
+ BinaryExpression() 1:6
   IntegerLiteral(value=1) 1:6
+  Token(text=*) 1:8
   IntegerLiteral(value=1) 1:10

@@ -172,7 +172,7 @@ internal class TypeChecking(
      * is all valid conditional expressions.
      */
     private fun findInvalidConditionExpression(expression: Expression): Node? = when (expression) {
-        is BinaryExpression -> if (expression.operator == "|" || expression.operator == "&") {
+        is BinaryExpression -> if (expression.operator.text == "|" || expression.operator.text == "&") {
             // check the left side and return it if it isn't null, otherwise return the value
             // of the right side
             findInvalidConditionExpression(expression.left) ?: findInvalidConditionExpression(expression.right)
@@ -335,9 +335,9 @@ internal class TypeChecking(
 
         // check for validation based on if we're within condition or calc.
         val validOperation = if (inCondition) {
-            checkBinaryConditionOperation(binaryExpression, left, operator, right)
+            checkBinaryConditionOperation(left, operator, right)
         } else {
-            checkBinaryMathOperation(binaryExpression, left, operator, right)
+            checkBinaryMathOperation(left, operator, right)
         }
 
         // early return if it isn't a valid operation
@@ -355,14 +355,12 @@ internal class TypeChecking(
      * Verifies the binary expression is a valid math operation.
      */
     private fun checkBinaryMathOperation(
-        parent: BinaryExpression,
         left: Expression,
-        operator: String,
+        operator: Token,
         right: Expression
     ): Boolean {
-        if (operator !in MATH_OPS) {
-            // TODO make operator a token so we can point to it in an error message
-            parent.reportError(DiagnosticMessage.INVALID_MATHOP, operator)
+        if (operator.text !in MATH_OPS) {
+            operator.reportError(DiagnosticMessage.INVALID_MATHOP, operator)
             return false
         }
 
@@ -380,10 +378,9 @@ internal class TypeChecking(
 
         // one or both don't match so report an error
         if (!bothMatch) {
-            // TODO make operator a token so we can point to it in an error message
-            parent.reportError(
+            operator.reportError(
                 DiagnosticMessage.BINOP_INVALID_TYPES,
-                operator,
+                operator.text,
                 left.type.representation,
                 right.type.representation
             )
@@ -396,19 +393,17 @@ internal class TypeChecking(
      * Verifies the binary expression is a valid condition operation.
      */
     private fun checkBinaryConditionOperation(
-        parent: BinaryExpression,
         left: Expression,
-        operator: String,
+        operator: Token,
         right: Expression
     ): Boolean {
-        if (operator !in CONDITIONAL_OPS) {
-            // TODO make operator a token so we can point to it in an error message
-            parent.reportError(DiagnosticMessage.INVALID_MATHOP, operator)
+        if (operator.text !in CONDITIONAL_OPS) {
+            operator.reportError(DiagnosticMessage.INVALID_MATHOP, operator)
             return false
         }
 
         // some operators expect a specific type on both sides, specify that type here
-        val requiredType: Type? = when (operator) {
+        val requiredType: Type? = when (operator.text) {
             "&", "|" -> PrimitiveType.BOOLEAN
             "<", ">", "<=", ">=" -> PrimitiveType.INT
             else -> null
@@ -440,16 +435,14 @@ internal class TypeChecking(
             return false
         }
 
-        // TODO make operator a token so we can point to it in an error message
-
         // handle operator specific required types, this applies to all except `!` and `=`.
         if (requiredType != null) {
             val leftMatch = checkTypeMatch(left, requiredType, left.type, reportError = false)
             val rightMatch = checkTypeMatch(right, requiredType, right.type, reportError = false)
             if (!leftMatch || !rightMatch) {
-                parent.reportError(
+                operator.reportError(
                     DiagnosticMessage.BINOP_INVALID_TYPES,
-                    operator,
+                    operator.text,
                     left.type.representation,
                     right.type.representation
                 )
@@ -459,9 +452,9 @@ internal class TypeChecking(
 
         // handle equality operator, which allows any type on either side as long as they match
         if (!checkTypeMatch(left, left.type, right.type, reportError = false)) {
-            parent.reportError(
+            operator.reportError(
                 DiagnosticMessage.BINOP_INVALID_TYPES,
-                operator,
+                operator.text,
                 left.type.representation,
                 right.type.representation
             )

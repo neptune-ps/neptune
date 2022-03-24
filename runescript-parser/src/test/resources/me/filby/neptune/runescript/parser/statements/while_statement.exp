@@ -1,6 +1,7 @@
 WhileStatement() 1:1
- BinaryExpression(op="=") 1:8
+ BinaryExpression() 1:8
   BooleanLiteral(value=true) 1:8
+  Token(text==) 1:13
   BooleanLiteral(value=true) 1:15
  BlockStatement() 1:21
   ExpressionStatement() 2:5

@@ -1,7 +1,9 @@
 CalcExpression() 1:1
- BinaryExpression(op="*") 1:6
+ BinaryExpression() 1:6
   ParenthesizedExpression() 1:6
-   BinaryExpression(op="+") 1:7
+   BinaryExpression() 1:7
     IntegerLiteral(value=1) 1:7
+    Token(text=+) 1:9
     IntegerLiteral(value=2) 1:11
+  Token(text=*) 1:14
   IntegerLiteral(value=3) 1:16

@@ -1,6 +1,7 @@
 IfStatement() 1:1
- BinaryExpression(op="=") 1:5
+ BinaryExpression() 1:5
   IntegerLiteral(value=1) 1:5
+  Token(text==) 1:7
   IntegerLiteral(value=1) 1:9
  BlockStatement() 1:12
   ExpressionStatement() 2:5
@@ -8,8 +9,9 @@ IfStatement() 1:1
     Identifier(text="mes") 2:5
     StringLiteral(value="1 = 1") 2:9
  IfStatement() 3:8
-  BinaryExpression(op="=") 3:12
+  BinaryExpression() 3:12
    IntegerLiteral(value=2) 3:12
+   Token(text==) 3:14
    IntegerLiteral(value=2) 3:16
   BlockStatement() 3:19
    ExpressionStatement() 4:5

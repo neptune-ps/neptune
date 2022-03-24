@@ -1,12 +1,17 @@
 CalcExpression() 1:1
- BinaryExpression(op="-") 1:6
-  BinaryExpression(op="+") 1:6
+ BinaryExpression() 1:6
+  BinaryExpression() 1:6
    IntegerLiteral(value=1) 1:6
+   Token(text=+) 1:8
    IntegerLiteral(value=2) 1:10
-  BinaryExpression(op="%") 1:14
-   BinaryExpression(op="/") 1:14
-    BinaryExpression(op="*") 1:14
+  Token(text=-) 1:12
+  BinaryExpression() 1:14
+   BinaryExpression() 1:14
+    BinaryExpression() 1:14
      IntegerLiteral(value=3) 1:14
+     Token(text=*) 1:16
      IntegerLiteral(value=4) 1:18
+    Token(text=/) 1:20
     IntegerLiteral(value=5) 1:22
+   Token(text=%) 1:24
    IntegerLiteral(value=6) 1:26

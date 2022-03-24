@@ -3,7 +3,6 @@ package me.filby.neptune.runescript.parser
 import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Token
-import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.StringLiteral
@@ -197,7 +196,6 @@ class TestRuneScriptParser {
             with(this@toStringTree) {
                 append(
                     when (this) {
-                        is BinaryExpression -> "BinaryExpression(op=\"$operator\")"
                         is SwitchCase -> "SwitchCase(default=$isDefault)"
                         is Identifier -> "Identifier(text=\"$text\")"
                         is StringLiteral -> "StringLiteral(value=\"$value\")"
