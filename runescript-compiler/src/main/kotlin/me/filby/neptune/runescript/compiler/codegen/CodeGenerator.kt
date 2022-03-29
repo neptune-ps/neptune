@@ -41,6 +41,7 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
+import me.filby.neptune.runescript.compiler.graphicSymbol
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.symbol
@@ -318,6 +319,11 @@ public class CodeGenerator(
     private fun resolveConstantValue(expression: Expression) = when (expression) {
         is ConstantVariableExpression -> expression.reference
         is Identifier -> expression.reference
+        is StringLiteral -> if (expression.type == PrimitiveType.GRAPHIC) {
+            expression.graphicSymbol
+        } else {
+            expression.value
+        }
         is Literal<*> -> expression.value
         else -> null
     }
@@ -482,7 +488,14 @@ public class CodeGenerator(
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
         if (stringLiteral.type == PrimitiveType.GRAPHIC) {
-            TODO("fetch symbol from node and push that constant")
+            val symbol = stringLiteral.graphicSymbol
+            if (symbol == null) {
+                stringLiteral.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
+                return
+            }
+
+            instruction(Opcode.PUSH_CONSTANT, symbol)
+            return
         }
         instruction(Opcode.PUSH_CONSTANT, stringLiteral.value)
     }

@@ -40,6 +40,7 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
+import me.filby.neptune.runescript.compiler.graphicSymbol
 import me.filby.neptune.runescript.compiler.nullableType
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
@@ -621,6 +622,7 @@ internal class TypeChecking(
                 return
             }
             // TODO store symbol
+            stringLiteral.graphicSymbol = symbol
             stringLiteral.type = PrimitiveType.GRAPHIC
             return
         }
