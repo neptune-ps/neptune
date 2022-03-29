@@ -544,7 +544,7 @@ internal class TypeChecking(
         val actualType = TupleType.fromList(actualTypes)
 
         // special case for the temporary state of using unit for no arguments
-        if (expectedType == MetaType.UNIT) {
+        if (expectedType == MetaType.UNIT && actualType != MetaType.UNIT) {
             val errorMessage = when (callExpression) {
                 is CommandCallExpression -> DiagnosticMessage.COMMAND_NOARGS_EXPECTED
                 is ProcCallExpression -> DiagnosticMessage.PROC_NOARGS_EXPECTED
@@ -553,15 +553,13 @@ internal class TypeChecking(
             callExpression.reportError(
                 errorMessage,
                 name,
-                actualType?.representation ?: "null"
+                actualType.representation
             )
             return
         }
 
         // do the actual type checking
-        if (expectedType != null) {
-            checkTypeMatch(callExpression, expectedType, actualType)
-        }
+        checkTypeMatch(callExpression, expectedType, actualType)
     }
 
     /**
@@ -750,31 +748,32 @@ internal class TypeChecking(
      *
      * @see isTypeCompatible
      */
-    private fun checkTypeMatch(node: Node, expected: Type, actual: Type?, reportError: Boolean = true): Boolean {
+    private fun checkTypeMatch(node: Node, expected: Type, actual: Type, reportError: Boolean = true): Boolean {
+        val expectedFlattened = if (expected is TupleType) expected.children else arrayOf(expected)
+        val actualFlattened = if (actual is TupleType) actual.children else arrayOf(actual)
+
         var match = true
-        if (actual == null) {
-            // actual type isn't defined, so it cannot match the expected type
+        // compare the flattened types
+        if (expected == MetaType.ERROR) {
+            // we need to do this to prevent error propagation due to expected type resolving to an error
+            match = true
+        } else if (expectedFlattened.size != actualFlattened.size) {
             match = false
         } else {
-            val expectedFlattened = if (expected is TupleType) expected.children else arrayOf(expected)
-            val actualFlattened = if (actual is TupleType) actual.children else arrayOf(actual)
-            // compare the flattened types
-            if (expected == MetaType.ERROR) {
-                // we need to do this to prevent error propagation due to expected type resolving to an error
-                match = true
-            } else if (expectedFlattened.size != actualFlattened.size) {
-                match = false
-            } else {
-                for (i in expectedFlattened.indices) {
-                    match = match and isTypeCompatible(expectedFlattened[i], actualFlattened[i])
-                }
+            for (i in expectedFlattened.indices) {
+                match = match and isTypeCompatible(expectedFlattened[i], actualFlattened[i])
             }
         }
 
         if (!match && reportError) {
+            val actualRepresentation = if (actual == MetaType.UNIT) {
+                "<nothing>"
+            } else {
+                actual.representation
+            }
             node.reportError(
                 DiagnosticMessage.GENERIC_TYPE_MISMATCH,
-                actual?.representation ?: "<nothing>",
+                actualRepresentation,
                 expected.representation
             )
         }
