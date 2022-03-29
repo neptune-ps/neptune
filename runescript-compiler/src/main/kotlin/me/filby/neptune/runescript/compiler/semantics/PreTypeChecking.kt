@@ -225,6 +225,10 @@ internal class PreTypeChecking(
     }
 
     override fun visitSwitchCase(switchCase: SwitchCase) {
+        // visit the keys to set any types that can be set early
+        switchCase.keys.visit()
+
+        // create a new scope and visit the statements in it
         createScopedTable { switchCase.statements.visit() }
     }
 
