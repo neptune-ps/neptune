@@ -46,12 +46,11 @@ import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
-import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.ComponentSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConstantSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
-import me.filby.neptune.runescript.compiler.symbol.ServerScriptSymbol
+import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
@@ -695,8 +694,7 @@ internal class TypeChecking(
      * Converts a [Symbol] to its equivalent [Type].
      */
     private fun symbolToType(symbol: Symbol) = when (symbol) {
-        is ServerScriptSymbol -> null
-        is ClientScriptSymbol -> symbol.returns
+        is ScriptSymbol -> symbol.returns
         is LocalVariableSymbol -> symbol.type
         is BasicSymbol -> symbol.type
         is ConstantSymbol -> symbol.type

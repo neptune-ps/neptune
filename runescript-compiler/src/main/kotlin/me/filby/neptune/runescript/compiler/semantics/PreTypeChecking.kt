@@ -23,9 +23,9 @@ import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.scope
 import me.filby.neptune.runescript.compiler.symbol
-import me.filby.neptune.runescript.compiler.symbol.ClientScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
+import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
@@ -118,7 +118,7 @@ internal class PreTypeChecking(
                 }
                 returns += type
             }
-            script.returnType = TupleType.fromList(returns) ?: error("null returns")
+            script.returnType = TupleType.fromList(returns)
         } else {
             script.returnType = MetaType.UNIT
         }
@@ -128,7 +128,10 @@ internal class PreTypeChecking(
 
         if (trigger != null) {
             // attempt to insert the script into the root table and error if failed to insert
-            val scriptSymbol = ClientScriptSymbol(script.name.text, script.parameterType, script.returnType)
+            val scriptSymbol = ScriptSymbol.ClientScriptSymbol(
+                trigger, script.name.text,
+                script.parameterType, script.returnType
+            )
             val inserted = rootTable.insert(SymbolType.ClientScript(trigger), scriptSymbol)
             if (!inserted) {
                 // TODO somehow report original declaration location?

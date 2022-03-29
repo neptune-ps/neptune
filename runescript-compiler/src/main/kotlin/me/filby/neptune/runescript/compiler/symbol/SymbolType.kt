@@ -6,8 +6,8 @@ import me.filby.neptune.runescript.compiler.type.Type
 
 public sealed class SymbolType<T : Symbol> {
     // script specific
-    public object ServerScript : SymbolType<ServerScriptSymbol>()
-    public data class ClientScript(public val type: ClientTriggerType) : SymbolType<ClientScriptSymbol>()
+    public object ServerScript : SymbolType<ScriptSymbol.ServerScriptSymbol>()
+    public data class ClientScript(public val type: ClientTriggerType) : SymbolType<ScriptSymbol.ClientScriptSymbol>()
     public object LocalVariable : SymbolType<LocalVariableSymbol>()
 
     // global
