@@ -13,6 +13,13 @@ internal object DiagnosticMessage {
     const val LOCAL_REFERENCE_WRONG = "Internal compiler error: '$%s' refers to a non-local variable symbol: %s"
     const val RETURN_ORPHAN = "Internal compiler error: Orphaned `return` statement, no parent `script` node found."
 
+    // code gen internal compiler errors
+    const val SYMBOL_IS_NULL = "Internal compiler error: Symbol has not been defined for the node."
+    const val TYPE_HAS_NO_BASETYPE = "Internal compiler error: Type has no defined base type: %s."
+    const val TYPE_HAS_NO_DEFAULT = "Internal compiler error: Return type '%s' has no defined default value."
+    const val INVALID_CONDITION = "Internal compiler error: %s is not a supported expression type for conditions."
+    const val NULL_CONSTANT = "Internal compiler error: %s evaluated to 'null' constant value."
+
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
     const val GENERIC_TYPE_MISMATCH = "Type mismatch: '%s' was given but '%s' was expected."

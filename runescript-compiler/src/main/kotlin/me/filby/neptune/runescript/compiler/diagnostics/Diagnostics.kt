@@ -9,5 +9,9 @@ public class Diagnostics {
         _diagnostics += diagnostic
     }
 
+    public fun clear() {
+        _diagnostics.clear()
+    }
+
     public fun hasErrors(): Boolean = _diagnostics.any { it.type == DiagnosticType.ERROR }
 }

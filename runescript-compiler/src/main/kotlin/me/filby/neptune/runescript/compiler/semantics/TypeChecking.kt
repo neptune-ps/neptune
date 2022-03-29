@@ -35,6 +35,7 @@ import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
+import me.filby.neptune.runescript.compiler.defaultCase
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
@@ -207,6 +208,7 @@ internal class TypeChecking(
             }
             case.visit()
         }
+        switchStatement.defaultCase = defaultCase
     }
 
     override fun visitSwitchCase(switchCase: SwitchCase) {

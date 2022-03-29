@@ -29,6 +29,7 @@ import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
+import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
@@ -90,6 +91,8 @@ internal class PreTypeChecking(
         val trigger = ClientTriggerType.lookup(script.trigger.text)
         if (trigger == null) {
             script.trigger.reportError(DiagnosticMessage.SCRIPT_TRIGGER_INVALID, script.trigger.text)
+        } else {
+            script.triggerType = trigger
         }
 
         // TODO check subject if it's meant to refer to a specific thing
@@ -270,10 +273,13 @@ internal class PreTypeChecking(
         arrayDeclarationStatement.initializer.accept(this)
 
         // attempt to insert the local variable into the symbol table and display error if failed to insert
+        val symbol = LocalVariableSymbol(name, type)
         val inserted = table.insert(SymbolType.LocalVariable, LocalVariableSymbol(name, type))
         if (!inserted) {
             arrayDeclarationStatement.name.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
         }
+
+        arrayDeclarationStatement.symbol = symbol
     }
 
     override fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression) {

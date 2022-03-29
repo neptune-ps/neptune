@@ -7,12 +7,20 @@ import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.VariableExpression
+import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
+import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
+import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type.Type
+
+/**
+ * The scripts defined trigger type.
+ */
+internal var Script.triggerType by Node.attribute<TriggerType>("triggerType")
 
 /**
  * The script parameter type(s) if it returns any.
@@ -35,9 +43,19 @@ internal var Parameter.type by Node.attribute<Type>("type")
 internal var SwitchStatement.type by Node.attribute<Type>("type")
 
 /**
+ * The default case assigned to the statement.
+ */
+internal var SwitchStatement.defaultCase by Node.attributeOrNull<SwitchCase>("defaultCase")
+
+/**
  * The symbol that the statement declared.
  */
 internal var DeclarationStatement.symbol by Node.attribute<LocalVariableSymbol>("symbol")
+
+/**
+ * The symbol that the statement defined.
+ */
+internal var ArrayDeclarationStatement.symbol by Node.attribute<LocalVariableSymbol>("symbol")
 
 /**
  * The symbol that the variable references.
