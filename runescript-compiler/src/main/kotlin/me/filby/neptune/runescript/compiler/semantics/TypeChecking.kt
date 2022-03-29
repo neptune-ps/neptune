@@ -621,7 +621,6 @@ internal class TypeChecking(
                 stringLiteral.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, stringLiteral.value)
                 return
             }
-            // TODO store symbol
             stringLiteral.graphicSymbol = symbol
             stringLiteral.type = PrimitiveType.GRAPHIC
             return
