@@ -122,7 +122,7 @@ internal class TypeChecking(
         val actualTypes = typeHintExpressionList(expectedTypes, returnStatement.expressions)
 
         // convert the types into a single type
-        val expectedType = TupleType.fromList(expectedTypes) ?: TODO()
+        val expectedType = TupleType.fromList(expectedTypes)
         val actualType = TupleType.fromList(actualTypes)
 
         // type check
@@ -292,14 +292,6 @@ internal class TypeChecking(
         // convert types to tuple type if necessary for easy comparison
         val leftType = TupleType.fromList(leftTypes)
         val rightType = TupleType.fromList(rightTypes)
-        if (leftType == null || rightType == null) {
-            assignmentStatement.reportError(
-                DiagnosticMessage.NULL_TYPE_IN_ASSIGNMENT,
-                leftType?.representation ?: "null",
-                rightType?.representation ?: "null"
-            )
-            return
-        }
 
         checkTypeMatch(assignmentStatement, leftType, rightType)
     }
