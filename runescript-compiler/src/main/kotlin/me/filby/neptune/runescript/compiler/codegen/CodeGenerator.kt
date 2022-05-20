@@ -337,13 +337,7 @@ public class CodeGenerator(
             declarationStatement.initializer.visit()
         } else {
             // handle default based on the type information
-            val baseType = reference.type.baseType
-            block += when (baseType) {
-                BaseVarType.INTEGER -> IntInstruction(Opcode.PUSH_CONSTANT, reference.type.defaultValue as Int)
-                BaseVarType.STRING -> StringInstruction(Opcode.PUSH_CONSTANT, reference.type.defaultValue as String)
-                BaseVarType.LONG -> LongInstruction(Opcode.PUSH_CONSTANT, reference.type.defaultValue as Long)
-                else -> error("Unsupported base type: $baseType")
-            }
+            instruction(Opcode.PUSH_CONSTANT, reference.type.defaultValue as Any)
         }
         instruction(Opcode.POP_VAR, reference)
     }
