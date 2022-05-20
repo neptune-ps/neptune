@@ -174,7 +174,11 @@ public interface AstVisitor<R> {
         return visitExpression(identifier)
     }
 
+    public fun visitToken(token: Token): R {
+        return visitNode(token)
+    }
+
     public fun visitNode(node: Node): R {
-        throw UnsupportedOperationException("not implemented: ${node::class}")
+        throw UnsupportedOperationException("not implemented: ${node::class.simpleName}")
     }
 }

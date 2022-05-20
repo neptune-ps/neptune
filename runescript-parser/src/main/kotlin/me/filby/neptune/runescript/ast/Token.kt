@@ -8,8 +8,7 @@ import com.google.common.base.Objects
  */
 public class Token(source: NodeSourceLocation, public val text: String) : Node(source) {
     override fun <R> accept(visitor: AstVisitor<R>): R {
-        // TODO should we actually implement this?
-        error("Token#accept should never be called.")
+        return visitor.visitToken(this)
     }
 
     override fun hashCode(): Int {

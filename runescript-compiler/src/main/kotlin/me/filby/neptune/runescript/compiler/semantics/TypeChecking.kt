@@ -686,14 +686,16 @@ internal class TypeChecking(
         is ConfigSymbol -> symbol.type
     }
 
+    override fun visitToken(token: Token) {
+        // NO-OP
+    }
+
     override fun visitNode(node: Node) {
-        if (node !is Token) {
-            val parent = node.parent
-            if (parent == null) {
-                node.reportInfo("Unhandled node: %s.", node::class.simpleName!!)
-            } else {
-                node.reportInfo("Unhandled node: %s. Parent: %s", node::class.simpleName!!, parent::class.simpleName!!)
-            }
+        val parent = node.parent
+        if (parent == null) {
+            node.reportInfo("Unhandled node: %s.", node::class.simpleName!!)
+        } else {
+            node.reportInfo("Unhandled node: %s. Parent: %s", node::class.simpleName!!, parent::class.simpleName!!)
         }
     }
 
