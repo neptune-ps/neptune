@@ -634,12 +634,7 @@ internal class TypeChecking(
         }
 
         val name = identifier.text
-        var hint: Type? = identifier.typeHint
-
-        // assume component if the name contains a colon
-        if (hint == null && identifier.text.contains(":")) {
-            hint = PrimitiveType.COMPONENT
-        }
+        val hint = identifier.typeHint
 
         // look through the global table for a symbol with the given name and type
         var symbol: Symbol? = null
