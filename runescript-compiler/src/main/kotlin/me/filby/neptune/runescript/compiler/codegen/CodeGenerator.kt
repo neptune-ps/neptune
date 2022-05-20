@@ -45,6 +45,7 @@ import me.filby.neptune.runescript.compiler.graphicSymbol
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.symbol
+import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
@@ -508,8 +509,14 @@ public class CodeGenerator(
             return
         }
 
-        // TODO special cases for other symbol types
-        instruction(Opcode.PUSH_CONSTANT, reference)
+        // add the instruction based on reference type
+        if (reference is ScriptSymbol.ClientScriptSymbol && reference.trigger == ClientTriggerType.COMMAND) {
+            // commands can be referenced by just their name if they have no arguments
+            instruction(Opcode.COMMAND, reference)
+        } else {
+            // default to just pushing the symbol as a constant
+            instruction(Opcode.PUSH_CONSTANT, reference)
+        }
     }
 
     /**
