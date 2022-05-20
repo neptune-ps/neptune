@@ -6,6 +6,7 @@ import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
+import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
@@ -443,6 +444,10 @@ public class CodeGenerator(
 
         // add the instruction with the opcode based on the operator
         instruction(opcode, 0)
+    }
+
+    override fun visitCalcExpression(calcExpression: CalcExpression) {
+        calcExpression.expression.visit()
     }
 
     override fun visitCommandCallExpression(commandCallExpression: CommandCallExpression) {
