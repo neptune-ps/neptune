@@ -24,4 +24,3 @@ public data class LocalVariableSymbol(override val name: String, val type: Type)
 public data class BasicSymbol(override val name: String, val type: PrimitiveType) : Symbol
 public data class ConstantSymbol(override val name: String, val type: PrimitiveType) : Symbol
 public data class ConfigSymbol(override val name: String, val type: Type) : Symbol
-public data class ComponentSymbol(override val name: String) : Symbol

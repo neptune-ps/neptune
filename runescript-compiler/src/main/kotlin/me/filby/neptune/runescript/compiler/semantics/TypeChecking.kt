@@ -46,7 +46,6 @@ import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
-import me.filby.neptune.runescript.compiler.symbol.ComponentSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConstantSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
@@ -258,7 +257,6 @@ internal class TypeChecking(
         is BasicSymbol -> true
         is ConstantSymbol -> true
         is ConfigSymbol -> true
-        is ComponentSymbol -> true
         else -> false
     }
 
@@ -691,7 +689,6 @@ internal class TypeChecking(
         is BasicSymbol -> symbol.type
         is ConstantSymbol -> symbol.type
         is ConfigSymbol -> symbol.type
-        is ComponentSymbol -> PrimitiveType.COMPONENT
     }
 
     override fun visitNode(node: Node) {
