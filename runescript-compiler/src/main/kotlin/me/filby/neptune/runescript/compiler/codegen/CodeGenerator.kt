@@ -496,9 +496,7 @@ public class CodeGenerator(
     }
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {
-        for (expr in joinedStringExpression.parts) {
-            expr.visit()
-        }
+        joinedStringExpression.parts.visit()
         instruction(Opcode.JOIN_STRING, joinedStringExpression.parts.size)
     }
 
