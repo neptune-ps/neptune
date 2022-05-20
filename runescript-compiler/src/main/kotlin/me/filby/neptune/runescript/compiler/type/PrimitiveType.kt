@@ -20,8 +20,9 @@ public enum class PrimitiveType(
     OBJ('o', defaultValue = -1),
     STRING('s', BaseVarType.STRING, defaultValue = ""),
     MAPELEMENT('µ', defaultValue = -1),
+    INV('v', defaultValue = -1),
     CHAR('z', defaultValue = -1),
-    LONG('Ï', BaseVarType.LONG, defaultValue = 1L),
+    LONG('Ï', BaseVarType.LONG, defaultValue = -1L),
     ;
 
     override val representation: String = name.lowercase()
