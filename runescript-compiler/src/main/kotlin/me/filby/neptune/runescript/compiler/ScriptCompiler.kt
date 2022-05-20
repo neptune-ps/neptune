@@ -42,7 +42,14 @@ public class ScriptCompiler(sourcePath: Path, outputPath: Path, private val symb
      */
     private val rootTable = SymbolTable()
 
-    internal val scripts = mutableListOf<RuneScript>()
+    // TODO remove when extending base is much better than it currently is
+    private val _scripts = mutableListOf<RuneScript>()
+
+    /**
+     * A list of [RuneScript]s that were returned by the code generation. This is a temporary way
+     * to access the scripts.
+     */
+    public val scripts: List<RuneScript> get() = _scripts
 
     /**
      * Runs the compiler by loading external symbols and then actually running
@@ -73,6 +80,7 @@ public class ScriptCompiler(sourcePath: Path, outputPath: Path, private val symb
 
         // 3) Generate code
         val scripts = codegen(fileNodes)
+        _scripts.addAll(scripts)
 
         // 4) ???
     }
