@@ -29,7 +29,6 @@ import me.filby.neptune.runescript.ast.statement.EmptyStatement
 import me.filby.neptune.runescript.ast.statement.ExpressionStatement
 import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
-import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import me.filby.neptune.runescript.compiler.codegen.script.Block
@@ -47,12 +46,10 @@ import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
-import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
-import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
@@ -114,17 +111,8 @@ public class CodeGenerator(
     /**
      * Adds an instruction to [block], which defaults to the most recently bound [Block].
      */
-    private fun <T : Any> instruction(opcode: Opcode, operand: T, block: Block = this.block) {
-        block += when (operand) {
-            is Int -> IntInstruction(opcode, operand)
-            is String -> StringInstruction(opcode, operand)
-            is Long -> LongInstruction(opcode, operand)
-            is Label -> BranchInstruction(opcode, operand)
-            is SwitchTable -> SwitchInstruction(opcode, operand)
-            is Symbol -> ReferenceInstruction(opcode, operand)
-            is BaseVarType -> BaseTypeInstruction(opcode, operand)
-            else -> error("Unsupported operand type: ${operand::class.java.simpleName}")
-        }
+    private fun instruction(opcode: Opcode, operand: Any, block: Block = this.block) {
+        block += Instruction(opcode, operand)
     }
 
     override fun visitScriptFile(scriptFile: ScriptFile) {
