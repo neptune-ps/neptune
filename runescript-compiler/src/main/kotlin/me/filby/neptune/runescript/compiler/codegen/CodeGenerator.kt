@@ -386,6 +386,7 @@ public class CodeGenerator(
             localVariableExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
         }
+        localVariableExpression.index?.visit()
         instruction(Opcode.PUSH_VAR, reference)
     }
 
