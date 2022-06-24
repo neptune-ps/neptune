@@ -326,11 +326,11 @@ internal class TypeChecking(
             return
         }
 
-        // check for validation based on if we're within condition or calc.
-        val validOperation = if (inCondition) {
-            checkBinaryConditionOperation(left, operator, right)
-        } else {
+        // check for validation based on if we're within calc or condition.
+        val validOperation = if (inCalc) {
             checkBinaryMathOperation(left, operator, right)
+        } else {
+            checkBinaryConditionOperation(left, operator, right)
         }
 
         // early return if it isn't a valid operation
@@ -340,8 +340,8 @@ internal class TypeChecking(
         }
 
         // conditions expect boolean, calc expects int
-        // we shouldn't get to this point without on of those two being true due to the above check
-        binaryExpression.type = if (inCondition) PrimitiveType.BOOLEAN else PrimitiveType.INT
+        // we shouldn't get to this point without one of those two being true due to the above check
+        binaryExpression.type = if (inCalc) PrimitiveType.INT else PrimitiveType.BOOLEAN
     }
 
     /**
@@ -391,7 +391,7 @@ internal class TypeChecking(
         right: Expression
     ): Boolean {
         if (operator.text !in CONDITIONAL_OPS) {
-            operator.reportError(DiagnosticMessage.INVALID_MATHOP, operator)
+            operator.reportError(DiagnosticMessage.INVALID_CONDITIONOP, operator)
             return false
         }
 
