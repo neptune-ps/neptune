@@ -343,6 +343,13 @@ public class CodeGenerator(
     override fun visitAssignmentStatement(assignmentStatement: AssignmentStatement) {
         val vars = assignmentStatement.vars
 
+        // special case for arrays since they need to push the index first when popping a new value
+        // arrays are disallowed in multi-assignment statements in earlier steps
+        val first = vars.first()
+        if (first is LocalVariableExpression && first.index != null) {
+            first.index.visit()
+        }
+
         // visit the expressions from the left side
         assignmentStatement.expressions.visit()
 

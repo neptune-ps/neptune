@@ -10,6 +10,7 @@ import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
+import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
@@ -287,6 +288,17 @@ internal class PreTypeChecking(
         }
 
         arrayDeclarationStatement.symbol = symbol
+    }
+
+    override fun visitAssignmentStatement(assignmentStatement: AssignmentStatement) {
+        assignmentStatement.children.visit()
+
+        // disallow arrays in multi-assign statements
+        val vars = assignmentStatement.vars
+        val firstArrayRef = vars.firstOrNull { it is LocalVariableExpression && it.isArray }
+        if (vars.size > 1 && firstArrayRef != null) {
+            firstArrayRef.reportError(DiagnosticMessage.ASSIGN_MULTI_ARRAY)
+        }
     }
 
     override fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression) {

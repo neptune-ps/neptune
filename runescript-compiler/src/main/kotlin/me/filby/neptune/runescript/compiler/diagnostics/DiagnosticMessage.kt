@@ -38,6 +38,9 @@ internal object DiagnosticMessage {
     const val SWITCH_DUPLICATE_DEFAULT = "Duplicate default label."
     const val SWITCH_CASE_NOT_CONSTANT = "Switch case value is not a constant expression."
 
+    // assignment statement node specific
+    const val ASSIGN_MULTI_ARRAY = "Arrays are not allowed in multi-assignment statements."
+
     // condition expression specific
     const val CONDITION_INVALID_NODE_TYPE = "Conditions are only allowed to be binary expressions."
 
