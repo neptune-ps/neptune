@@ -17,8 +17,7 @@ public data class ArrayType(public override val inner: Type) : WrappedType {
     override val code: Char
         get() = error("ArrayType has no character representation.")
 
-    override val baseType: BaseVarType
-        get() = error("ArrayType has no BaseVarType.")
+    override val baseType: BaseVarType = BaseVarType.INTEGER
 
     override val defaultValue: Any
         get() = error("ArrayType has no default value.")
