@@ -103,7 +103,7 @@ internal class PreTypeChecking(
         parameters?.visit()
 
         // specify the parameter types for easy lookup later
-        script.parameterType = TupleType.fromList(parameters?.map { it.type })
+        script.parameterType = TupleType.fromList(parameters?.map { it.symbol.type })
 
         // verify parameters match what the trigger type allows
         checkScriptParameters(trigger, script, parameters)
@@ -195,12 +195,13 @@ internal class PreTypeChecking(
         }
 
         // attempt to insert the local variable into the symbol table and display error if failed to insert
-        val inserted = table.insert(SymbolType.LocalVariable, LocalVariableSymbol(name, type))
+        val symbol = LocalVariableSymbol(name, type)
+        val inserted = table.insert(SymbolType.LocalVariable, symbol)
         if (!inserted) {
             parameter.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
         }
 
-        parameter.type = type
+        parameter.symbol = symbol
     }
 
     override fun visitBlockStatement(blockStatement: BlockStatement) {

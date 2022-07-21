@@ -35,9 +35,9 @@ internal var Script.parameterType by Node.attribute<Type?>("parameterType")
 internal var Script.returnType by Node.attribute<Type>("returnType")
 
 /**
- * The defined type of the parameter.
+ * The symbol that the parameter declares.
  */
-internal var Parameter.type by Node.attribute<Type>("type")
+internal var Parameter.symbol by Node.attribute<LocalVariableSymbol>("symbol")
 
 /**
  * The type the switch statement accepts.

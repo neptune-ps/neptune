@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.compiler.codegen
 
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.Node
+import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
@@ -125,8 +126,13 @@ public class CodeGenerator(
             return
         }
 
-        // add the script to the list and create an entry block
+        // add the script to the list of scripts in the file
         _scripts += RuneScript(script.triggerType, script.name.text)
+
+        // visit parameters to add them to the scripts local table
+        script.parameters?.visit()
+
+        // generate and bind an entry point block
         bind(generateBlock("entry", generateUniqueName = false))
 
         // visit the statements
@@ -137,6 +143,14 @@ public class CodeGenerator(
 
         // reset the label generator for the next script
         labelGenerator.reset()
+    }
+
+    override fun visitParameter(parameter: Parameter) {
+        val symbol = parameter.symbol
+
+        // add the local variable symbol to list of parameters and all locals
+        script.locals.parameters += symbol
+        script.locals.all += symbol
     }
 
     /**
@@ -319,7 +333,10 @@ public class CodeGenerator(
     }
 
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
-        val reference = declarationStatement.symbol
+        val symbol = declarationStatement.symbol
+
+        // add the variable to the scripts local table
+        script.locals.all += symbol
 
         val initializer = declarationStatement.initializer
         if (initializer != null) {
@@ -327,13 +344,16 @@ public class CodeGenerator(
             declarationStatement.initializer.visit()
         } else {
             // handle default based on the type information
-            instruction(Opcode.PUSH_CONSTANT, reference.type.defaultValue as Any)
+            instruction(Opcode.PUSH_CONSTANT, symbol.type.defaultValue as Any)
         }
-        instruction(Opcode.POP_VAR, reference)
+        instruction(Opcode.POP_VAR, symbol)
     }
 
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
         val symbol = arrayDeclarationStatement.symbol
+
+        // add the variable to the scripts local table
+        script.locals.all += symbol
 
         // visit the initializer and add the define_array instruction
         arrayDeclarationStatement.initializer.visit()
