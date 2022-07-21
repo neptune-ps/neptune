@@ -9,6 +9,7 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
+import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import me.filby.neptune.runescript.parser.ScriptParser
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,7 +21,11 @@ import kotlin.system.measureTimeMillis
 /**
  * An entry point for compiling scripts.
  */
-public class ScriptCompiler(sourcePath: Path, outputPath: Path, private val symbolLoader: SymbolLoader) {
+public class ScriptCompiler(
+    sourcePath: Path,
+    private val symbolLoader: SymbolLoader,
+    private val scriptWriter: ScriptWriter
+) {
 
     /**
      * Logger for this class.
@@ -30,26 +35,12 @@ public class ScriptCompiler(sourcePath: Path, outputPath: Path, private val symb
     /**
      * The root folder path that contains the source code.
      */
-    public val sourcePath: Path = sourcePath.absolute().normalize()
-
-    /**
-     * The root folder path that the compiler will output to.
-     */
-    public val outputPath: Path = outputPath.absolute().normalize()
+    private val sourcePath: Path = sourcePath.absolute().normalize()
 
     /**
      * The root table that contains all global symbols.
      */
     private val rootTable = SymbolTable()
-
-    // TODO remove when extending base is much better than it currently is
-    private val _scripts = mutableListOf<RuneScript>()
-
-    /**
-     * A list of [RuneScript]s that were returned by the code generation. This is a temporary way
-     * to access the scripts.
-     */
-    public val scripts: List<RuneScript> get() = _scripts
 
     /**
      * Runs the compiler by loading external symbols and then actually running
@@ -80,9 +71,9 @@ public class ScriptCompiler(sourcePath: Path, outputPath: Path, private val symb
 
         // 3) Generate code
         val scripts = codegen(fileNodes)
-        _scripts.addAll(scripts)
 
-        // 4) ???
+        // 4) Write scripts
+        write(scripts)
     }
 
     /**
@@ -181,6 +172,22 @@ public class ScriptCompiler(sourcePath: Path, outputPath: Path, private val symb
 
         // no errors, return the scripts
         return scripts
+    }
+
+    /**
+     * Runs all [scripts] through the [ScriptWriter].
+     */
+    private fun write(scripts: List<RuneScript>) {
+        logger.debug { "Starting script writing" }
+        val writingTime = measureTimeMillis {
+            for (script in scripts) {
+                val scriptWriteTimer = measureTimeMillis {
+                    scriptWriter.write(script)
+                }
+                logger.trace { "Wrote [${script.trigger.identifier},${script.name}] in ${scriptWriteTimer}ms" }
+            }
+        }
+        logger.debug { "Finished script writing in ${writingTime}ms" }
     }
 
     /**
