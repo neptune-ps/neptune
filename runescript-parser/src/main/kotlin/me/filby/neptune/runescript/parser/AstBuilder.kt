@@ -392,21 +392,4 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
         }
         return builder.toString()
     }
-
-    private companion object {
-        /**
-         * The prefix used when specifying a switch type.
-         */
-        private const val SWITCH_TYPE_PREFIX = "switch_"
-
-        /**
-         * The prefix used when specifying the type of a local variable.
-         */
-        private const val DEF_TYPE_PREFIX = "def_"
-
-        /**
-         * The suffix used for specifying a parameter that is an array.
-         */
-        private const val TYPE_ARRAY_SUFFIX = "array"
-    }
 }
