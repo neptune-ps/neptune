@@ -47,6 +47,20 @@ public class IntegerLiteral(source: NodeSourceLocation, value: Int) : Literal<In
 }
 
 /**
+ * An implementation of [Literal] for coord literals.
+ *
+ * Example:
+ * ```
+ * 0_50_50_0_0
+ * ```
+ */
+public class CoordLiteral(source: NodeSourceLocation, value: Int) : Literal<Int>(source, value) {
+    override fun <R> accept(visitor: AstVisitor<R>): R {
+        return visitor.visitCoordLiteral(this)
+    }
+}
+
+/**
  * An implementation of [Literal] for boolean (`true`/`false`) literals.
  *
  * Example:

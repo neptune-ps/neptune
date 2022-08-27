@@ -153,6 +153,7 @@ constantVariable
 literal
     : INTEGER_LITERAL   # IntegerLiteral
     | HEX_LITERAL       # IntegerLiteral
+    | COORD_LITERAL     # CoordLiteral
     | BOOLEAN_LITERAL   # BooleanLiteral
     | CHAR_LITERAL      # CharacterLiteral
     | NULL_LITERAL      # NullLiteral

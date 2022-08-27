@@ -7,6 +7,7 @@ import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
+import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
@@ -144,6 +145,10 @@ public interface AstVisitor<R> {
 
     public fun visitIntegerLiteral(integerLiteral: IntegerLiteral): R {
         return visitLiteral(integerLiteral)
+    }
+
+    public fun visitCoordLiteral(coordLiteral: CoordLiteral): R {
+        return visitLiteral(coordLiteral)
     }
 
     public fun visitBooleanLiteral(booleanLiteral: BooleanLiteral): R {

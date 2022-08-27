@@ -11,6 +11,7 @@ import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
+import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
@@ -488,6 +489,10 @@ public class CodeGenerator(
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
         instruction(Opcode.PUSH_CONSTANT, integerLiteral.value)
+    }
+
+    override fun visitCoordLiteral(coordLiteral: CoordLiteral) {
+        instruction(Opcode.PUSH_CONSTANT, coordLiteral.value)
     }
 
     override fun visitBooleanLiteral(booleanLiteral: BooleanLiteral) {

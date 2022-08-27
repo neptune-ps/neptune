@@ -15,6 +15,7 @@ public enum class PrimitiveType(
     COMPONENT('I', defaultValue = -1),
     NAMEDOBJ('O', defaultValue = -1),
     STAT('S', defaultValue = -1),
+    COORD('c', defaultValue = -1),
     NPC_STAT('T', defaultValue = -1),
     GRAPHIC('d', defaultValue = -1),
     OBJ('o', defaultValue = -1),

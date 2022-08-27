@@ -146,7 +146,8 @@ class TestRuneScriptParser {
             "bool_true", "bool_false",
             "string_basic", "string_escape", "string_tags",
             "char_basic", "char_escape",
-            "int_basic", "int_hex"
+            "int_basic", "int_hex",
+            "coord"
         ]
     )
     @Order(EXPRESSION)

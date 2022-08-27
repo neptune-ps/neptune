@@ -12,6 +12,7 @@ import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
+import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
@@ -587,6 +588,10 @@ internal class TypeChecking(
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
         integerLiteral.type = PrimitiveType.INT
+    }
+
+    override fun visitCoordLiteral(coordLiteral: CoordLiteral) {
+        coordLiteral.type = PrimitiveType.COORD
     }
 
     override fun visitBooleanLiteral(booleanLiteral: BooleanLiteral) {

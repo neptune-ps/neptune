@@ -45,8 +45,9 @@ DEF_TYPE    : 'def_' IDENTIFIER ;
 SWITCH_TYPE : 'switch_' IDENTIFIER ;
 
 // literals
-INTEGER_LITERAL : [0-9]+ ;
+INTEGER_LITERAL : Digit+ ;
 HEX_LITERAL     : '0' [xX] [0-9a-fA-F]+ ;
+COORD_LITERAL   : Digit+ '_' Digit+ '_' Digit+ '_' Digit+ '_' Digit+ ;
 BOOLEAN_LITERAL : 'true' | 'false' ;
 CHAR_LITERAL    : '\'' (CharEscapeSequence | ~['\\\r\n]) '\'' ;
 NULL_LITERAL    : 'null' ;
@@ -54,6 +55,11 @@ NULL_LITERAL    : 'null' ;
 // comments
 LINE_COMMENT    : '//' .*? ('\n' | EOF) -> channel(HIDDEN) ;
 BLOCK_COMMENT   : '/*' .*? '*/' -> channel(HIDDEN) ;
+
+// a basic digit rule
+fragment Digit
+    : [0-9]
+    ;
 
 // allows escaping specific characters in a char literal
 fragment CharEscapeSequence

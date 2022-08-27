@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.parser
 
+import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.antlr.RuneScriptParser.AdvancedIdentifierContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ArrayDeclarationStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.AssignmentStatementContext
@@ -49,6 +50,7 @@ import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
+import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
@@ -250,6 +252,18 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
             return IntegerLiteral(ctx.location, text.substring(2).toLong(16).toInt())
         }
         return IntegerLiteral(ctx.location, text.toInt())
+    }
+
+    override fun visitCoordLiteral(ctx: RuneScriptParser.CoordLiteralContext): Node {
+        val text = ctx.text
+        val parts = text.split('_').map { it.toInt() }
+
+        val x = parts[1] * 64 + parts[3]
+        val z = parts[2] * 64 + parts[4]
+        val y = parts[0]
+
+        val packed = z or (x shl 14) or (y shl 28)
+        return CoordLiteral(ctx.location, packed)
     }
 
     override fun visitBooleanLiteral(ctx: BooleanLiteralContext): Node {
