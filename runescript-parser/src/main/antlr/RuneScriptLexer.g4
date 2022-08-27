@@ -51,6 +51,10 @@ BOOLEAN_LITERAL : 'true' | 'false' ;
 CHAR_LITERAL    : '\'' (CharEscapeSequence | ~['\\\r\n]) '\'' ;
 NULL_LITERAL    : 'null' ;
 
+// comments
+LINE_COMMENT    : '//' .*? ('\n' | EOF) -> channel(HIDDEN) ;
+BLOCK_COMMENT   : '/*' .*? '*/' -> channel(HIDDEN) ;
+
 // allows escaping specific characters in a char literal
 fragment CharEscapeSequence
     : '\\' ('\\' | '\'')
