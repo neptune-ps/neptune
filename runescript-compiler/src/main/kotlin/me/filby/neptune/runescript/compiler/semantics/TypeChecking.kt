@@ -212,7 +212,7 @@ internal class TypeChecking(
     }
 
     override fun visitSwitchCase(switchCase: SwitchCase) {
-        val switchType = (switchCase.parent as? SwitchStatement)?.type
+        val switchType = switchCase.findParentByType<SwitchStatement>()?.type
         if (switchType == null) {
             // the parent should always be a switch statement, if not we're in trouble...
             switchCase.reportError(DiagnosticMessage.CASE_WITHOUT_SWITCH)
