@@ -15,7 +15,6 @@ import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
-import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type.Type
 
@@ -97,9 +96,3 @@ internal var Expression.nullableType by Node.attributeOrNull<Type>("type")
  * Allows parents of a node to define the expected type to help with identifier ambiguity.
  */
 internal var Expression.typeHint by Node.attributeOrNull<Type>("typeHint")
-
-/**
- * The scope defined for the node. This should only ever be set for node types that
- * would create a new scope.
- */
-internal var Node.scope by Node.attribute<SymbolTable>("scope")

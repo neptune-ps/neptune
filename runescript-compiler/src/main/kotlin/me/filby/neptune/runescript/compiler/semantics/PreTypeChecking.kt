@@ -22,7 +22,6 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.parameterType
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
-import me.filby.neptune.runescript.compiler.scope
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
@@ -82,7 +81,6 @@ internal class PreTypeChecking(
     override fun visitScriptFile(scriptFile: ScriptFile) {
         for (script in scriptFile.scripts) {
             createScopedTable {
-                script.scope = table
                 script.accept(this)
             }
         }
