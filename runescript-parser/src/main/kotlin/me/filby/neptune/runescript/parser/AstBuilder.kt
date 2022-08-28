@@ -258,9 +258,9 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
         val text = ctx.text
         val parts = text.split('_').map { it.toInt() }
 
-        val x = parts[1] * 64 + parts[3]
-        val z = parts[2] * 64 + parts[4]
-        val y = parts[0]
+        val x = parts[1] shl 6 or parts[3] and 0x3FFF
+        val z = parts[2] shl 6 or parts[4] and 0x3FFF
+        val y = parts[0] and 0x3
 
         val packed = z or (x shl 14) or (y shl 28)
         return CoordLiteral(ctx.location, packed)
