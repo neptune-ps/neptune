@@ -322,7 +322,7 @@ internal class TypeChecking(
 
         // we should only ever be within a condition or within calc at this point
         if (!inCondition && !inCalc) {
-            binaryExpression.type = MetaType.ERROR
+            binaryExpression.type = MetaType.Error
             binaryExpression.reportError(DiagnosticMessage.INVALID_BINEXP_STATE)
             return
         }
@@ -336,7 +336,7 @@ internal class TypeChecking(
 
         // early return if it isn't a valid operation
         if (!validOperation) {
-            binaryExpression.type = MetaType.ERROR
+            binaryExpression.type = MetaType.Error
             return
         }
 
@@ -470,7 +470,7 @@ internal class TypeChecking(
 
         // verify type is an int
         if (!checkTypeMatch(innerExpression, PrimitiveType.INT, innerExpression.type)) {
-            calcExpression.type = MetaType.ERROR
+            calcExpression.type = MetaType.Error
         } else {
             calcExpression.type = PrimitiveType.INT
         }
@@ -484,7 +484,7 @@ internal class TypeChecking(
      */
     override fun visitJumpCallExpression(jumpCallExpression: JumpCallExpression) {
         jumpCallExpression.reportError(DiagnosticMessage.JUMP_CALL_IN_CS2, jumpCallExpression.name.text)
-        jumpCallExpression.type = MetaType.UNIT
+        jumpCallExpression.type = MetaType.Unit
     }
 
     /**
@@ -508,7 +508,7 @@ internal class TypeChecking(
                 is ProcCallExpression -> DiagnosticMessage.PROC_REFERENCE_UNRESOLVED
                 else -> error(callExpression)
             }
-            callExpression.type = MetaType.ERROR
+            callExpression.type = MetaType.Error
             callExpression.reportError(errorMessage, name)
         } else {
             callExpression.symbol = symbol
@@ -522,7 +522,7 @@ internal class TypeChecking(
         // If the symbol is null then that means we failed to look up the symbol,
         // therefore we should specify the parameter types as error, so we can continue
         // analysis on all the arguments without worrying about a type mismatch.
-        val parameterTypes = if (symbol == null) MetaType.ERROR else symbol.parameters ?: MetaType.UNIT
+        val parameterTypes = if (symbol == null) MetaType.Error else symbol.parameters ?: MetaType.Unit
         val expectedTypes = if (parameterTypes is TupleType) {
             parameterTypes.children.toList()
         } else {
@@ -535,7 +535,7 @@ internal class TypeChecking(
         val actualType = TupleType.fromList(actualTypes)
 
         // special case for the temporary state of using unit for no arguments
-        if (expectedType == MetaType.UNIT && actualType != MetaType.UNIT) {
+        if (expectedType == MetaType.Unit && actualType != MetaType.Unit) {
             val errorMessage = when (callExpression) {
                 is CommandCallExpression -> DiagnosticMessage.COMMAND_NOARGS_EXPECTED
                 is ProcCallExpression -> DiagnosticMessage.PROC_NOARGS_EXPECTED
@@ -603,7 +603,7 @@ internal class TypeChecking(
     }
 
     override fun visitNullLiteral(nullLiteral: NullLiteral) {
-        nullLiteral.type = MetaType.NULL
+        nullLiteral.type = MetaType.Null
     }
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
@@ -611,7 +611,7 @@ internal class TypeChecking(
         if (typeHint == PrimitiveType.GRAPHIC) {
             val symbol = rootTable.find(SymbolType.Basic(PrimitiveType.GRAPHIC), stringLiteral.value)
             if (symbol == null) {
-                stringLiteral.type = MetaType.ERROR
+                stringLiteral.type = MetaType.Error
                 stringLiteral.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, stringLiteral.value)
                 return
             }
@@ -662,7 +662,7 @@ internal class TypeChecking(
 
         if (symbol == null) {
             // unable to resolve the symbol
-            identifier.type = MetaType.ERROR
+            identifier.type = MetaType.Error
             identifier.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, name)
             return
         }
@@ -671,7 +671,7 @@ internal class TypeChecking(
 
         // compiler error if the symbol type isn't defined here
         if (symbolType == null) {
-            identifier.type = MetaType.ERROR
+            identifier.type = MetaType.Error
             identifier.reportError(DiagnosticMessage.UNSUPPORTED_SYMBOLTYPE_TO_TYPE, symbol::class.java.simpleName)
             return
         }
@@ -744,7 +744,7 @@ internal class TypeChecking(
 
         var match = true
         // compare the flattened types
-        if (expected == MetaType.ERROR) {
+        if (expected == MetaType.Error) {
             // we need to do this to prevent error propagation due to expected type resolving to an error
             match = true
         } else if (expectedFlattened.size != actualFlattened.size) {
@@ -756,7 +756,7 @@ internal class TypeChecking(
         }
 
         if (!match && reportError) {
-            val actualRepresentation = if (actual == MetaType.UNIT) {
+            val actualRepresentation = if (actual == MetaType.Unit) {
                 "<nothing>"
             } else {
                 actual.representation
@@ -777,11 +777,11 @@ internal class TypeChecking(
      * Example: `graphic`s can be assigned to `fontmetrics`.
      */
     private fun isTypeCompatible(first: Type, second: Type): Boolean {
-        if (first == MetaType.ERROR || second == MetaType.ERROR) {
+        if (first == MetaType.Error || second == MetaType.Error) {
             // allow undefined to be compatible with anything to prevent error propagation
             return true
         }
-        if (second == MetaType.NULL) {
+        if (second == MetaType.Null) {
             // any int based variable is nullable
             // TODO ability to configure this per type?
             return first.baseType == BaseVarType.INTEGER

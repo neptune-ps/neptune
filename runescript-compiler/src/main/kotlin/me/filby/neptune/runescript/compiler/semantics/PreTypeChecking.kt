@@ -112,14 +112,14 @@ internal class PreTypeChecking(
             val returns = mutableListOf<Type>()
             for (token in returnTokens) {
                 val type = lookupType(token.text)
-                if (type == MetaType.ERROR) {
+                if (type == MetaType.Error) {
                     token.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, token.text)
                 }
                 returns += type
             }
             script.returnType = TupleType.fromList(returns)
         } else {
-            script.returnType = MetaType.UNIT
+            script.returnType = MetaType.Unit
         }
 
         // verify returns match what the trigger type allows
@@ -169,7 +169,7 @@ internal class PreTypeChecking(
     private fun checkScriptReturns(trigger: ClientTriggerType?, script: Script) {
         val triggerReturns = trigger?.returns
         val scriptReturns = script.returnType
-        if (trigger != null && !trigger.allowReturns && scriptReturns != MetaType.UNIT) {
+        if (trigger != null && !trigger.allowReturns && scriptReturns != MetaType.Unit) {
             script.reportError(DiagnosticMessage.SCRIPT_TRIGGER_NO_RETURNS, trigger.identifier)
         } else if (triggerReturns != null && scriptReturns != triggerReturns) {
             // TODO be smarter on where to place the error location to the first type mismatch?
@@ -188,7 +188,7 @@ internal class PreTypeChecking(
         val type = lookupType(typeText, allowArray = true)
 
         // type isn't valid, report the error
-        if (type == MetaType.ERROR) {
+        if (type == MetaType.Error) {
             parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
         }
 
@@ -213,7 +213,7 @@ internal class PreTypeChecking(
         // TODO check if type is allowed to be switch on
 
         // notify invalid type
-        if (type == MetaType.ERROR) {
+        if (type == MetaType.Error) {
             switchStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         }
 
@@ -243,7 +243,7 @@ internal class PreTypeChecking(
         // TODO check if type is allowed to be declared
 
         // notify invalid type
-        if (type == MetaType.ERROR) {
+        if (type == MetaType.Error) {
             declarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         }
 
@@ -269,7 +269,7 @@ internal class PreTypeChecking(
         // TODO check if type is allowed to be an array
 
         // notify invalid type
-        if (type == MetaType.ERROR) {
+        if (type == MetaType.Error) {
             arrayDeclarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         } else {
             // convert type into an array of type
@@ -306,7 +306,7 @@ internal class PreTypeChecking(
         if (symbol == null) {
             // trying to reference a variable that isn't defined
             localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_UNRESOLVED, name)
-            localVariableExpression.type = MetaType.ERROR
+            localVariableExpression.type = MetaType.Error
             return
         }
 
@@ -317,14 +317,14 @@ internal class PreTypeChecking(
         if (!symbolIsArray && localVariableExpression.isArray) {
             // trying to reference non-array local variable and specifying an index
             localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_NOT_ARRAY, name)
-            localVariableExpression.type = MetaType.ERROR
+            localVariableExpression.type = MetaType.Error
             return
         }
 
         if (symbolIsArray && !localVariableExpression.isArray) {
             // trying to reference array variable without specifying the index in which to access
             localVariableExpression.reportError(DiagnosticMessage.LOCAL_ARRAY_REFERENCE_NOINDEX, name)
-            localVariableExpression.type = MetaType.ERROR
+            localVariableExpression.type = MetaType.Error
             return
         }
 
@@ -350,7 +350,7 @@ internal class PreTypeChecking(
             gameVariableExpression.reference = symbol
             gameVariableExpression.type = (symbol.type as GameVarType).inner
         } else {
-            gameVariableExpression.type = MetaType.ERROR
+            gameVariableExpression.type = MetaType.Error
             gameVariableExpression.reportError(DiagnosticMessage.GAME_REFERENCE_UNRESOLVED, name)
         }
     }
@@ -362,7 +362,7 @@ internal class PreTypeChecking(
             constantVariableExpression.reference = symbol
             constantVariableExpression.type = symbol.type
         } else {
-            constantVariableExpression.type = MetaType.ERROR
+            constantVariableExpression.type = MetaType.Error
             constantVariableExpression.reportError(DiagnosticMessage.CONSTANT_REFERENCE_UNRESOLVED, name)
         }
     }
@@ -420,13 +420,13 @@ internal class PreTypeChecking(
             // substring before last "array" to prevent requesting intarrayarray (or deeper)
             val baseType = name.substringBeforeLast("array")
             val type = lookupType(baseType)
-            if (type == MetaType.ERROR) {
+            if (type == MetaType.Error) {
                 return type
             }
             return ArrayType(type)
         }
         // TODO: lookup type from a type supplier
         // TODO: support for not allowing specific types (e.g. NULL)
-        return PrimitiveType.lookup(name) ?: MetaType.ERROR
+        return PrimitiveType.lookup(name) ?: MetaType.Error
     }
 }

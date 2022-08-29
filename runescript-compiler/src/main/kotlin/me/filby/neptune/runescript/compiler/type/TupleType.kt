@@ -49,13 +49,13 @@ public class TupleType(vararg children: Type) : Type {
         /**
          * Converts a `List<Type>` into a singular [Type].
          *
-         * - If the list is `null` or empty, [MetaType.UNIT] is returned.
+         * - If the list is `null` or empty, [MetaType.Unit] is returned.
          * - If the list has a size of `1`, the first entry is returned.
          * - If the list has a size of over 1, a [TupleType] is returned with all types.
          */
         public fun fromList(types: List<Type>?): Type {
             if (types == null || types.isEmpty()) {
-                return MetaType.UNIT
+                return MetaType.Unit
             }
             if (types.size == 1) {
                 return types.first()
@@ -67,7 +67,7 @@ public class TupleType(vararg children: Type) : Type {
          * Converts the [type] into a `List<Type>`.
          *
          * - If the [type] is a [TupleType], [TupleType.children] are returned as a list.
-         * - If the [type] is [MetaType.UNIT], an empty list is returned.
+         * - If the [type] is [MetaType.Unit], an empty list is returned.
          * - If the [type] is a singular type, and is not `unit`, a list with just the [type] is returned.
          */
         // TODO move to a different location?
@@ -76,7 +76,7 @@ public class TupleType(vararg children: Type) : Type {
                 // special case for tuples since we can convert the children into a list
                 return type.children.toList()
             }
-            if (type == MetaType.UNIT) {
+            if (type == MetaType.Unit) {
                 // special case for unit since it takes place of there being no types
                 return emptyList()
             }

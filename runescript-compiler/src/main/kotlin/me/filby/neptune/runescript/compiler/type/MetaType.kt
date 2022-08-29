@@ -1,26 +1,24 @@
 package me.filby.neptune.runescript.compiler.type
 
 /**
- * An enumeration of types used internally in the compiler and should not
- * be exposed at all.
+ * A sealed class of types used internally in the compiler.
  */
-public enum class MetaType : Type {
+public sealed class MetaType(private val name: String) : Type {
     /**
      * A type used to specify the type resolution resulted into an error. This
      * type is comparable to **all** other types to prevent error propagation.
      */
-    ERROR,
+    public object Error : MetaType("error")
 
     /**
      * A type that represents a `null` literal.
      */
-    NULL,
+    public object Null : MetaType("null")
 
     /**
      * A type that signifies that nothing is returned.
      */
-    UNIT,
-    ;
+    public object Unit : MetaType("unit")
 
     override val representation: String
         get() = name.lowercase()
