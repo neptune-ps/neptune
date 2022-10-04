@@ -11,11 +11,6 @@ public sealed class MetaType(private val name: String) : Type {
     public object Error : MetaType("error")
 
     /**
-     * A type that represents a `null` literal.
-     */
-    public object Null : MetaType("null")
-
-    /**
      * A type that signifies that nothing is returned.
      */
     public object Unit : MetaType("unit")

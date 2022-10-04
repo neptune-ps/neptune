@@ -52,6 +52,7 @@ import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
+import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
@@ -504,6 +505,10 @@ public class CodeGenerator(
     }
 
     override fun visitNullLiteral(nullLiteral: NullLiteral) {
+        if (nullLiteral.type.baseType == BaseVarType.LONG) {
+            instruction(Opcode.PUSH_CONSTANT, -1L)
+            return
+        }
         instruction(Opcode.PUSH_CONSTANT, -1)
     }
 

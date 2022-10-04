@@ -603,7 +603,13 @@ internal class TypeChecking(
     }
 
     override fun visitNullLiteral(nullLiteral: NullLiteral) {
-        nullLiteral.type = MetaType.Null
+        val hint = nullLiteral.typeHint
+        if (hint != null && (hint.baseType == BaseVarType.INTEGER || hint.baseType == BaseVarType.LONG)) {
+            // infer the type if the hint base type is an int OR long.
+            nullLiteral.type = hint
+            return
+        }
+        nullLiteral.type = PrimitiveType.INT
     }
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
@@ -781,11 +787,6 @@ internal class TypeChecking(
         if (first == MetaType.Error || second == MetaType.Error) {
             // allow undefined to be compatible with anything to prevent error propagation
             return true
-        }
-        if (second == MetaType.Null) {
-            // any int based variable is nullable
-            // TODO ability to configure this per type?
-            return first.baseType == BaseVarType.INTEGER
         }
         if (first == PrimitiveType.OBJ) {
             // allow assigning namedobj to obj but not obj to namedobj
