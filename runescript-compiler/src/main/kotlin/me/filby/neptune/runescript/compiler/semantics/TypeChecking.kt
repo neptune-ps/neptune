@@ -624,8 +624,9 @@ internal class TypeChecking(
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {
         // visit the parts and verify they're all strings
-        joinedStringExpression.parts.visit()
         for (part in joinedStringExpression.parts) {
+            part.typeHint = PrimitiveType.STRING
+            part.visit()
             checkTypeMatch(part, PrimitiveType.STRING, part.type)
         }
 
