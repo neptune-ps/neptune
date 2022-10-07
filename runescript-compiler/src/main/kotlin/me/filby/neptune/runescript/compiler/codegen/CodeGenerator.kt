@@ -150,7 +150,7 @@ public class CodeGenerator(
         _scripts += RuneScript(script.triggerType, script.name.text)
 
         // visit parameters to add them to the scripts local table
-        script.parameters?.visit()
+        script.parameters.visit()
 
         // generate and bind an entry point block
         bind(generateBlock("entry", generateUniqueName = false))
@@ -626,8 +626,7 @@ public class CodeGenerator(
      * Calls [Node.accept] on all nodes in a list.
      */
     private fun List<Node>?.visit() {
-        this ?: return
-        for (n in this) {
+        for (n in this ?: return) {
             n.visit()
         }
     }
