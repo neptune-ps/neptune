@@ -89,6 +89,12 @@ public class CodeGenerator(
     private lateinit var block: Block
 
     /**
+     * Used for source line number instructions to prevent repeating the same line number
+     * for multiple expressions.
+     */
+    private var lastLineNumber = -1
+
+    /**
      * Binds [block] by setting it as the active block and adding it to the active [script].
      */
     private fun bind(block: Block): Block {
@@ -118,6 +124,18 @@ public class CodeGenerator(
         block += Instruction(opcode, operand)
     }
 
+    /**
+     * Inserts a [Opcode.LINENUMBER] instruction if the source line of the node
+     * does not match the previous source line number instruction that was
+     * inserted.
+     */
+    private fun Node.lineInstruction() {
+        if (source.line != lastLineNumber) {
+            instruction(Opcode.LINENUMBER, source.line)
+            lastLineNumber = source.line
+        }
+    }
+
     override fun visitScriptFile(scriptFile: ScriptFile) {
         scriptFile.scripts.visit()
     }
@@ -137,14 +155,18 @@ public class CodeGenerator(
         // generate and bind an entry point block
         bind(generateBlock("entry", generateUniqueName = false))
 
+        // insert source line number
+        script.lineInstruction()
+
         // visit the statements
         script.statements.visit()
 
         // add the default returns
         generateDefaultReturns(script)
 
-        // reset the label generator for the next script
+        // reset the internal state
         labelGenerator.reset()
+        lastLineNumber = -1
     }
 
     override fun visitParameter(parameter: Parameter) {
@@ -159,6 +181,9 @@ public class CodeGenerator(
      * Generates the default returns that is added to the end of every script.
      */
     private fun generateDefaultReturns(script: Script) {
+        // specify the line number where the script is defined for default returns
+        script.lineInstruction()
+
         val types = TupleType.toList(script.returnType)
         for ((i, type) in types.withIndex()) {
             val default = type.defaultValue
@@ -177,6 +202,7 @@ public class CodeGenerator(
 
     override fun visitReturnStatement(returnStatement: ReturnStatement) {
         returnStatement.expressions.visit()
+        returnStatement.lineInstruction()
         instruction(Opcode.RETURN, 0)
     }
 
@@ -415,6 +441,7 @@ public class CodeGenerator(
             localVariableExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
         }
+        localVariableExpression.lineInstruction()
         localVariableExpression.index?.visit()
         instruction(Opcode.PUSH_VAR, reference)
     }
@@ -425,6 +452,7 @@ public class CodeGenerator(
             gameVariableExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
         }
+        gameVariableExpression.lineInstruction()
         instruction(Opcode.PUSH_VAR, reference)
     }
 
@@ -434,10 +462,13 @@ public class CodeGenerator(
             constantVariableExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
         }
+        constantVariableExpression.lineInstruction()
         instruction(Opcode.PUSH_CONSTANT, reference)
     }
 
     override fun visitParenthesizedExpression(parenthesizedExpression: ParenthesizedExpression) {
+        parenthesizedExpression.lineInstruction()
+
         // visit the inner expression
         parenthesizedExpression.expression.visit()
     }
@@ -465,6 +496,7 @@ public class CodeGenerator(
     }
 
     override fun visitCalcExpression(calcExpression: CalcExpression) {
+        calcExpression.lineInstruction()
         calcExpression.expression.visit()
     }
 
@@ -475,6 +507,7 @@ public class CodeGenerator(
             return
         }
         commandCallExpression.arguments.visit()
+        commandCallExpression.lineInstruction()
         instruction(Opcode.COMMAND, symbol)
     }
 
@@ -485,26 +518,33 @@ public class CodeGenerator(
             return
         }
         procCallExpression.arguments.visit()
+        procCallExpression.lineInstruction()
         instruction(Opcode.GOSUB, symbol)
     }
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
+        integerLiteral.lineInstruction()
         instruction(Opcode.PUSH_CONSTANT, integerLiteral.value)
     }
 
     override fun visitCoordLiteral(coordLiteral: CoordLiteral) {
+        coordLiteral.lineInstruction()
         instruction(Opcode.PUSH_CONSTANT, coordLiteral.value)
     }
 
     override fun visitBooleanLiteral(booleanLiteral: BooleanLiteral) {
+        booleanLiteral.lineInstruction()
         instruction(Opcode.PUSH_CONSTANT, if (booleanLiteral.value) 1 else 0)
     }
 
     override fun visitCharacterLiteral(characterLiteral: CharacterLiteral) {
+        characterLiteral.lineInstruction()
         instruction(Opcode.PUSH_CONSTANT, characterLiteral.value.code)
     }
 
     override fun visitNullLiteral(nullLiteral: NullLiteral) {
+        nullLiteral.lineInstruction()
+
         if (nullLiteral.type.baseType == BaseVarType.LONG) {
             instruction(Opcode.PUSH_CONSTANT, -1L)
             return
@@ -513,6 +553,8 @@ public class CodeGenerator(
     }
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
+        stringLiteral.lineInstruction()
+
         if (stringLiteral.type == PrimitiveType.GRAPHIC) {
             val symbol = stringLiteral.graphicSymbol
             if (symbol == null) {
@@ -528,6 +570,7 @@ public class CodeGenerator(
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {
         joinedStringExpression.parts.visit()
+        joinedStringExpression.lineInstruction()
         instruction(Opcode.JOIN_STRING, joinedStringExpression.parts.size)
     }
 
@@ -537,6 +580,8 @@ public class CodeGenerator(
             identifier.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
         }
+
+        identifier.lineInstruction()
 
         // add the instruction based on reference type
         if (reference is ScriptSymbol.ClientScriptSymbol && reference.trigger == ClientTriggerType.COMMAND) {

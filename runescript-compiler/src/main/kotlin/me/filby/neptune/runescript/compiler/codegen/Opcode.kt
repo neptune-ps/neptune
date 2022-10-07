@@ -26,6 +26,16 @@ public enum class Opcode {
     DIVIDE,
     MODULO,
     OR,
-    AND
+    AND,
+
+    /**
+     * Marks the source line number of the code that follows. This opcode is
+     * not meant to have any runtime alternative and is just intended for
+     * building a line number table.
+     *
+     * Operand:
+     *  - [Int] - The source line number.
+     */
+    LINENUMBER,
     ;
 }
