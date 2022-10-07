@@ -7,21 +7,15 @@ import me.filby.neptune.runescript.compiler.codegen.Instruction
  */
 public class Block(public val label: Label) {
     /**
-     * A __mutable__ list of instructions within this block.
+     * The list of all [Instruction]s within the block.
      */
-    private val _instructions = mutableListOf<Instruction>()
-
-    /**
-     * An __immutable__ list of instructions within this block.
-     */
-    public val instructions: List<Instruction>
-        get() = _instructions
+    public val instructions: MutableList<Instruction> = mutableListOf()
 
     /**
      * Adds [instruction] to this block.
      */
     public fun add(instruction: Instruction) {
-        _instructions += instruction
+        instructions += instruction
     }
 
     /**
