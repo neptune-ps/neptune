@@ -19,4 +19,5 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(
     "runescript-compiler",
     "runescript-parser",
+    "runescript-runtime",
 )
