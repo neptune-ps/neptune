@@ -6,16 +6,14 @@ import me.filby.neptune.runescript.compiler.codegen.CodeGenerator
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.configuration.SymbolLoader
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
+import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
 import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import me.filby.neptune.runescript.parser.ScriptParser
-import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.absolute
-import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 
 /**
@@ -43,6 +41,11 @@ public class ScriptCompiler(
     private val rootTable = SymbolTable()
 
     /**
+     * Called after every step with all diagnostics that were collected during it.
+     */
+    public var diagnosticsHandler: DiagnosticsHandler = DEFAULT_DIAGNOSTICS_HANDLER
+
+    /**
      * Runs the compiler by loading external symbols and then actually running
      * the compile process.
      */
@@ -64,13 +67,22 @@ public class ScriptCompiler(
      */
     private fun compile() {
         // 1) Parse all files
-        val fileNodes = parse()
+        val (parseSuccess, fileNodes) = parse()
+        if (!parseSuccess) {
+            return
+        }
 
         // 2) Analyze the nodes
-        analyze(fileNodes)
+        val analyzeSuccess = analyze(fileNodes)
+        if (!analyzeSuccess) {
+            return
+        }
 
         // 3) Generate code
-        val scripts = codegen(fileNodes)
+        val (codegenSuccess, scripts) = codegen(fileNodes)
+        if (!codegenSuccess) {
+            return
+        }
 
         // 4) Write scripts
         write(scripts)
@@ -79,10 +91,13 @@ public class ScriptCompiler(
     /**
      * Parses all files in the source path and returns the parsed AST nodes.
      */
-    private fun parse(): List<ScriptFile> {
+    private fun parse(): Pair<Boolean, List<ScriptFile>> {
+        val diagnostics = Diagnostics()
+
         logger.info { "Parsing files in $sourcePath" }
         val fileNodes = mutableListOf<ScriptFile>()
         // iterate over all folders and files in the source path
+        var fileCount = 0
         for (file in sourcePath.toFile().walkTopDown()) {
             // TODO ability to configure file extension
             // skip directories and non .cs2 files
@@ -91,19 +106,29 @@ public class ScriptCompiler(
             }
 
             val time = measureTimeMillis {
-                fileNodes += ScriptParser.createScriptFile(file.toPath())
+                val errorListener = ParserErrorListener(file.absolutePath, diagnostics)
+                val node = ScriptParser.createScriptFile(file.toPath(), errorListener)
+                if (node != null) {
+                    fileNodes += node
+                }
             }
+            fileCount++
             logger.trace { "Parsed $file in ${time}ms" }
         }
-        logger.info { "Parsed ${fileNodes.size} files" }
-        return fileNodes
+        logger.info { "Parsed $fileCount files" }
+
+        // call the diagnostics handler
+        with(diagnosticsHandler) {
+            diagnostics.handleParse()
+        }
+        return !diagnostics.hasErrors() to fileNodes
     }
 
     /**
      * Runs all [files] through the semantic analysis pipeline. If there were any errors,
      * the program will be halted with exit code `1`.
      */
-    private fun analyze(files: List<ScriptFile>) {
+    private fun analyze(files: List<ScriptFile>): Boolean {
         val diagnostics = Diagnostics()
 
         // pre-type check: this adds all scripts to the symbol table for lookup in the next phase
@@ -130,20 +155,19 @@ public class ScriptCompiler(
         }
         logger.debug { "Finished type checking in ${typeCheckingTime}ms" }
 
-        // print any diagnostics
-        diagnostics.print()
-
-        // exit if there were any errors in this stage.
-        if (diagnostics.hasErrors()) {
-            exitProcess(1)
+        // call the diagnostics handler
+        with(diagnosticsHandler) {
+            diagnostics.handleTypeChecking()
         }
+
+        return !diagnostics.hasErrors()
     }
 
     /**
      * Runs all [files] through the code generator. Returns a list of all generated [RuneScript].
      * If there were any errors, the program will be halted with exit code `1`.
      */
-    private fun codegen(files: List<ScriptFile>): List<RuneScript> {
+    private fun codegen(files: List<ScriptFile>): Pair<Boolean, List<RuneScript>> {
         val diagnostics = Diagnostics()
 
         // run each file through the code generator and fetch the scripts from the generator
@@ -161,17 +185,7 @@ public class ScriptCompiler(
             }
         }
         logger.debug { "Finished codegen in ${codegenTime}ms" }
-
-        // print any diagnostics
-        diagnostics.print()
-
-        // exit if there were any errors in this stage.
-        if (diagnostics.hasErrors()) {
-            exitProcess(1)
-        }
-
-        // no errors, return the scripts
-        return scripts
+        return !diagnostics.hasErrors() to scripts
     }
 
     /**
@@ -190,20 +204,7 @@ public class ScriptCompiler(
         logger.debug { "Finished script writing in ${writingTime}ms" }
     }
 
-    /**
-     * Prints the messages within the [Diagnostics].
-     */
-    private fun Diagnostics.print() {
-        // TODO a better way to handle this and allow custom implementations of handling diagnostics?
-        val fileLines = mutableMapOf<String, List<String>>()
-        for ((type, node, message, args) in diagnostics) {
-            val errorSource = node.source
-            val lines = fileLines.getOrPut(errorSource.source) { Files.readAllLines(Path(errorSource.source)) }
-            val location = "${errorSource.source}:${errorSource.line}:${errorSource.column}"
-            val formattedMessage = message.format(*args.toTypedArray())
-            println("$location: $type: $formattedMessage")
-            println("    > ${lines[errorSource.line - 1]}")
-            println("    > ${"-".repeat(errorSource.column - 1)}^")
-        }
+    public companion object {
+        public val DEFAULT_DIAGNOSTICS_HANDLER: DiagnosticsHandler = DiagnosticsHandler.BaseDiagnosticsHandler()
     }
 }

@@ -180,7 +180,7 @@ class TestRuneScriptParser {
             this::class.java.getResourceAsStream("$name.src") ?: error("$name.src does not exist"),
             this::class.java.getResourceAsStream("$name.exp") ?: error("$name.exp does not exist")
         ) { input, output ->
-            val ast = invokeParser(CharStreams.fromStream(input), entry)
+            val ast = invokeParser(CharStreams.fromStream(input), entry) ?: error("parse error")
             val tree = ast.toStringTree().trim()
             val expectedTree = output.bufferedReader().use { it.readText() }.replace("\r", "").trim()
             assertEquals(expectedTree, tree, "$name.src != $name.exp")

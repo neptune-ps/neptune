@@ -5,58 +5,72 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
-import org.antlr.v4.runtime.BaseErrorListener
+import org.antlr.v4.runtime.ANTLRErrorListener
 import org.antlr.v4.runtime.CharStream
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.ParserRuleContext
-import org.antlr.v4.runtime.RecognitionException
-import org.antlr.v4.runtime.Recognizer
 import java.nio.file.Path
 
 public object ScriptParser {
-    private val ERROR_LISTENER = object : BaseErrorListener() {
-        override fun syntaxError(
-            recognizer: Recognizer<*, *>?,
-            offendingSymbol: Any?,
-            line: Int,
-            charPositionInLine: Int,
-            msg: String?,
-            e: RecognitionException?
-        ) {
-            throw ParsingException(msg, e, line, charPositionInLine)
-        }
-    }
-
-    public fun createScriptFile(input: Path): ScriptFile {
+    public fun createScriptFile(
+        input: Path,
+        errorListener: ANTLRErrorListener? = null,
+    ): ScriptFile? {
         val absoluteNormalized = input.toAbsolutePath().normalize()
-        return invokeParser(CharStreams.fromPath(absoluteNormalized), RuneScriptParser::scriptFile) as ScriptFile
+        return invokeParser(
+            CharStreams.fromPath(absoluteNormalized),
+            RuneScriptParser::scriptFile,
+            errorListener
+        ) as? ScriptFile
     }
 
-    public fun createScriptFile(scriptFile: String): ScriptFile {
-        return invokeParser(CharStreams.fromString(scriptFile, "<source>"), RuneScriptParser::scriptFile) as ScriptFile
+    public fun createScriptFile(
+        scriptFile: String,
+        errorListener: ANTLRErrorListener? = null,
+    ): ScriptFile? {
+        return invokeParser(
+            CharStreams.fromString(scriptFile, "<source>"),
+            RuneScriptParser::scriptFile,
+            errorListener
+        ) as? ScriptFile
     }
 
-    public fun createScript(script: String): Script {
-        return invokeParser(CharStreams.fromString(script, "<source>"), RuneScriptParser::script) as Script
+    public fun createScript(
+        script: String,
+        errorListener: ANTLRErrorListener? = null,
+    ): Script? {
+        return invokeParser(
+            CharStreams.fromString(script, "<source>"),
+            RuneScriptParser::script,
+            errorListener
+        ) as? Script
     }
 
-    internal fun invokeParser(str: String, entry: (RuneScriptParser) -> ParserRuleContext): Node {
-        return invokeParser(CharStreams.fromString(str), entry)
-    }
-
-    internal fun invokeParser(stream: CharStream, entry: (RuneScriptParser) -> ParserRuleContext): Node {
+    internal fun invokeParser(
+        stream: CharStream,
+        entry: (RuneScriptParser) -> ParserRuleContext,
+        errorListener: ANTLRErrorListener? = null,
+    ): Node? {
         val lexer = RuneScriptLexer(stream)
         val tokens = CommonTokenStream(lexer)
         val parser = RuneScriptParser(tokens)
 
-        lexer.removeErrorListeners()
-        lexer.addErrorListener(ERROR_LISTENER)
+        // setup error listeners
+        if (errorListener != null) {
+            lexer.removeErrorListeners()
+            lexer.addErrorListener(errorListener)
 
-        parser.removeErrorListeners()
-        parser.addErrorListener(ERROR_LISTENER)
+            parser.removeErrorListeners()
+            parser.addErrorListener(errorListener)
+        }
 
         val tree = entry(parser)
+
+        // if there were any errors detected, return null for the whole node
+        if (parser.numberOfSyntaxErrors > 0) {
+            return null
+        }
 
         return AstBuilder(stream.sourceName).visit(tree)
     }
