@@ -13,15 +13,15 @@ public interface ScriptRunner<T : ScriptState> {
     /**
      * Executes [script] with the given [args] (if any).
      *
-     * The [onFinish] callback is executed when the script finishes with [ExecutionState.FINISHED]. This
-     * callback can be used to extract the return values from the script that is executed. If the script
-     * is suspended, it will still call the callback when resuming assuming it is marked finished.
+     * The [onComplete] callback is executed when the script finishes with [ExecutionState.FINISHED] or
+     * [ExecutionState.ABORTED]. This callback can be used to extract the return values from the script
+     * that is executed. If the script gets suspended, this will be called after it has completed running.
      *
      * Returns the [ScriptState] if the script was suspended, which can be
      * resumed later using [resume]. If the script finishes execution, `null`
      * is returned.
      */
-    public fun execute(script: Script, vararg args: Any, onFinish: ScriptFinishHandler<T>? = null): T?
+    public fun execute(script: Script, vararg args: Any, onComplete: ScriptFinishHandler<T>? = null): T?
 
     /**
      * Resumes the execution of a [ScriptState].

@@ -43,10 +43,10 @@ public abstract class BaseScriptRunner<T : ScriptState> : ScriptRunner<T> {
     protected abstract fun createState(): T
 
     @Suppress("UNCHECKED_CAST")
-    override fun execute(script: Script, vararg args: Any, onFinish: ScriptFinishHandler<T>?): T? {
+    override fun execute(script: Script, vararg args: Any, onComplete: ScriptFinishHandler<T>?): T? {
         val state = createState()
         state.setup(script)
-        state.onFinish = onFinish as ScriptFinishHandler<ScriptState>?
+        state.onComplete = onComplete as ScriptFinishHandler<ScriptState>?
 
         for (arg in args) {
             when (arg) {
@@ -71,8 +71,8 @@ public abstract class BaseScriptRunner<T : ScriptState> : ScriptRunner<T> {
 
         if (state.execution == ExecutionState.SUSPENDED) {
             return state
-        } else if (state.execution == ExecutionState.FINISHED) {
-            state.onFinish?.invoke(state)
+        } else if (state.execution == ExecutionState.FINISHED || state.execution == ExecutionState.ABORTED) {
+            state.onComplete?.invoke(state)
         }
         state.close()
         return null

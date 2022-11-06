@@ -30,9 +30,10 @@ public open class ScriptState : Closeable {
         }
 
     /**
-     * A callback that is executed when a script finishes gracefully.
+     * A callback that is executed when a script finishes executing fully. This
+     * can be a graceful finish or aborted.
      */
-    public var onFinish: ScriptFinishHandler<ScriptState>? = null
+    public var onComplete: ScriptFinishHandler<ScriptState>? = null
 
     /**
      * Returns the scripts opcodes.
@@ -205,7 +206,7 @@ public open class ScriptState : Closeable {
      */
     public open fun reset() {
         _script = null
-        onFinish = null
+        onComplete = null
         pc = -1
         opcount = 0
         execution = ExecutionState.RUNNING
