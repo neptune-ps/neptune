@@ -21,10 +21,8 @@ import kotlin.system.measureTimeMillis
  */
 public class ScriptCompiler(
     sourcePath: Path,
-    private val symbolLoader: SymbolLoader,
     private val scriptWriter: ScriptWriter
 ) {
-
     /**
      * Logger for this class.
      */
@@ -41,9 +39,22 @@ public class ScriptCompiler(
     private val rootTable = SymbolTable()
 
     /**
+     * A list of [SymbolLoader]s called before attempting compilation.
+     */
+    private val symbolLoaders = mutableListOf<SymbolLoader>()
+
+    /**
      * Called after every step with all diagnostics that were collected during it.
      */
     public var diagnosticsHandler: DiagnosticsHandler = DEFAULT_DIAGNOSTICS_HANDLER
+
+    /**
+     * Adds [loader] to the list of symbol loaders to run pre-compilation. This
+     * can be used to load external symbols outside of scripts.
+     */
+    public fun addSymbolLoader(loader: SymbolLoader) {
+        symbolLoaders += loader
+    }
 
     /**
      * Runs the compiler by loading external symbols and then actually running
@@ -55,10 +66,12 @@ public class ScriptCompiler(
     }
 
     /**
-     * Calls the [SymbolLoader] with the root table to load all external symbols.
+     * Calls all [SymbolLoader]s added to the compiler.
      */
     private fun loadSymbols() {
-        symbolLoader.load(this, rootTable)
+        for (symbolLoader in symbolLoaders) {
+            symbolLoader.load(this, rootTable)
+        }
         // logger.info { "Loaded 1234 symbols." }
     }
 
