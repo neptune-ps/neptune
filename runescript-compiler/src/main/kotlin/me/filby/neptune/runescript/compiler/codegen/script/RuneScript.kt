@@ -8,6 +8,11 @@ import me.filby.neptune.runescript.compiler.trigger.TriggerType
  */
 public class RuneScript(public val trigger: TriggerType, public val name: String) {
     /**
+     * Combination of `[trigger,name]`.
+     */
+    public val fullName: String = "[${trigger.identifier},$name]"
+
+    /**
      * The table that contains all `LocalVariableSymbol`s defined within the script.
      */
     public val locals: LocalTable = LocalTable()
