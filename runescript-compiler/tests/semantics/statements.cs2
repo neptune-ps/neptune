@@ -1,0 +1,74 @@
+[proc,test]
+{
+    def_int $a = 0;
+    $a = 1;
+
+    def_int $b(10);
+    $b(0) = 1;
+}
+
+// test expression statements
+test_command;
+test_command();
+test_command(1); // Expect: 'test_command' is expected to have no arguments but has 'int'.
+~test;
+~test(1); // Expect: '~test' is expected to have no arguments but has 'int'.
+
+// unknown command and proc
+{
+    unknown_command(1, true); // Expect: 'unknown_command' cannot be resolved to a command.
+    ~unknown_proc(1, true); // Expect: '~unknown_proc' cannot be resolved to a proc.
+}
+
+// basic if statements with else if and logical binary operators
+if (true = true) {
+
+} else if ((true = true | true = true) & false = false) {
+
+}
+
+// disallow tuple types in conditions
+// Expect: Left side of binary expressions can only have one type but has 'boolean,boolean'.
+if (~tuple = true) {
+
+}
+
+// disallow using some operators on non-int types
+{
+    def_long $a;
+    // Expect: Operator '>' cannot be applied to 'boolean', 'boolean'.
+    // Expect: Operator '>' cannot be applied to 'long', 'long'.
+    if (true > true | $a > $a) {
+
+    }
+}
+
+// basic while loop
+while (true = true) {
+
+}
+
+// Expect: Conditions are only allowed to be binary expressions.
+if (true) {
+
+}
+
+// simple switch that has an invalid type as a case and non-constant reference
+{
+    def_int $a;
+    switch_int (1) {
+        case 0       :
+        case true    :      // Expect: Type mismatch: 'boolean' was given but 'int' was expected.
+        case $a      :      // Expect: Switch case value is not a constant expression.
+        case default :
+    }
+}
+
+// Empty statement
+;
+
+// dummy proc that returns multiple things
+[proc,tuple](boolean,boolean)
+
+// dummy test command
+[command,test_command]

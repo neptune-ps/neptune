@@ -1,0 +1,19 @@
+[proc,test](int, long)
+def_int     $a = 0;
+def_int     $b = ""; // Expect: Type mismatch: 'string' was given but 'int' was expected.
+def_string  $c = 0;  // Expect: Type mismatch: 'int' was given but 'string' was expected.
+def_long    $d = 0;  // Expect: Type mismatch: 'int' was given but 'long' was expected.
+def_boolean $e = 0;  // Expect: Type mismatch: 'int' was given but 'boolean' was expected.
+
+// Expect: Operator '=' cannot be applied to 'string', 'int'.
+if ("" = 1) {
+
+}
+
+// Expect: Operator '=' cannot be applied to 'long', 'int'.
+if ($d = 1) {
+
+}
+
+// Expect: Type mismatch: 'int,int' was given but 'int,long' was expected.
+return(1, 1);
