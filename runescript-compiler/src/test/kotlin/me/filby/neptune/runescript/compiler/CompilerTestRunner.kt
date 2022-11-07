@@ -3,11 +3,20 @@
 package me.filby.neptune.runescript.compiler
 
 import com.github.michaelbull.logging.InlineLogger
-import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
+import me.filby.neptune.runescript.compiler.configuration.SymbolLoader
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
+import me.filby.neptune.runescript.compiler.runtime.ScriptManager
+import me.filby.neptune.runescript.compiler.runtime.TestOpcodes
 import me.filby.neptune.runescript.compiler.runtime.TestScriptRunner
-import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
+import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
+import me.filby.neptune.runescript.compiler.symbol.SymbolTable
+import me.filby.neptune.runescript.compiler.symbol.SymbolType
+import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
+import me.filby.neptune.runescript.compiler.type.MetaType
+import me.filby.neptune.runescript.compiler.type.PrimitiveType
+import me.filby.neptune.runescript.compiler.type.TupleType
+import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.runtime.impl.opcodes.CoreOpcodesBase
 import me.filby.neptune.runescript.runtime.impl.opcodes.MathOpcodesBase
 import me.filby.neptune.runescript.runtime.state.ScriptState
@@ -42,35 +51,39 @@ fun main() {
     }
 }
 
-private class TestScriptWriter : BaseScriptWriter() {
-    override fun write(script: RuneScript) {
-    }
-}
-
 private fun testScriptFile(scriptFile: File): Boolean {
     val expectedErrors = parseExpectedErrors(scriptFile)
+
+    val scriptManager = ScriptManager()
     val diagnosticsHandler = TestDiagnosticsHandler(scriptFile, expectedErrors)
 
-    val compiler = ScriptCompiler(scriptFile.toPath(), TestScriptWriter())
+    // run compiler
+    val writer = TestScriptWriter(scriptManager)
+    val compiler = ScriptCompiler(scriptFile.toPath(), writer)
+    compiler.addSymbolLoader(CommandSymbolLoader())
     compiler.diagnosticsHandler = diagnosticsHandler
     compiler.run()
 
-    // TODO test runtime
-    // only run runtime if there were no compile time errors
-    if (!diagnosticsHandler.hasErrors) {
-        // val runner = createRuntime()
+    // run runtime if no errors
+    var hasRuntimeErrors = false
+    if (!diagnosticsHandler.hasSemanticErrors) {
+        val runner = createRuntime(scriptManager)
+
+        // search for the entry point
+        val entryPoint = scriptManager.getOrNull("[proc,main]")
+        if (entryPoint == null) {
+            println("$scriptFile:0: Unable to locate [proc,main]")
+            return true
+        }
+
+        runner.execute(entryPoint) {
+            // count all aborted scripts as error
+            if (execution == ScriptState.ExecutionState.ABORTED) {
+                hasRuntimeErrors = true
+            }
+        }
     }
-
-    // TODO account for runtime errors too
-    return diagnosticsHandler.hasErrors
-}
-
-private fun createRuntime(): TestScriptRunner {
-    val runner = TestScriptRunner()
-    runner.registerHandlersFrom(CoreOpcodesBase<ScriptState>(runner))
-    runner.registerHandlersFrom(MathOpcodesBase<ScriptState>())
-    // TODO register test specific opcodes
-    return runner
+    return diagnosticsHandler.hasUnexpectedErrors || hasRuntimeErrors
 }
 
 private fun parseExpectedErrors(file: File): ArrayDeque<String> {
@@ -93,11 +106,46 @@ private fun parseExpectedErrors(file: File): ArrayDeque<String> {
     return expectedErrors
 }
 
+private fun createRuntime(scriptManager: ScriptManager): TestScriptRunner {
+    val runner = TestScriptRunner()
+    runner.registerHandlersFrom(CoreOpcodesBase<ScriptState>(scriptManager))
+    runner.registerHandlersFrom(MathOpcodesBase<ScriptState>())
+    runner.registerHandlersFrom(TestOpcodes())
+    return runner
+}
+
+private class CommandSymbolLoader : SymbolLoader {
+    override fun load(compiler: ScriptCompiler, rootTable: SymbolTable) {
+        // general commands
+        rootTable.addCommand("println", PrimitiveType.STRING)
+        rootTable.addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)
+
+        // test specific commands
+        // TODO implement the argument checks better once dynamic command handling is added to compiler
+        rootTable.addCommand("error", PrimitiveType.STRING)
+        rootTable.addCommand("assert_equals", TupleType(MetaType.Any, MetaType.Any))
+        rootTable.addCommand("assert_equals_obj", TupleType(MetaType.Any, MetaType.Any))
+        rootTable.addCommand("assert_equals_long", TupleType(MetaType.Any, MetaType.Any))
+        rootTable.addCommand("assert_not", TupleType(MetaType.Any, MetaType.Any))
+        rootTable.addCommand("assert_not_obj", TupleType(MetaType.Any, MetaType.Any))
+        rootTable.addCommand("assert_not_long", TupleType(MetaType.Any, MetaType.Any))
+    }
+
+    fun SymbolTable.addCommand(name: String, parameters: Type = MetaType.Unit, returns: Type = MetaType.Unit) {
+        val type = SymbolType.ClientScript(ClientTriggerType.COMMAND)
+        val symbol = ScriptSymbol.ClientScriptSymbol(ClientTriggerType.COMMAND, name, parameters, returns)
+        insert(type, symbol)
+    }
+}
+
 private class TestDiagnosticsHandler(
     private val file: File,
     private val expectedErrors: ArrayDeque<String>,
 ) : DiagnosticsHandler {
-    var hasErrors: Boolean = false
+    var hasUnexpectedErrors = false
+        private set
+
+    var hasSemanticErrors = false
         private set
 
     override fun Diagnostics.handleParse() {
@@ -115,15 +163,19 @@ private class TestDiagnosticsHandler(
             val actual = message.format(*args.toTypedArray())
             if (expected == null || expected != actual) {
                 println(TEST_FAIL_FORMAT.format(file.toString(), line, expected ?: "nothing", actual))
-                hasErrors = true
+                hasUnexpectedErrors = true
             }
         }
 
         if (expectedErrors.isNotEmpty()) {
             for (expected in expectedErrors) {
                 println(TEST_FAIL_FORMAT.format(file.toString(), "0", expected, ""))
-                hasErrors = true
+                hasUnexpectedErrors = true
             }
+        }
+
+        if (hasErrors()) {
+            hasSemanticErrors = true
         }
     }
 
