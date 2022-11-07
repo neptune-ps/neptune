@@ -16,4 +16,8 @@ public data class Diagnostic(
         message: String,
         vararg messageArgs: Any
     ) : this(type, node.source, message, messageArgs.toList())
+
+    public fun isError(): Boolean {
+        return type == DiagnosticType.ERROR || type == DiagnosticType.SYNTAX_ERROR
+    }
 }

@@ -159,10 +159,16 @@ private class TestDiagnosticsHandler(
             val (_, source, message, args) = diagnostic
             val (_, line) = source
 
+            val formatted = message.format(*args.toTypedArray())
+            if (!diagnostic.isError()) {
+                // just print any diagnostic that isn't an error
+                println(TEST_INFO_FORMAT.format(file.toString(), line, formatted))
+                continue
+            }
+
             val expected = expectedErrors.removeFirstOrNull()
-            val actual = message.format(*args.toTypedArray())
-            if (expected == null || expected != actual) {
-                println(TEST_FAIL_FORMAT.format(file.toString(), line, expected ?: "nothing", actual))
+            if (expected == null || expected != formatted) {
+                println(TEST_FAIL_FORMAT.format(file.toString(), line, expected ?: "nothing", formatted))
                 hasUnexpectedErrors = true
             }
         }
@@ -186,6 +192,7 @@ private class TestDiagnosticsHandler(
     }
 
     companion object {
+        const val TEST_INFO_FORMAT = "%s:%s: %s"
         const val TEST_FAIL_FORMAT = "%s:%s: Expected <%s> got <%s>."
     }
 }
