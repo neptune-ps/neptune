@@ -6,7 +6,7 @@ import me.filby.neptune.runescript.compiler.trigger.TriggerType
 /**
  * A representation of a script containing the blocks of instructions and switch tables.
  */
-public class RuneScript(public val trigger: TriggerType, public val name: String) {
+public class RuneScript(public val sourceName: String, public val trigger: TriggerType, public val name: String) {
     /**
      * Combination of `[trigger,name]`.
      */

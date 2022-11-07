@@ -147,7 +147,7 @@ public class CodeGenerator(
         }
 
         // add the script to the list of scripts in the file
-        _scripts += RuneScript(script.triggerType, script.name.text)
+        _scripts += RuneScript(script.source.name, script.triggerType, script.name.text)
 
         // visit parameters to add them to the scripts local table
         script.parameters.visit()

@@ -151,7 +151,7 @@ public class ScriptCompiler(
                 val time = measureTimeMillis {
                     file.accept(PreTypeChecking(rootTable, diagnostics))
                 }
-                logger.trace { "Pre-type checked ${file.source.source} in ${time}ms" }
+                logger.trace { "Pre-type checked ${file.source.name} in ${time}ms" }
             }
         }
         logger.debug { "Finished pre-type checking in ${preTypeCheckingTime}ms" }
@@ -163,7 +163,7 @@ public class ScriptCompiler(
                 val time = measureTimeMillis {
                     file.accept(TypeChecking(rootTable, diagnostics))
                 }
-                logger.trace { "Type checked ${file.source.source} in ${time}ms" }
+                logger.trace { "Type checked ${file.source.name} in ${time}ms" }
             }
         }
         logger.debug { "Finished type checking in ${typeCheckingTime}ms" }
@@ -194,7 +194,7 @@ public class ScriptCompiler(
                     file.accept(codegen)
                     scripts.addAll(codegen.scripts)
                 }
-                logger.trace { "Generated code for ${file.source.source} in ${time}ms" }
+                logger.trace { "Generated code for ${file.source.name} in ${time}ms" }
             }
         }
         logger.debug { "Finished codegen in ${codegenTime}ms" }

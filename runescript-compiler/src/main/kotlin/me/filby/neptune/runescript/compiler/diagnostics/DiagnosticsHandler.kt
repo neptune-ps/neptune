@@ -47,8 +47,8 @@ public interface DiagnosticsHandler {
             // TODO handle looking up source line information better
             val fileLines = mutableMapOf<String, List<String>>()
             for ((type, source, message, args) in diagnostics) {
-                val lines = fileLines.getOrPut(source.source) { Files.readAllLines(Path(source.source)) }
-                val location = "${source.source}:${source.line}:${source.column}"
+                val lines = fileLines.getOrPut(source.name) { Files.readAllLines(Path(source.name)) }
+                val location = "${source.name}:${source.line}:${source.column}"
                 val formattedMessage = message.format(*args.toTypedArray())
                 println("$location: $type: $formattedMessage")
                 if (source.line - 1 < lines.size) {

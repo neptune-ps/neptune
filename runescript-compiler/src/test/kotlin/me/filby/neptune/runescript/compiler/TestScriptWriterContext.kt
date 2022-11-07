@@ -39,7 +39,7 @@ class TestScriptWriterContext(script: RuneScript) : BaseScriptWriterContext(scri
         val longLocalCount = script.locals.getLocalCount(BaseVarType.LONG)
 
         return Script(
-            Script.SourceInfo(script.fullName, null, lineNumberTable),
+            Script.SourceInfo(script.fullName, script.sourceName, lineNumberTable),
             opcodes.toIntArray(),
             intParameterCount,
             objParameterCount,
