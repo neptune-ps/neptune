@@ -255,15 +255,17 @@ public class CodeGenerator(
         if (condition is BinaryExpression) {
             val isLogical = condition.operator.text in LOGICAL_OPERATORS
             if (!isLogical) {
-                val branchOpcode = when (condition.operator.text) {
-                    "=" -> Opcode.BRANCH_EQUALS
-                    "!" -> Opcode.BRANCH_NOT
-                    "<" -> Opcode.BRANCH_LESS_THAN
-                    ">" -> Opcode.BRANCH_GREATER_THAN
-                    "<=" -> Opcode.BRANCH_LESS_THAN_OR_EQUALS
-                    ">=" -> Opcode.BRANCH_GREATER_THAN_OR_EQUALS
-                    else -> error("Unsupported operator: ${condition.operator.text}")
+                // assume if we get to this point that the left and right types match and are valid
+                val baseType = condition.left.type.baseType
+                if (baseType == null) {
+                    condition.left.reportError(DiagnosticMessage.TYPE_HAS_NO_BASETYPE, condition.left.type)
+                    return
                 }
+
+                // lookup the proper branching instruction based on the base type used
+                val branchOpcodes = BRANCH_MAPPINGS[baseType] ?: error("No mappings for BaseType: $baseType")
+                val branchOpcode = branchOpcodes[condition.operator.text]
+                    ?: error("No mappings for operator: ${condition.operator.text}")
 
                 // visit the two sides
                 condition.left.visit()
@@ -646,5 +648,46 @@ public class CodeGenerator(
          * Array of possible logical operators.
          */
         private val LOGICAL_OPERATORS = arrayOf(LOGICAL_AND, LOGICAL_OR)
+
+        /**
+         * Mapping of operators to their branch opcode for int based types.
+         */
+        private val INT_BRANCHES = mapOf(
+            "=" to Opcode.BRANCH_EQUALS,
+            "!" to Opcode.BRANCH_NOT,
+            "<" to Opcode.BRANCH_LESS_THAN,
+            ">" to Opcode.BRANCH_GREATER_THAN,
+            "<=" to Opcode.BRANCH_LESS_THAN_OR_EQUALS,
+            ">=" to Opcode.BRANCH_GREATER_THAN_OR_EQUALS,
+        )
+
+        /**
+         * Mapping of operators to their branch opcode for object based types.
+         */
+        private val OBJ_BRANCHES = mapOf(
+            "=" to Opcode.OBJ_BRANCH_EQUALS,
+            "!" to Opcode.OBJ_BRANCH_NOT,
+        )
+
+        /**
+         * Mapping of operators to their branch opcode for long based types.
+         */
+        private val LONG_BRANCHES = mapOf(
+            "=" to Opcode.LONG_BRANCH_EQUALS,
+            "!" to Opcode.LONG_BRANCH_NOT,
+            "<" to Opcode.LONG_BRANCH_LESS_THAN,
+            ">" to Opcode.LONG_BRANCH_GREATER_THAN,
+            "<=" to Opcode.LONG_BRANCH_LESS_THAN_OR_EQUALS,
+            ">=" to Opcode.LONG_BRANCH_GREATER_THAN_OR_EQUALS,
+        )
+
+        /**
+         * A map for getting the branch instructions based on a base type.
+         */
+        private val BRANCH_MAPPINGS = mapOf(
+            BaseVarType.INTEGER to INT_BRANCHES,
+            BaseVarType.STRING to OBJ_BRANCHES,
+            BaseVarType.LONG to LONG_BRANCHES,
+        )
     }
 }

@@ -110,6 +110,14 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
             Opcode.BRANCH_GREATER_THAN to BaseCoreOpcodes.BRANCH_GREATER_THAN,
             Opcode.BRANCH_LESS_THAN_OR_EQUALS to BaseCoreOpcodes.BRANCH_LESS_THAN_OR_EQUALS,
             Opcode.BRANCH_GREATER_THAN_OR_EQUALS to BaseCoreOpcodes.BRANCH_GREATER_THAN_OR_EQUALS,
+            Opcode.LONG_BRANCH_NOT to BaseCoreOpcodes.LONG_BRANCH_NOT,
+            Opcode.LONG_BRANCH_EQUALS to BaseCoreOpcodes.LONG_BRANCH_EQUALS,
+            Opcode.LONG_BRANCH_LESS_THAN to BaseCoreOpcodes.LONG_BRANCH_LESS_THAN,
+            Opcode.LONG_BRANCH_GREATER_THAN to BaseCoreOpcodes.LONG_BRANCH_GREATER_THAN,
+            Opcode.LONG_BRANCH_LESS_THAN_OR_EQUALS to BaseCoreOpcodes.LONG_BRANCH_LESS_THAN_OR_EQUALS,
+            Opcode.LONG_BRANCH_GREATER_THAN_OR_EQUALS to BaseCoreOpcodes.LONG_BRANCH_GREATER_THAN_OR_EQUALS,
+            Opcode.OBJ_BRANCH_NOT to BaseCoreOpcodes.OBJ_BRANCH_NOT,
+            Opcode.OBJ_BRANCH_EQUALS to BaseCoreOpcodes.OBJ_BRANCH_EQUALS,
         )
 
         private val MATH = mapOf(
