@@ -11,6 +11,10 @@ dependencies {
     antlr(libs.antlr)
 }
 
+kotlin {
+    explicitApi()
+}
+
 tasks.compileKotlin {
     // depend on the grammar source generation, this is implicit for compileJava but not compileKotlin
     dependsOn(tasks.generateGrammarSource)
