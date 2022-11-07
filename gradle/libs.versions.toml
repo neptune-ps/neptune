@@ -3,10 +3,12 @@ antlr = "4.9.2"
 guava = "30.1.1-jre"
 inlineLogger = "1.0.3"
 junit = "5.7.1"
+logback = "1.2.11"
 
 [libraries]
 antlr = { module = "org.antlr:antlr4", version.ref = "antlr" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 inlineLogger = { module = "com.michael-bull.kotlin-inline-logger:kotlin-inline-logger", version.ref = "inlineLogger" }
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
