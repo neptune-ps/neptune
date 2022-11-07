@@ -784,6 +784,10 @@ internal class TypeChecking(
      * Example: `graphic`s can be assigned to `fontmetrics`.
      */
     private fun isTypeCompatible(first: Type, second: Type): Boolean {
+        if (first == MetaType.Any || second == MetaType.Any) {
+            // allow any to be compatible with any types
+            return true
+        }
         if (first == MetaType.Error || second == MetaType.Error) {
             // allow undefined to be compatible with anything to prevent error propagation
             return true

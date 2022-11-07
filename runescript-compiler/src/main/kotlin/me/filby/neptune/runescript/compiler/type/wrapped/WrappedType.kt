@@ -10,7 +10,7 @@ import me.filby.neptune.runescript.compiler.type.Type
  *
  * @see ArrayType
  */
-public sealed interface WrappedType : Type {
+public interface WrappedType : Type {
     /**
      * The inner type that is being wrapped.
      */
