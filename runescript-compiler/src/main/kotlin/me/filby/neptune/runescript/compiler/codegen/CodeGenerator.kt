@@ -185,10 +185,10 @@ public class CodeGenerator(
         script.lineInstruction()
 
         val types = TupleType.toList(script.returnType)
-        for ((i, type) in types.withIndex()) {
+        for (type in types) {
             val default = type.defaultValue
             if (default == null) {
-                script.reportError(DiagnosticMessage.TYPE_HAS_NO_DEFAULT, i, type)
+                script.reportError(DiagnosticMessage.TYPE_HAS_NO_DEFAULT, type)
                 return
             }
             instruction(Opcode.PUSH_CONSTANT, default)
