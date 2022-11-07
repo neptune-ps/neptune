@@ -396,18 +396,19 @@ internal class TypeChecking(
             return false
         }
 
-        // some operators expect a specific type on both sides, specify that type here
-        val requiredType: Type? = when (operator.text) {
-            "&", "|" -> PrimitiveType.BOOLEAN
-            "<", ">", "<=", ">=" -> PrimitiveType.INT
+        // some operators expect a specific type on both sides, specify those type(s) here
+        val allowedTypes = when (operator.text) {
+            "&", "|" -> arrayOf(PrimitiveType.BOOLEAN)
+            "<", ">", "<=", ">=" -> arrayOf(PrimitiveType.INT, PrimitiveType.LONG)
             else -> null
         }
 
         // if required type is set we should type hint with those, otherwise use the opposite
         // sides type as a hint.
-        if (requiredType != null) {
-            left.typeHint = requiredType
-            right.typeHint = requiredType
+        if (allowedTypes != null) {
+            // TODO better type hinting logic
+            left.typeHint = allowedTypes.first()
+            right.typeHint = allowedTypes.first()
         } else {
             // assign the type hints using the opposite side if it isn't already assigned.
             left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
@@ -430,9 +431,16 @@ internal class TypeChecking(
         }
 
         // handle operator specific required types, this applies to all except `!` and `=`.
-        if (requiredType != null) {
-            val leftMatch = checkTypeMatch(left, requiredType, left.type, reportError = false)
-            val rightMatch = checkTypeMatch(right, requiredType, right.type, reportError = false)
+        if (allowedTypes != null) {
+            var leftMatch = false
+            var rightMatch = false
+
+            // loop through allowed types and check if any of them match for both left and right
+            for (type in allowedTypes) {
+                leftMatch = leftMatch || checkTypeMatch(left, type, left.type, reportError = false)
+                rightMatch = rightMatch || checkTypeMatch(right, type, right.type, reportError = false)
+            }
+
             if (!leftMatch || !rightMatch) {
                 operator.reportError(
                     DiagnosticMessage.BINOP_INVALID_TYPES,

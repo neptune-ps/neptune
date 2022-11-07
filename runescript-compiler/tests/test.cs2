@@ -1,2 +1,0 @@
-[proc,main]
-assert_equals(1, 1);

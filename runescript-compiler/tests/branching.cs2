@@ -11,21 +11,20 @@
     // test int not operator
     if (0 ! 0) {
         error("Int branch test failed.");
-    } else {
-        // pass
     }
 
     // test int relational operators
     if (0 < 0) {
         error("Int branch test failed.");
-    } else if (0 > 0) {
+    }
+    if (0 > 0) {
         error("Int branch test failed.");
-    } else if (0 <= 0) {
+    }
+    if (0 <= 0) {
         // pass
-    } else if (0 >= 0) {
+    }
+    if (0 >= 0) {
         // pass
-    } else {
-        error("Int branch test failed.");
     }
 }
 
@@ -44,8 +43,6 @@
     // test string not operator
     if ($a ! $b) {
         error("String branch test failed.");
-    } else {
-        // pass
     }
 }
 
@@ -65,20 +62,19 @@
     // test long not operator
     if ($a ! $b) {
         error("Long branch test failed.");
-    } else {
-        // pass
     }
 
     // test long relational operators
-//    if ($a < $b) {
-//        error("Long branch test failed.");
-//    } else if ($a > $b) {
-//        error("Long branch test failed.");
-//    } else if ($a <= $b) {
-//        // pass
-//    } else if ($a >= $b) {
-//        // pass
-//    } else {
-//        error("Long branch test failed.");
-//    }
+    if ($a < $b) {
+        error("Long branch test failed.");
+    }
+    if ($a > $b) {
+        error("Long branch test failed.");
+    }
+    if ($a <= $b) {
+        // pass
+    }
+    if ($a >= $b) {
+        // pass
+    }
 }
