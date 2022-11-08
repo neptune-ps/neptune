@@ -587,25 +587,41 @@ internal class TypeChecking(
      * Type checks the index value expression if it is defined.
      */
     override fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression) {
-        // if the reference is null, that means it failed to find the symbol associated with it
-        // in pre-type checking and would have already been reported.
-        val reference = localVariableExpression.reference ?: return
-        if (reference !is LocalVariableSymbol) {
-            localVariableExpression.reportError(
-                DiagnosticMessage.LOCAL_REFERENCE_WRONG,
-                reference.name,
-                reference::class.simpleName!!
-            )
+        val name = localVariableExpression.name.text
+        val symbol = table.find(SymbolType.LocalVariable, name)
+        if (symbol == null) {
+            // trying to reference a variable that isn't defined
+            localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_UNRESOLVED, name)
+            localVariableExpression.type = MetaType.Error
+            return
+        }
+
+        // set the reference since it was actually found
+        localVariableExpression.reference = symbol
+
+        val symbolIsArray = symbol.type is ArrayType
+        if (!symbolIsArray && localVariableExpression.isArray) {
+            // trying to reference non-array local variable and specifying an index
+            localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_NOT_ARRAY, name)
+            localVariableExpression.type = MetaType.Error
+            return
+        }
+
+        if (symbolIsArray && !localVariableExpression.isArray) {
+            // trying to reference array variable without specifying the index in which to access
+            localVariableExpression.reportError(DiagnosticMessage.LOCAL_ARRAY_REFERENCE_NOINDEX, name)
+            localVariableExpression.type = MetaType.Error
             return
         }
 
         val indexExpression = localVariableExpression.index
-        if (reference.type is ArrayType && indexExpression != null) {
+        if (symbol.type is ArrayType && indexExpression != null) {
+            // visit the index to set the type of any references
             indexExpression.visit()
             checkTypeMatch(indexExpression, PrimitiveType.INT, indexExpression.type)
         }
 
-        // type is set in PreTypeChecking
+        localVariableExpression.type = if (symbol.type is ArrayType) symbol.type.inner else symbol.type
     }
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {

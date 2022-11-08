@@ -1,0 +1,23 @@
+[proc,main]
+def_int $a;
+def_int $b(2);
+
+$a(1); // Expect: Access of indexed value of non-array type variable '$a'.
+$b(1);
+
+~array(a); // Expect: 'a' could not be resolved to a symbol.
+~array($a); // Expect: Type mismatch: 'int' was given but 'intarray' was expected.
+~array(b);
+~array($b); // Expect: '$b' is a reference to an array variable without specifying the index.
+
+~nonarray(a); // Expect: 'a' could not be resolved to a symbol.
+~nonarray($a);
+~nonarray(b); // Expect: Type mismatch: 'intarray' was given but 'int' was expected.
+~nonarray($b); // Expect: '$b' is a reference to an array variable without specifying the index.
+
+[proc,array](intarray $a)
+$a(0) = 1;
+$a = 1; // Expect: '$a' is a reference to an array variable without specifying the index.
+
+[proc,nonarray](int $a)
+$a = 1;

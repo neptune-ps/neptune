@@ -1,0 +1,17 @@
+[proc,main]
+def_int $a;
+def_int $b(2);
+
+// create block which makes new scope
+{
+    def_int $c;
+    def_int $d(2);
+    $a;
+    $b(1);
+}
+
+// should be able to access 'a' and 'b', but not 'c' and 'd'
+$a;
+$b(1);
+$c; // Expect: '$c' cannot be resolved to a local variable.
+$d(1); // Expect: '$d' cannot be resolved to a local variable.

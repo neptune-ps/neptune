@@ -316,40 +316,6 @@ internal class PreTypeChecking(
         }
     }
 
-    override fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression) {
-        val name = localVariableExpression.name.text
-        val symbol = table.find(SymbolType.LocalVariable, localVariableExpression.name.text)
-        if (symbol == null) {
-            // trying to reference a variable that isn't defined
-            localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_UNRESOLVED, name)
-            localVariableExpression.type = MetaType.Error
-            return
-        }
-
-        // set the reference since it was actually found
-        localVariableExpression.reference = symbol
-
-        val symbolIsArray = symbol.type is ArrayType
-        if (!symbolIsArray && localVariableExpression.isArray) {
-            // trying to reference non-array local variable and specifying an index
-            localVariableExpression.reportError(DiagnosticMessage.LOCAL_REFERENCE_NOT_ARRAY, name)
-            localVariableExpression.type = MetaType.Error
-            return
-        }
-
-        if (symbolIsArray && !localVariableExpression.isArray) {
-            // trying to reference array variable without specifying the index in which to access
-            localVariableExpression.reportError(DiagnosticMessage.LOCAL_ARRAY_REFERENCE_NOINDEX, name)
-            localVariableExpression.type = MetaType.Error
-            return
-        }
-
-        // visit the index to set the type of any references
-        localVariableExpression.index?.accept(this)
-
-        localVariableExpression.type = if (symbol.type is ArrayType) symbol.type.inner else symbol.type
-    }
-
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
         val name = gameVariableExpression.name.text
         var symbol: ConfigSymbol? = null
