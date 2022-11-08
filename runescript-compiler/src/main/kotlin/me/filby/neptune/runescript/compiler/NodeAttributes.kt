@@ -9,12 +9,14 @@ import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.VariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
+import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
+import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type.Type
 
@@ -34,9 +36,19 @@ internal var Script.parameterType by Node.attribute<Type?>("parameterType")
 internal var Script.returnType by Node.attribute<Type>("returnType")
 
 /**
+ * The root [SymbolTable] of the script.
+ */
+internal var Script.scope by Node.attribute<SymbolTable>("block")
+
+/**
  * The symbol that the parameter declares.
  */
 internal var Parameter.symbol by Node.attribute<LocalVariableSymbol>("symbol")
+
+/**
+ * The [SymbolTable] of the block.
+ */
+internal var BlockStatement.scope by Node.attribute<SymbolTable>("scope")
 
 /**
  * The type the switch statement accepts.
@@ -47,6 +59,11 @@ internal var SwitchStatement.type by Node.attribute<Type>("type")
  * The default case assigned to the statement.
  */
 internal var SwitchStatement.defaultCase by Node.attributeOrNull<SwitchCase>("defaultCase")
+
+/**
+ * The [SymbolTable] of the case block.
+ */
+internal var SwitchCase.scope by Node.attribute<SymbolTable>("scope")
 
 /**
  * The symbol that the statement declared.
