@@ -597,9 +597,6 @@ internal class TypeChecking(
             return
         }
 
-        // set the reference since it was actually found
-        localVariableExpression.reference = symbol
-
         val symbolIsArray = symbol.type is ArrayType
         if (!symbolIsArray && localVariableExpression.isArray) {
             // trying to reference non-array local variable and specifying an index
@@ -622,6 +619,7 @@ internal class TypeChecking(
             checkTypeMatch(indexExpression, PrimitiveType.INT, indexExpression.type)
         }
 
+        localVariableExpression.reference = symbol
         localVariableExpression.type = if (symbol.type is ArrayType) symbol.type.inner else symbol.type
     }
 
