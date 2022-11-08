@@ -316,27 +316,6 @@ internal class PreTypeChecking(
         }
     }
 
-    override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
-        val name = gameVariableExpression.name.text
-        var symbol: ConfigSymbol? = null
-        // Attempt to find the game var config symbol. We need to do it this way because
-        // we do not know the expected type to be able to fetch it by SymbolType.Config(Type).
-        for (temp in rootTable.findAll<ConfigSymbol>(name)) {
-            if (temp.type is GameVarType) {
-                symbol = temp
-                break
-            }
-        }
-
-        if (symbol != null) {
-            gameVariableExpression.reference = symbol
-            gameVariableExpression.type = (symbol.type as GameVarType).inner
-        } else {
-            gameVariableExpression.type = MetaType.Error
-            gameVariableExpression.reportError(DiagnosticMessage.GAME_REFERENCE_UNRESOLVED, name)
-        }
-    }
-
     override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {
         val name = constantVariableExpression.name.text
         val symbol = rootTable.find(SymbolType.Constant, name)

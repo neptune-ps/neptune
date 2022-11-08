@@ -63,6 +63,7 @@ import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
+import me.filby.neptune.runescript.compiler.type.wrapped.GameVarType
 import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 import me.filby.neptune.runescript.compiler.typeHint
 
@@ -625,7 +626,16 @@ internal class TypeChecking(
     }
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
-        // NO-OP, game vars are handled in pre-type checking.
+        val name = gameVariableExpression.name.text
+        val symbol = rootTable.findAll<ConfigSymbol>(name).firstOrNull { it.type is GameVarType }
+        if (symbol == null || symbol.type !is GameVarType) {
+            gameVariableExpression.type = MetaType.Error
+            gameVariableExpression.reportError(DiagnosticMessage.GAME_REFERENCE_UNRESOLVED, name)
+            return
+        }
+
+        gameVariableExpression.reference = symbol
+        gameVariableExpression.type = symbol.type.inner
     }
 
     override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {
