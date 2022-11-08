@@ -45,6 +45,7 @@ import me.filby.neptune.runescript.compiler.graphicSymbol
 import me.filby.neptune.runescript.compiler.nullableType
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
+import me.filby.neptune.runescript.compiler.scope
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
@@ -82,6 +83,11 @@ internal class TypeChecking(
     //     }
 
     /**
+     * The current table. This is updated each time when entering a new script or block.
+     */
+    private var table: SymbolTable = rootTable
+
+    /**
      * State for if we're currently within an expression that is meant to be
      * evaluated as a condition.
      */
@@ -92,20 +98,34 @@ internal class TypeChecking(
      */
     private var inCalc = false
 
+    /**
+     * Sets the active [table] to [newTable] and runs [block] then sets [table] back to what it was originally.
+     */
+    private inline fun scoped(newTable: SymbolTable, block: () -> Unit) {
+        val oldTable = table
+        table = newTable
+        block()
+        table = oldTable
+    }
+
     override fun visitScriptFile(scriptFile: ScriptFile) {
         // visit all scripts in the file
         scriptFile.scripts.visit()
     }
 
     override fun visitScript(script: Script) {
-        // visit all statements, we don't need to do anything else with the script
-        // since all the other stuff is handled in pre-type checking.
-        script.statements.visit()
+        scoped(script.scope) {
+            // visit all statements, we don't need to do anything else with the script
+            // since all the other stuff is handled in pre-type checking.
+            script.statements.visit()
+        }
     }
 
     override fun visitBlockStatement(blockStatement: BlockStatement) {
-        // visit all statements
-        blockStatement.statements.visit()
+        scoped(blockStatement.scope) {
+            // visit all statements
+            blockStatement.statements.visit()
+        }
     }
 
     override fun visitReturnStatement(returnStatement: ReturnStatement) {
@@ -234,8 +254,10 @@ internal class TypeChecking(
             checkTypeMatch(key, switchType, key.type)
         }
 
-        // visit the statements
-        switchCase.statements.visit()
+        scoped(switchCase.scope) {
+            // visit the statements
+            switchCase.statements.visit()
+        }
     }
 
     /**

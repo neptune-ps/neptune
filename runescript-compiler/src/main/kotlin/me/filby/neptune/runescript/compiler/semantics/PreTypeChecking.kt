@@ -22,6 +22,7 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.parameterType
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
+import me.filby.neptune.runescript.compiler.scope
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
@@ -140,6 +141,9 @@ internal class PreTypeChecking(
 
         // visit the code
         script.statements.visit()
+
+        // set the root symbol table for the script
+        script.scope = table
     }
 
     /**
@@ -203,7 +207,13 @@ internal class PreTypeChecking(
     }
 
     override fun visitBlockStatement(blockStatement: BlockStatement) {
-        createScopedTable { blockStatement.statements.visit() }
+        createScopedTable {
+            // visit inner statements
+            blockStatement.statements.visit()
+
+            // set the symbol table for the block
+            blockStatement.scope = table
+        }
     }
 
     override fun visitSwitchStatement(switchStatement: SwitchStatement) {
@@ -232,7 +242,13 @@ internal class PreTypeChecking(
         switchCase.keys.visit()
 
         // create a new scope and visit the statements in it
-        createScopedTable { switchCase.statements.visit() }
+        createScopedTable {
+            // visit inner statements
+            switchCase.statements.visit()
+
+            // set the symbol table for the block
+            switchCase.scope = table
+        }
     }
 
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
