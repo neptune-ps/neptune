@@ -439,7 +439,6 @@ internal class TypeChecking(
         // if required type is set we should type hint with those, otherwise use the opposite
         // sides type as a hint.
         if (allowedTypes != null) {
-            // TODO better type hinting logic
             left.typeHint = allowedTypes.first()
             right.typeHint = allowedTypes.first()
         } else {
@@ -448,8 +447,12 @@ internal class TypeChecking(
             right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
         }
 
-        // visit both sides to evaluate types
+        // TODO better logic for this to allow things such as 'if (null ! $var)', should also revisit the above
+        // visit left side to get the type for hinting to the right side if needed
         left.visit()
+
+        // type hint right if not already hinted to the left type and then visit
+        right.typeHint = right.typeHint ?: left.type
         right.visit()
 
         // check if either side is a tuple type. the runtime only allows comparing two values

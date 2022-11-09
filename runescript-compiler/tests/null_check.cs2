@@ -1,0 +1,5 @@
+[proc,main]
+def_boolean $a = null;
+if ($a ! null) {
+    error("$a should not be null.");
+}
