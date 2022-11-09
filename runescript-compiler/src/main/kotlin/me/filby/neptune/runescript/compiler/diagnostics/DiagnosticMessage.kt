@@ -54,6 +54,8 @@ internal object DiagnosticMessage {
     const val COMMAND_NOARGS_EXPECTED = "'%s' is expected to have no arguments but has '%s'."
     const val PROC_REFERENCE_UNRESOLVED = "'~%s' cannot be resolved to a proc."
     const val PROC_NOARGS_EXPECTED = "'~%s' is expected to have no arguments but has '%s'."
+    const val CLIENTSCRIPT_REFERENCE_UNRESOLVED = "'%s' cannot be resolved to a clientscript."
+    const val CLIENTSCRIPT_NOARGS_EXPECTED = "'%s' is expected to have no arguments but has '%s'."
     const val JUMP_REFERENCE_UNRESOLVED = "'%s' cannot be resolved to a label."
 
     // jump expression specific
