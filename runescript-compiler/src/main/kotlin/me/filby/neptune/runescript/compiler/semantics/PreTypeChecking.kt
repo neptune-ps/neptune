@@ -42,9 +42,6 @@ import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
  * - Script declarations
  * - Switch statement type declaration, which is used later on in [TypeChecking]
  * - Local variable declarations
- * - Local variable references
- * - Local variably array references (without the `$`)
- * - Game var references
  * - Constant references
  */
 internal class PreTypeChecking(
