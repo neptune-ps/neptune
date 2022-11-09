@@ -19,6 +19,7 @@ internal object DiagnosticMessage {
     const val TYPE_HAS_NO_DEFAULT = "Internal compiler error: Return type '%s' has no defined default value."
     const val INVALID_CONDITION = "Internal compiler error: %s is not a supported expression type for conditions."
     const val NULL_CONSTANT = "Internal compiler error: %s evaluated to 'null' constant value."
+    const val STRINGLIT_NO_SUBEXPR = "Internal compiler error: No sub expression node."
 
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."

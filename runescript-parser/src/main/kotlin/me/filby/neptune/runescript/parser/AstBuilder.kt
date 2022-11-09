@@ -48,6 +48,7 @@ import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.ClientScriptExpression
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
@@ -79,7 +80,11 @@ import org.antlr.v4.runtime.ParserRuleContext
  * A visitor that converts an antlr parse tree into an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree). See
  * [Node] implementations for all possible pieces of the tree.
  */
-public class AstBuilder(private val source: String) : RuneScriptParserBaseVisitor<Node>() {
+public class AstBuilder(
+    private val source: String,
+    private val lineOffset: Int,
+    private val columnOffset: Int
+) : RuneScriptParserBaseVisitor<Node>() {
     override fun visitScriptFile(ctx: ScriptFileContext): Node {
         return ScriptFile(ctx.location, ctx.script().map { it.visit() })
     }
@@ -221,6 +226,15 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
         )
     }
 
+    override fun visitClientScript(ctx: RuneScriptParser.ClientScriptContext): Node {
+        return ClientScriptExpression(
+            source = ctx.location,
+            name = ctx.identifier().visit(),
+            arguments = ctx.args.visit(),
+            transmitList = ctx.triggers.visit()
+        )
+    }
+
     override fun visitLocalVariable(ctx: LocalVariableContext): Node {
         return LocalVariableExpression(
             source = ctx.location,
@@ -320,14 +334,22 @@ public class AstBuilder(private val source: String) : RuneScriptParserBaseVisito
     /**
      * The source location of the [ParserRuleContext].
      */
-    private inline val ParserRuleContext.location
-        get() = NodeSourceLocation(source, start.line, start.charPositionInLine + 1)
+    private inline val ParserRuleContext.location: NodeSourceLocation
+        get() {
+            // column offset only if we're on the first line since new line will reset the offset
+            val columnOffset = if (start.line == 1) columnOffset else 0
+            return NodeSourceLocation(source, start.line + lineOffset, start.charPositionInLine + columnOffset + 1)
+        }
 
     /**
      * The source location of the [Token].
      */
-    private inline val org.antlr.v4.runtime.Token.location
-        get() = NodeSourceLocation(source, line, charPositionInLine + 1)
+    private inline val org.antlr.v4.runtime.Token.location: NodeSourceLocation
+        get() {
+            // column offset only if we're on the first line since new line will reset the offset
+            val columnOffset = if (line == 1) columnOffset else 0
+            return NodeSourceLocation(source, line + lineOffset, charPositionInLine + columnOffset + 1)
+        }
 
     /**
      * Converts a [org.antlr.v4.runtime.Token] into a [Token] AST node.

@@ -9,6 +9,7 @@ import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.ClientScriptExpression
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
@@ -43,9 +44,9 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
-import me.filby.neptune.runescript.compiler.graphicSymbol
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
+import me.filby.neptune.runescript.compiler.subExpression
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
@@ -53,6 +54,7 @@ import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
+import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
@@ -354,7 +356,7 @@ public class CodeGenerator(
         is ConstantVariableExpression -> expression.reference
         is Identifier -> expression.reference
         is StringLiteral -> if (expression.type == PrimitiveType.GRAPHIC) {
-            expression.graphicSymbol
+            expression.reference
         } else {
             expression.value
         }
@@ -524,6 +526,39 @@ public class CodeGenerator(
         instruction(Opcode.GOSUB, symbol)
     }
 
+    override fun visitClientScriptExpression(clientScriptExpression: ClientScriptExpression) {
+        val symbol = clientScriptExpression.symbol as? ScriptSymbol.ClientScriptSymbol
+        if (symbol == null) {
+            clientScriptExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
+            return
+        }
+
+        // convert the parameter type to a list and generate a string with all the type char codes combined
+        val argumentTypes = TupleType.toList(symbol.parameters)
+        var argumentTypesShort = argumentTypes.map { it.code }.joinToString("")
+
+        // safety check in case there was a type with no char code defined
+        require(argumentTypesShort.length == clientScriptExpression.arguments.size)
+
+        // write the clientscript reference and arguments
+        instruction(Opcode.PUSH_CONSTANT, symbol)
+        clientScriptExpression.arguments.visit()
+
+        // optionally handle the transmit list if it exists
+        if (clientScriptExpression.transmitList.isNotEmpty()) {
+            clientScriptExpression.transmitList.visit()
+
+            // write the "type" char that signifies to read the transmit list
+            argumentTypesShort += "Y"
+
+            // write the number of things in the transmit list
+            instruction(Opcode.PUSH_CONSTANT, clientScriptExpression.transmitList.size)
+        }
+
+        // write the argument types
+        instruction(Opcode.PUSH_CONSTANT, argumentTypesShort)
+    }
+
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
         integerLiteral.lineInstruction()
         instruction(Opcode.PUSH_CONSTANT, integerLiteral.value)
@@ -558,13 +593,21 @@ public class CodeGenerator(
         stringLiteral.lineInstruction()
 
         if (stringLiteral.type == PrimitiveType.GRAPHIC) {
-            val symbol = stringLiteral.graphicSymbol
+            val symbol = stringLiteral.reference
             if (symbol == null) {
                 stringLiteral.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
                 return
             }
 
             instruction(Opcode.PUSH_CONSTANT, symbol)
+            return
+        } else if (stringLiteral.type is MetaType.ClientScript) {
+            val subExpression = stringLiteral.subExpression
+            if (subExpression == null) {
+                stringLiteral.reportError(DiagnosticMessage.STRINGLIT_NO_SUBEXPR)
+                return
+            }
+            subExpression.visit()
             return
         }
         instruction(Opcode.PUSH_CONSTANT, stringLiteral.value)

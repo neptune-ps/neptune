@@ -47,10 +47,12 @@ public object ScriptParser {
         ) as? Script
     }
 
-    internal fun invokeParser(
+    public fun invokeParser(
         stream: CharStream,
         entry: (RuneScriptParser) -> ParserRuleContext,
         errorListener: ANTLRErrorListener? = null,
+        lineOffset: Int = 0,
+        columnOffset: Int = 0
     ): Node? {
         val lexer = RuneScriptLexer(stream)
         val tokens = CommonTokenStream(lexer)
@@ -72,6 +74,6 @@ public object ScriptParser {
             return null
         }
 
-        return AstBuilder(stream.sourceName).visit(tree)
+        return AstBuilder(stream.sourceName, lineOffset, columnOffset).visit(tree)
     }
 }

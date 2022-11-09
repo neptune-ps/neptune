@@ -13,7 +13,6 @@ import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
-import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
@@ -86,9 +85,14 @@ internal var VariableExpression.reference by Node.attributeOrNull<Symbol>("refer
 internal var CallExpression.symbol by Node.attributeOrNull<Symbol>("symbol")
 
 /**
- * An optional symbol assigned to [StringLiteral]s if the string is meant to represent a graphic.
+ * An optional symbol assigned to [StringLiteral]s if the string is meant to represent some other reference.
  */
-internal var StringLiteral.graphicSymbol by Node.attributeOrNull<BasicSymbol>("graphicSymbol")
+internal var StringLiteral.reference by Node.attributeOrNull<Symbol>("symbol")
+
+/**
+ * An optional expression that was parsed from within the string literal.
+ */
+internal var StringLiteral.subExpression by Node.attributeOrNull<Expression>("subExpression")
 
 /**
  * The symbol the identifier references.

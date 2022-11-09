@@ -35,6 +35,15 @@ public sealed class MetaType(private val name: String) : MainType {
         override val representation: String = "type<${inner.representation}>"
     }
 
+    /**
+     * A special type used when referencing a script with a trigger type of `clientscript`.
+     * The inner type is the type allowed in the transmit list, if transmit list isn't expected,
+     * use [Unit].
+     */
+    public data class ClientScript(override val inner: MainType) : MetaType("clientscript"), WrappedType {
+        override val representation: String = "clientscript<${inner.representation}>"
+    }
+
     override val representation: String
         get() = name.lowercase()
 

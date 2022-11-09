@@ -124,6 +124,11 @@ call
     | AT identifier (LPAREN expressionList? RPAREN)?                            # JumpCallExpression
     ;
 
+// invoked manually to parse clientscript references (e.g. cc_setonop)
+clientScript
+    : identifier LPAREN args=expressionList? RPAREN (LBRACE triggers=expressionList RBRACE)?
+    ;
+
 assignableVariableList
     : assignableVariable (COMMA assignableVariable)*
     ;

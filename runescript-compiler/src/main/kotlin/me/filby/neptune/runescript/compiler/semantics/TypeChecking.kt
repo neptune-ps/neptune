@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.compiler.semantics
 
+import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Script
@@ -10,6 +11,7 @@ import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
+import me.filby.neptune.runescript.ast.expr.ClientScriptExpression
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
@@ -36,16 +38,17 @@ import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
+import me.filby.neptune.runescript.compiler.ParserErrorListener
 import me.filby.neptune.runescript.compiler.defaultCase
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
-import me.filby.neptune.runescript.compiler.graphicSymbol
 import me.filby.neptune.runescript.compiler.nullableType
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.scope
+import me.filby.neptune.runescript.compiler.subExpression
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
@@ -66,6 +69,8 @@ import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.type.wrapped.GameVarType
 import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 import me.filby.neptune.runescript.compiler.typeHint
+import me.filby.neptune.runescript.parser.ScriptParser
+import org.antlr.v4.runtime.CharStreams
 
 /**
  * An implementation of [AstVisitor] that implements all remaining semantic/type
@@ -546,6 +551,54 @@ internal class TypeChecking(
             callExpression.type = symbol.returns
         }
 
+        // verify the arguments are all valid
+        typeCheckArguments(symbol, callExpression, name)
+    }
+
+    override fun visitClientScriptExpression(clientScriptExpression: ClientScriptExpression) {
+        val typeHint = clientScriptExpression.typeHint
+        require(typeHint is MetaType.ClientScript)
+
+        // lookup the symbol by name
+        val name = clientScriptExpression.name.text
+        val symbolType = SymbolType.ClientScript(ClientTriggerType.CLIENTSCRIPT)
+        val symbol = rootTable.find(symbolType, name)
+
+        // verify the clientscript exists
+        if (symbol == null) {
+            clientScriptExpression.reportError(DiagnosticMessage.CLIENTSCRIPT_REFERENCE_UNRESOLVED, name)
+            clientScriptExpression.type = MetaType.Error
+        } else {
+            clientScriptExpression.symbol = symbol
+            clientScriptExpression.type = typeHint
+        }
+
+        // verify the arguments are all valid
+        typeCheckArguments(symbol, clientScriptExpression, name)
+
+        // disallow transmit list when not expected
+        val transmitListType = typeHint.inner
+        if (transmitListType == MetaType.Unit && clientScriptExpression.transmitList.isNotEmpty()) {
+            clientScriptExpression.transmitList.first().reportError("Unexpected hook transmit list.")
+            clientScriptExpression.type = MetaType.Error
+            return
+        } else {
+            for (expr in clientScriptExpression.transmitList) {
+                expr.typeHint = transmitListType
+                expr.visit()
+                checkTypeMatch(expr, transmitListType, expr.type)
+            }
+        }
+    }
+
+    /**
+     * Verifies that [callExpression] arguments match the parameter types from [symbol].
+     */
+    private fun typeCheckArguments(
+        symbol: ScriptSymbol.ClientScriptSymbol?,
+        callExpression: CallExpression,
+        name: String,
+    ) {
         // Type check the parameters, use `unit` if there are no parameters
         // we will display a special message if the parameter ends up having unit
         // as the type but arguments are supplied.
@@ -570,6 +623,7 @@ internal class TypeChecking(
             val errorMessage = when (callExpression) {
                 is CommandCallExpression -> DiagnosticMessage.COMMAND_NOARGS_EXPECTED
                 is ProcCallExpression -> DiagnosticMessage.PROC_NOARGS_EXPECTED
+                is ClientScriptExpression -> DiagnosticMessage.CLIENTSCRIPT_NOARGS_EXPECTED
                 else -> error(callExpression)
             }
             callExpression.reportError(
@@ -675,11 +729,49 @@ internal class TypeChecking(
                 stringLiteral.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, stringLiteral.value)
                 return
             }
-            stringLiteral.graphicSymbol = symbol
+            stringLiteral.reference = symbol
             stringLiteral.type = PrimitiveType.GRAPHIC
+            return
+        } else if (typeHint is MetaType.ClientScript) {
+            handleClientScriptExpression(stringLiteral, typeHint)
             return
         }
         stringLiteral.type = PrimitiveType.STRING
+    }
+
+    /**
+     * Handles parsing and checking a [ClientScriptExpression] that is parsed from withing the [stringLiteral].
+     *
+     * This assigns the [StringLiteral.type] to [MetaType.ClientScript] and stores the [ClientScriptExpression]
+     * as an attribute on [stringLiteral] for usage later.
+     */
+    private fun handleClientScriptExpression(stringLiteral: StringLiteral, typeHint: Type) {
+        // base the source information on the string literal
+        val (sourceName, sourceLine, sourceColumn) = stringLiteral.source
+
+        // invoke the parser to parse the text within the string
+        val errorListener = ParserErrorListener(sourceName, diagnostics, sourceLine - 1, sourceColumn)
+        val clientScriptExpression = ScriptParser.invokeParser(
+            CharStreams.fromString(stringLiteral.value, sourceName),
+            RuneScriptParser::clientScript,
+            errorListener,
+            sourceLine - 1,
+            sourceColumn
+        ) as? ClientScriptExpression
+
+        // parser returns null if there was a parse error
+        if (clientScriptExpression == null) {
+            stringLiteral.type = MetaType.Error
+            return
+        }
+
+        // set typehint to the same as the argument
+        clientScriptExpression.typeHint = typeHint
+        clientScriptExpression.visit()
+
+        // copy the type from the parsed expression
+        stringLiteral.subExpression = clientScriptExpression
+        stringLiteral.type = clientScriptExpression.type
     }
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {

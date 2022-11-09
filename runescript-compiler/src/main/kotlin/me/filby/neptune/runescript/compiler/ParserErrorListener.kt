@@ -14,6 +14,8 @@ import org.antlr.v4.runtime.Recognizer
 internal class ParserErrorListener(
     private val sourceFile: String,
     private val diagnostics: Diagnostics,
+    private val lineOffset: Int = 0,
+    private val columnOffset: Int = 0
 ) : BaseErrorListener() {
     override fun syntaxError(
         recognizer: Recognizer<*, *>,
@@ -23,7 +25,12 @@ internal class ParserErrorListener(
         msg: String,
         e: RecognitionException?
     ) {
-        val source = NodeSourceLocation(sourceFile, line, charPositionInLine + 1)
+        // column offset only if we're on the first line since new line will reset the offset
+        val columnOffset = if (line == 1) columnOffset else 0
+
+        val realLine = line + lineOffset
+        val realColumn = charPositionInLine + columnOffset + 1
+        val source = NodeSourceLocation(sourceFile, realLine, realColumn)
         diagnostics.report(Diagnostic(DiagnosticType.SYNTAX_ERROR, source, msg.replace("%", "%%"), emptyList()))
     }
 }
