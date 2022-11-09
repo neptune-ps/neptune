@@ -1,0 +1,17 @@
+[proc,main]
+def_int $a;
+
+%varp = 1;
+%varp = true; // Expect: Type mismatch: 'boolean' was given but 'int' was expected.
+
+%varc = 1;
+%varc = true; // Expect: Type mismatch: 'boolean' was given but 'int' was expected.
+
+%varbit = 1;
+%varbit = true; // Expect: Type mismatch: 'boolean' was given but 'int' was expected.
+
+%varcstr = "";
+%varcstr = 1; // Expect: Type mismatch: 'int' was given but 'string' was expected.
+
+$a, %varp = %varp, $a;
+%varbit, $a, %varp = %varc, %varcstr, %varc; // Expect: Type mismatch: 'int,string,int' was given but 'int,int,int' was expected.

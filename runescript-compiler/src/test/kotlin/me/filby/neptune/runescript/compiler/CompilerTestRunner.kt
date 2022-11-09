@@ -17,6 +17,9 @@ import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
+import me.filby.neptune.runescript.compiler.type.wrapped.VarBitType
+import me.filby.neptune.runescript.compiler.type.wrapped.VarClientType
+import me.filby.neptune.runescript.compiler.type.wrapped.VarPlayerType
 import me.filby.neptune.runescript.runtime.impl.opcodes.CoreOpcodesBase
 import me.filby.neptune.runescript.runtime.impl.opcodes.MathOpcodesBase
 import me.filby.neptune.runescript.runtime.state.ScriptState
@@ -116,6 +119,12 @@ private fun createRuntime(scriptManager: ScriptManager): TestScriptRunner {
 
 private class CommandSymbolLoader : SymbolLoader {
     override fun load(compiler: ScriptCompiler, rootTable: SymbolTable) {
+        // fake config symbols
+        rootTable.addConfig(VarPlayerType(PrimitiveType.INT), "varp")
+        rootTable.addConfig(VarBitType, "varbit")
+        rootTable.addConfig(VarClientType(PrimitiveType.INT), "varc")
+        rootTable.addConfig(VarClientType(PrimitiveType.STRING), "varcstr")
+
         // general commands
         rootTable.addCommand("println", PrimitiveType.STRING)
         rootTable.addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)
