@@ -20,11 +20,10 @@
     if (0 > 0) {
         error("Int branch test failed.");
     }
-    if (0 <= 0) {
+    if (0 <= 0 & 0 >= 0) {
         // pass
-    }
-    if (0 >= 0) {
-        // pass
+    } else {
+        error("Int branch test failed.");
     }
 }
 
@@ -71,10 +70,9 @@
     if ($a > $b) {
         error("Long branch test failed.");
     }
-    if ($a <= $b) {
+    if ($a <= $b & $a >= $b) {
         // pass
-    }
-    if ($a >= $b) {
-        // pass
+    } else {
+        error("Long branch test failed.");
     }
 }
