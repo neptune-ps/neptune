@@ -5,9 +5,7 @@ def_long $long;
 // should work
 def_int $a = calc($int + $int);
 
-// should work (but currently does not)
-// Expect: Operator '+' cannot be applied to 'long', 'long'.
-// Expect: Type mismatch: 'int' was given but 'long' was expected.
+// should work
 def_long $b = calc($long + $long);
 
 // should not work, no implicit conversions
@@ -17,9 +15,5 @@ def_int $c = calc($int + $long);
 // should work, explicit casting
 def_int $d = calc($int + long_to_int($long));
 
-// should work (but currently does not)
-// Expect: Type mismatch: 'long' was given but 'int' was expected.
+// should work
 def_long $e = calc($long);
-
-// fake commands
-[command,long_to_int](long $val)(int)

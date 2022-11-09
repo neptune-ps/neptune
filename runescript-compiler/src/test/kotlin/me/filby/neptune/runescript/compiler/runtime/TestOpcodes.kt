@@ -59,6 +59,16 @@ class TestOpcodes {
         }
     }
 
+    @Instruction(INT_TO_LONG)
+    fun ScriptState._int_to_long(input: Int) {
+        pushLong(input.toLong())
+    }
+
+    @Instruction(LONG_TO_INT)
+    fun ScriptState._long_to_int(input: Long) {
+        pushInt(input.toInt())
+    }
+
     private fun ScriptState.scriptError(mes: String) {
         val error = buildString {
             append(scriptPath)
@@ -92,5 +102,7 @@ class TestOpcodes {
         const val ASSERT_NOT = ERROR + 4
         const val ASSERT_NOT_OBJ = ERROR + 5
         const val ASSERT_NOT_LONG = ERROR + 6
+        const val INT_TO_LONG = ERROR + 7
+        const val LONG_TO_INT = ERROR + 8
     }
 }

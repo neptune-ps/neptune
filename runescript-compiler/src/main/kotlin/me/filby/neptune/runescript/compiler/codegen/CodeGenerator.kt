@@ -478,16 +478,13 @@ public class CodeGenerator(
     }
 
     override fun visitBinaryExpression(binaryExpression: BinaryExpression) {
-        val opcode = when (binaryExpression.operator.text) {
-            "+" -> Opcode.ADD
-            "-" -> Opcode.SUB
-            "*" -> Opcode.MULTIPLY
-            "/" -> Opcode.DIVIDE
-            "%" -> Opcode.MODULO
-            "&" -> Opcode.AND
-            "|" -> Opcode.OR
-            else -> error("Unsupported operator: ${binaryExpression.operator.text}")
+        val operator = binaryExpression.operator.text
+        val opcodes = when (val type = binaryExpression.left.type.baseType) {
+            BaseVarType.INTEGER -> INT_OPERATIONS
+            BaseVarType.LONG -> LONG_OPERATIONS
+            else -> error("No mappings for BaseType: $type")
         }
+        val opcode = opcodes[operator] ?: error("No mappings for operator: $operator")
 
         // visit left side
         binaryExpression.left.visit()
@@ -731,6 +728,32 @@ public class CodeGenerator(
             BaseVarType.INTEGER to INT_BRANCHES,
             BaseVarType.STRING to OBJ_BRANCHES,
             BaseVarType.LONG to LONG_BRANCHES,
+        )
+
+        /**
+         * Mapping of operators to their math opcode for int based types.
+         */
+        private val INT_OPERATIONS = mapOf(
+            "+" to Opcode.ADD,
+            "-" to Opcode.SUB,
+            "*" to Opcode.MULTIPLY,
+            "/" to Opcode.DIVIDE,
+            "%" to Opcode.MODULO,
+            "&" to Opcode.AND,
+            "|" to Opcode.OR,
+        )
+
+        /**
+         * Mapping of operators to their math opcode for long based types.
+         */
+        private val LONG_OPERATIONS = mapOf(
+            "+" to Opcode.LONG_ADD,
+            "-" to Opcode.LONG_SUB,
+            "*" to Opcode.LONG_MULTIPLY,
+            "/" to Opcode.LONG_DIVIDE,
+            "%" to Opcode.LONG_MODULO,
+            "&" to Opcode.LONG_AND,
+            "|" to Opcode.LONG_OR,
         )
     }
 }

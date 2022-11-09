@@ -35,6 +35,13 @@ public enum class Opcode {
     MODULO,
     OR,
     AND,
+    LONG_ADD,
+    LONG_SUB,
+    LONG_MULTIPLY,
+    LONG_DIVIDE,
+    LONG_MODULO,
+    LONG_OR,
+    LONG_AND,
 
     /**
      * Marks the source line number of the code that follows. This opcode is

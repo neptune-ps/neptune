@@ -128,6 +128,13 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
             Opcode.MODULO to BaseCoreOpcodes.MODULO,
             Opcode.OR to BaseCoreOpcodes.OR,
             Opcode.AND to BaseCoreOpcodes.AND,
+            Opcode.LONG_ADD to BaseCoreOpcodes.LONG_ADD,
+            Opcode.LONG_SUB to BaseCoreOpcodes.LONG_SUB,
+            Opcode.LONG_MULTIPLY to BaseCoreOpcodes.LONG_MULTIPLY,
+            Opcode.LONG_DIVIDE to BaseCoreOpcodes.LONG_DIVIDE,
+            Opcode.LONG_MODULO to BaseCoreOpcodes.LONG_MODULO,
+            Opcode.LONG_OR to BaseCoreOpcodes.LONG_OR,
+            Opcode.LONG_AND to BaseCoreOpcodes.LONG_AND,
         )
 
         private val COMMANDS = mapOf(
@@ -145,6 +152,8 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
             "assert_not" to TestOpcodes.ASSERT_NOT,
             "assert_not_obj" to TestOpcodes.ASSERT_NOT_OBJ,
             "assert_not_long" to TestOpcodes.ASSERT_NOT_LONG,
+            "int_to_long" to TestOpcodes.INT_TO_LONG,
+            "long_to_int" to TestOpcodes.LONG_TO_INT,
         )
     }
 }

@@ -128,6 +128,8 @@ private class CommandSymbolLoader : SymbolLoader {
         // general commands
         rootTable.addCommand("println", PrimitiveType.STRING)
         rootTable.addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)
+        rootTable.addCommand("int_to_long", PrimitiveType.INT, PrimitiveType.LONG)
+        rootTable.addCommand("long_to_int", PrimitiveType.LONG, PrimitiveType.INT)
 
         // test specific commands
         // TODO implement the argument checks better once dynamic command handling is added to compiler

@@ -357,7 +357,7 @@ internal class TypeChecking(
 
         // check for validation based on if we're within calc or condition.
         val validOperation = if (inCalc) {
-            checkBinaryMathOperation(left, operator, right)
+            checkBinaryMathOperation(binaryExpression.typeHint ?: PrimitiveType.INT, left, operator, right)
         } else {
             checkBinaryConditionOperation(left, operator, right)
         }
@@ -368,15 +368,20 @@ internal class TypeChecking(
             return
         }
 
-        // conditions expect boolean, calc expects int
+        // conditions expect boolean, calc expects int/long
         // we shouldn't get to this point without one of those two being true due to the above check
-        binaryExpression.type = if (inCalc) PrimitiveType.INT else PrimitiveType.BOOLEAN
+        binaryExpression.type = if (inCalc) {
+            binaryExpression.typeHint ?: PrimitiveType.INT
+        } else {
+            PrimitiveType.BOOLEAN
+        }
     }
 
     /**
      * Verifies the binary expression is a valid math operation.
      */
     private fun checkBinaryMathOperation(
+        typeHint: Type,
         left: Expression,
         operator: Token,
         right: Expression
@@ -387,16 +392,16 @@ internal class TypeChecking(
         }
 
         // visit left-hand side
-        left.typeHint = PrimitiveType.INT
+        left.typeHint = typeHint
         left.visit()
 
         // visit right-hand side
-        right.typeHint = PrimitiveType.INT
+        right.typeHint = typeHint
         right.visit()
 
         // verify if both sides are ints
-        var bothMatch = checkTypeMatch(left, PrimitiveType.INT, left.type, reportError = false)
-        bothMatch = bothMatch and checkTypeMatch(right, PrimitiveType.INT, right.type, reportError = false)
+        var bothMatch = checkTypeMatch(left, typeHint, left.type, reportError = false)
+        bothMatch = bothMatch and checkTypeMatch(right, typeHint, right.type, reportError = false)
 
         // one or both don't match so report an error
         if (!bothMatch) {
@@ -498,19 +503,21 @@ internal class TypeChecking(
     override fun visitCalcExpression(calcExpression: CalcExpression) {
         // update state to inside calc
         inCalc = true
+
+        val typeHint = calcExpression.typeHint ?: PrimitiveType.INT
         val innerExpression = calcExpression.expression
 
         // hint to the expression that we expect an int
-        innerExpression.typeHint = PrimitiveType.INT
+        innerExpression.typeHint = typeHint
         innerExpression.visit()
 
         // verify type is an int
-        if (!checkTypeMatch(innerExpression, PrimitiveType.INT, innerExpression.type)) {
+        if (!checkTypeMatch(innerExpression, typeHint, innerExpression.type)) {
             calcExpression.type = MetaType.Error
         } else {
-            calcExpression.type = PrimitiveType.INT
+            calcExpression.type = typeHint
         }
-        // update state to outside of calc
+        // update state to outside calc
         inCalc = false
     }
 

@@ -48,13 +48,13 @@ public object BaseCoreOpcodes {
     public const val AND: Int = 106
 
     // long math ops
-    public const val ADD_LONG: Int = 200
-    public const val SUB_LONG: Int = 201
-    public const val MULTIPLY_LONG: Int = 202
-    public const val DIVIDE_LONG: Int = 203
-    public const val MODULO_LONG: Int = 204
-    public const val OR_LONG: Int = 205
-    public const val AND_LONG: Int = 206
+    public const val LONG_ADD: Int = 200
+    public const val LONG_SUB: Int = 201
+    public const val LONG_MULTIPLY: Int = 202
+    public const val LONG_DIVIDE: Int = 203
+    public const val LONG_MODULO: Int = 204
+    public const val LONG_OR: Int = 205
+    public const val LONG_AND: Int = 206
 
     // TODO remove the below opcodes
 

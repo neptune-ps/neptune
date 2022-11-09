@@ -56,37 +56,37 @@ public open class MathOpcodesBase<T : ScriptState> {
 
     // long math
 
-    @Instruction(BaseCoreOpcodes.ADD_LONG)
+    @Instruction(BaseCoreOpcodes.LONG_ADD)
     public open fun T._add(a: Long, b: Long) {
         pushLong(a + b)
     }
 
-    @Instruction(BaseCoreOpcodes.SUB_LONG)
+    @Instruction(BaseCoreOpcodes.LONG_SUB)
     public open fun T._sub(a: Long, b: Long) {
         pushLong(a - b)
     }
 
-    @Instruction(BaseCoreOpcodes.MULTIPLY_LONG)
+    @Instruction(BaseCoreOpcodes.LONG_MULTIPLY)
     public open fun T._multiply(a: Long, b: Long) {
         pushLong(a * b)
     }
 
-    @Instruction(BaseCoreOpcodes.DIVIDE_LONG)
+    @Instruction(BaseCoreOpcodes.LONG_DIVIDE)
     public open fun T._div(a: Long, b: Long) {
         pushLong(a / b)
     }
 
-    @Instruction(BaseCoreOpcodes.MODULO_LONG)
+    @Instruction(BaseCoreOpcodes.LONG_MODULO)
     public open fun T._mod(a: Long, b: Long) {
         pushLong(a % b)
     }
 
-    @Instruction(BaseCoreOpcodes.OR_LONG)
+    @Instruction(BaseCoreOpcodes.LONG_OR)
     public open fun T._or(a: Long, b: Long) {
         pushLong(a or b)
     }
 
-    @Instruction(BaseCoreOpcodes.AND_LONG)
+    @Instruction(BaseCoreOpcodes.LONG_AND)
     public open fun T._and(a: Long, b: Long) {
         pushLong(a and b)
     }

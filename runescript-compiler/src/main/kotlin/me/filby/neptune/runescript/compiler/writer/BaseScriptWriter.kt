@@ -85,6 +85,13 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
             Opcode.MODULO -> context.writeMath(opcode)
             Opcode.OR -> context.writeMath(opcode)
             Opcode.AND -> context.writeMath(opcode)
+            Opcode.LONG_ADD -> context.writeMath(opcode)
+            Opcode.LONG_SUB -> context.writeMath(opcode)
+            Opcode.LONG_MULTIPLY -> context.writeMath(opcode)
+            Opcode.LONG_DIVIDE -> context.writeMath(opcode)
+            Opcode.LONG_MODULO -> context.writeMath(opcode)
+            Opcode.LONG_OR -> context.writeMath(opcode)
+            Opcode.LONG_AND -> context.writeMath(opcode)
             Opcode.LINENUMBER -> error("linenumber opcode should not exist.")
         }
     }

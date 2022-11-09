@@ -1,0 +1,28 @@
+[proc,main]
+// int math tests
+{
+    def_int $a = 500;
+    def_int $b = 7;
+
+    assert_equals(507,  calc($a + $b));
+    assert_equals(493,  calc($a - $b));
+    assert_equals(3500, calc($a * $b));
+    assert_equals(71,   calc($a / $b));
+    assert_equals(3,    calc($a % $b));
+    assert_equals(503,  calc($a | $b));
+    assert_equals(4,    calc($a & $b));
+}
+
+// long math tests
+{
+    def_long $a = int_to_long(500);
+    def_long $b = int_to_long(7);
+
+    assert_equals_long(int_to_long(507),  calc($a + $b));
+    assert_equals_long(int_to_long(493),  calc($a - $b));
+    assert_equals_long(int_to_long(3500), calc($a * $b));
+    assert_equals_long(int_to_long(71),   calc($a / $b));
+    assert_equals_long(int_to_long(3),    calc($a % $b));
+    assert_equals_long(int_to_long(503),  calc($a | $b));
+    assert_equals_long(int_to_long(4),    calc($a & $b));
+}
