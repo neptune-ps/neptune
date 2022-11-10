@@ -198,6 +198,12 @@ public class ScriptCompiler(
             }
         }
         logger.debug { "Finished codegen in ${codegenTime}ms" }
+
+        // call the diagnostics handler
+        with(diagnosticsHandler) {
+            diagnostics.handleCodeGeneration()
+        }
+
         return !diagnostics.hasErrors() to scripts
     }
 
