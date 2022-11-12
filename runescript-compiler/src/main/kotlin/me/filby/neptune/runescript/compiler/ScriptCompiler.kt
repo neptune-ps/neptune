@@ -10,6 +10,8 @@ import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
 import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
+import me.filby.neptune.runescript.compiler.type.PrimitiveType
+import me.filby.neptune.runescript.compiler.type.TypeManager
 import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import me.filby.neptune.runescript.parser.ScriptParser
 import java.nio.file.Path
@@ -44,9 +46,19 @@ public class ScriptCompiler(
     private val symbolLoaders = mutableListOf<SymbolLoader>()
 
     /**
+     * The [TypeManager] for the compiler that is used for registering and looking up types.
+     */
+    public val types: TypeManager = TypeManager()
+
+    /**
      * Called after every step with all diagnostics that were collected during it.
      */
     public var diagnosticsHandler: DiagnosticsHandler = DEFAULT_DIAGNOSTICS_HANDLER
+
+    init {
+        // register the core types
+        types.registerAll<PrimitiveType>()
+    }
 
     /**
      * Adds [loader] to the list of symbol loaders to run pre-compilation. This
@@ -149,7 +161,7 @@ public class ScriptCompiler(
         val preTypeCheckingTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    file.accept(PreTypeChecking(rootTable, diagnostics))
+                    file.accept(PreTypeChecking(types, rootTable, diagnostics))
                 }
                 logger.trace { "Pre-type checked ${file.source.name} in ${time}ms" }
             }
@@ -161,7 +173,7 @@ public class ScriptCompiler(
         val typeCheckingTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    file.accept(TypeChecking(rootTable, diagnostics))
+                    file.accept(TypeChecking(types, rootTable, diagnostics))
                 }
                 logger.trace { "Type checked ${file.source.name} in ${time}ms" }
             }

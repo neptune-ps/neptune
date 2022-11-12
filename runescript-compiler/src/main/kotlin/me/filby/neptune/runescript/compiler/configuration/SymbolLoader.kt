@@ -17,6 +17,8 @@ import me.filby.neptune.runescript.compiler.type.Type
 public interface SymbolLoader {
     /**
      * Called when the compiler is ready to load external symbols.
+     *
+     * Types may be looked up via [ScriptCompiler.types] if needed.
      */
     public fun load(compiler: ScriptCompiler, rootTable: SymbolTable)
 

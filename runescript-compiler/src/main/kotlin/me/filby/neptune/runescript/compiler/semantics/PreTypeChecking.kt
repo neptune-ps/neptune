@@ -31,9 +31,9 @@ import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
+import me.filby.neptune.runescript.compiler.type.TypeManager
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
 /**
@@ -45,6 +45,7 @@ import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
  * - Constant references
  */
 internal class PreTypeChecking(
+    private val typeManager: TypeManager,
     private val rootTable: SymbolTable,
     private val diagnostics: Diagnostics
 ) : AstVisitor<Unit> {
@@ -106,7 +107,7 @@ internal class PreTypeChecking(
         if (!returnTokens.isNullOrEmpty()) {
             val returns = mutableListOf<Type>()
             for (token in returnTokens) {
-                val type = lookupType(token.text)
+                val type = typeManager.find(token.text)
                 if (type == MetaType.Error) {
                     token.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, token.text)
                 }
@@ -183,7 +184,7 @@ internal class PreTypeChecking(
     override fun visitParameter(parameter: Parameter) {
         val name = parameter.name.text
         val typeText = parameter.typeToken.text
-        val type = lookupType(typeText, allowArray = true)
+        val type = typeManager.find(typeText, allowArray = true)
 
         // type isn't valid, report the error
         if (type == MetaType.Error) {
@@ -212,13 +213,13 @@ internal class PreTypeChecking(
 
     override fun visitSwitchStatement(switchStatement: SwitchStatement) {
         val typeName = switchStatement.typeToken.text.removePrefix("switch_")
-        val type = lookupType(typeName)
-
-        // TODO check if type is allowed to be switch on
+        val type = typeManager.find(typeName)
 
         // notify invalid type
         if (type == MetaType.Error) {
             switchStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
+        } else if (!type.options.allowSwitch) {
+            switchStatement.typeToken.reportError(DiagnosticMessage.SWITCH_INVALID_TYPE, type.representation)
         }
 
         // visit the condition to resolve any reference
@@ -248,13 +249,16 @@ internal class PreTypeChecking(
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
         val typeName = declarationStatement.typeToken.text.removePrefix("def_")
         val name = declarationStatement.name.text
-        val type = lookupType(typeName)
-
-        // TODO check if type is allowed to be declared
+        val type = typeManager.find(typeName)
 
         // notify invalid type
         if (type == MetaType.Error) {
             declarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
+        } else if (!type.options.allowDeclaration) {
+            declarationStatement.typeToken.reportError(
+                DiagnosticMessage.LOCAL_DECLARATION_INVALID_TYPE,
+                type.representation
+            )
         }
 
         // visit the initializer if it exists to resolve references in it
@@ -273,16 +277,25 @@ internal class PreTypeChecking(
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
         val typeName = arrayDeclarationStatement.typeToken.text.removePrefix("def_")
         val name = arrayDeclarationStatement.name.text
-        var type = lookupType(typeName)
-
-        // TODO check if type is allowed to be declared
-        // TODO check if type is allowed to be an array
+        var type = typeManager.find(typeName, allowArray = true)
 
         // notify invalid type
         if (type == MetaType.Error) {
             arrayDeclarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
-        } else {
-            // convert type into an array of type
+        } else if (!type.options.allowDeclaration) {
+            arrayDeclarationStatement.typeToken.reportError(
+                DiagnosticMessage.LOCAL_DECLARATION_INVALID_TYPE,
+                type.representation
+            )
+        } else if (!type.options.allowArray) {
+            arrayDeclarationStatement.typeToken.reportError(
+                DiagnosticMessage.LOCAL_ARRAY_INVALID_TYPE,
+                type.representation
+            )
+        }
+
+        // convert type into an array of type
+        if (type != MetaType.Error) {
             type = ArrayType(type)
         }
 
@@ -362,26 +375,7 @@ internal class PreTypeChecking(
      */
     private fun List<Node>.visit() {
         for (n in this) {
-            // TODO check return type to prevent continuing when we shouldn't, possibly configurable with params
             n.accept(this@PreTypeChecking)
         }
-    }
-
-    /**
-     * Lookup a type by its name. When [allowArray], types ending with `array` will return [ArrayType].
-     */
-    private fun lookupType(name: String, allowArray: Boolean = false): Type {
-        if (allowArray && name.endsWith("array")) {
-            // substring before last "array" to prevent requesting intarrayarray (or deeper)
-            val baseType = name.substringBeforeLast("array")
-            val type = lookupType(baseType)
-            if (type == MetaType.Error) {
-                return type
-            }
-            return ArrayType(type)
-        }
-        // TODO: lookup type from a type supplier
-        // TODO: support for not allowing specific types (e.g. NULL)
-        return PrimitiveType.lookup(name) ?: MetaType.Error
     }
 }

@@ -65,6 +65,7 @@ import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
+import me.filby.neptune.runescript.compiler.type.TypeManager
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.type.wrapped.GameVarType
 import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
@@ -78,6 +79,7 @@ import org.antlr.v4.runtime.CharStreams
  * is run beforehand.
  */
 internal class TypeChecking(
+    private val typeManager: TypeManager,
     private val rootTable: SymbolTable,
     private val diagnostics: Diagnostics
 ) : AstVisitor<Unit> {

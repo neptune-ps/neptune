@@ -27,4 +27,10 @@ public interface Type {
      * The default value of the type.
      */
     public val defaultValue: Any?
+
+    /**
+     * Options the type allows or disallows.
+     */
+    public val options: TypeOptions
+        get() = MutableTypeOptions()
 }

@@ -7,7 +7,8 @@ package me.filby.neptune.runescript.compiler.type
 public enum class PrimitiveType(
     public override val code: Char?,
     public override val baseType: BaseVarType = BaseVarType.INTEGER,
-    public override val defaultValue: Any?
+    public override val defaultValue: Any?,
+    builder: TypeBuilder? = null,
 ) : Type {
     // verified script var types
     INT('i', defaultValue = 0),
@@ -19,14 +20,32 @@ public enum class PrimitiveType(
     NPC_STAT('T', defaultValue = -1),
     GRAPHIC('d', defaultValue = -1),
     OBJ('o', defaultValue = -1),
-    STRING('s', BaseVarType.STRING, defaultValue = ""),
+    STRING(
+        's',
+        BaseVarType.STRING,
+        defaultValue = "",
+        {
+            allowArray = false
+            allowSwitch = false
+        }
+    ),
     MAPELEMENT('µ', defaultValue = -1),
     INV('v', defaultValue = -1),
     CHAR('z', defaultValue = -1),
-    LONG('Ï', BaseVarType.LONG, defaultValue = -1L),
+    LONG(
+        'Ï',
+        BaseVarType.LONG,
+        defaultValue = -1L,
+        {
+            allowArray = false
+            allowSwitch = false
+        }
+    ),
     ;
 
     override val representation: String = name.lowercase()
+
+    override val options: TypeOptions = MutableTypeOptions().apply { builder?.invoke(this) }
 
     /**
      * A [PrimitiveType] type that only defines the [baseType] and [defaultValue].
@@ -36,16 +55,4 @@ public enum class PrimitiveType(
         baseType,
         defaultValue
     )
-
-    public companion object {
-        /**
-         * A map of [representation] to [PrimitiveType].
-         */
-        private val lookupMap = values().associateBy { it.representation }
-
-        /**
-         * Finds a [PrimitiveType] by its [name].
-         */
-        public fun lookup(name: String): PrimitiveType? = lookupMap[name]
-    }
 }

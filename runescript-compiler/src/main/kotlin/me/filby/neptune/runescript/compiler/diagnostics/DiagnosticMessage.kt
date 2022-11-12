@@ -36,6 +36,7 @@ internal object DiagnosticMessage {
     const val SCRIPT_TRIGGER_EXPECTED_RETURNS = "The trigger type '%s' is expected to return (%s)."
 
     // switch statement node specific
+    const val SWITCH_INVALID_TYPE = "'%s' is not allowed within a switch statement."
     const val SWITCH_DUPLICATE_DEFAULT = "Duplicate default label."
     const val SWITCH_CASE_NOT_CONSTANT = "Switch case value is not a constant expression."
 
@@ -62,8 +63,10 @@ internal object DiagnosticMessage {
     const val JUMP_CALL_IN_CS2 = "Jumps are not allowed in ClientScript."
 
     // local variable specific
+    const val LOCAL_DECLARATION_INVALID_TYPE = "'%s' is not allowed to be declared as a type."
     const val LOCAL_REFERENCE_UNRESOLVED = "'$%s' cannot be resolved to a local variable."
     const val LOCAL_REFERENCE_NOT_ARRAY = "Access of indexed value of non-array type variable '$%s'."
+    const val LOCAL_ARRAY_INVALID_TYPE = "'%s' is not allowed to be used as an array."
     const val LOCAL_ARRAY_REFERENCE_NOINDEX = "'$%s' is a reference to an array variable without specifying the index."
 
     // game var specific
