@@ -10,8 +10,10 @@ import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
 import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
+import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TypeManager
+import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import me.filby.neptune.runescript.parser.ScriptParser
 import java.nio.file.Path
@@ -58,6 +60,29 @@ public class ScriptCompiler(
     init {
         // register the core types
         types.registerAll<PrimitiveType>()
+        setupDefaultTypeCheckers()
+    }
+
+    /**
+     * Adds the core type checkers that the compiler depends on.
+     */
+    private fun setupDefaultTypeCheckers() {
+        // allow anything to be assigned to any
+        types.addTypeChecker { left, right -> left == MetaType.Any || right == MetaType.Any }
+
+        // allow anything to be assigned to error to prevent error propagation
+        types.addTypeChecker { left, right -> left == MetaType.Error || right == MetaType.Error }
+
+        // basic checker where both types are equal
+        types.addTypeChecker { left, right -> left == right }
+
+        // checker for WrappedType that compares the inner types
+        types.addTypeChecker { left, right ->
+            left is WrappedType && right is WrappedType && left::class == right::class &&
+                types.check(left.inner, right.inner)
+        }
+
+        types.addTypeChecker { left, right -> left == PrimitiveType.OBJ && right == PrimitiveType.NAMEDOBJ }
     }
 
     /**

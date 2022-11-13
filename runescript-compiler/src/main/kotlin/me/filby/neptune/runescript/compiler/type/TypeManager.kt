@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import kotlin.reflect.KClass
 
+public typealias TypeChecker = (left: Type, right: Type) -> Boolean
 public typealias TypeBuilder = MutableTypeOptions.() -> Unit
 
 /**
@@ -14,6 +15,11 @@ public class TypeManager {
      * A map of type names to the [Type].
      */
     private val nameToType = mutableMapOf<String, Type>()
+
+    /**
+     * A list of possible checkers to run against types.
+     */
+    private val checkers = mutableListOf<TypeChecker>()
 
     /**
      * Registers [type] using [Type.representation] for lookup.
@@ -91,5 +97,27 @@ public class TypeManager {
             return ArrayType(type)
         }
         return nameToType[name] ?: MetaType.Error
+    }
+
+    /**
+     * Adds [checker] to be called when calling [check].
+     *
+     * A checker should aim to only do simple checks and avoid covering a wide range of
+     * types unless you really know what you're doing.
+     *
+     * The follow example would allow `namedobj` to be assigned to `obj` but not vice-versa.
+     * ```
+     * addTypeChecker { left, right -> left == OBJ && right == NAMEDOBJ }
+     * ```
+     */
+    public fun addTypeChecker(checker: TypeChecker) {
+        checkers += checker
+    }
+
+    /**
+     * Checks to see if [right] is assignable to [left].
+     */
+    public fun check(left: Type, right: Type): Boolean {
+        return checkers.any { checker -> checker(left, right) }
     }
 }

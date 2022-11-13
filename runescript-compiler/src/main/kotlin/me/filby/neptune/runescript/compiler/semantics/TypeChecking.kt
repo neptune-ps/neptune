@@ -68,7 +68,6 @@ import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.TypeManager
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.type.wrapped.GameVarType
-import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 import me.filby.neptune.runescript.compiler.typeHint
 import me.filby.neptune.runescript.parser.ScriptParser
 import org.antlr.v4.runtime.CharStreams
@@ -812,7 +811,7 @@ internal class TypeChecking(
         for (temp in rootTable.findAll<Symbol>(name)) {
             // TODO filter specific types of symbols from this so they can't be accessed in the wrong way.
             val tempSymbolType = symbolToType(temp)
-            if (hint == null || tempSymbolType != null && isTypeCompatible(hint, tempSymbolType)) {
+            if (hint == null || tempSymbolType != null && typeManager.check(hint, tempSymbolType)) {
                 // hint type matches (or is null) so we can stop looking
                 symbol = temp
                 symbolType = tempSymbolType
@@ -901,7 +900,7 @@ internal class TypeChecking(
      *
      * If the types passed in are a [TupleType] they will be compared using their flattened types.
      *
-     * @see isTypeCompatible
+     * @see TypeManager.check
      */
     private fun checkTypeMatch(node: Node, expected: Type, actual: Type, reportError: Boolean = true): Boolean {
         val expectedFlattened = if (expected is TupleType) expected.children else arrayOf(expected)
@@ -916,7 +915,7 @@ internal class TypeChecking(
             match = false
         } else {
             for (i in expectedFlattened.indices) {
-                match = match and isTypeCompatible(expectedFlattened[i], actualFlattened[i])
+                match = match and typeManager.check(expectedFlattened[i], actualFlattened[i])
             }
         }
 
@@ -933,33 +932,6 @@ internal class TypeChecking(
             )
         }
         return match
-    }
-
-    /**
-     * Checks if the two types are compatible in other ways than equality. All types
-     * are compatible with `undefined` type to help prevent error propagation.
-     *
-     * Example: `graphic`s can be assigned to `fontmetrics`.
-     */
-    private fun isTypeCompatible(first: Type, second: Type): Boolean {
-        if (first == MetaType.Any || second == MetaType.Any) {
-            // allow any to be compatible with any types
-            return true
-        }
-        if (first == MetaType.Error || second == MetaType.Error) {
-            // allow undefined to be compatible with anything to prevent error propagation
-            return true
-        }
-        if (first == PrimitiveType.OBJ) {
-            // allow assigning namedobj to obj but not obj to namedobj
-            return second == PrimitiveType.OBJ || second == PrimitiveType.NAMEDOBJ
-        }
-        if (first is WrappedType && second is WrappedType) {
-            // if both are wrapped and they're the exact same implementation,
-            // we can then compare their inner types.
-            return first::class == second::class && isTypeCompatible(first.inner, second.inner)
-        }
-        return first == second
     }
 
     /**
