@@ -39,6 +39,8 @@ import me.filby.neptune.runescript.compiler.codegen.script.Label
 import me.filby.neptune.runescript.compiler.codegen.script.LabelGenerator
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.codegen.script.SwitchTable
+import me.filby.neptune.runescript.compiler.configuration.command.CodeGeneratorContext
+import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.defaultCase
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
@@ -63,6 +65,7 @@ import me.filby.neptune.runescript.compiler.type.TupleType
  */
 public class CodeGenerator(
     private val rootTable: SymbolTable,
+    private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
     private val diagnostics: Diagnostics
 ) : AstVisitor<Unit> {
     /**
@@ -122,7 +125,7 @@ public class CodeGenerator(
     /**
      * Adds an instruction to [block], which defaults to the most recently bound [Block].
      */
-    private fun instruction(opcode: Opcode, operand: Any, block: Block = this.block) {
+    internal fun instruction(opcode: Opcode, operand: Any, block: Block = this.block) {
         block += Instruction(opcode, operand)
     }
 
@@ -131,7 +134,7 @@ public class CodeGenerator(
      * does not match the previous source line number instruction that was
      * inserted.
      */
-    private fun Node.lineInstruction() {
+    internal fun Node.lineInstruction() {
         if (source.line != lastLineNumber) {
             instruction(Opcode.LINENUMBER, source.line)
             lastLineNumber = source.line
@@ -507,6 +510,17 @@ public class CodeGenerator(
             commandCallExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
         }
+
+        // attempt to call the dynamic command handlers code generation (if one exists)
+        val name = commandCallExpression.name.text
+        dynamicCommands[name]?.run {
+            val context = CodeGeneratorContext(this@CodeGenerator, commandCallExpression, diagnostics)
+            if (context.generateCode()) {
+                // handler says it generated code and doesn't need to fall through to default impl
+                return
+            }
+        }
+
         commandCallExpression.arguments.visit()
         commandCallExpression.lineInstruction()
         instruction(Opcode.COMMAND, symbol)
@@ -659,16 +673,21 @@ public class CodeGenerator(
     /**
      * Shortcut to [Node.accept] for nullable nodes.
      */
-    private fun Node?.visit() {
-        this ?: return
+    internal fun Node?.visit() {
+        if (this == null) {
+            return
+        }
         accept(this@CodeGenerator)
     }
 
     /**
      * Calls [Node.accept] on all nodes in a list.
      */
-    private fun List<Node>?.visit() {
-        for (n in this ?: return) {
+    internal fun List<Node>?.visit() {
+        if (this == null) {
+            return
+        }
+        for (n in this) {
             n.visit()
         }
     }

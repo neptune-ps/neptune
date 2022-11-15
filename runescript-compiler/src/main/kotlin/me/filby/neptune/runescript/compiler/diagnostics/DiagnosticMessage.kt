@@ -13,6 +13,10 @@ internal object DiagnosticMessage {
     const val LOCAL_REFERENCE_WRONG = "Internal compiler error: '$%s' refers to a non-local variable symbol: %s"
     const val RETURN_ORPHAN = "Internal compiler error: Orphaned `return` statement, no parent `script` node found."
 
+    // custom command handler errors
+    const val CUSTOM_HANDLER_NOTYPE = "Internal compiler error: Custom command handler did not assign return type."
+    const val CUSTOM_HANDLER_NOSYMBOL = "Internal compiler error: Custom command handler did not assign symbol."
+
     // code gen internal compiler errors
     const val SYMBOL_IS_NULL = "Internal compiler error: Symbol has not been defined for the node."
     const val TYPE_HAS_NO_BASETYPE = "Internal compiler error: Type has no defined base type: %s."

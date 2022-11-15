@@ -5,6 +5,7 @@ import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.compiler.codegen.CodeGenerator
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.configuration.SymbolLoader
+import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
 import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
@@ -46,6 +47,11 @@ public class ScriptCompiler(
      * A list of [SymbolLoader]s called before attempting compilation.
      */
     private val symbolLoaders = mutableListOf<SymbolLoader>()
+
+    /**
+     * A mapping of command names to their handler implementation.
+     */
+    private val dynamicCommandHandlers = mutableMapOf<String, DynamicCommandHandler>()
 
     /**
      * The [TypeManager] for the compiler that is used for registering and looking up types.
@@ -91,6 +97,19 @@ public class ScriptCompiler(
      */
     public fun addSymbolLoader(loader: SymbolLoader) {
         symbolLoaders += loader
+    }
+
+    /**
+     * Adds a [DynamicCommandHandler] to the compiler with the given [name]. See
+     * [DynamicCommandHandler] for information on implementation.
+     *
+     * If a handler was registered for the [name] already an error is thrown.
+     */
+    public fun addDynamicCommandHandler(name: String, handler: DynamicCommandHandler) {
+        val existing = dynamicCommandHandlers.putIfAbsent(name, handler)
+        if (existing != null) {
+            error("A dynamic command handler with the name of '$name' already exists.")
+        }
     }
 
     /**
@@ -198,7 +217,7 @@ public class ScriptCompiler(
         val typeCheckingTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    file.accept(TypeChecking(types, rootTable, diagnostics))
+                    file.accept(TypeChecking(types, rootTable, dynamicCommandHandlers, diagnostics))
                 }
                 logger.trace { "Type checked ${file.source.name} in ${time}ms" }
             }
@@ -227,7 +246,7 @@ public class ScriptCompiler(
         val codegenTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    val codegen = CodeGenerator(rootTable, diagnostics)
+                    val codegen = CodeGenerator(rootTable, dynamicCommandHandlers, diagnostics)
                     file.accept(codegen)
                     scripts.addAll(codegen.scripts)
                 }

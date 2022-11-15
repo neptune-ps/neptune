@@ -39,6 +39,8 @@ import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import me.filby.neptune.runescript.compiler.ParserErrorListener
+import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
+import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.defaultCase
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
@@ -77,9 +79,10 @@ import org.antlr.v4.runtime.CharStreams
  * checking required to safely build scripts. This implementation assumes [PreTypeChecking]
  * is run beforehand.
  */
-internal class TypeChecking(
+public class TypeChecking(
     private val typeManager: TypeManager,
     private val rootTable: SymbolTable,
+    private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
     private val diagnostics: Diagnostics
 ) : AstVisitor<Unit> {
     // var Expression.type: Type
@@ -270,7 +273,7 @@ internal class TypeChecking(
     /**
      * Checks if the result of [expression] is known at compile time.
      */
-    private fun isConstantExpression(expression: Expression): Boolean = when (expression) {
+    internal fun isConstantExpression(expression: Expression): Boolean = when (expression) {
         is ConstantVariableExpression -> true
         is Literal<*> -> true
         is Identifier -> {
@@ -532,6 +535,35 @@ internal class TypeChecking(
     override fun visitJumpCallExpression(jumpCallExpression: JumpCallExpression) {
         jumpCallExpression.reportError(DiagnosticMessage.JUMP_CALL_IN_CS2, jumpCallExpression.name.text)
         jumpCallExpression.type = MetaType.Unit
+    }
+
+    override fun visitCommandCallExpression(commandCallExpression: CommandCallExpression) {
+        val name = commandCallExpression.name.text
+
+        // attempt to call the dynamic command handlers type checker (if one exists)
+        dynamicCommands[name]?.run {
+            // invoke the custom command type checking
+            val context = TypeCheckingContext(this@TypeChecking, typeManager, commandCallExpression, diagnostics)
+            context.typeCheck()
+
+            // verify the type has been set
+            if (commandCallExpression.nullableType == null) {
+                commandCallExpression.reportError(DiagnosticMessage.CUSTOM_HANDLER_NOTYPE)
+            }
+
+            // if the symbol was not manually specified attempt to look up a predefined one
+            if (commandCallExpression.symbol == null) {
+                val symbol = rootTable.find(SymbolType.ClientScript(ClientTriggerType.COMMAND), name)
+                if (symbol == null) {
+                    commandCallExpression.reportError(DiagnosticMessage.CUSTOM_HANDLER_NOSYMBOL)
+                }
+                commandCallExpression.symbol = symbol
+            }
+            return
+        }
+
+        // fall back to normal call expression implementation
+        visitCallExpression(commandCallExpression)
     }
 
     /**
@@ -902,7 +934,7 @@ internal class TypeChecking(
      *
      * @see TypeManager.check
      */
-    private fun checkTypeMatch(node: Node, expected: Type, actual: Type, reportError: Boolean = true): Boolean {
+    internal fun checkTypeMatch(node: Node, expected: Type, actual: Type, reportError: Boolean = true): Boolean {
         val expectedFlattened = if (expected is TupleType) expected.children else arrayOf(expected)
         val actualFlattened = if (actual is TupleType) actual.children else arrayOf(actual)
 
@@ -958,16 +990,21 @@ internal class TypeChecking(
     /**
      * Shortcut to [Node.accept] for nullable nodes.
      */
-    private fun Node?.visit() {
-        this ?: return
+    public fun Node?.visit() {
+        if (this == null) {
+            return
+        }
         accept(this@TypeChecking)
     }
 
     /**
      * Calls [Node.accept] on all nodes in a list.
      */
-    private fun List<Node>?.visit() {
-        this ?: return
+    public fun List<Node>?.visit() {
+        if (this == null) {
+            return
+        }
+
         for (n in this) {
             n.visit()
         }
