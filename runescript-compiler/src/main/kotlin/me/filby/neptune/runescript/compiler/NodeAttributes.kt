@@ -77,43 +77,43 @@ internal var ArrayDeclarationStatement.symbol by Node.attribute<LocalVariableSym
 /**
  * The symbol that the variable references.
  */
-internal var VariableExpression.reference by Node.attributeOrNull<Symbol>("reference")
+public var VariableExpression.reference: Symbol? by Node.attributeOrNull("reference")
 
 /**
  * The symbol that the expression references.
  */
-internal var CallExpression.symbol by Node.attributeOrNull<Symbol>("symbol")
+public var CallExpression.symbol: Symbol? by Node.attributeOrNull("symbol")
 
 /**
  * An optional symbol assigned to [StringLiteral]s if the string is meant to represent some other reference.
  */
-internal var StringLiteral.reference by Node.attributeOrNull<Symbol>("symbol")
+public var StringLiteral.reference: Symbol? by Node.attributeOrNull("symbol")
 
 /**
  * An optional expression that was parsed from within the string literal.
  */
-internal var StringLiteral.subExpression by Node.attributeOrNull<Expression>("subExpression")
+public var StringLiteral.subExpression: Expression? by Node.attributeOrNull("subExpression")
 
 /**
  * The symbol the identifier references.
  */
-internal var Identifier.reference by Node.attributeOrNull<Symbol>("reference")
+public var Identifier.reference: Symbol? by Node.attributeOrNull("reference")
 
 /**
  * The type that the expression would evaluate to.
  *
  * @see Expression.nullableType
  */
-internal var Expression.type by Node.attribute<Type>("type")
+public var Expression.type: Type by Node.attribute("type")
 
 /**
  * The type that the expression would evaluate to, or `null`.
  *
  * @see Expression.type
  */
-internal var Expression.nullableType by Node.attributeOrNull<Type>("type")
+public var Expression.nullableType: Type? by Node.attributeOrNull("type")
 
 /**
  * Allows parents of a node to define the expected type to help with identifier ambiguity.
  */
-internal var Expression.typeHint by Node.attributeOrNull<Type>("typeHint")
+public var Expression.typeHint: Type? by Node.attributeOrNull("typeHint")
