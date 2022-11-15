@@ -152,12 +152,10 @@ internal class PreTypeChecking(
         } else if (triggerParameterType != null && scriptParameterType != triggerParameterType) {
             // TODO be smarter on where to place the error location to the first type mismatch?
             val expectedParameterType = triggerParameterType.representation
-            val currentParameterType = scriptParameterType?.representation ?: ""
             script.reportError(
                 DiagnosticMessage.SCRIPT_TRIGGER_EXPECTED_PARAMETERS,
                 script.trigger.text,
-                expectedParameterType,
-                currentParameterType
+                expectedParameterType
             )
         }
     }

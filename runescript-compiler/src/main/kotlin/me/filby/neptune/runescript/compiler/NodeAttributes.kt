@@ -27,7 +27,7 @@ internal var Script.triggerType by Node.attribute<TriggerType>("triggerType")
 /**
  * The script parameter type(s) if it returns any.
  */
-internal var Script.parameterType by Node.attribute<Type?>("parameterType")
+internal var Script.parameterType by Node.attribute<Type>("parameterType")
 
 /**
  * The script return type(s) if it returns any.
