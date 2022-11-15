@@ -130,7 +130,7 @@ call
 
 // invoked manually to parse clientscript references (e.g. cc_setonop)
 clientScript
-    : identifier LPAREN args=expressionList? RPAREN (LBRACE triggers=expressionList RBRACE)? EOF
+    : identifier (LPAREN args=expressionList? RPAREN)? (LBRACE triggers=expressionList? RBRACE)? EOF
     ;
 
 assignableVariableList
