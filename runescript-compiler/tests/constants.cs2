@@ -1,0 +1,17 @@
+[proc,main]
+assert_equals( 2147483647, ^max_32bit_int);
+assert_equals(-2147483648, ^min_32bit_int);
+
+assert_equals(-2147483648, calc(^max_32bit_int + 1));
+assert_equals( 2147483647, calc(^min_32bit_int - 1));
+
+{
+    def_string $max = ^max_32bit_int;
+    def_string $min = ^min_32bit_int;
+    assert_equals_obj( "2147483647", $max);
+    assert_equals_obj("-2147483648", $min);
+}
+
+if (2147483647 ! ^max_32bit_int) {
+    error("2147483647 != ^max_32bit_int");
+}

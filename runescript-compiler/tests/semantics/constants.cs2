@@ -1,0 +1,5 @@
+[proc,test]
+def_int $max = ^max_32bit_int;
+def_int $min = ^min_32bit_int;
+
+def_int $cyclic = ^a; // Expect: Cyclic constant references are not permitted: ^a -> ^b -> ^c -> ^a.

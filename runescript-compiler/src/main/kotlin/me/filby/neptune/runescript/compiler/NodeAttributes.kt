@@ -4,6 +4,7 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.expr.CallExpression
+import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.StringLiteral
@@ -73,6 +74,11 @@ internal var DeclarationStatement.symbol by Node.attribute<LocalVariableSymbol>(
  * The symbol that the statement defined.
  */
 internal var ArrayDeclarationStatement.symbol by Node.attribute<LocalVariableSymbol>("symbol")
+
+/**
+ * The expression that the constant value parsed to.
+ */
+internal var ConstantVariableExpression.subExpression by Node.attributeOrNull<Expression>("subExpression")
 
 /**
  * The symbol that the variable references.

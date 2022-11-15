@@ -125,6 +125,16 @@ private class CommandSymbolLoader : SymbolLoader {
         rootTable.addConfig(VarClientType(PrimitiveType.INT), "varc")
         rootTable.addConfig(VarClientType(PrimitiveType.STRING), "varcstr")
 
+        // constants
+        rootTable.addConstant("max_32bit_int", "2147483647")
+        rootTable.addConstant("min_32bit_int", "-2147483648")
+        rootTable.addConstant("quote", "\"")
+
+        // cyclic reference constants
+        rootTable.addConstant("a", "^b")
+        rootTable.addConstant("b", "^c")
+        rootTable.addConstant("c", "^a")
+
         // general commands
         rootTable.addCommand("println", PrimitiveType.STRING)
         rootTable.addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)

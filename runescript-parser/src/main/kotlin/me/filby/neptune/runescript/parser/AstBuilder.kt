@@ -185,6 +185,11 @@ public class AstBuilder(
         return EmptyStatement(ctx.location)
     }
 
+    // only used for parsing constant values into an expression
+    override fun visitSingleExpression(ctx: RuneScriptParser.SingleExpressionContext): Node {
+        return ctx.expression().visit()
+    }
+
     override fun visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): Node {
         return ParenthesizedExpression(ctx.location, ctx.parenthesis().visit())
     }

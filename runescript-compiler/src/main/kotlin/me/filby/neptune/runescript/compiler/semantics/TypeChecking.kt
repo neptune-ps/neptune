@@ -72,7 +72,10 @@ import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.type.wrapped.GameVarType
 import me.filby.neptune.runescript.compiler.typeHint
 import me.filby.neptune.runescript.parser.ScriptParser
+import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.RecognitionException
+import org.antlr.v4.runtime.Recognizer
 
 /**
  * An implementation of [AstVisitor] that implements all remaining semantic/type
@@ -107,6 +110,12 @@ public class TypeChecking(
      * State for if we're currently within a `calc` expression.
      */
     private var inCalc = false
+
+    /**
+     * A set of symbols that are currently being evaluated. Used to prevent re-entering
+     * a constant and causing a stack overflow.
+     */
+    private val constantsBeingEvaluated = LinkedHashSet<Symbol>()
 
     /**
      * Sets the active [table] to [newTable] and runs [block] then sets [table] back to what it was originally.
@@ -275,6 +284,12 @@ public class TypeChecking(
      */
     internal fun isConstantExpression(expression: Expression): Boolean = when (expression) {
         is ConstantVariableExpression -> true
+        is StringLiteral -> {
+            // we need to special case this since it's possible for a string literal to have been
+            // transformed into another expression type (e.g. graphic or clientscript)
+            val sub = expression.subExpression
+            sub == null || isConstantExpression(sub)
+        }
         is Literal<*> -> true
         is Identifier -> {
             val ref = expression.reference
@@ -734,7 +749,113 @@ public class TypeChecking(
     }
 
     override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {
-        // NO-OP, constants are handled in pre-type checking.
+        val name = constantVariableExpression.name.text
+
+        // constants rely on having a type to parse the constant value for
+        val typeHint = constantVariableExpression.typeHint
+        if (typeHint == null) {
+            constantVariableExpression.reportError(DiagnosticMessage.CONSTANT_UNKNOWN_TYPE, name)
+            constantVariableExpression.type = MetaType.Error
+            return
+        } else if (typeHint == MetaType.Error) {
+            // Avoid attempting to parse the constant if it was type hinted to error.
+            // This is safe because if the hint type is error that means an error happened
+            // elsewhere so an error will have been reported.
+            constantVariableExpression.type = MetaType.Error
+            return
+        }
+
+        // lookup the constant
+        val symbol = rootTable.find(SymbolType.Constant, name)
+        if (symbol == null) {
+            constantVariableExpression.reportError(DiagnosticMessage.CONSTANT_REFERENCE_UNRESOLVED, name)
+            constantVariableExpression.type = MetaType.Error
+            return
+        }
+
+        // check if we're trying to evaluate a constant that is still being evaluated
+        if (symbol in constantsBeingEvaluated) {
+            // create a stack string and append the symbol that was the start of the loop to it
+            var stack = constantsBeingEvaluated.joinToString(" -> ") { "^${it.name}" }
+            stack += " -> ^${symbol.name}"
+
+            constantVariableExpression.reportError(DiagnosticMessage.CONSTANT_CYCLIC_REF, stack)
+            constantVariableExpression.type = MetaType.Error
+            return
+        }
+
+        // add the symbol to the set of constants being evaluated
+        constantsBeingEvaluated += symbol
+
+        try {
+            // base the source information on the string literal
+            val (sourceName, sourceLine, sourceColumn) = constantVariableExpression.source
+
+            // wrap string and quote
+            val stringExpected = typeHint == PrimitiveType.STRING || typeHint == PrimitiveType.GRAPHIC
+            val valueToParse = if (stringExpected && shouldQuoteConstantValue(symbol.value)) {
+                "\"${escapeString(symbol.value)}\""
+            } else {
+                symbol.value
+            }
+
+            // attempt to parse the constant value
+            val parsedExpression = ScriptParser.invokeParser(
+                CharStreams.fromString(valueToParse, sourceName),
+                RuneScriptParser::singleExpression,
+                DISCARD_ERROR_LISTENER,
+                sourceLine - 1,
+                sourceColumn - 1
+            ) as? Expression
+
+            // verify that the expression parsed properly
+            if (parsedExpression == null) {
+                constantVariableExpression.reportError(
+                    DiagnosticMessage.CONSTANT_PARSE_ERROR,
+                    valueToParse,
+                    typeHint.representation
+                )
+                constantVariableExpression.type = MetaType.Error
+                return
+            }
+
+            // type hint the parsed expression to the expected type and then visit it
+            parsedExpression.typeHint = typeHint
+            parsedExpression.visit()
+
+            // verify the constant evaluates to a constant expression (no macros!)
+            if (!isConstantExpression(parsedExpression)) {
+                constantVariableExpression.reportError(DiagnosticMessage.CONSTANT_NONCONSTANT, valueToParse)
+                constantVariableExpression.type = MetaType.Error
+                return
+            }
+
+            // set the sub expression to the parser expression and the type to the parsed expressions type
+            constantVariableExpression.subExpression = parsedExpression
+            constantVariableExpression.type = parsedExpression.type
+        } finally {
+            // remove the symbol from the set since it is no longer being evaluated
+            constantsBeingEvaluated -= symbol
+        }
+    }
+
+    /**
+     * Determines if the [value] given should implicitly add double quotes (")
+     * to it to make it parse-able.
+     */
+    private fun shouldQuoteConstantValue(value: String): Boolean {
+        if (value.length == 1) {
+            return true
+        }
+
+        if (!value.startsWith("\"") && !value.endsWith("\"")) {
+            return true
+        }
+        return false
+    }
+
+    private fun escapeString(value: String): String {
+        return value.replace("\"", "\\\"")
     }
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
@@ -877,13 +998,21 @@ public class TypeChecking(
     }
 
     /**
-     * Converts a [Symbol] to its equivalent [Type].
+     * Attempts to figure out the return type of [symbol].
+     *
+     * If the symbol is not valid for direct identifier lookup then `null` is returned.
      */
     private fun symbolToType(symbol: Symbol) = when (symbol) {
-        is ScriptSymbol -> symbol.returns
+        is ScriptSymbol -> if (symbol.parameters == null || symbol.parameters == MetaType.Unit) {
+            symbol.returns
+        } else {
+            // things with arguments should not be looked up by only via identifier, so we just
+            // skip them by returning null here.
+            null
+        }
         is LocalVariableSymbol -> symbol.type
         is BasicSymbol -> symbol.type
-        is ConstantSymbol -> symbol.type
+        is ConstantSymbol -> null
         is ConfigSymbol -> symbol.type
     }
 
@@ -1028,5 +1157,21 @@ public class TypeChecking(
             "=", "!",
             "&", "|"
         )
+
+        /**
+         * A parser error listener that discards any syntax errors.
+         */
+        private val DISCARD_ERROR_LISTENER = object : BaseErrorListener() {
+            override fun syntaxError(
+                recognizer: Recognizer<*, *>?,
+                offendingSymbol: Any?,
+                line: Int,
+                charPositionInLine: Int,
+                msg: String?,
+                e: RecognitionException?
+            ) {
+                // no-op
+            }
+        }
     }
 }

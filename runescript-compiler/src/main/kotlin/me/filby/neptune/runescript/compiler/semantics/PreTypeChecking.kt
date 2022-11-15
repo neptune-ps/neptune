@@ -5,7 +5,6 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
-import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
@@ -318,18 +317,6 @@ internal class PreTypeChecking(
         val firstArrayRef = vars.firstOrNull { it is LocalVariableExpression && it.isArray }
         if (vars.size > 1 && firstArrayRef != null) {
             firstArrayRef.reportError(DiagnosticMessage.ASSIGN_MULTI_ARRAY)
-        }
-    }
-
-    override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {
-        val name = constantVariableExpression.name.text
-        val symbol = rootTable.find(SymbolType.Constant, name)
-        if (symbol != null) {
-            constantVariableExpression.reference = symbol
-            constantVariableExpression.type = symbol.type
-        } else {
-            constantVariableExpression.type = MetaType.Error
-            constantVariableExpression.reportError(DiagnosticMessage.CONSTANT_REFERENCE_UNRESOLVED, name)
         }
     }
 

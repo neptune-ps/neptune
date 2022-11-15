@@ -23,7 +23,7 @@ internal object DiagnosticMessage {
     const val TYPE_HAS_NO_DEFAULT = "Internal compiler error: Return type '%s' has no defined default value."
     const val INVALID_CONDITION = "Internal compiler error: %s is not a supported expression type for conditions."
     const val NULL_CONSTANT = "Internal compiler error: %s evaluated to 'null' constant value."
-    const val STRINGLIT_NO_SUBEXPR = "Internal compiler error: No sub expression node."
+    const val EXPRESSION_NO_SUBEXPR = "Internal compiler error: No sub expression node."
 
     // node type agnostic messages
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
@@ -78,4 +78,8 @@ internal object DiagnosticMessage {
 
     // constant variable specific
     const val CONSTANT_REFERENCE_UNRESOLVED = "'^%s' cannot be resolved to a constant."
+    const val CONSTANT_CYCLIC_REF = "Cyclic constant references are not permitted: %s."
+    const val CONSTANT_UNKNOWN_TYPE = "Unable to infer type for '^%s'."
+    const val CONSTANT_PARSE_ERROR = "Unable to parse constant value of '%s' into type '%s'."
+    const val CONSTANT_NONCONSTANT = "Constant value of '%s' evaluated to a non-constant expression."
 }

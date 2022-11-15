@@ -464,13 +464,12 @@ public class CodeGenerator(
     }
 
     override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {
-        val reference = constantVariableExpression.reference
-        if (reference == null) {
-            constantVariableExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
+        val subExpression = constantVariableExpression.subExpression
+        if (subExpression == null) {
+            constantVariableExpression.reportError(DiagnosticMessage.EXPRESSION_NO_SUBEXPR)
             return
         }
-        constantVariableExpression.lineInstruction()
-        instruction(Opcode.PUSH_CONSTANT, reference)
+        subExpression.visit()
     }
 
     override fun visitParenthesizedExpression(parenthesizedExpression: ParenthesizedExpression) {
@@ -615,7 +614,7 @@ public class CodeGenerator(
         } else if (stringLiteral.type is MetaType.ClientScript) {
             val subExpression = stringLiteral.subExpression
             if (subExpression == null) {
-                stringLiteral.reportError(DiagnosticMessage.STRINGLIT_NO_SUBEXPR)
+                stringLiteral.reportError(DiagnosticMessage.EXPRESSION_NO_SUBEXPR)
                 return
             }
             subExpression.visit()

@@ -25,10 +25,10 @@ public interface SymbolLoader {
     // helper extension functions for adding things to symbol table
 
     /**
-     * Adds a [ConstantSymbol] to the table with the given [type] and [name].
+     * Adds a [ConstantSymbol] to the table with the given [name] and [value].
      */
-    public fun SymbolTable.addConstant(type: PrimitiveType, name: String): Boolean {
-        return insert(SymbolType.Constant, ConstantSymbol(name, type))
+    public fun SymbolTable.addConstant(name: String, value: String): Boolean {
+        return insert(SymbolType.Constant, ConstantSymbol(name, value))
     }
 
     /**

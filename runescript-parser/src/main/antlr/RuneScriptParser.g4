@@ -99,6 +99,10 @@ parenthesis
     ;
 
 // expressions
+singleExpression
+    : expression EOF
+    ;
+
 expression
     : parenthesis                                                               # ParenthesizedExpression
     | expression {inCalc}? op=(MUL | DIV | MOD) expression                      # BinaryExpression
