@@ -274,7 +274,7 @@ internal class PreTypeChecking(
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
         val typeName = arrayDeclarationStatement.typeToken.text.removePrefix("def_")
         val name = arrayDeclarationStatement.name.text
-        var type = typeManager.find(typeName, allowArray = true)
+        var type = typeManager.find(typeName)
 
         // notify invalid type
         if (type == MetaType.Error) {
