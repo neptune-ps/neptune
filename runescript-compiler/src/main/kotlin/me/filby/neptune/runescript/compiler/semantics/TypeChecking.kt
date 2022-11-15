@@ -962,9 +962,8 @@ public class TypeChecking(
         var symbol: Symbol? = null
         var symbolType: Type? = null
         for (temp in rootTable.findAll<Symbol>(name)) {
-            // TODO filter specific types of symbols from this so they can't be accessed in the wrong way.
-            val tempSymbolType = symbolToType(temp)
-            if (hint == null || tempSymbolType != null && typeManager.check(hint, tempSymbolType)) {
+            val tempSymbolType = symbolToType(temp) ?: continue
+            if (hint == null || typeManager.check(hint, tempSymbolType)) {
                 // hint type matches (or is null) so we can stop looking
                 symbol = temp
                 symbolType = tempSymbolType
