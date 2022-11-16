@@ -22,13 +22,20 @@ public class TypeManager {
     private val checkers = mutableListOf<TypeChecker>()
 
     /**
+     * Registers [type] using [name] for lookup.
+     */
+    public fun register(name: String, type: Type) {
+        val existingType = nameToType.putIfAbsent(name, type)
+        if (existingType != null) {
+            error("Type '$name' is already registered.")
+        }
+    }
+
+    /**
      * Registers [type] using [Type.representation] for lookup.
      */
     public fun register(type: Type) {
-        val existingType = nameToType.putIfAbsent(type.representation, type)
-        if (existingType != null) {
-            error("Type '${type.representation}' is already registered.")
-        }
+        register(type.representation, type)
     }
 
     /**
