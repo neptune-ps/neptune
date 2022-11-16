@@ -33,7 +33,7 @@ public abstract class BaseScriptRunner<T : ScriptState> : ScriptRunner<T> {
             }
             handlers[instruction.opcode] = MethodHandlerHelper.buildHandle(ref, function)
             handlerNames[instruction.opcode] = function.name
-            println("Registered ${function.name} to ${instruction.opcode}")
+            // println("Registered ${function.name} to ${instruction.opcode}")
         }
     }
 
