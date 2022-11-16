@@ -24,7 +24,7 @@ import kotlin.system.measureTimeMillis
 /**
  * An entry point for compiling scripts.
  */
-public class ScriptCompiler(
+public open class ScriptCompiler(
     sourcePath: Path,
     private val scriptWriter: ScriptWriter
 ) {
