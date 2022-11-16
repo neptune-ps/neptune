@@ -1002,12 +1002,15 @@ public class TypeChecking(
      * If the symbol is not valid for direct identifier lookup then `null` is returned.
      */
     private fun symbolToType(symbol: Symbol) = when (symbol) {
-        is ScriptSymbol -> if (symbol.parameters == null || symbol.parameters == MetaType.Unit) {
-            symbol.returns
-        } else {
+        is ScriptSymbol -> if (symbol.trigger != ClientTriggerType.COMMAND) {
+            // skip any non-command reference
+            null
+        } else if (symbol.parameters != null && symbol.parameters != MetaType.Unit) {
             // things with arguments should not be looked up by only via identifier, so we just
             // skip them by returning null here.
             null
+        } else {
+            symbol.returns
         }
         is LocalVariableSymbol -> symbol.type
         is BasicSymbol -> symbol.type
