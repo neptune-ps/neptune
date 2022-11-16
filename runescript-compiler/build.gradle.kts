@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":runescript-parser"))
+    api(project(":runescript-parser"))
     runtimeOnly(libs.logback)
 
     testImplementation(project(":runescript-runtime"))
