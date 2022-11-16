@@ -40,7 +40,7 @@ public class TypeManager {
         baseType: BaseVarType = BaseVarType.INTEGER,
         defaultValue: Any = -1,
         builder: TypeBuilder? = null
-    ) {
+    ): Type {
         val options = MutableTypeOptions()
         builder?.invoke(options)
 
@@ -52,6 +52,7 @@ public class TypeManager {
             override val options = options
         }
         register(newType)
+        return newType
     }
 
     /**
