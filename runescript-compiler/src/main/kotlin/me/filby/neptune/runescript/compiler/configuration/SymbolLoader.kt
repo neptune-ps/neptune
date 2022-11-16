@@ -50,7 +50,7 @@ public interface SymbolLoader {
      * should be used for any non-config symbols that don't have any special properties
      * to them.
      */
-    public fun SymbolTable.addBasic(type: PrimitiveType, name: String): Boolean {
+    public fun SymbolTable.addBasic(type: Type, name: String): Boolean {
         return insert(SymbolType.Basic(type), BasicSymbol(name, type))
     }
 }
