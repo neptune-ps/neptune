@@ -355,14 +355,10 @@ public class CodeGenerator(
     /**
      * Attempts to resolve [expression] to a constant value.
      */
-    private fun resolveConstantValue(expression: Expression) = when (expression) {
-        is ConstantVariableExpression -> expression.reference
+    private fun resolveConstantValue(expression: Expression): Any? = when (expression) {
+        is ConstantVariableExpression -> expression.subExpression?.let { resolveConstantValue(it) }
         is Identifier -> expression.reference
-        is StringLiteral -> if (expression.type == PrimitiveType.GRAPHIC) {
-            expression.reference
-        } else {
-            expression.value
-        }
+        is StringLiteral -> expression.reference ?: expression.value
         is Literal<*> -> expression.value
         else -> null
     }
