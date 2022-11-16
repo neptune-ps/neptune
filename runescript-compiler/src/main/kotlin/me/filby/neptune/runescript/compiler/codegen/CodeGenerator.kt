@@ -541,10 +541,10 @@ public class CodeGenerator(
 
         // convert the parameter type to a list and generate a string with all the type char codes combined
         val argumentTypes = TupleType.toList(symbol.parameters)
-        var argumentTypesShort = argumentTypes.map { it.code }.joinToString("")
+        var argumentTypesShort = argumentTypes.mapNotNull { it.code }.joinToString("")
 
         // safety check in case there was a type with no char code defined
-        require(argumentTypesShort.length == clientScriptExpression.arguments.size)
+        require(argumentTypes.size == argumentTypesShort.length)
 
         // write the clientscript reference and arguments
         instruction(Opcode.PUSH_CONSTANT, symbol)
