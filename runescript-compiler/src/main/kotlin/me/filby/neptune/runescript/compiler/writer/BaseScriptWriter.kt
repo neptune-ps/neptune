@@ -11,6 +11,7 @@ import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter.BaseScriptWriterContext
+import java.io.Closeable
 import java.util.TreeMap
 
 /**
@@ -19,19 +20,20 @@ import java.util.TreeMap
  */
 public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWriter {
     override fun write(script: RuneScript) {
-        val context = createContext(script)
+        createContext(script).use { context ->
+            for (block in script.blocks) {
 
-        for (block in script.blocks) {
-            for (instruction in block.instructions) {
-                // write the current instruction
-                writeInstruction(context, instruction)
+                for (instruction in block.instructions) {
+                    // write the current instruction
+                    writeInstruction(context, instruction)
 
-                // update current instruction index
-                context.curIndex++
+                    // update current instruction index
+                    context.curIndex++
+                }
             }
-        }
 
-        finishWrite(script, context)
+            finishWrite(script, context)
+        }
     }
 
     protected abstract fun finishWrite(script: RuneScript, context: T)
@@ -238,11 +240,14 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
      */
     public open class BaseScriptWriterContext(
         public val script: RuneScript,
-    ) {
+    ) : Closeable {
         public val lineNumberTable: TreeMap<Int, Int> = script.generateLineNumberTable()
         public val jumpTable: Map<Label, Int> = script.generateJumpTable()
 
         public var curIndex: Int = 0
             internal set
+
+        override fun close() {
+        }
     }
 }
