@@ -1,47 +1,47 @@
 package me.filby.neptune.runescript.compiler.codegen
 
-public enum class Opcode {
-    PUSH_CONSTANT,
-    PUSH_VAR,
-    POP_VAR,
-    DEFINE_ARRAY,
-    SWITCH,
-    BRANCH,
-    BRANCH_NOT,
-    BRANCH_EQUALS,
-    BRANCH_LESS_THAN,
-    BRANCH_GREATER_THAN,
-    BRANCH_LESS_THAN_OR_EQUALS,
-    BRANCH_GREATER_THAN_OR_EQUALS,
-    LONG_BRANCH_NOT,
-    LONG_BRANCH_EQUALS,
-    LONG_BRANCH_LESS_THAN,
-    LONG_BRANCH_GREATER_THAN,
-    LONG_BRANCH_LESS_THAN_OR_EQUALS,
-    LONG_BRANCH_GREATER_THAN_OR_EQUALS,
-    OBJ_BRANCH_NOT,
-    OBJ_BRANCH_EQUALS,
-    JOIN_STRING,
-    DISCARD,
-    GOSUB,
-    COMMAND,
-    RETURN,
+public sealed class Opcode {
+    public object PushConstant : Opcode()
+    public object PushVar : Opcode()
+    public object PopVar : Opcode()
+    public object DefineArray : Opcode()
+    public object Switch : Opcode()
+    public object Branch : Opcode()
+    public object BranchNot : Opcode()
+    public object BranchEquals : Opcode()
+    public object BranchLessThan : Opcode()
+    public object BranchGreaterThan : Opcode()
+    public object BranchLessThanOrEquals : Opcode()
+    public object BranchGreaterThanOrEquals : Opcode()
+    public object LongBranchNot : Opcode()
+    public object LongBranchEquals : Opcode()
+    public object LongBranchLessThan : Opcode()
+    public object LongBranchGreaterThan : Opcode()
+    public object LongBranchLessThanOrEquals : Opcode()
+    public object LongBranchGreaterThanOrEquals : Opcode()
+    public object ObjBranchNot : Opcode()
+    public object ObjBranchEquals : Opcode()
+    public object JoinString : Opcode()
+    public object Discard : Opcode()
+    public object Gosub : Opcode()
+    public object Command : Opcode()
+    public object Return : Opcode()
 
     // math operations
-    ADD,
-    SUB,
-    MULTIPLY,
-    DIVIDE,
-    MODULO,
-    OR,
-    AND,
-    LONG_ADD,
-    LONG_SUB,
-    LONG_MULTIPLY,
-    LONG_DIVIDE,
-    LONG_MODULO,
-    LONG_OR,
-    LONG_AND,
+    public object Add : Opcode()
+    public object Sub : Opcode()
+    public object Multiply : Opcode()
+    public object Divide : Opcode()
+    public object Modulo : Opcode()
+    public object Or : Opcode()
+    public object And : Opcode()
+    public object LongAdd : Opcode()
+    public object LongSub : Opcode()
+    public object LongMultiply : Opcode()
+    public object LongDivide : Opcode()
+    public object LongModulo : Opcode()
+    public object LongOr : Opcode()
+    public object LongAnd : Opcode()
 
     /**
      * Marks the source line number of the code that follows. This opcode is
@@ -51,6 +51,5 @@ public enum class Opcode {
      * Operand:
      *  - [Int] - The source line number.
      */
-    LINENUMBER,
-    ;
+    public object LineNumber : Opcode()
 }

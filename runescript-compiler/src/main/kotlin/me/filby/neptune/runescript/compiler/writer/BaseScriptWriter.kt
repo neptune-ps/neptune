@@ -50,7 +50,7 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
     private fun writeInstruction(context: T, instruction: Instruction) {
         val (opcode, operand) = instruction
         when (opcode) {
-            Opcode.PUSH_CONSTANT -> when (operand) {
+            Opcode.PushConstant -> when (operand) {
                 is Int -> context.writePushConstantInt(operand)
                 is String -> context.writePushConstantString(operand)
                 is Long -> context.writePushConstantLong(operand)
@@ -58,45 +58,45 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
                 else -> error("Unsupported push_constant operand type: $operand")
             }
 
-            Opcode.PUSH_VAR -> context.writePushVar(operand as Symbol)
-            Opcode.POP_VAR -> context.writePopVar(operand as Symbol)
-            Opcode.DEFINE_ARRAY -> context.writeDefineArray(operand as Symbol)
-            Opcode.SWITCH -> context.writeSwitch(operand as SwitchTable)
-            Opcode.BRANCH -> context.writeBranch(opcode, operand as Label)
-            Opcode.BRANCH_NOT -> context.writeBranch(opcode, operand as Label)
-            Opcode.BRANCH_EQUALS -> context.writeBranch(opcode, operand as Label)
-            Opcode.BRANCH_LESS_THAN -> context.writeBranch(opcode, operand as Label)
-            Opcode.BRANCH_GREATER_THAN -> context.writeBranch(opcode, operand as Label)
-            Opcode.BRANCH_LESS_THAN_OR_EQUALS -> context.writeBranch(opcode, operand as Label)
-            Opcode.BRANCH_GREATER_THAN_OR_EQUALS -> context.writeBranch(opcode, operand as Label)
-            Opcode.LONG_BRANCH_NOT -> context.writeBranch(opcode, operand as Label)
-            Opcode.LONG_BRANCH_EQUALS -> context.writeBranch(opcode, operand as Label)
-            Opcode.LONG_BRANCH_LESS_THAN -> context.writeBranch(opcode, operand as Label)
-            Opcode.LONG_BRANCH_GREATER_THAN -> context.writeBranch(opcode, operand as Label)
-            Opcode.LONG_BRANCH_LESS_THAN_OR_EQUALS -> context.writeBranch(opcode, operand as Label)
-            Opcode.LONG_BRANCH_GREATER_THAN_OR_EQUALS -> context.writeBranch(opcode, operand as Label)
-            Opcode.OBJ_BRANCH_NOT -> context.writeBranch(opcode, operand as Label)
-            Opcode.OBJ_BRANCH_EQUALS -> context.writeBranch(opcode, operand as Label)
-            Opcode.JOIN_STRING -> context.writeJoinString(operand as Int)
-            Opcode.DISCARD -> context.writeDiscard(operand as BaseVarType)
-            Opcode.GOSUB -> context.writeGosub(operand as ClientScriptSymbol)
-            Opcode.COMMAND -> context.writeCommand(operand as ClientScriptSymbol)
-            Opcode.RETURN -> context.writeReturn()
-            Opcode.ADD -> context.writeMath(opcode)
-            Opcode.SUB -> context.writeMath(opcode)
-            Opcode.MULTIPLY -> context.writeMath(opcode)
-            Opcode.DIVIDE -> context.writeMath(opcode)
-            Opcode.MODULO -> context.writeMath(opcode)
-            Opcode.OR -> context.writeMath(opcode)
-            Opcode.AND -> context.writeMath(opcode)
-            Opcode.LONG_ADD -> context.writeMath(opcode)
-            Opcode.LONG_SUB -> context.writeMath(opcode)
-            Opcode.LONG_MULTIPLY -> context.writeMath(opcode)
-            Opcode.LONG_DIVIDE -> context.writeMath(opcode)
-            Opcode.LONG_MODULO -> context.writeMath(opcode)
-            Opcode.LONG_OR -> context.writeMath(opcode)
-            Opcode.LONG_AND -> context.writeMath(opcode)
-            Opcode.LINENUMBER -> error("linenumber opcode should not exist.")
+            Opcode.PushVar -> context.writePushVar(operand as Symbol)
+            Opcode.PopVar -> context.writePopVar(operand as Symbol)
+            Opcode.DefineArray -> context.writeDefineArray(operand as Symbol)
+            Opcode.Switch -> context.writeSwitch(operand as SwitchTable)
+            Opcode.Branch -> context.writeBranch(opcode, operand as Label)
+            Opcode.BranchNot -> context.writeBranch(opcode, operand as Label)
+            Opcode.BranchEquals -> context.writeBranch(opcode, operand as Label)
+            Opcode.BranchLessThan -> context.writeBranch(opcode, operand as Label)
+            Opcode.BranchGreaterThan -> context.writeBranch(opcode, operand as Label)
+            Opcode.BranchLessThanOrEquals -> context.writeBranch(opcode, operand as Label)
+            Opcode.BranchGreaterThanOrEquals -> context.writeBranch(opcode, operand as Label)
+            Opcode.LongBranchNot -> context.writeBranch(opcode, operand as Label)
+            Opcode.LongBranchEquals -> context.writeBranch(opcode, operand as Label)
+            Opcode.LongBranchLessThan -> context.writeBranch(opcode, operand as Label)
+            Opcode.LongBranchGreaterThan -> context.writeBranch(opcode, operand as Label)
+            Opcode.LongBranchLessThanOrEquals -> context.writeBranch(opcode, operand as Label)
+            Opcode.LongBranchGreaterThanOrEquals -> context.writeBranch(opcode, operand as Label)
+            Opcode.ObjBranchNot -> context.writeBranch(opcode, operand as Label)
+            Opcode.ObjBranchEquals -> context.writeBranch(opcode, operand as Label)
+            Opcode.JoinString -> context.writeJoinString(operand as Int)
+            Opcode.Discard -> context.writeDiscard(operand as BaseVarType)
+            Opcode.Gosub -> context.writeGosub(operand as ClientScriptSymbol)
+            Opcode.Command -> context.writeCommand(operand as ClientScriptSymbol)
+            Opcode.Return -> context.writeReturn()
+            Opcode.Add -> context.writeMath(opcode)
+            Opcode.Sub -> context.writeMath(opcode)
+            Opcode.Multiply -> context.writeMath(opcode)
+            Opcode.Divide -> context.writeMath(opcode)
+            Opcode.Modulo -> context.writeMath(opcode)
+            Opcode.Or -> context.writeMath(opcode)
+            Opcode.And -> context.writeMath(opcode)
+            Opcode.LongAdd -> context.writeMath(opcode)
+            Opcode.LongSub -> context.writeMath(opcode)
+            Opcode.LongMultiply -> context.writeMath(opcode)
+            Opcode.LongDivide -> context.writeMath(opcode)
+            Opcode.LongModulo -> context.writeMath(opcode)
+            Opcode.LongOr -> context.writeMath(opcode)
+            Opcode.LongAnd -> context.writeMath(opcode)
+            Opcode.LineNumber -> error("linenumber opcode should not exist.")
         }
     }
 
@@ -170,7 +170,7 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
         /**
          * Returns a mapping of instruction index to line number. This modifies the
          * list of instruction by removing any instruction with an opcode of
-         * [Opcode.LINENUMBER].
+         * [Opcode.LineNumber].
          */
         public fun RuneScript.generateLineNumberTable(): TreeMap<Int, Int> {
             val table = TreeMap<Int, Int>()
@@ -181,7 +181,7 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
                     val instruction = it.next()
 
                     // check if the instruction is a linenumber
-                    if (instruction.opcode == Opcode.LINENUMBER) {
+                    if (instruction.opcode == Opcode.LineNumber) {
                         // add it to the table
                         table[index] = instruction.operand as Int
 

@@ -40,7 +40,7 @@ public data class CodeGeneratorContext(
         // code generation code which makes this safe, but we'll make the compiler happy.
         val symbol = requireNotNull(expression.symbol)
         expression.lineInstruction()
-        instruction(Opcode.COMMAND, symbol)
+        instruction(Opcode.Command, symbol)
     }
 
     /**

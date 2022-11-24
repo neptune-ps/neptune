@@ -130,13 +130,13 @@ public class CodeGenerator(
     }
 
     /**
-     * Inserts a [Opcode.LINENUMBER] instruction if the source line of the node
+     * Inserts a [Opcode.LineNumber] instruction if the source line of the node
      * does not match the previous source line number instruction that was
      * inserted.
      */
     internal fun Node.lineInstruction() {
         if (source.line != lastLineNumber) {
-            instruction(Opcode.LINENUMBER, source.line)
+            instruction(Opcode.LineNumber, source.line)
             lastLineNumber = source.line
         }
     }
@@ -196,9 +196,9 @@ public class CodeGenerator(
                 script.reportError(DiagnosticMessage.TYPE_HAS_NO_DEFAULT, type)
                 return
             }
-            instruction(Opcode.PUSH_CONSTANT, default)
+            instruction(Opcode.PushConstant, default)
         }
-        instruction(Opcode.RETURN, 0)
+        instruction(Opcode.Return, 0)
     }
 
     override fun visitBlockStatement(blockStatement: BlockStatement) {
@@ -208,7 +208,7 @@ public class CodeGenerator(
     override fun visitReturnStatement(returnStatement: ReturnStatement) {
         returnStatement.expressions.visit()
         returnStatement.lineInstruction()
-        instruction(Opcode.RETURN, 0)
+        instruction(Opcode.Return, 0)
     }
 
     override fun visitIfStatement(ifStatement: IfStatement) {
@@ -222,7 +222,7 @@ public class CodeGenerator(
         // bind the if_true block and visit the statements within
         bind(generateBlock(ifTrue))
         ifStatement.thenStatement.visit()
-        instruction(Opcode.BRANCH, ifEnd)
+        instruction(Opcode.Branch, ifEnd)
 
         // handle else statement if it exists
         if (ifElse != null) {
@@ -231,7 +231,7 @@ public class CodeGenerator(
             ifStatement.elseStatement.visit()
 
             // branch to the if_end label
-            instruction(Opcode.BRANCH, ifEnd)
+            instruction(Opcode.Branch, ifEnd)
         }
 
         // bind the if_end block
@@ -250,7 +250,7 @@ public class CodeGenerator(
         // generate the body and branch back up to the condition
         bind(generateBlock(whileBody))
         whileStatement.thenStatement.visit()
-        instruction(Opcode.BRANCH, whileStart)
+        instruction(Opcode.Branch, whileStart)
 
         // generate the end block that is jumped to when the condition is false
         bind(generateBlock(whileEnd))
@@ -278,7 +278,7 @@ public class CodeGenerator(
 
                 // add the true branch opcode and false branch instructions
                 instruction(branchOpcode, branchTrue, block)
-                instruction(Opcode.BRANCH, branchFalse, block)
+                instruction(Opcode.Branch, branchFalse, block)
             } else {
                 // generate the label for the next block
                 val nextBlockLabel = if (condition.operator.text == LOGICAL_OR) {
@@ -312,10 +312,10 @@ public class CodeGenerator(
         switchStatement.condition.visit()
 
         // add the switch instruction with a reference to the table
-        instruction(Opcode.SWITCH, table)
+        instruction(Opcode.Switch, table)
 
         // jump to either the default or end depending on if a default is defined
-        instruction(Opcode.BRANCH, switchDefault ?: switchEnd)
+        instruction(Opcode.Branch, switchDefault ?: switchEnd)
 
         for (case in switchStatement.cases) {
             // generate a label if the case isn't a default case.
@@ -345,7 +345,7 @@ public class CodeGenerator(
             // generate the block for the case and then add the code within it
             bind(generateBlock(caseLabel))
             case.statements.visit()
-            instruction(Opcode.BRANCH, switchEnd)
+            instruction(Opcode.Branch, switchEnd)
         }
 
         // bind the switch end block that all cases jump to (no fallthrough)
@@ -375,9 +375,9 @@ public class CodeGenerator(
             declarationStatement.initializer.visit()
         } else {
             // handle default based on the type information
-            instruction(Opcode.PUSH_CONSTANT, symbol.type.defaultValue as Any)
+            instruction(Opcode.PushConstant, symbol.type.defaultValue as Any)
         }
-        instruction(Opcode.POP_VAR, symbol)
+        instruction(Opcode.PopVar, symbol)
     }
 
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
@@ -388,7 +388,7 @@ public class CodeGenerator(
 
         // visit the initializer and add the define_array instruction
         arrayDeclarationStatement.initializer.visit()
-        instruction(Opcode.DEFINE_ARRAY, symbol)
+        instruction(Opcode.DefineArray, symbol)
     }
 
     override fun visitAssignmentStatement(assignmentStatement: AssignmentStatement) {
@@ -412,7 +412,7 @@ public class CodeGenerator(
                 variable.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
                 return
             }
-            instruction(Opcode.POP_VAR, reference)
+            instruction(Opcode.PopVar, reference)
         }
     }
 
@@ -430,7 +430,7 @@ public class CodeGenerator(
                 expressionStatement.reportError(DiagnosticMessage.TYPE_HAS_NO_BASETYPE, type)
                 return
             }
-            instruction(Opcode.DISCARD, baseType)
+            instruction(Opcode.Discard, baseType)
         }
     }
 
@@ -446,7 +446,7 @@ public class CodeGenerator(
         }
         localVariableExpression.lineInstruction()
         localVariableExpression.index?.visit()
-        instruction(Opcode.PUSH_VAR, reference)
+        instruction(Opcode.PushVar, reference)
     }
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
@@ -456,7 +456,7 @@ public class CodeGenerator(
             return
         }
         gameVariableExpression.lineInstruction()
-        instruction(Opcode.PUSH_VAR, reference)
+        instruction(Opcode.PushVar, reference)
     }
 
     override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {
@@ -518,7 +518,7 @@ public class CodeGenerator(
 
         commandCallExpression.arguments.visit()
         commandCallExpression.lineInstruction()
-        instruction(Opcode.COMMAND, symbol)
+        instruction(Opcode.Command, symbol)
     }
 
     override fun visitProcCallExpression(procCallExpression: ProcCallExpression) {
@@ -529,7 +529,7 @@ public class CodeGenerator(
         }
         procCallExpression.arguments.visit()
         procCallExpression.lineInstruction()
-        instruction(Opcode.GOSUB, symbol)
+        instruction(Opcode.Gosub, symbol)
     }
 
     override fun visitClientScriptExpression(clientScriptExpression: ClientScriptExpression) {
@@ -547,7 +547,7 @@ public class CodeGenerator(
         require(argumentTypes.size == argumentTypesShort.length)
 
         // write the clientscript reference and arguments
-        instruction(Opcode.PUSH_CONSTANT, symbol)
+        instruction(Opcode.PushConstant, symbol)
         clientScriptExpression.arguments.visit()
 
         // optionally handle the transmit list if it exists
@@ -558,41 +558,41 @@ public class CodeGenerator(
             argumentTypesShort += "Y"
 
             // write the number of things in the transmit list
-            instruction(Opcode.PUSH_CONSTANT, clientScriptExpression.transmitList.size)
+            instruction(Opcode.PushConstant, clientScriptExpression.transmitList.size)
         }
 
         // write the argument types
-        instruction(Opcode.PUSH_CONSTANT, argumentTypesShort)
+        instruction(Opcode.PushConstant, argumentTypesShort)
     }
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
         integerLiteral.lineInstruction()
-        instruction(Opcode.PUSH_CONSTANT, integerLiteral.value)
+        instruction(Opcode.PushConstant, integerLiteral.value)
     }
 
     override fun visitCoordLiteral(coordLiteral: CoordLiteral) {
         coordLiteral.lineInstruction()
-        instruction(Opcode.PUSH_CONSTANT, coordLiteral.value)
+        instruction(Opcode.PushConstant, coordLiteral.value)
     }
 
     override fun visitBooleanLiteral(booleanLiteral: BooleanLiteral) {
         booleanLiteral.lineInstruction()
-        instruction(Opcode.PUSH_CONSTANT, if (booleanLiteral.value) 1 else 0)
+        instruction(Opcode.PushConstant, if (booleanLiteral.value) 1 else 0)
     }
 
     override fun visitCharacterLiteral(characterLiteral: CharacterLiteral) {
         characterLiteral.lineInstruction()
-        instruction(Opcode.PUSH_CONSTANT, characterLiteral.value.code)
+        instruction(Opcode.PushConstant, characterLiteral.value.code)
     }
 
     override fun visitNullLiteral(nullLiteral: NullLiteral) {
         nullLiteral.lineInstruction()
 
         if (nullLiteral.type.baseType == BaseVarType.LONG) {
-            instruction(Opcode.PUSH_CONSTANT, -1L)
+            instruction(Opcode.PushConstant, -1L)
             return
         }
-        instruction(Opcode.PUSH_CONSTANT, -1)
+        instruction(Opcode.PushConstant, -1)
     }
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
@@ -605,7 +605,7 @@ public class CodeGenerator(
                 return
             }
 
-            instruction(Opcode.PUSH_CONSTANT, symbol)
+            instruction(Opcode.PushConstant, symbol)
             return
         } else if (stringLiteral.type is MetaType.ClientScript) {
             val subExpression = stringLiteral.subExpression
@@ -616,13 +616,13 @@ public class CodeGenerator(
             subExpression.visit()
             return
         }
-        instruction(Opcode.PUSH_CONSTANT, stringLiteral.value)
+        instruction(Opcode.PushConstant, stringLiteral.value)
     }
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {
         joinedStringExpression.parts.visit()
         joinedStringExpression.lineInstruction()
-        instruction(Opcode.JOIN_STRING, joinedStringExpression.parts.size)
+        instruction(Opcode.JoinString, joinedStringExpression.parts.size)
     }
 
     override fun visitIdentifier(identifier: Identifier) {
@@ -637,10 +637,10 @@ public class CodeGenerator(
         // add the instruction based on reference type
         if (reference is ScriptSymbol.ClientScriptSymbol && reference.trigger == ClientTriggerType.COMMAND) {
             // commands can be referenced by just their name if they have no arguments
-            instruction(Opcode.COMMAND, reference)
+            instruction(Opcode.Command, reference)
         } else {
             // default to just pushing the symbol as a constant
-            instruction(Opcode.PUSH_CONSTANT, reference)
+            instruction(Opcode.PushConstant, reference)
         }
     }
 
@@ -707,32 +707,32 @@ public class CodeGenerator(
          * Mapping of operators to their branch opcode for int based types.
          */
         private val INT_BRANCHES = mapOf(
-            "=" to Opcode.BRANCH_EQUALS,
-            "!" to Opcode.BRANCH_NOT,
-            "<" to Opcode.BRANCH_LESS_THAN,
-            ">" to Opcode.BRANCH_GREATER_THAN,
-            "<=" to Opcode.BRANCH_LESS_THAN_OR_EQUALS,
-            ">=" to Opcode.BRANCH_GREATER_THAN_OR_EQUALS,
+            "=" to Opcode.BranchEquals,
+            "!" to Opcode.BranchNot,
+            "<" to Opcode.BranchLessThan,
+            ">" to Opcode.BranchGreaterThan,
+            "<=" to Opcode.BranchLessThanOrEquals,
+            ">=" to Opcode.BranchGreaterThanOrEquals,
         )
 
         /**
          * Mapping of operators to their branch opcode for object based types.
          */
         private val OBJ_BRANCHES = mapOf(
-            "=" to Opcode.OBJ_BRANCH_EQUALS,
-            "!" to Opcode.OBJ_BRANCH_NOT,
+            "=" to Opcode.ObjBranchEquals,
+            "!" to Opcode.ObjBranchNot,
         )
 
         /**
          * Mapping of operators to their branch opcode for long based types.
          */
         private val LONG_BRANCHES = mapOf(
-            "=" to Opcode.LONG_BRANCH_EQUALS,
-            "!" to Opcode.LONG_BRANCH_NOT,
-            "<" to Opcode.LONG_BRANCH_LESS_THAN,
-            ">" to Opcode.LONG_BRANCH_GREATER_THAN,
-            "<=" to Opcode.LONG_BRANCH_LESS_THAN_OR_EQUALS,
-            ">=" to Opcode.LONG_BRANCH_GREATER_THAN_OR_EQUALS,
+            "=" to Opcode.LongBranchEquals,
+            "!" to Opcode.LongBranchNot,
+            "<" to Opcode.LongBranchLessThan,
+            ">" to Opcode.LongBranchGreaterThan,
+            "<=" to Opcode.LongBranchLessThanOrEquals,
+            ">=" to Opcode.LongBranchGreaterThanOrEquals,
         )
 
         /**
@@ -748,26 +748,26 @@ public class CodeGenerator(
          * Mapping of operators to their math opcode for int based types.
          */
         private val INT_OPERATIONS = mapOf(
-            "+" to Opcode.ADD,
-            "-" to Opcode.SUB,
-            "*" to Opcode.MULTIPLY,
-            "/" to Opcode.DIVIDE,
-            "%" to Opcode.MODULO,
-            "&" to Opcode.AND,
-            "|" to Opcode.OR,
+            "+" to Opcode.Add,
+            "-" to Opcode.Sub,
+            "*" to Opcode.Multiply,
+            "/" to Opcode.Divide,
+            "%" to Opcode.Modulo,
+            "&" to Opcode.And,
+            "|" to Opcode.Or,
         )
 
         /**
          * Mapping of operators to their math opcode for long based types.
          */
         private val LONG_OPERATIONS = mapOf(
-            "+" to Opcode.LONG_ADD,
-            "-" to Opcode.LONG_SUB,
-            "*" to Opcode.LONG_MULTIPLY,
-            "/" to Opcode.LONG_DIVIDE,
-            "%" to Opcode.LONG_MODULO,
-            "&" to Opcode.LONG_AND,
-            "|" to Opcode.LONG_OR,
+            "+" to Opcode.LongAdd,
+            "-" to Opcode.LongSub,
+            "*" to Opcode.LongMultiply,
+            "/" to Opcode.LongDivide,
+            "%" to Opcode.LongModulo,
+            "&" to Opcode.LongAnd,
+            "|" to Opcode.LongOr,
         )
     }
 }
