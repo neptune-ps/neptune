@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.compiler.writer
 
 import me.filby.neptune.runescript.compiler.codegen.Instruction
 import me.filby.neptune.runescript.compiler.codegen.Opcode
+import me.filby.neptune.runescript.compiler.codegen.script.Block
 import me.filby.neptune.runescript.compiler.codegen.script.Label
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.codegen.script.SwitchTable
@@ -22,6 +23,7 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
     override fun write(script: RuneScript) {
         createContext(script).use { context ->
             for (block in script.blocks) {
+                context.enterBlock(block)
 
                 for (instruction in block.instructions) {
                     // write the current instruction
@@ -96,6 +98,10 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
             Opcode.LONG_AND -> context.writeMath(opcode)
             Opcode.LINENUMBER -> error("linenumber opcode should not exist.")
         }
+    }
+
+    protected open fun T.enterBlock(block: Block) {
+        error("not implemented")
     }
 
     protected open fun T.writePushConstantInt(value: Int) {
