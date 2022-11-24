@@ -6,6 +6,7 @@ import me.filby.neptune.runescript.compiler.codegen.script.Block
 import me.filby.neptune.runescript.compiler.codegen.script.Label
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.codegen.script.SwitchTable
+import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol.ClientScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
@@ -47,19 +48,17 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
 
     // Opcode specific write functions
 
-    private fun writeInstruction(context: T, instruction: Instruction) {
+    private fun writeInstruction(context: T, instruction: Instruction<*>) {
         val (opcode, operand) = instruction
         when (opcode) {
-            Opcode.PushConstant -> when (operand) {
-                is Int -> context.writePushConstantInt(operand)
-                is String -> context.writePushConstantString(operand)
-                is Long -> context.writePushConstantLong(operand)
-                is Symbol -> context.writePushConstantSymbol(operand)
-                else -> error("Unsupported push_constant operand type: $operand")
-            }
-
-            Opcode.PushVar -> context.writePushVar(operand as Symbol)
-            Opcode.PopVar -> context.writePopVar(operand as Symbol)
+            Opcode.PushConstantInt -> context.writePushConstantInt(operand as Int)
+            Opcode.PushConstantString -> context.writePushConstantString(operand as String)
+            Opcode.PushConstantLong -> context.writePushConstantLong(operand as Long)
+            Opcode.PushConstantSymbol -> context.writePushConstantSymbol(operand as Symbol)
+            Opcode.PushLocalVar -> context.writePushLocalVar(operand as LocalVariableSymbol)
+            Opcode.PopLocalVar -> context.writePopLocalVar(operand as LocalVariableSymbol)
+            Opcode.PushVar -> context.writePushVar(operand as ConfigSymbol)
+            Opcode.PopVar -> context.writePopVar(operand as ConfigSymbol)
             Opcode.DefineArray -> context.writeDefineArray(operand as Symbol)
             Opcode.Switch -> context.writeSwitch(operand as SwitchTable)
             Opcode.Branch -> context.writeBranch(opcode, operand as Label)
@@ -120,11 +119,19 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
         error("not implemented")
     }
 
+    protected open fun T.writePushLocalVar(symbol: LocalVariableSymbol) {
+        error("not implemented")
+    }
+
+    protected open fun T.writePopLocalVar(symbol: LocalVariableSymbol) {
+        error("not implemented")
+    }
+
     protected open fun T.writePushVar(symbol: Symbol) {
         error("not implemented")
     }
 
-    protected open fun T.writePopVar(symbol: Symbol) {
+    protected open fun T.writePopVar(symbol: ConfigSymbol) {
         error("not implemented")
     }
 
@@ -136,7 +143,7 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
         error("not implemented")
     }
 
-    protected open fun T.writeBranch(branchOpcode: Opcode, label: Label) {
+    protected open fun T.writeBranch(opcode: Opcode<*>, label: Label) {
         error("not implemented")
     }
 
@@ -160,7 +167,7 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
         error("not implemented")
     }
 
-    protected open fun T.writeMath(opcode: Opcode) {
+    protected open fun T.writeMath(opcode: Opcode<*>) {
         error("not implemented")
     }
 

@@ -7,6 +7,7 @@ import me.filby.neptune.runescript.compiler.codegen.CodeGenerator
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.symbol
+import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 
 /**
  * Contains the context of the [CodeGenerator] and supplies useful functions when
@@ -20,7 +21,7 @@ public data class CodeGeneratorContext(
     /**
      * Emits a new instruction with the given [opcode] and [operand].
      */
-    public fun instruction(opcode: Opcode, operand: Any) {
+    public fun <T : Any> instruction(opcode: Opcode<T>, operand: T) {
         codeGenerator.instruction(opcode, operand)
     }
 
@@ -38,7 +39,7 @@ public data class CodeGeneratorContext(
     public fun command() {
         // the symbol is verified to be not null in CodeGenerator before calling user
         // code generation code which makes this safe, but we'll make the compiler happy.
-        val symbol = requireNotNull(expression.symbol)
+        val symbol = requireNotNull(expression.symbol as ScriptSymbol)
         expression.lineInstruction()
         instruction(Opcode.Command, symbol)
     }

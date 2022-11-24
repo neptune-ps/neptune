@@ -1,6 +1,7 @@
 package me.filby.neptune.runescript.compiler
 
 import me.filby.neptune.runescript.compiler.codegen.Opcode
+import me.filby.neptune.runescript.compiler.codegen.script.Block
 import me.filby.neptune.runescript.compiler.codegen.script.Label
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.codegen.script.SwitchTable
@@ -23,6 +24,9 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
         return TestScriptWriterContext(script)
     }
 
+    override fun TestScriptWriterContext.enterBlock(block: Block) {
+    }
+
     override fun TestScriptWriterContext.writePushConstantInt(value: Int) {
         instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT, value)
     }
@@ -39,21 +43,13 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
         error("identifier references not supported")
     }
 
-    override fun TestScriptWriterContext.writePushVar(symbol: Symbol) {
-        if (symbol !is LocalVariableSymbol) {
-            error(symbol)
-        }
-
+    override fun TestScriptWriterContext.writePushLocalVar(symbol: LocalVariableSymbol) {
         val id = script.locals.getVariableId(symbol)
         val type = symbol.type.baseType?.ordinal ?: error("unable to determine stack type")
         instruction(BaseCoreOpcodes.PUSH_LOCAL, ((id shl 16) or type))
     }
 
-    override fun TestScriptWriterContext.writePopVar(symbol: Symbol) {
-        if (symbol !is LocalVariableSymbol) {
-            error(symbol)
-        }
-
+    override fun TestScriptWriterContext.writePopLocalVar(symbol: LocalVariableSymbol) {
         val id = script.locals.getVariableId(symbol)
         val type = symbol.type.baseType?.ordinal ?: error("unable to determine stack type")
         instruction(BaseCoreOpcodes.POP_LOCAL, ((id shl 16) or type))
@@ -67,8 +63,8 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
         error("not implemented")
     }
 
-    override fun TestScriptWriterContext.writeBranch(branchOpcode: Opcode, label: Label) {
-        val runtimeBranchOpcode = BRANCHES[branchOpcode] ?: error(branchOpcode)
+    override fun TestScriptWriterContext.writeBranch(opcode: Opcode<*>, label: Label) {
+        val runtimeBranchOpcode = BRANCHES[opcode] ?: error(opcode)
         val labelIndex = jumpTable[label] ?: error(label)
         instruction(runtimeBranchOpcode, labelIndex - curIndex - 1)
     }
@@ -96,7 +92,7 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
         instruction(BaseCoreOpcodes.RETURN)
     }
 
-    override fun TestScriptWriterContext.writeMath(opcode: Opcode) {
+    override fun TestScriptWriterContext.writeMath(opcode: Opcode<*>) {
         val runtimeOpcode = MATH[opcode] ?: error(opcode)
         instruction(runtimeOpcode)
     }

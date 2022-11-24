@@ -9,12 +9,12 @@ public class Block(public val label: Label) {
     /**
      * The list of all [Instruction]s within the block.
      */
-    public val instructions: MutableList<Instruction> = mutableListOf()
+    public val instructions: MutableList<Instruction<*>> = mutableListOf()
 
     /**
      * Adds [instruction] to this block.
      */
-    public fun add(instruction: Instruction) {
+    public fun add(instruction: Instruction<*>) {
         instructions += instruction
     }
 
@@ -22,7 +22,7 @@ public class Block(public val label: Label) {
      * Shortcut to [add].
      */
     @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun plusAssign(instruction: Instruction) {
+    public inline operator fun plusAssign(instruction: Instruction<*>) {
         add(instruction)
     }
 }
