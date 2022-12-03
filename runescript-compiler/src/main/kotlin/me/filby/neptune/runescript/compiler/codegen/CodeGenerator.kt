@@ -533,10 +533,8 @@ public class CodeGenerator(
         val name = commandCallExpression.name.text
         dynamicCommands[name]?.run {
             val context = CodeGeneratorContext(this@CodeGenerator, commandCallExpression, diagnostics)
-            if (context.generateCode()) {
-                // handler says it generated code and doesn't need to fall through to default impl
-                return
-            }
+            context.generateCode()
+            return
         }
 
         commandCallExpression.arguments.visit()

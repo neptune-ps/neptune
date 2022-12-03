@@ -28,18 +28,10 @@ public interface DynamicCommandHandler {
 
     /**
      * Handles code generation for the command call.
-     *
-     * Implementations should return `true` if doing custom code generation to
-     * prevent default implementation to run.
-     *
-     * The following example is equivalent to returning `false`.
-     * ```
-     * expression.arguments.visit()
-     * command()
-     * ```
      */
-    public fun CodeGeneratorContext.generateCode(): Boolean {
-        return false
+    public fun CodeGeneratorContext.generateCode() {
+        expression.arguments.visit()
+        command()
     }
 
     // helper functions
