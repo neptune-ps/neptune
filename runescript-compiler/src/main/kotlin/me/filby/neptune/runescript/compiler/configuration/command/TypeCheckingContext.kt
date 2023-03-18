@@ -73,9 +73,6 @@ public data class TypeCheckingContext(
             return null
         }
         val argument = expression.arguments[index]
-        if (typeHint != null) {
-            argument.typeHint = typeHint
-        }
         argument.visit(typeHint)
         return argument
     }
