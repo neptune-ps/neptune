@@ -54,7 +54,7 @@ import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
-import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
+import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
@@ -155,8 +155,8 @@ public class CodeGenerator(
     }
 
     override fun visitScript(script: Script) {
-        // skip clientscript commands
-        if (script.triggerType == ClientTriggerType.COMMAND) {
+        // skip commands declarations
+        if (script.triggerType == CommandTrigger) {
             return
         }
 
@@ -656,7 +656,7 @@ public class CodeGenerator(
         identifier.lineInstruction()
 
         // add the instruction based on reference type
-        if (reference is ScriptSymbol.ClientScriptSymbol && reference.trigger == ClientTriggerType.COMMAND) {
+        if (reference is ScriptSymbol.ClientScriptSymbol && reference.trigger == CommandTrigger) {
             // commands can be referenced by just their name if they have no arguments
             instruction(Opcode.Command, reference)
         } else {

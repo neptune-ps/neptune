@@ -6,7 +6,7 @@ import me.filby.neptune.runescript.compiler.type.Type
  * A trigger type of a script. The trigger type is the first part of a script declaration (`[trigger,_]`) where
  * each trigger has different functionality and uses.
  */
-public sealed interface TriggerType {
+public interface TriggerType {
     /**
      * A unique number to identify the trigger.
      */

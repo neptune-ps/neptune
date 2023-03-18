@@ -60,7 +60,8 @@ import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
-import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
+import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
+import me.filby.neptune.runescript.compiler.trigger.TriggerManager
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
@@ -84,6 +85,7 @@ import org.antlr.v4.runtime.Recognizer
  */
 public class TypeChecking(
     private val typeManager: TypeManager,
+    triggerManager: TriggerManager,
     private val rootTable: SymbolTable,
     private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
     private val diagnostics: Diagnostics
@@ -94,6 +96,21 @@ public class TypeChecking(
     //         putAttribute("type", value)
     //         reportInfo("Type resolved to: '%s'", value.representation)
     //     }
+
+    /**
+     * The trigger that represents 'command'.
+     */
+    private val commandTrigger = triggerManager.find("command")
+
+    /**
+     * The trigger that represents `proc`.
+     */
+    private val procTrigger = triggerManager.find("proc")
+
+    /**
+     * The trigger that represents `proc`. This trigger is optional.
+     */
+    private val clientscriptTrigger = triggerManager.findOrNull("clientscript")
 
     /**
      * The current table. This is updated each time when entering a new script or block.
@@ -568,7 +585,7 @@ public class TypeChecking(
 
             // if the symbol was not manually specified attempt to look up a predefined one
             if (commandCallExpression.symbol == null) {
-                val symbol = rootTable.find(SymbolType.ClientScript(ClientTriggerType.COMMAND), name)
+                val symbol = rootTable.find(SymbolType.ClientScript(commandTrigger), name)
                 if (symbol == null) {
                     commandCallExpression.reportError(DiagnosticMessage.CUSTOM_HANDLER_NOSYMBOL)
                 }
@@ -587,12 +604,11 @@ public class TypeChecking(
     override fun visitCallExpression(callExpression: CallExpression) {
         // lookup the expected symbol type based on the call expression type
         val symbolType = when (callExpression) {
-            is CommandCallExpression -> SymbolType.ClientScript(ClientTriggerType.COMMAND)
-            is ProcCallExpression -> SymbolType.ClientScript(ClientTriggerType.PROC)
+            is CommandCallExpression -> SymbolType.ClientScript(commandTrigger)
+            is ProcCallExpression -> SymbolType.ClientScript(procTrigger)
             else -> error(callExpression)
         }
 
-        // TODO support for custom implementation for special commands such as `enum`.
         // lookup the symbol using the symbol type and name
         val name = callExpression.name.text
         val symbol = rootTable.find(symbolType, name)
@@ -614,12 +630,17 @@ public class TypeChecking(
     }
 
     override fun visitClientScriptExpression(clientScriptExpression: ClientScriptExpression) {
+        if (clientscriptTrigger == null) {
+            // TODO proper error
+            error("'clientscript' trigger was not defined.")
+        }
+
         val typeHint = clientScriptExpression.typeHint
         require(typeHint is MetaType.ClientScript)
 
         // lookup the symbol by name
         val name = clientScriptExpression.name.text
-        val symbolType = SymbolType.ClientScript(ClientTriggerType.CLIENTSCRIPT)
+        val symbolType = SymbolType.ClientScript(clientscriptTrigger)
         val symbol = rootTable.find(symbolType, name)
 
         // verify the clientscript exists
@@ -653,7 +674,7 @@ public class TypeChecking(
      * Verifies that [callExpression] arguments match the parameter types from [symbol].
      */
     private fun typeCheckArguments(
-        symbol: ScriptSymbol.ClientScriptSymbol?,
+        symbol: ScriptSymbol?,
         callExpression: CallExpression,
         name: String,
     ) {
@@ -1002,7 +1023,7 @@ public class TypeChecking(
      * If the symbol is not valid for direct identifier lookup then `null` is returned.
      */
     private fun symbolToType(symbol: Symbol) = when (symbol) {
-        is ScriptSymbol -> if (symbol.trigger != ClientTriggerType.COMMAND) {
+        is ScriptSymbol -> if (symbol.trigger != CommandTrigger) {
             // skip any non-command reference
             null
         } else if (symbol.parameters != null && symbol.parameters != MetaType.Unit) {

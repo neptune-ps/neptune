@@ -12,7 +12,8 @@ import me.filby.neptune.runescript.compiler.runtime.TestScriptRunner
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
-import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
+import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
+import me.filby.neptune.runescript.compiler.trigger.TestTriggerType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
@@ -63,6 +64,7 @@ private fun testScriptFile(scriptFile: File): Boolean {
     // run compiler
     val writer = TestScriptWriter(scriptManager)
     val compiler = ScriptCompiler(scriptFile.toPath(), writer)
+    compiler.triggers.registerAll<TestTriggerType>()
     compiler.addSymbolLoader(CommandSymbolLoader())
     compiler.diagnosticsHandler = diagnosticsHandler
     compiler.run()
@@ -153,8 +155,8 @@ private class CommandSymbolLoader : SymbolLoader {
     }
 
     fun SymbolTable.addCommand(name: String, parameters: Type = MetaType.Unit, returns: Type = MetaType.Unit) {
-        val type = SymbolType.ClientScript(ClientTriggerType.COMMAND)
-        val symbol = ScriptSymbol.ClientScriptSymbol(ClientTriggerType.COMMAND, name, parameters, returns)
+        val type = SymbolType.ClientScript(CommandTrigger)
+        val symbol = ScriptSymbol.ClientScriptSymbol(CommandTrigger, name, parameters, returns)
         insert(type, symbol)
     }
 }

@@ -26,7 +26,8 @@ import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
-import me.filby.neptune.runescript.compiler.trigger.ClientTriggerType
+import me.filby.neptune.runescript.compiler.trigger.TriggerManager
+import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
@@ -45,6 +46,7 @@ import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
  */
 internal class PreTypeChecking(
     private val typeManager: TypeManager,
+    private val triggerManager: TriggerManager,
     private val rootTable: SymbolTable,
     private val diagnostics: Diagnostics
 ) : AstVisitor<Unit> {
@@ -82,7 +84,7 @@ internal class PreTypeChecking(
     }
 
     override fun visitScript(script: Script) {
-        val trigger = ClientTriggerType.lookup(script.trigger.text)
+        val trigger = triggerManager.findOrNull(script.trigger.text)
         if (trigger == null) {
             script.trigger.reportError(DiagnosticMessage.SCRIPT_TRIGGER_INVALID, script.trigger.text)
         } else {
@@ -143,7 +145,7 @@ internal class PreTypeChecking(
     /**
      * Verifies the [script]s parameter types are what is allowed by the [trigger].
      */
-    private fun checkScriptParameters(trigger: ClientTriggerType?, script: Script, parameters: List<Parameter>?) {
+    private fun checkScriptParameters(trigger: TriggerType?, script: Script, parameters: List<Parameter>?) {
         val triggerParameterType = trigger?.parameters
         val scriptParameterType = script.parameterType
         if (trigger != null && !trigger.allowParameters && !parameters.isNullOrEmpty()) {
@@ -162,7 +164,7 @@ internal class PreTypeChecking(
     /**
      * Verifies the [script] returns what is allowed by the [trigger].
      */
-    private fun checkScriptReturns(trigger: ClientTriggerType?, script: Script) {
+    private fun checkScriptReturns(trigger: TriggerType?, script: Script) {
         val triggerReturns = trigger?.returns
         val scriptReturns = script.returnType
         if (trigger != null && !trigger.allowReturns && scriptReturns != MetaType.Unit) {

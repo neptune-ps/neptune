@@ -11,6 +11,8 @@ import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
 import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
+import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
+import me.filby.neptune.runescript.compiler.trigger.TriggerManager
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TypeManager
@@ -59,6 +61,11 @@ public open class ScriptCompiler(
     public val types: TypeManager = TypeManager()
 
     /**
+     * The [TriggerManager] for the compiler that is used for registering and looking up script triggers.
+     */
+    public val triggers: TriggerManager = TriggerManager()
+
+    /**
      * Called after every step with all diagnostics that were collected during it.
      */
     public var diagnosticsHandler: DiagnosticsHandler = DEFAULT_DIAGNOSTICS_HANDLER
@@ -67,6 +74,9 @@ public open class ScriptCompiler(
         // register the core types
         types.registerAll<PrimitiveType>()
         setupDefaultTypeCheckers()
+
+        // register the command trigger
+        triggers.register(CommandTrigger)
     }
 
     /**
@@ -207,7 +217,7 @@ public open class ScriptCompiler(
         val preTypeCheckingTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    file.accept(PreTypeChecking(types, rootTable, diagnostics))
+                    file.accept(PreTypeChecking(types, triggers, rootTable, diagnostics))
                 }
                 logger.trace { "Pre-type checked ${file.source.name} in ${time}ms" }
             }
@@ -219,7 +229,7 @@ public open class ScriptCompiler(
         val typeCheckingTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    file.accept(TypeChecking(types, rootTable, dynamicCommandHandlers, diagnostics))
+                    file.accept(TypeChecking(types, triggers, rootTable, dynamicCommandHandlers, diagnostics))
                 }
                 logger.trace { "Type checked ${file.source.name} in ${time}ms" }
             }

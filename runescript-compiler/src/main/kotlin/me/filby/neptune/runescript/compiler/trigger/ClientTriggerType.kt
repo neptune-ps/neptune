@@ -15,7 +15,6 @@ public enum class ClientTriggerType(
     override val allowReturns: Boolean = false,
     override val returns: Type? = null,
 ) : TriggerType {
-    COMMAND(-1, allowReturns = true, allowParameters = true),
     OPWORLDMAPELEMENT1(10, subjectType = PrimitiveType.MAPELEMENT),
     OPWORLDMAPELEMENT2(11, subjectType = PrimitiveType.MAPELEMENT),
     OPWORLDMAPELEMENT3(12, subjectType = PrimitiveType.MAPELEMENT),
@@ -44,16 +43,4 @@ public enum class ClientTriggerType(
     ;
 
     override val identifier: String get() = name.lowercase()
-
-    public companion object {
-        /**
-         * A map of identifiers to the trigger type.
-         */
-        private val LOOKUP = values().associateBy { it.identifier }
-
-        /**
-         * Looks up a a [ClientTriggerType] using the unique string identifier. If one wasn't found `null` is returned.
-         */
-        public fun lookup(identifier: String): ClientTriggerType? = LOOKUP[identifier]
-    }
 }
