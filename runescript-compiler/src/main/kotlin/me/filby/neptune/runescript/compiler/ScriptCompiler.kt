@@ -126,7 +126,9 @@ public open class ScriptCompiler(
      */
     private fun loadSymbols() {
         for (symbolLoader in symbolLoaders) {
-            symbolLoader.load(this, rootTable)
+            symbolLoader.run {
+                rootTable.load(this@ScriptCompiler)
+            }
         }
         // logger.info { "Loaded 1234 symbols." }
     }

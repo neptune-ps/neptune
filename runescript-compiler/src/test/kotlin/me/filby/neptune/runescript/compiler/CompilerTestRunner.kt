@@ -118,38 +118,38 @@ private fun createRuntime(scriptManager: ScriptManager): TestScriptRunner {
 }
 
 private class CommandSymbolLoader : SymbolLoader {
-    override fun load(compiler: ScriptCompiler, rootTable: SymbolTable) {
+    override fun SymbolTable.load(compiler: ScriptCompiler) {
         // fake config symbols
-        rootTable.addConfig(VarPlayerType(PrimitiveType.INT), "varp")
-        rootTable.addConfig(VarBitType, "varbit")
-        rootTable.addConfig(VarClientType(PrimitiveType.INT), "varc")
-        rootTable.addConfig(VarClientType(PrimitiveType.STRING), "varcstr")
+        addConfig(VarPlayerType(PrimitiveType.INT), "varp")
+        addConfig(VarBitType, "varbit")
+        addConfig(VarClientType(PrimitiveType.INT), "varc")
+        addConfig(VarClientType(PrimitiveType.STRING), "varcstr")
 
         // constants
-        rootTable.addConstant("max_32bit_int", "2147483647")
-        rootTable.addConstant("min_32bit_int", "-2147483648")
-        rootTable.addConstant("quote", "\"")
+        addConstant("max_32bit_int", "2147483647")
+        addConstant("min_32bit_int", "-2147483648")
+        addConstant("quote", "\"")
 
         // cyclic reference constants
-        rootTable.addConstant("a", "^b")
-        rootTable.addConstant("b", "^c")
-        rootTable.addConstant("c", "^a")
+        addConstant("a", "^b")
+        addConstant("b", "^c")
+        addConstant("c", "^a")
 
         // general commands
-        rootTable.addCommand("println", PrimitiveType.STRING)
-        rootTable.addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)
-        rootTable.addCommand("int_to_long", PrimitiveType.INT, PrimitiveType.LONG)
-        rootTable.addCommand("long_to_int", PrimitiveType.LONG, PrimitiveType.INT)
+        addCommand("println", PrimitiveType.STRING)
+        addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)
+        addCommand("int_to_long", PrimitiveType.INT, PrimitiveType.LONG)
+        addCommand("long_to_int", PrimitiveType.LONG, PrimitiveType.INT)
 
         // test specific commands
         // TODO implement the argument checks better once dynamic command handling is added to compiler
-        rootTable.addCommand("error", PrimitiveType.STRING)
-        rootTable.addCommand("assert_equals", TupleType(MetaType.Any, MetaType.Any))
-        rootTable.addCommand("assert_equals_obj", TupleType(MetaType.Any, MetaType.Any))
-        rootTable.addCommand("assert_equals_long", TupleType(MetaType.Any, MetaType.Any))
-        rootTable.addCommand("assert_not", TupleType(MetaType.Any, MetaType.Any))
-        rootTable.addCommand("assert_not_obj", TupleType(MetaType.Any, MetaType.Any))
-        rootTable.addCommand("assert_not_long", TupleType(MetaType.Any, MetaType.Any))
+        addCommand("error", PrimitiveType.STRING)
+        addCommand("assert_equals", TupleType(MetaType.Any, MetaType.Any))
+        addCommand("assert_equals_obj", TupleType(MetaType.Any, MetaType.Any))
+        addCommand("assert_equals_long", TupleType(MetaType.Any, MetaType.Any))
+        addCommand("assert_not", TupleType(MetaType.Any, MetaType.Any))
+        addCommand("assert_not_obj", TupleType(MetaType.Any, MetaType.Any))
+        addCommand("assert_not_long", TupleType(MetaType.Any, MetaType.Any))
     }
 
     fun SymbolTable.addCommand(name: String, parameters: Type = MetaType.Unit, returns: Type = MetaType.Unit) {

@@ -20,7 +20,7 @@ public interface SymbolLoader {
      *
      * Types may be looked up via [ScriptCompiler.types] if needed.
      */
-    public fun load(compiler: ScriptCompiler, rootTable: SymbolTable)
+    public fun SymbolTable.load(compiler: ScriptCompiler)
 
     // helper extension functions for adding things to symbol table
 
