@@ -3,7 +3,6 @@ package me.filby.neptune.runescript.runtime
 import me.filby.neptune.runescript.runtime.impl.opcodes.BaseCoreOpcodes
 
 internal class ScriptBuilder private constructor() {
-
     private var intParameterCount = 0
 
     private var stringParameterCount = 0

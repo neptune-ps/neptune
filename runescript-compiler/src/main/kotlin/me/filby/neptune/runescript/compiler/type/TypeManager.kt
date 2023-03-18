@@ -10,7 +10,6 @@ public typealias TypeBuilder = MutableTypeOptions.() -> Unit
  * Handles the mapping from name to [Type] along with centralized location for comparing types.
  */
 public class TypeManager {
-
     /**
      * A map of type names to the [Type].
      */
