@@ -6,7 +6,6 @@ import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConstantSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.Type
 
 /**
@@ -36,13 +35,6 @@ public interface SymbolLoader {
      */
     public fun SymbolTable.addConfig(type: Type, name: String): Boolean {
         return insert(SymbolType.Config(type), ConfigSymbol(name, type))
-    }
-
-    /**
-     * Adds a [BasicSymbol] to the table with a type of [PrimitiveType.COMPONENT] and [name].
-     */
-    public fun SymbolTable.addComponent(name: String): Boolean {
-        return addBasic(PrimitiveType.COMPONENT, name)
     }
 
     /**
