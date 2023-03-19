@@ -14,8 +14,9 @@ import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
 import me.filby.neptune.runescript.runtime.impl.opcodes.BaseCoreOpcodes
 
-internal class TestScriptWriter(private val scriptManager: ScriptManager) :
-    BaseScriptWriter<TestScriptWriterContext>() {
+internal class TestScriptWriter(
+    private val scriptManager: ScriptManager
+) : BaseScriptWriter<TestScriptWriterContext>(scriptManager) {
     override fun finishWrite(script: RuneScript, context: TestScriptWriterContext) {
         scriptManager.add(context.build())
     }
@@ -78,8 +79,7 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
     }
 
     override fun TestScriptWriterContext.writeGosub(symbol: ScriptSymbol.ClientScriptSymbol) {
-        val name = "[proc,${symbol.name}]"
-        val id = scriptManager.findOrGenerateId(name)
+        val id = scriptManager.get(symbol)
         instruction(BaseCoreOpcodes.GOSUB_WITH_PARAMS, id)
     }
 

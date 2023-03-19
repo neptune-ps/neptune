@@ -20,7 +20,7 @@ import java.util.TreeMap
  * A basic implementation of [ScriptWriter] with some utility functions for writing
  * a script.
  */
-public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWriter {
+public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val idProvider: IdProvider) : ScriptWriter {
     override fun write(script: RuneScript) {
         createContext(script).use { context ->
             for (block in script.blocks) {
@@ -262,5 +262,19 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext> : ScriptWrit
 
         override fun close() {
         }
+    }
+
+    /**
+     * A helper that maps [Symbol]s to their id.
+     */
+    public interface IdProvider {
+        /**
+         * Takes a [Symbol] and returns an [Int] that represents the symbol for runtime use.
+         *
+         * It is up to implementation to support id generation if something wasn't originally mapped before.
+         *
+         * The main symbol types are `ScriptSymbol`, `ConfigSymbol`, and `BasicSymbol`.
+         */
+        public fun get(symbol: Symbol): Int
     }
 }
