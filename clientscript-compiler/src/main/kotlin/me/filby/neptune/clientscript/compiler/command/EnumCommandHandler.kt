@@ -16,7 +16,7 @@ import me.filby.neptune.runescript.compiler.type.TupleType
  * def_obj $item = enum(int, obj, item_list, $index);
  * ```
  */
-public class EnumCommandHandler : DynamicCommandHandler {
+class EnumCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         // fetch the arguments (minus last)
         val inputTypeExpr = checkTypeArgument(0)

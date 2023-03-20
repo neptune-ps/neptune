@@ -12,7 +12,7 @@ import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 
-public class DbFindCommandHandler(private val withCount: Boolean) : DynamicCommandHandler {
+class DbFindCommandHandler(private val withCount: Boolean) : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         // lookup the column expression
         val columnExpr = checkArgument(0, DbColumnType(MetaType.Any))
@@ -59,10 +59,10 @@ public class DbFindCommandHandler(private val withCount: Boolean) : DynamicComma
         command()
     }
 
-    public class DbColumnType(override val inner: Type) : WrappedType {
-        public override val representation: String = "dbcolumn<${inner.representation}>"
-        public override val code: Char? = null
-        public override val baseType: BaseVarType = BaseVarType.INTEGER
-        public override val defaultValue: Any = -1
+    class DbColumnType(override val inner: Type) : WrappedType {
+        override val representation: String = "dbcolumn<${inner.representation}>"
+        override val code: Char? = null
+        override val baseType: BaseVarType = BaseVarType.INTEGER
+        override val defaultValue: Any = -1
     }
 }
