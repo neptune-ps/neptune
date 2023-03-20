@@ -12,6 +12,7 @@ internal object DiagnosticMessage {
     const val CASE_WITHOUT_SWITCH = "Internal compiler error: Case without switch statement as parent."
     const val LOCAL_REFERENCE_WRONG = "Internal compiler error: '$%s' refers to a non-local variable symbol: %s"
     const val RETURN_ORPHAN = "Internal compiler error: Orphaned `return` statement, no parent `script` node found."
+    const val TRIGGER_TYPE_NOT_FOUND = "Internal compiler error: The trigger '%s' has no declaration."
 
     // custom command handler errors
     const val CUSTOM_HANDLER_NOTYPE = "Internal compiler error: Custom command handler did not assign return type."

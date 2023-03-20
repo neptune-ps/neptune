@@ -631,8 +631,8 @@ public class TypeChecking(
 
     override fun visitClientScriptExpression(clientScriptExpression: ClientScriptExpression) {
         if (clientscriptTrigger == null) {
-            // TODO proper error
-            error("'clientscript' trigger was not defined.")
+            clientScriptExpression.reportError(DiagnosticMessage.TRIGGER_TYPE_NOT_FOUND, "clientscript")
+            return
         }
 
         val typeHint = clientScriptExpression.typeHint
