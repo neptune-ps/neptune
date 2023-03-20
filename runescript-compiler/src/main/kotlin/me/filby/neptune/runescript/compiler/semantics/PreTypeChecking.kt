@@ -108,11 +108,11 @@ internal class PreTypeChecking(
         if (!returnTokens.isNullOrEmpty()) {
             val returns = mutableListOf<Type>()
             for (token in returnTokens) {
-                val type = typeManager.find(token.text)
-                if (type == MetaType.Error) {
+                val type = typeManager.findOrNull(token.text)
+                if (type == null) {
                     token.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, token.text)
                 }
-                returns += type
+                returns += type ?: MetaType.Error
             }
             script.returnType = TupleType.fromList(returns)
         } else {
@@ -180,15 +180,15 @@ internal class PreTypeChecking(
     override fun visitParameter(parameter: Parameter) {
         val name = parameter.name.text
         val typeText = parameter.typeToken.text
-        val type = typeManager.find(typeText, allowArray = true)
+        val type = typeManager.findOrNull(typeText, allowArray = true)
 
         // type isn't valid, report the error
-        if (type == MetaType.Error) {
+        if (type == null) {
             parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
         }
 
         // attempt to insert the local variable into the symbol table and display error if failed to insert
-        val symbol = LocalVariableSymbol(name, type)
+        val symbol = LocalVariableSymbol(name, type ?: MetaType.Error)
         val inserted = table.insert(SymbolType.LocalVariable, symbol)
         if (!inserted) {
             parameter.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
@@ -209,10 +209,10 @@ internal class PreTypeChecking(
 
     override fun visitSwitchStatement(switchStatement: SwitchStatement) {
         val typeName = switchStatement.typeToken.text.removePrefix("switch_")
-        val type = typeManager.find(typeName)
+        val type = typeManager.findOrNull(typeName)
 
         // notify invalid type
-        if (type == MetaType.Error) {
+        if (type == null) {
             switchStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         } else if (!type.options.allowSwitch) {
             switchStatement.typeToken.reportError(DiagnosticMessage.SWITCH_INVALID_TYPE, type.representation)
@@ -225,7 +225,7 @@ internal class PreTypeChecking(
         switchStatement.cases.visit()
 
         // set the expected type of the switch cases
-        switchStatement.type = type
+        switchStatement.type = type ?: MetaType.Error
     }
 
     override fun visitSwitchCase(switchCase: SwitchCase) {
@@ -245,10 +245,10 @@ internal class PreTypeChecking(
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
         val typeName = declarationStatement.typeToken.text.removePrefix("def_")
         val name = declarationStatement.name.text
-        val type = typeManager.find(typeName)
+        val type = typeManager.findOrNull(typeName)
 
         // notify invalid type
-        if (type == MetaType.Error) {
+        if (type == null) {
             declarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         } else if (!type.options.allowDeclaration) {
             declarationStatement.typeToken.reportError(
@@ -261,7 +261,7 @@ internal class PreTypeChecking(
         declarationStatement.initializer?.accept(this)
 
         // attempt to insert the local variable into the symbol table and display error if failed to insert
-        val symbol = LocalVariableSymbol(name, type)
+        val symbol = LocalVariableSymbol(name, type ?: MetaType.Error)
         val inserted = table.insert(SymbolType.LocalVariable, symbol)
         if (!inserted) {
             declarationStatement.name.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
@@ -273,10 +273,10 @@ internal class PreTypeChecking(
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
         val typeName = arrayDeclarationStatement.typeToken.text.removePrefix("def_")
         val name = arrayDeclarationStatement.name.text
-        var type = typeManager.find(typeName)
+        var type = typeManager.findOrNull(typeName)
 
         // notify invalid type
-        if (type == MetaType.Error) {
+        if (type == null) {
             arrayDeclarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
         } else if (!type.options.allowDeclaration) {
             arrayDeclarationStatement.typeToken.reportError(
@@ -290,9 +290,12 @@ internal class PreTypeChecking(
             )
         }
 
-        // convert type into an array of type
-        if (type != MetaType.Error) {
-            type = ArrayType(type)
+        type = if (type != null) {
+            // convert type into an array of type
+            ArrayType(type)
+        } else {
+            // type doesn't exist so give it error type
+            MetaType.Error
         }
 
         // visit the initializer if it exists to resolve references in it

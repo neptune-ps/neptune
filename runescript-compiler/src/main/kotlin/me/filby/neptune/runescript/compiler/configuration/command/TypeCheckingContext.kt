@@ -105,8 +105,8 @@ public data class TypeCheckingContext(
         }
 
         // lookup the type by name
-        val type = typeManager.find(argument.text)
-        if (type == MetaType.Error) {
+        val type = typeManager.findOrNull(argument.text)
+        if (type == null) {
             // type doesn't exist so report an error
             diagnostics.report(
                 Diagnostic(

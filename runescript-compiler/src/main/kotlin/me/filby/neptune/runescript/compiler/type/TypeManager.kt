@@ -91,19 +91,29 @@ public class TypeManager {
      * Finds a type by [name]. If [allowArray] is enabled, names ending with `array`
      * will attempt to find and wrap the type with [ArrayType].
      *
-     * If the type doesn't exist, [MetaType.Error] is returned.
+     * If the type doesn't exist an exception is thrown.
      */
     public fun find(name: String, allowArray: Boolean = false): Type {
+        return findOrNull(name, allowArray) ?: error("Unable to find type: '$name'")
+    }
+
+    /**
+     * Finds a type by [name]. If [allowArray] is enabled, names ending with `array`
+     * will attempt to find and wrap the type with [ArrayType].
+     *
+     * If the type doesn't exist, `null` is returned.
+     */
+    public fun findOrNull(name: String, allowArray: Boolean = false): Type? {
         if (allowArray && name.endsWith("array")) {
             // substring before last "array" to prevent requesting intarrayarray (or deeper)
             val baseType = name.substringBeforeLast("array")
-            val type = find(baseType)
-            if (type == MetaType.Error || !type.options.allowArray) {
-                return MetaType.Error
+            val type = findOrNull(baseType)
+            if (type == null || !type.options.allowArray) {
+                return null
             }
             return ArrayType(type)
         }
-        return nameToType[name] ?: MetaType.Error
+        return nameToType[name]
     }
 
     /**

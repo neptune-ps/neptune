@@ -20,10 +20,6 @@ import me.filby.neptune.runescript.compiler.type.TupleType
 class DbGetFieldCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         val dbrowType = typeManager.find("dbrow")
-        if (dbrowType == MetaType.Error) {
-            // TODO need a nicer way to lookup types in type checking
-            error("Unable to find 'dbrow' type.")
-        }
 
         // check first argument as a dbrow
         checkArgument(0, dbrowType)
