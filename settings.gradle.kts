@@ -17,6 +17,7 @@ pluginManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
+    "clientscript-compiler",
     "runescript-compiler",
     "runescript-parser",
     "runescript-runtime",

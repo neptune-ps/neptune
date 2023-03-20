@@ -19,6 +19,7 @@ public enum class PrimitiveType(
     COORD('c', defaultValue = -1),
     NPC_STAT('T', defaultValue = -1),
     GRAPHIC('d', defaultValue = -1),
+    ENUM('g', defaultValue = -1),
     OBJ('o', defaultValue = -1),
     STRING(
         's',
