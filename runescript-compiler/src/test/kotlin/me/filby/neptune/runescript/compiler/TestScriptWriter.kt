@@ -78,12 +78,12 @@ internal class TestScriptWriter(
         instruction(BaseCoreOpcodes.POP_DISCARD, baseType.ordinal)
     }
 
-    override fun TestScriptWriterContext.writeGosub(symbol: ScriptSymbol.ClientScriptSymbol) {
+    override fun TestScriptWriterContext.writeGosub(symbol: ScriptSymbol) {
         val id = scriptManager.get(symbol)
         instruction(BaseCoreOpcodes.GOSUB_WITH_PARAMS, id)
     }
 
-    override fun TestScriptWriterContext.writeCommand(symbol: ScriptSymbol.ClientScriptSymbol) {
+    override fun TestScriptWriterContext.writeCommand(symbol: ScriptSymbol) {
         val id = COMMANDS[symbol.name] ?: error("unmapped command: ${symbol.name}")
         instruction(id)
     }

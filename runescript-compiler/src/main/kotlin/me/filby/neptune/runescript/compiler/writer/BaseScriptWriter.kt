@@ -8,7 +8,7 @@ import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.codegen.script.SwitchTable
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
-import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol.ClientScriptSymbol
+import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
@@ -78,8 +78,8 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
             Opcode.ObjBranchEquals -> context.writeBranch(opcode, operand as Label)
             Opcode.JoinString -> context.writeJoinString(operand as Int)
             Opcode.Discard -> context.writeDiscard(operand as BaseVarType)
-            Opcode.Gosub -> context.writeGosub(operand as ClientScriptSymbol)
-            Opcode.Command -> context.writeCommand(operand as ClientScriptSymbol)
+            Opcode.Gosub -> context.writeGosub(operand as ScriptSymbol)
+            Opcode.Command -> context.writeCommand(operand as ScriptSymbol)
             Opcode.Return -> context.writeReturn()
             Opcode.Add -> context.writeMath(opcode)
             Opcode.Sub -> context.writeMath(opcode)
@@ -155,11 +155,11 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
         error("not implemented")
     }
 
-    protected open fun T.writeGosub(symbol: ClientScriptSymbol) {
+    protected open fun T.writeGosub(symbol: ScriptSymbol) {
         error("not implemented")
     }
 
-    protected open fun T.writeCommand(symbol: ClientScriptSymbol) {
+    protected open fun T.writeCommand(symbol: ScriptSymbol) {
         error("not implemented")
     }
 
