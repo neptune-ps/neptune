@@ -130,7 +130,6 @@ internal class PreTypeChecking(
             )
             val inserted = rootTable.insert(SymbolType.ClientScript(trigger), scriptSymbol)
             if (!inserted) {
-                // TODO somehow report original declaration location?
                 script.reportError(DiagnosticMessage.SCRIPT_REDECLARATION, trigger.identifier, script.name.text)
             }
         }
@@ -151,7 +150,6 @@ internal class PreTypeChecking(
         if (trigger != null && !trigger.allowParameters && !parameters.isNullOrEmpty()) {
             parameters.first().reportError(DiagnosticMessage.SCRIPT_TRIGGER_NO_PARAMETERS, trigger.identifier)
         } else if (triggerParameterType != null && scriptParameterType != triggerParameterType) {
-            // TODO be smarter on where to place the error location to the first type mismatch?
             val expectedParameterType = triggerParameterType.representation
             script.reportError(
                 DiagnosticMessage.SCRIPT_TRIGGER_EXPECTED_PARAMETERS,
@@ -170,7 +168,6 @@ internal class PreTypeChecking(
         if (trigger != null && !trigger.allowReturns && scriptReturns != MetaType.Unit) {
             script.reportError(DiagnosticMessage.SCRIPT_TRIGGER_NO_RETURNS, trigger.identifier)
         } else if (triggerReturns != null && scriptReturns != triggerReturns) {
-            // TODO be smarter on where to place the error location to the first type mismatch?
             val expectedReturnTypes = triggerReturns.representation
             script.reportError(
                 DiagnosticMessage.SCRIPT_TRIGGER_EXPECTED_RETURNS,
