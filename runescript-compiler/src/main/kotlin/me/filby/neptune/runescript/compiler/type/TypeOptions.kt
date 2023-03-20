@@ -29,8 +29,8 @@ public sealed interface TypeOptions {
 /**
  * Implementation of [TypeOptions] with the properties mutable.
  */
-public class MutableTypeOptions : TypeOptions {
-    override var allowSwitch: Boolean = true
-    override var allowArray: Boolean = true
-    override var allowDeclaration: Boolean = true
-}
+public data class MutableTypeOptions(
+    override var allowSwitch: Boolean = true,
+    override var allowArray: Boolean = true,
+    override var allowDeclaration: Boolean = true,
+) : TypeOptions

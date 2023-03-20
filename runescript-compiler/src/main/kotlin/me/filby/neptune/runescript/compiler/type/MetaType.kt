@@ -55,4 +55,11 @@ public sealed class MetaType(private val name: String) : MainType {
 
     // all meta types have a default value of `null` (-1).
     override val defaultValue: kotlin.Any = -1
+
+    // all meta types are unable to be accessed in scripts through normal means
+    override val options: TypeOptions = MutableTypeOptions(
+        allowSwitch = false,
+        allowArray = false,
+        allowDeclaration = false
+    )
 }

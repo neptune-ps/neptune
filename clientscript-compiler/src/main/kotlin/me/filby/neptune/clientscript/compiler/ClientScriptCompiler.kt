@@ -5,6 +5,7 @@ import me.filby.neptune.clientscript.compiler.command.DbGetFieldCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumCommandHandler
 import me.filby.neptune.clientscript.compiler.command.ParamCommandHandler
 import me.filby.neptune.clientscript.compiler.trigger.ClientTriggerType
+import me.filby.neptune.clientscript.compiler.type.DbColumnType
 import me.filby.neptune.clientscript.compiler.type.ParamType
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.ScriptCompiler
@@ -32,7 +33,7 @@ class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : Scrip
         types.register("clientscript_stat", MetaType.ClientScript(ScriptVarType.STAT))
         types.register("clientscript_inv", MetaType.ClientScript(ScriptVarType.INV))
         types.register("clientscript_varp", MetaType.ClientScript(VarPlayerType(MetaType.Any)))
-        types.register("dbcolumn", DbFindCommandHandler.DbColumnType(MetaType.Any))
+        types.register("dbcolumn", DbColumnType(MetaType.Any))
 
         // allow assignment of namedobj to obj
         types.addTypeChecker { left, right -> left == ScriptVarType.OBJ && right == ScriptVarType.NAMEDOBJ }
@@ -76,7 +77,7 @@ class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : Scrip
         addSymbolLoader(TsvSymbolLoader(Path("symbols/seqs.tsv"), ScriptVarType.SEQ, config = true))
         addSymbolLoader(TsvSymbolLoader(Path("symbols/dbtables.tsv"), ScriptVarType.DBTABLE, config = true))
         addSymbolLoader(TsvSymbolLoader(Path("symbols/dbrows.tsv"), ScriptVarType.DBROW, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/dbcolumns.tsv")) { DbFindCommandHandler.DbColumnType(it) })
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/dbcolumns.tsv")) { DbColumnType(it) })
         addSymbolLoader(TsvSymbolLoader(Path("symbols/params.tsv"), config = true) { ParamType(it) })
         addSymbolLoader(TsvSymbolLoader(Path("symbols/vars.tsv"), config = true) { VarPlayerType(it) })
         addSymbolLoader(TsvSymbolLoader(Path("symbols/varcints.tsv"), config = true) { VarClientType(it) })

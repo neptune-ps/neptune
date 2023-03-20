@@ -1,6 +1,6 @@
 package me.filby.neptune.clientscript.compiler.command
 
-import me.filby.neptune.clientscript.compiler.command.DbFindCommandHandler.DbColumnType
+import me.filby.neptune.clientscript.compiler.type.DbColumnType
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext

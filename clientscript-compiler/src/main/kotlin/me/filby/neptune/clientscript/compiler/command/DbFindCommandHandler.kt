@@ -1,5 +1,6 @@
 package me.filby.neptune.clientscript.compiler.command
 
+import me.filby.neptune.clientscript.compiler.type.DbColumnType
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.configuration.command.CodeGeneratorContext
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
@@ -9,8 +10,6 @@ import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
-import me.filby.neptune.runescript.compiler.type.Type
-import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 
 class DbFindCommandHandler(private val withCount: Boolean) : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
@@ -57,12 +56,5 @@ class DbFindCommandHandler(private val withCount: Boolean) : DynamicCommandHandl
 
         // emit the command
         command()
-    }
-
-    class DbColumnType(override val inner: Type) : WrappedType {
-        override val representation: String = "dbcolumn<${inner.representation}>"
-        override val code: Char? = null
-        override val baseType: BaseVarType = BaseVarType.INTEGER
-        override val defaultValue: Any = -1
     }
 }
