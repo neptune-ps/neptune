@@ -53,20 +53,19 @@ import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
-import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
+import me.filby.neptune.runescript.compiler.type.TypeManager
 
 /**
  * A [AstVisitor] implementation that converts AST nodes into a set of instructions.
  */
 public class CodeGenerator(
-    private val rootTable: SymbolTable,
+    private val typeManager: TypeManager,
     private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
     private val diagnostics: Diagnostics
 ) : AstVisitor<Unit> {
@@ -619,7 +618,8 @@ public class CodeGenerator(
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
         stringLiteral.lineInstruction()
 
-        if (stringLiteral.type == PrimitiveType.GRAPHIC) {
+        val graphicType = typeManager.findOrNull("graphic")
+        if (graphicType != null && stringLiteral.type == graphicType) {
             val symbol = stringLiteral.reference
             if (symbol == null) {
                 stringLiteral.reportError(DiagnosticMessage.SYMBOL_IS_NULL)

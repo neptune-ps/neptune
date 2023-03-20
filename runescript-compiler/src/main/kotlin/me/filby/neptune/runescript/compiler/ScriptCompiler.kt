@@ -97,8 +97,6 @@ public open class ScriptCompiler(
             left is WrappedType && right is WrappedType && left::class == right::class &&
                 types.check(left.inner, right.inner)
         }
-
-        types.addTypeChecker { left, right -> left == PrimitiveType.OBJ && right == PrimitiveType.NAMEDOBJ }
     }
 
     /**
@@ -258,7 +256,7 @@ public open class ScriptCompiler(
         val codegenTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    val codegen = CodeGenerator(rootTable, dynamicCommandHandlers, diagnostics)
+                    val codegen = CodeGenerator(types, dynamicCommandHandlers, diagnostics)
                     file.accept(codegen)
                     scripts.addAll(codegen.scripts)
                 }

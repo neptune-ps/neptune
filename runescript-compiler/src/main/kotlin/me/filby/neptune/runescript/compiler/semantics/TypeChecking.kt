@@ -813,7 +813,8 @@ public class TypeChecking(
             val (sourceName, sourceLine, sourceColumn) = constantVariableExpression.source
 
             // wrap string and quote
-            val stringExpected = typeHint == PrimitiveType.STRING || typeHint == PrimitiveType.GRAPHIC
+            val graphicType = typeManager.findOrNull("graphic")
+            val stringExpected = typeHint == PrimitiveType.STRING || graphicType != null && typeHint == graphicType
             val valueToParse = if (stringExpected && shouldQuoteConstantValue(symbol.value)) {
                 "\"${escapeString(symbol.value)}\""
             } else {
@@ -907,15 +908,16 @@ public class TypeChecking(
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
         val typeHint = stringLiteral.typeHint
-        if (typeHint == PrimitiveType.GRAPHIC) {
-            val symbol = rootTable.find(SymbolType.Basic(PrimitiveType.GRAPHIC), stringLiteral.value)
+        val graphicType = typeManager.findOrNull("graphic")
+        if (graphicType != null && typeHint == graphicType) {
+            val symbol = rootTable.find(SymbolType.Basic(graphicType), stringLiteral.value)
             if (symbol == null) {
                 stringLiteral.type = MetaType.Error
                 stringLiteral.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, stringLiteral.value)
                 return
             }
             stringLiteral.reference = symbol
-            stringLiteral.type = PrimitiveType.GRAPHIC
+            stringLiteral.type = graphicType
             return
         } else if (typeHint is MetaType.ClientScript) {
             handleClientScriptExpression(stringLiteral, typeHint)

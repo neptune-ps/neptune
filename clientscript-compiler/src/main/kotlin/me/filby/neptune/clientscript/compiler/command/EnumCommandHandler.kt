@@ -1,10 +1,10 @@
 package me.filby.neptune.clientscript.compiler.command
 
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
 /**
@@ -21,7 +21,7 @@ class EnumCommandHandler : DynamicCommandHandler {
         // fetch the arguments (minus last)
         val inputTypeExpr = checkTypeArgument(0)
         val outputTypeExpr = checkTypeArgument(1)
-        checkArgument(2, PrimitiveType.ENUM)
+        checkArgument(2, ScriptVarType.ENUM)
 
         // fetch the evaluation of the input and output types
         val inputType = (inputTypeExpr?.type as? MetaType.Type)?.inner
@@ -34,7 +34,7 @@ class EnumCommandHandler : DynamicCommandHandler {
         val expectedTypes = TupleType(
             MetaType.Type(inputType ?: MetaType.Any),
             MetaType.Type(outputType ?: MetaType.Any),
-            PrimitiveType.ENUM,
+            ScriptVarType.ENUM,
             inputType ?: MetaType.Any
         )
 

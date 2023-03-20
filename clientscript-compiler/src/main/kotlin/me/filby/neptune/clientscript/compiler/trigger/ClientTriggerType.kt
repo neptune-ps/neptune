@@ -1,5 +1,6 @@
 package me.filby.neptune.clientscript.compiler.trigger
 
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
@@ -16,26 +17,26 @@ enum class ClientTriggerType(
     override val allowReturns: Boolean = false,
     override val returns: Type? = null,
 ) : TriggerType {
-    OPWORLDMAPELEMENT1(10, subjectType = PrimitiveType.MAPELEMENT),
-    OPWORLDMAPELEMENT2(11, subjectType = PrimitiveType.MAPELEMENT),
-    OPWORLDMAPELEMENT3(12, subjectType = PrimitiveType.MAPELEMENT),
-    OPWORLDMAPELEMENT4(13, subjectType = PrimitiveType.MAPELEMENT),
-    OPWORLDMAPELEMENT5(14, subjectType = PrimitiveType.MAPELEMENT),
+    OPWORLDMAPELEMENT1(10, subjectType = ScriptVarType.MAPELEMENT),
+    OPWORLDMAPELEMENT2(11, subjectType = ScriptVarType.MAPELEMENT),
+    OPWORLDMAPELEMENT3(12, subjectType = ScriptVarType.MAPELEMENT),
+    OPWORLDMAPELEMENT4(13, subjectType = ScriptVarType.MAPELEMENT),
+    OPWORLDMAPELEMENT5(14, subjectType = ScriptVarType.MAPELEMENT),
     WORLDMAPELEMENTMOUSEOVER(
         15,
-        subjectType = PrimitiveType.MAPELEMENT,
+        subjectType = ScriptVarType.MAPELEMENT,
         allowParameters = true,
         parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT)
     ),
     WORLDMAPELEMENTMOUSELEAVE(
         16,
-        subjectType = PrimitiveType.MAPELEMENT,
+        subjectType = ScriptVarType.MAPELEMENT,
         allowParameters = true,
         parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT)
     ),
     WORLDMAPELEMENTMOUSEREPEAT(
         17,
-        subjectType = PrimitiveType.MAPELEMENT,
+        subjectType = ScriptVarType.MAPELEMENT,
         allowParameters = true,
         parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT)
     ),
