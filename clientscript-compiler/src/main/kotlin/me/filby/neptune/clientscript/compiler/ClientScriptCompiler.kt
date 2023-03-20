@@ -9,7 +9,6 @@ import me.filby.neptune.clientscript.compiler.type.DbColumnType
 import me.filby.neptune.clientscript.compiler.type.ParamType
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.ScriptCompiler
-import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarBitType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarClanSettingsType
@@ -19,7 +18,6 @@ import me.filby.neptune.runescript.compiler.type.wrapped.VarPlayerType
 import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.exists
 
 class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : ScriptCompiler(sourcePath, scriptWriter) {
     fun setup() {
@@ -87,30 +85,5 @@ class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : Scrip
         addSymbolLoader(
             TsvSymbolLoader(Path("symbols/varclansettings.tsv"), config = true) { VarClanSettingsType(it) }
         )
-    }
-
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            if (args.size != 1) {
-                error("usage: compiler.jar [src path]")
-            }
-
-            val srcPath = Path(args[0])
-            if (!srcPath.exists()) {
-                error("$srcPath does not exist.")
-            }
-
-            val compiler = ClientScriptCompiler(
-                srcPath,
-                // writer,
-                object : ScriptWriter {
-                    override fun write(script: RuneScript) {
-                    }
-                }
-            )
-            compiler.setup()
-            compiler.run()
-        }
     }
 }
