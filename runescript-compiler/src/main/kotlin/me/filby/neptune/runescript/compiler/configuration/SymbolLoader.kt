@@ -25,24 +25,42 @@ public interface SymbolLoader {
 
     /**
      * Adds a [ConstantSymbol] to the table with the given [name] and [value].
+     *
+     * Returns [ConstantSymbol] that was inserted.
      */
-    public fun SymbolTable.addConstant(name: String, value: String): Boolean {
-        return insert(SymbolType.Constant, ConstantSymbol(name, value))
+    public fun SymbolTable.addConstant(name: String, value: String): ConstantSymbol {
+        val symbol = ConstantSymbol(name, value)
+        if (!insert(SymbolType.Constant, symbol)) {
+            error("Unable to add constant: name=$name, value=$value")
+        }
+        return symbol
     }
 
     /**
      * Adds a [ConfigSymbol] to the table with the given [type] and [name].
+     *
+     * Returns the [ConfigSymbol] that was inserted.
      */
-    public fun SymbolTable.addConfig(type: Type, name: String): Boolean {
-        return insert(SymbolType.Config(type), ConfigSymbol(name, type))
+    public fun SymbolTable.addConfig(type: Type, name: String): ConfigSymbol {
+        val symbol = ConfigSymbol(name, type)
+        if (!insert(SymbolType.Config(type), symbol)) {
+            error("Unable to add config: type=$type, name=$name")
+        }
+        return symbol
     }
 
     /**
      * Adds a [BasicSymbol] to the table with the given [type] and [name]. This
      * should be used for any non-config symbols that don't have any special properties
      * to them.
+     *
+     * Returns the [BasicSymbol] that was inserted.
      */
-    public fun SymbolTable.addBasic(type: Type, name: String): Boolean {
-        return insert(SymbolType.Basic(type), BasicSymbol(name, type))
+    public fun SymbolTable.addBasic(type: Type, name: String): BasicSymbol {
+        val symbol = BasicSymbol(name, type)
+        if (!insert(SymbolType.Basic(type), symbol)) {
+            error("Unable to add basic: type=$type, name=$name")
+        }
+        return symbol
     }
 }
