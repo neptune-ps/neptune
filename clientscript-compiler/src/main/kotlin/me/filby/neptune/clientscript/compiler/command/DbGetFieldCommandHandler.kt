@@ -1,6 +1,7 @@
 package me.filby.neptune.clientscript.compiler.command
 
 import me.filby.neptune.clientscript.compiler.command.DbFindCommandHandler.DbColumnType
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
@@ -19,10 +20,8 @@ import me.filby.neptune.runescript.compiler.type.TupleType
  */
 class DbGetFieldCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
-        val dbrowType = typeManager.find("dbrow")
-
         // check first argument as a dbrow
-        checkArgument(0, dbrowType)
+        checkArgument(0, ScriptVarType.DBROW)
 
         // check column as dbcolumn
         val columnExpr = checkArgument(1, DbColumnType(MetaType.Any))
@@ -35,7 +34,7 @@ class DbGetFieldCommandHandler : DynamicCommandHandler {
 
         // define the expected types based on what is currently known
         val expectedTypes = TupleType(
-            dbrowType,
+            ScriptVarType.DBROW,
             DbColumnType(columnReturnType ?: MetaType.Any),
             PrimitiveType.INT
         )

@@ -6,18 +6,52 @@ import me.filby.neptune.runescript.compiler.type.Type
 enum class ScriptVarType(
     override val code: Char?,
     override val baseType: BaseVarType = BaseVarType.INTEGER,
-    override val defaultValue: Any?,
+    override val defaultValue: Any? = -1,
+    representation: String? = null
 ) : Type {
-    COMPONENT('I', defaultValue = -1),
-    NAMEDOBJ('O', defaultValue = -1),
-    STAT('S', defaultValue = -1),
-    NPC_STAT('T', defaultValue = -1),
-    GRAPHIC('d', defaultValue = -1),
-    ENUM('g', defaultValue = -1),
-    OBJ('o', defaultValue = -1),
-    MAPELEMENT('µ', defaultValue = -1),
-    INV('v', defaultValue = -1),
+    // INT
+    // BOOLEAN
+    SEQ('A'),
+    LOC_SHAPE('H', representation = "locshape"),
+    COMPONENT('I'),
+    IDKIT('K'),
+    MIDI('M'),
+    NPC_MODE('N'),
+    NAMEDOBJ('O'),
+    SYNTH('P'),
+    AREA('R'),
+    STAT('S'),
+    NPC_STAT('T'),
+    MAPAREA('`', representation = "wma"),
+    // COORDGRID
+    GRAPHIC('d'),
+    FONTMETRICS('f'),
+    ENUM('g'),
+    JINGLE('j'),
+    LOC('l'),
+    MODEL('m'),
+    NPC('m'),
+    OBJ('o'),
+    PLAYER_UID('p'),
+    // STRING
+    SPOTANIM('t'),
+    NPC_UID('u'),
+    INV('v'),
+    TEXTURE('x'),
+    CATEGORY('y'),
+    // CHAR
+    MAPELEMENT('µ'),
+    HITMARK('×'),
+    STRUCT('J'),
+    DBROW('Ð'),
+    INTERFACE('a'),
+    TOPLEVELINTERFACE('F'),
+    OVERLAYINTERFACE('L'),
+    MOVESPEED('Ý'),
+    // LONG
+    ENTITYOVERLAY('-'),
+    DBTABLE(null),
     ;
 
-    override val representation: String = name.lowercase()
+    override val representation: String = representation ?: name.lowercase()
 }

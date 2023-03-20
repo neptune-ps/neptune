@@ -27,26 +27,6 @@ class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : Scrip
         // register types
         types.registerAll<ScriptVarType>()
 
-        // TODO convert to ScriptVarType
-        types.register("entityoverlay", '-')
-        val model = types.register("model", 'm')
-        val seq = types.register("seq", 'A')
-        val fontmetrics = types.register("fontmetrics", 'f')
-        val npc = types.register("npc", 'n')
-        val wma = types.register("wma", '`')
-        val category = types.register("category", 'y')
-        types.register("npc_uid", 'u')
-        val loc = types.register("loc", 'l')
-        types.register("player_uid", 'p')
-        val synth = types.register("synth", 'P')
-        val dbrow = types.register("dbrow", 'Ð')
-        val dbtable = types.register("dbtable")
-        val struct = types.register("struct", 'J')
-        val locshape = types.register("locshape", 'H')
-        val `interface` = types.register("interface", 'a')
-        val toplevelinterface = types.register("toplevelinterface", 'F')
-        val overlayinterface = types.register("overlayinterface", 'L')
-
         // special types for commands
         types.register("clientscript", MetaType.ClientScript(MetaType.Unit))
         types.register("clientscript_stat", MetaType.ClientScript(ScriptVarType.STAT))
@@ -58,14 +38,14 @@ class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : Scrip
         types.addTypeChecker { left, right -> left == ScriptVarType.OBJ && right == ScriptVarType.NAMEDOBJ }
 
         // allow assignment of graphic to fontmetrics
-        types.addTypeChecker { left, right -> left == fontmetrics && right == ScriptVarType.GRAPHIC }
+        types.addTypeChecker { left, right -> left == ScriptVarType.FONTMETRICS && right == ScriptVarType.GRAPHIC }
 
         // register the dynamic command handlers
         addDynamicCommandHandler("enum", EnumCommandHandler())
         addDynamicCommandHandler("oc_param", ParamCommandHandler(ScriptVarType.OBJ))
-        addDynamicCommandHandler("nc_param", ParamCommandHandler(npc))
-        addDynamicCommandHandler("lc_param", ParamCommandHandler(loc))
-        addDynamicCommandHandler("struct_param", ParamCommandHandler(struct))
+        addDynamicCommandHandler("nc_param", ParamCommandHandler(ScriptVarType.NPC))
+        addDynamicCommandHandler("lc_param", ParamCommandHandler(ScriptVarType.LOC))
+        addDynamicCommandHandler("struct_param", ParamCommandHandler(ScriptVarType.STRUCT))
         addDynamicCommandHandler("db_find", DbFindCommandHandler(false))
         addDynamicCommandHandler("db_find_with_count", DbFindCommandHandler(true))
         addDynamicCommandHandler("db_find_refine", DbFindCommandHandler(false))
@@ -75,27 +55,27 @@ class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : Scrip
         // symbol loaders
         addSymbolLoader(ConstantLoader(Path("symbols/constants.tsv")))
         addSymbolLoader(TsvSymbolLoader(Path("symbols/graphics.tsv"), ScriptVarType.GRAPHIC))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/fontmetrics.tsv"), fontmetrics))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/fontmetrics.tsv"), ScriptVarType.FONTMETRICS))
         addSymbolLoader(TsvSymbolLoader(Path("symbols/stats.tsv"), ScriptVarType.STAT))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/synths.tsv"), synth))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/locshapes.tsv"), locshape))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/models.tsv"), model))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/interfaces.tsv"), `interface`))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/toplevelinterfaces.tsv"), toplevelinterface))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/overlayinterfaces.tsv"), overlayinterface))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/synths.tsv"), ScriptVarType.SYNTH))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/locshapes.tsv"), ScriptVarType.LOC_SHAPE))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/models.tsv"), ScriptVarType.MODEL))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/interfaces.tsv"), ScriptVarType.INTERFACE))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/toplevelinterfaces.tsv"), ScriptVarType.TOPLEVELINTERFACE))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/overlayinterfaces.tsv"), ScriptVarType.OVERLAYINTERFACE))
         addSymbolLoader(TsvSymbolLoader(Path("symbols/components.tsv"), ScriptVarType.COMPONENT))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/categories.tsv"), category))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/wmas.tsv"), wma))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/categories.tsv"), ScriptVarType.CATEGORY))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/wmas.tsv"), ScriptVarType.MAPAREA))
 
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/locs.tsv"), loc, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/npcs.tsv"), npc, config = true))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/locs.tsv"), ScriptVarType.LOC, config = true))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/npcs.tsv"), ScriptVarType.NPC, config = true))
         addSymbolLoader(TsvSymbolLoader(Path("symbols/objs.tsv"), ScriptVarType.NAMEDOBJ, config = true))
         addSymbolLoader(TsvSymbolLoader(Path("symbols/invs.tsv"), ScriptVarType.INV, config = true))
         addSymbolLoader(TsvSymbolLoader(Path("symbols/enums.tsv"), ScriptVarType.ENUM, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/structs.tsv"), struct, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/seqs.tsv"), seq, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/dbtables.tsv"), dbtable, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/dbrows.tsv"), dbrow, config = true))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/structs.tsv"), ScriptVarType.STRUCT, config = true))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/seqs.tsv"), ScriptVarType.SEQ, config = true))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/dbtables.tsv"), ScriptVarType.DBTABLE, config = true))
+        addSymbolLoader(TsvSymbolLoader(Path("symbols/dbrows.tsv"), ScriptVarType.DBROW, config = true))
         addSymbolLoader(TsvSymbolLoader(Path("symbols/dbcolumns.tsv")) { DbFindCommandHandler.DbColumnType(it) })
         addSymbolLoader(TsvSymbolLoader(Path("symbols/params.tsv"), config = true) { ParamType(it) })
         addSymbolLoader(TsvSymbolLoader(Path("symbols/vars.tsv"), config = true) { VarPlayerType(it) })
