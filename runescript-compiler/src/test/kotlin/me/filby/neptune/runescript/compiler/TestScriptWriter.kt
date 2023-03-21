@@ -56,7 +56,7 @@ internal class TestScriptWriter(
         instruction(BaseCoreOpcodes.POP_LOCAL, ((id shl 16) or type))
     }
 
-    override fun TestScriptWriterContext.writeDefineArray(symbol: Symbol) {
+    override fun TestScriptWriterContext.writeDefineArray(symbol: LocalVariableSymbol) {
         error("not implemented")
     }
 
