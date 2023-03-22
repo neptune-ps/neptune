@@ -30,7 +30,7 @@ enum class ScriptVarType(
     JINGLE('j'),
     LOC('l'),
     MODEL('m'),
-    NPC('m'),
+    NPC('n'),
     OBJ('o'),
     PLAYER_UID('p'),
     // STRING
