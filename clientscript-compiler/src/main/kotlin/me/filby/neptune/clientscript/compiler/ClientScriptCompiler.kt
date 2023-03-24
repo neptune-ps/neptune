@@ -25,6 +25,9 @@ class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : Scrip
 
         // register types
         types.registerAll<ScriptVarType>()
+        types.changeOptions("long") {
+            allowDeclaration = false
+        }
 
         // special types for commands
         types.register("clientscript", MetaType.ClientScript(MetaType.Unit))
