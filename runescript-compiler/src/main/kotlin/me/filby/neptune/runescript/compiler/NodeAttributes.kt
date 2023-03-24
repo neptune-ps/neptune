@@ -15,10 +15,16 @@ import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
+import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type.Type
+
+/**
+ * The [ScriptSymbol] associated with the script.
+ */
+internal var Script.symbol by Node.attribute<ScriptSymbol>("symbol")
 
 /**
  * The scripts defined trigger type.

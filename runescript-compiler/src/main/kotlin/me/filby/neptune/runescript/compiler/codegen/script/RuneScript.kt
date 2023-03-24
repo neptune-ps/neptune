@@ -1,12 +1,23 @@
 package me.filby.neptune.runescript.compiler.codegen.script
 
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
+import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 
 /**
  * A representation of a script containing the blocks of instructions and switch tables.
  */
-public class RuneScript(public val sourceName: String, public val trigger: TriggerType, public val name: String) {
+public class RuneScript(public val sourceName: String, public val symbol: ScriptSymbol) {
+    /**
+     * The trigger of the script.
+     */
+    public val trigger: TriggerType = symbol.trigger
+
+    /**
+     * The name of the script.
+     */
+    public val name: String = symbol.name
+
     /**
      * Combination of `[trigger,name]`.
      */

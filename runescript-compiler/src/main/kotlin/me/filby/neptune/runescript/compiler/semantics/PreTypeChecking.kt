@@ -131,6 +131,9 @@ internal class PreTypeChecking(
             val inserted = rootTable.insert(SymbolType.ClientScript(trigger), scriptSymbol)
             if (!inserted) {
                 script.reportError(DiagnosticMessage.SCRIPT_REDECLARATION, trigger.identifier, script.name.text)
+            } else {
+                // only set the symbol if it was actually inserted
+                script.symbol = scriptSymbol
             }
         }
 
