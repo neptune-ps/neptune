@@ -24,5 +24,5 @@ public class SwitchTable(public val id: Int) {
     /**
      * A switch case that can contain multiple keys that point to a single label.
      */
-    public class SwitchCase(public val label: Label, public val keys: List<Any>)
+    public data class SwitchCase(public val label: Label, public val keys: List<Any>)
 }
