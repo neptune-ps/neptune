@@ -613,6 +613,11 @@ public class CodeGenerator(
             return
         }
         instruction(Opcode.PushConstantInt, -1)
+        if (nullLiteral.type is MetaType.ClientScript) {
+            // hack to make null clientscript references work properly
+            // TODO figure out better way to handle this
+            instruction(Opcode.PushConstantString, "")
+        }
     }
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
