@@ -12,7 +12,6 @@ public sealed class SymbolType<T : Symbol> {
     // global
     public data class Basic(public val type: Type) : SymbolType<BasicSymbol>()
     public object Constant : SymbolType<ConstantSymbol>()
-    public data class Config(public val type: Type) : SymbolType<ConfigSymbol>()
 
     override fun toString(): String = this::class.java.simpleName
 }

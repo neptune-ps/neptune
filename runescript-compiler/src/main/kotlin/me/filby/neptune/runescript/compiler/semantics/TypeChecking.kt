@@ -53,7 +53,6 @@ import me.filby.neptune.runescript.compiler.scope
 import me.filby.neptune.runescript.compiler.subExpression
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
-import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConstantSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
@@ -321,7 +320,6 @@ public class TypeChecking(
     private fun isConstantSymbol(symbol: Symbol): Boolean = when (symbol) {
         is BasicSymbol -> true
         is ConstantSymbol -> true
-        is ConfigSymbol -> true
         else -> false
     }
 
@@ -777,7 +775,7 @@ public class TypeChecking(
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
         val name = gameVariableExpression.name.text
-        val symbol = rootTable.findAll<ConfigSymbol>(name).firstOrNull { it.type is GameVarType }
+        val symbol = rootTable.findAll<BasicSymbol>(name).firstOrNull { it.type is GameVarType }
         if (symbol == null || symbol.type !is GameVarType) {
             gameVariableExpression.type = MetaType.Error
             gameVariableExpression.reportError(DiagnosticMessage.GAME_REFERENCE_UNRESOLVED, name)
@@ -1062,7 +1060,6 @@ public class TypeChecking(
         is LocalVariableSymbol -> symbol.type
         is BasicSymbol -> symbol.type
         is ConstantSymbol -> null
-        is ConfigSymbol -> symbol.type
     }
 
     override fun visitToken(token: Token) {

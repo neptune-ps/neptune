@@ -14,7 +14,6 @@ import me.filby.neptune.runescript.compiler.nullableType
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
-import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.TupleType
@@ -54,8 +53,8 @@ public data class TypeCheckingContext(
      *  - [Literal]
      *  - [Identifier] (see note below)
      *
-     * Note: Identifiers that reference symbols other than [BasicSymbol] and [ConfigSymbol]
-     * do not quality as a constant expression.
+     * Note: Identifiers that reference symbols other than [BasicSymbol] do not
+     * quality as a constant expression.
      */
     public val Expression?.isConstant: Boolean
         get() {

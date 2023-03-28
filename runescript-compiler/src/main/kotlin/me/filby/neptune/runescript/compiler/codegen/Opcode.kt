@@ -2,7 +2,7 @@ package me.filby.neptune.runescript.compiler.codegen
 
 import me.filby.neptune.runescript.compiler.codegen.script.Label
 import me.filby.neptune.runescript.compiler.codegen.script.SwitchTable
-import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
+import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
@@ -59,14 +59,14 @@ public sealed class Opcode<T : Any> {
      *
      * Operand: The game variable.
      */
-    public object PushVar : Opcode<ConfigSymbol>()
+    public object PushVar : Opcode<BasicSymbol>()
 
     /**
      * Pops a value from the stack and stores it in the game variable.
      *
      * Operand: The game variable.
      */
-    public object PopVar : Opcode<ConfigSymbol>()
+    public object PopVar : Opcode<BasicSymbol>()
 
     /**
      * Defines a local array variable.

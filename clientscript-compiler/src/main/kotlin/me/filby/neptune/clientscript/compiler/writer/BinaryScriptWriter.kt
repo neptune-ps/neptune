@@ -9,7 +9,6 @@ import me.filby.neptune.runescript.compiler.codegen.script.Label
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.codegen.script.SwitchTable
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
-import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
@@ -101,7 +100,7 @@ abstract class BinaryScriptWriter(
         instruction(op, id)
     }
 
-    override fun BinaryScriptWriterContext.writePushVar(symbol: ConfigSymbol) {
+    override fun BinaryScriptWriterContext.writePushVar(symbol: BasicSymbol) {
         val id = idProvider.get(symbol)
         val opcode = when (val type = symbol.type) {
             is VarPlayerType -> ClientScriptOpcode.PUSH_VARP
@@ -118,7 +117,7 @@ abstract class BinaryScriptWriter(
         instruction(opcode, id)
     }
 
-    override fun BinaryScriptWriterContext.writePopVar(symbol: ConfigSymbol) {
+    override fun BinaryScriptWriterContext.writePopVar(symbol: BasicSymbol) {
         val id = idProvider.get(symbol)
         val opcode = when (val type = symbol.type) {
             is VarPlayerType -> ClientScriptOpcode.POP_VARP

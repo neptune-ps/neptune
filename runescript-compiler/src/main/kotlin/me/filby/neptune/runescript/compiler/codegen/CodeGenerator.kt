@@ -50,7 +50,7 @@ import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.subExpression
 import me.filby.neptune.runescript.compiler.symbol
-import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
+import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
@@ -432,7 +432,7 @@ public class CodeGenerator(
             }
             when (reference) {
                 is LocalVariableSymbol -> instruction(Opcode.PopLocalVar, reference)
-                is ConfigSymbol -> instruction(Opcode.PopVar, reference)
+                is BasicSymbol -> instruction(Opcode.PopVar, reference)
                 else -> error("Unsupported reference type: ${reference.javaClass.simpleName}")
             }
         }
@@ -472,7 +472,7 @@ public class CodeGenerator(
     }
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
-        val reference = gameVariableExpression.reference as? ConfigSymbol
+        val reference = gameVariableExpression.reference as? BasicSymbol
         if (reference == null) {
             gameVariableExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return

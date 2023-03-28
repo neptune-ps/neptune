@@ -2,7 +2,6 @@ package me.filby.neptune.runescript.compiler.configuration
 
 import me.filby.neptune.runescript.compiler.ScriptCompiler
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
-import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
 import me.filby.neptune.runescript.compiler.symbol.ConstantSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
@@ -32,19 +31,6 @@ public interface SymbolLoader {
         val symbol = ConstantSymbol(name, value)
         if (!insert(SymbolType.Constant, symbol)) {
             error("Unable to add constant: name=$name, value=$value")
-        }
-        return symbol
-    }
-
-    /**
-     * Adds a [ConfigSymbol] to the table with the given [type] and [name].
-     *
-     * Returns the [ConfigSymbol] that was inserted.
-     */
-    public fun SymbolTable.addConfig(type: Type, name: String): ConfigSymbol {
-        val symbol = ConfigSymbol(name, type)
-        if (!insert(SymbolType.Config(type), symbol)) {
-            error("Unable to add config: type=$type, name=$name")
         }
         return symbol
     }

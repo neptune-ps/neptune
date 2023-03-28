@@ -12,10 +12,9 @@ import kotlin.io.path.useLines
 class TsvSymbolLoader(
     private val mapper: SymbolMapper,
     private val path: Path,
-    private val config: Boolean = false,
     private val typeSupplier: (subTypes: Type) -> Type,
 ) : SymbolLoader {
-    constructor(mapper: SymbolMapper, path: Path, type: Type, config: Boolean) : this(mapper, path, config, { type })
+    constructor(mapper: SymbolMapper, path: Path, type: Type) : this(mapper, path, { type })
 
     override fun SymbolTable.load(compiler: ScriptCompiler) {
         path.useLines { lines ->
@@ -36,11 +35,7 @@ class TsvSymbolLoader(
                 }
                 val type = typeSupplier(subTypes)
 
-                val symbol = if (config) {
-                    addConfig(type, name)
-                } else {
-                    addBasic(type, name)
-                }
+                val symbol = addBasic(type, name)
                 mapper.putSymbol(id, symbol)
             }
         }

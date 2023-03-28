@@ -6,7 +6,7 @@ import me.filby.neptune.runescript.compiler.codegen.script.Block
 import me.filby.neptune.runescript.compiler.codegen.script.Label
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.codegen.script.SwitchTable
-import me.filby.neptune.runescript.compiler.symbol.ConfigSymbol
+import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
@@ -57,8 +57,8 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
             Opcode.PushConstantSymbol -> context.writePushConstantSymbol(operand as Symbol)
             Opcode.PushLocalVar -> context.writePushLocalVar(operand as LocalVariableSymbol)
             Opcode.PopLocalVar -> context.writePopLocalVar(operand as LocalVariableSymbol)
-            Opcode.PushVar -> context.writePushVar(operand as ConfigSymbol)
-            Opcode.PopVar -> context.writePopVar(operand as ConfigSymbol)
+            Opcode.PushVar -> context.writePushVar(operand as BasicSymbol)
+            Opcode.PopVar -> context.writePopVar(operand as BasicSymbol)
             Opcode.DefineArray -> context.writeDefineArray(operand as LocalVariableSymbol)
             Opcode.Switch -> context.writeSwitch(operand as SwitchTable)
             Opcode.Branch -> context.writeBranch(opcode, operand as Label)
@@ -127,11 +127,11 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
         error("not implemented")
     }
 
-    protected open fun T.writePushVar(symbol: ConfigSymbol) {
+    protected open fun T.writePushVar(symbol: BasicSymbol) {
         error("not implemented")
     }
 
-    protected open fun T.writePopVar(symbol: ConfigSymbol) {
+    protected open fun T.writePopVar(symbol: BasicSymbol) {
         error("not implemented")
     }
 

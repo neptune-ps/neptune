@@ -122,10 +122,10 @@ private fun createRuntime(scriptManager: ScriptManager): TestScriptRunner {
 private class CommandSymbolLoader : SymbolLoader {
     override fun SymbolTable.load(compiler: ScriptCompiler) {
         // fake config symbols
-        addConfig(VarPlayerType(PrimitiveType.INT), "varp")
-        addConfig(VarBitType, "varbit")
-        addConfig(VarClientType(PrimitiveType.INT), "varc")
-        addConfig(VarClientType(PrimitiveType.STRING), "varcstr")
+        addBasic(VarPlayerType(PrimitiveType.INT), "varp")
+        addBasic(VarBitType, "varbit")
+        addBasic(VarClientType(PrimitiveType.INT), "varc")
+        addBasic(VarClientType(PrimitiveType.STRING), "varcstr")
 
         // constants
         addConstant("max_32bit_int", "2147483647")
