@@ -4,6 +4,7 @@ guava = "30.1.1-jre"
 inlineLogger = "1.0.3"
 junit = "5.7.1"
 logback = "1.2.11"
+netty-buffer = "4.1.90.Final"
 
 [libraries]
 antlr = { module = "org.antlr:antlr4", version.ref = "antlr" }
@@ -12,4 +13,5 @@ logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 inlineLogger = { module = "com.michael-bull.kotlin-inline-logger:kotlin-inline-logger", version.ref = "inlineLogger" }
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
-junit-params = { module = "org.junit.jupiter:junit-jupiter-params ", version.ref = "junit" }
+junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+netty-buffer = { module = "io.netty:netty-buffer", version.ref = "netty-buffer" }
