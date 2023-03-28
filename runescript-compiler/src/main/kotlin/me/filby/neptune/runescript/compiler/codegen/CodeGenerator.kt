@@ -529,16 +529,22 @@ public class CodeGenerator(
         }
 
         // attempt to call the dynamic command handlers code generation (if one exists)
-        val name = commandCallExpression.name.text
-        dynamicCommands[name]?.run {
-            val context = CodeGeneratorContext(this@CodeGenerator, commandCallExpression, diagnostics)
-            context.generateCode()
+        if (emitDynamicCommand(commandCallExpression.name.text, commandCallExpression)) {
             return
         }
 
         commandCallExpression.arguments.visit()
         commandCallExpression.lineInstruction()
         instruction(Opcode.Command, symbol)
+    }
+
+    private fun emitDynamicCommand(name: String, expression: Expression): Boolean {
+        val dynamicCommand = dynamicCommands[name] ?: return false
+        with(dynamicCommand) {
+            val context = CodeGeneratorContext(this@CodeGenerator, expression, diagnostics)
+            context.generateCode()
+        }
+        return true
     }
 
     override fun visitProcCallExpression(procCallExpression: ProcCallExpression) {
@@ -662,6 +668,11 @@ public class CodeGenerator(
 
         // add the instruction based on reference type
         if (reference is ScriptSymbol.ClientScriptSymbol && reference.trigger == CommandTrigger) {
+            // attempt to call the dynamic command handlers code generation (if one exists)
+            if (emitDynamicCommand(identifier.text, identifier)) {
+                return
+            }
+
             // commands can be referenced by just their name if they have no arguments
             instruction(Opcode.Command, reference)
         } else {

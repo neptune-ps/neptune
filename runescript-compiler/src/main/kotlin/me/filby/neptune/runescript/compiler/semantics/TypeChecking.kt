@@ -573,29 +573,48 @@ public class TypeChecking(
         val name = commandCallExpression.name.text
 
         // attempt to call the dynamic command handlers type checker (if one exists)
-        dynamicCommands[name]?.run {
-            // invoke the custom command type checking
-            val context = TypeCheckingContext(this@TypeChecking, typeManager, commandCallExpression, diagnostics)
-            context.typeCheck()
-
-            // verify the type has been set
-            if (commandCallExpression.nullableType == null) {
-                commandCallExpression.reportError(DiagnosticMessage.CUSTOM_HANDLER_NOTYPE)
-            }
-
-            // if the symbol was not manually specified attempt to look up a predefined one
-            if (commandCallExpression.symbol == null) {
-                val symbol = rootTable.find(SymbolType.ClientScript(commandTrigger), name)
-                if (symbol == null) {
-                    commandCallExpression.reportError(DiagnosticMessage.CUSTOM_HANDLER_NOSYMBOL)
-                }
-                commandCallExpression.symbol = symbol
-            }
+        if (checkDynamicCommand(name, commandCallExpression)) {
             return
         }
 
         // fall back to normal call expression implementation
         visitCallExpression(commandCallExpression)
+    }
+
+    /**
+     * Runs the type checking for dynamic commands if one exists with [name].
+     */
+    private fun checkDynamicCommand(
+        name: String,
+        expression: Expression,
+    ): Boolean {
+        val dynamicCommand = dynamicCommands[name] ?: return false
+        with(dynamicCommand) {
+            // invoke the custom command type checking
+            val context = TypeCheckingContext(this@TypeChecking, typeManager, expression, diagnostics)
+            context.typeCheck()
+
+            // verify the type has been set
+            if (expression.nullableType == null) {
+                expression.reportError(DiagnosticMessage.CUSTOM_HANDLER_NOTYPE)
+            }
+
+            // if the symbol was not manually specified attempt to look up a predefined one
+            if (
+                expression is Identifier && expression.reference == null ||
+                expression is CallExpression && expression.symbol == null
+            ) {
+                val symbol = rootTable.find(SymbolType.ClientScript(commandTrigger), name)
+                if (symbol == null) {
+                    expression.reportError(DiagnosticMessage.CUSTOM_HANDLER_NOSYMBOL)
+                }
+                when (expression) {
+                    is Identifier -> expression.reference = symbol
+                    is CallExpression -> expression.symbol = symbol
+                }
+            }
+        }
+        return true
     }
 
     /**
@@ -980,6 +999,11 @@ public class TypeChecking(
 
         val name = identifier.text
         val hint = identifier.typeHint
+
+        // attempt to call the dynamic command handlers type checker (if one exists)
+        if (checkDynamicCommand(name, identifier)) {
+            return
+        }
 
         // look through the global table for a symbol with the given name and type
         var symbol: Symbol? = null

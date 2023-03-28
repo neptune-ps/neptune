@@ -1,7 +1,7 @@
 package me.filby.neptune.runescript.compiler.configuration.command
 
 import me.filby.neptune.runescript.ast.Node
-import me.filby.neptune.runescript.ast.expr.CommandCallExpression
+import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
@@ -29,9 +29,23 @@ import me.filby.neptune.runescript.compiler.typeHint
 public data class TypeCheckingContext(
     private val typeChecker: TypeChecking,
     val typeManager: TypeManager,
-    val expression: CommandCallExpression,
+    val expression: Expression,
     val diagnostics: Diagnostics
 ) {
+    /**
+     * Returns a list of expressions that were passed to the expression as arguments.
+     *
+     * This returns [CallExpression.arguments] if the expression is a [CallExpression],
+     * otherwise an empty list.
+     */
+    public val Expression?.arguments: List<Expression>
+        get() {
+            if (this is CallExpression) {
+                return arguments
+            }
+            return emptyList()
+        }
+
     /**
      * Whether the expression is a constant expression.
      *

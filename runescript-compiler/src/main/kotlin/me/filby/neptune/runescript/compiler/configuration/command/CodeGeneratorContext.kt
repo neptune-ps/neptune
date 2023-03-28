@@ -1,11 +1,14 @@
 package me.filby.neptune.runescript.compiler.configuration.command
 
 import me.filby.neptune.runescript.ast.Node
+import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.Expression
+import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.compiler.codegen.CodeGenerator
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
+import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 
@@ -15,9 +18,23 @@ import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
  */
 public data class CodeGeneratorContext(
     private val codeGenerator: CodeGenerator,
-    val expression: CommandCallExpression,
+    val expression: Expression,
     val diagnostics: Diagnostics
 ) {
+    /**
+     * Returns a list of expressions that were passed to the expression as arguments.
+     *
+     * This returns [CallExpression.arguments] if the expression is a [CallExpression],
+     * otherwise an empty list.
+     */
+    public val Expression?.arguments: List<Expression>
+        get() {
+            if (this is CallExpression) {
+                return arguments
+            }
+            return emptyList()
+        }
+
     /**
      * Emits a new instruction with the given [opcode] and [operand].
      */
@@ -39,9 +56,13 @@ public data class CodeGeneratorContext(
     public fun command() {
         // the symbol is verified to be not null in CodeGenerator before calling user
         // code generation code which makes this safe, but we'll make the compiler happy.
-        val symbol = requireNotNull(expression.symbol as ScriptSymbol)
+        val symbol = when (expression) {
+            is CommandCallExpression -> expression.symbol
+            is Identifier -> expression.reference
+            else -> error("Unsupported expression type.")
+        } as? ScriptSymbol
         expression.lineInstruction()
-        instruction(Opcode.Command, symbol)
+        instruction(Opcode.Command, requireNotNull(symbol))
     }
 
     /**
