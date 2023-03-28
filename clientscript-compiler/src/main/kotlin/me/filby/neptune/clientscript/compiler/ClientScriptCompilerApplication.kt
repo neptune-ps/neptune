@@ -16,9 +16,6 @@ fun main(args: Array<String>) {
     }
 
     val outputPath = Path(args[1])
-    if (!outputPath.exists()) {
-        error("$outputPath does not exist.")
-    }
 
     val mapper = SymbolMapper()
 
