@@ -12,6 +12,7 @@ import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.ScriptCompiler
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
+import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.VarBitType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarClanSettingsType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarClanType
@@ -21,7 +22,11 @@ import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import java.nio.file.Path
 import kotlin.io.path.Path
 
-class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : ScriptCompiler(sourcePath, scriptWriter) {
+class ClientScriptCompiler(
+    sourcePath: Path,
+    scriptWriter: ScriptWriter,
+    private val mapper: SymbolMapper,
+) : ScriptCompiler(sourcePath, scriptWriter) {
     fun setup() {
         triggers.registerAll<ClientTriggerType>()
 
@@ -69,37 +74,56 @@ class ClientScriptCompiler(sourcePath: Path, scriptWriter: ScriptWriter) : Scrip
 
         // symbol loaders
         addSymbolLoader(ConstantLoader(Path("symbols/constants.tsv")))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/graphics.tsv"), ScriptVarType.GRAPHIC))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/fontmetrics.tsv"), ScriptVarType.FONTMETRICS))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/stats.tsv"), ScriptVarType.STAT))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/synths.tsv"), ScriptVarType.SYNTH))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/locshapes.tsv"), ScriptVarType.LOC_SHAPE))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/models.tsv"), ScriptVarType.MODEL))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/interfaces.tsv"), ScriptVarType.INTERFACE))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/toplevelinterfaces.tsv"), ScriptVarType.TOPLEVELINTERFACE))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/overlayinterfaces.tsv"), ScriptVarType.OVERLAYINTERFACE))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/components.tsv"), ScriptVarType.COMPONENT))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/categories.tsv"), ScriptVarType.CATEGORY))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/wmas.tsv"), ScriptVarType.MAPAREA))
 
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/locs.tsv"), ScriptVarType.LOC, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/npcs.tsv"), ScriptVarType.NPC, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/objs.tsv"), ScriptVarType.NAMEDOBJ, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/invs.tsv"), ScriptVarType.INV, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/enums.tsv"), ScriptVarType.ENUM, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/structs.tsv"), ScriptVarType.STRUCT, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/seqs.tsv"), ScriptVarType.SEQ, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/dbtables.tsv"), ScriptVarType.DBTABLE, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/dbrows.tsv"), ScriptVarType.DBROW, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/dbcolumns.tsv")) { DbColumnType(it) })
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/params.tsv"), config = true) { ParamType(it) })
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/vars.tsv"), config = true) { VarPlayerType(it) })
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/varcints.tsv"), config = true) { VarClientType(it) })
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/varcstrings.tsv"), config = true) { VarClientType(it) })
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/varbits.tsv"), VarBitType, config = true))
-        addSymbolLoader(TsvSymbolLoader(Path("symbols/varclans.tsv"), config = true) { VarClanType(it) })
-        addSymbolLoader(
-            TsvSymbolLoader(Path("symbols/varclansettings.tsv"), config = true) { VarClanSettingsType(it) }
-        )
+        addTsvLoader("graphics", ScriptVarType.GRAPHIC)
+        addTsvLoader("fontmetrics", ScriptVarType.FONTMETRICS)
+        addTsvLoader("stats", ScriptVarType.STAT)
+        addTsvLoader("synths", ScriptVarType.SYNTH)
+        addTsvLoader("locshapes", ScriptVarType.LOC_SHAPE)
+        addTsvLoader("models", ScriptVarType.MODEL)
+        addTsvLoader("interfaces", ScriptVarType.INTERFACE)
+        addTsvLoader("toplevelinterfaces", ScriptVarType.TOPLEVELINTERFACE)
+        addTsvLoader("overlayinterfaces", ScriptVarType.OVERLAYINTERFACE)
+        addTsvLoader("components", ScriptVarType.COMPONENT)
+        addTsvLoader("categories", ScriptVarType.CATEGORY)
+        addTsvLoader("wmas", ScriptVarType.MAPAREA)
+
+        addTsvLoader("locs", ScriptVarType.LOC, config = true)
+        addTsvLoader("npcs", ScriptVarType.NPC, config = true)
+        addTsvLoader("objs", ScriptVarType.NAMEDOBJ, config = true)
+        addTsvLoader("invs", ScriptVarType.INV, config = true)
+        addTsvLoader("enums", ScriptVarType.ENUM, config = true)
+        addTsvLoader("structs", ScriptVarType.STRUCT, config = true)
+        addTsvLoader("seqs", ScriptVarType.SEQ, config = true)
+        addTsvLoader("dbtables", ScriptVarType.DBTABLE, config = true)
+        addTsvLoader("dbrows", ScriptVarType.DBROW, config = true)
+        addTsvLoader("dbcolumns") { DbColumnType(it) }
+        addTsvLoader("params", config = true) { ParamType(it) }
+        addTsvLoader("vars", config = true) { VarPlayerType(it) }
+        addTsvLoader("varcints", config = true) { VarClientType(it) }
+        addTsvLoader("varcstrings", config = true) { VarClientType(it) }
+        addTsvLoader("varbits", VarBitType, config = true)
+        addTsvLoader("varclans", config = true) { VarClanType(it) }
+        addTsvLoader("varclansettings", config = true) { VarClanSettingsType(it) }
+    }
+
+    /**
+     * Helper for loading external symbols from `tsv` files with a specific [type].
+     */
+    private fun addTsvLoader(name: String, type: Type, config: Boolean = false) {
+        val path = SYMBOLS_PATH.resolve("$name.tsv")
+        addSymbolLoader(TsvSymbolLoader(mapper, path, type, config))
+    }
+
+    /**
+     * Helper for loading external symbols from `tsv` files with subtypes.
+     */
+    private fun addTsvLoader(name: String, config: Boolean = false, typeSuppler: (subTypes: Type) -> Type) {
+        val path = SYMBOLS_PATH.resolve("$name.tsv")
+        addSymbolLoader(TsvSymbolLoader(mapper, path, config, typeSuppler))
+    }
+
+    private companion object {
+        val SYMBOLS_PATH = Path("symbols")
     }
 }
