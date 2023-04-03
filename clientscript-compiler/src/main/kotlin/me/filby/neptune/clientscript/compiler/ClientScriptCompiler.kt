@@ -87,6 +87,7 @@ class ClientScriptCompiler(
         addTsvLoader("components", ScriptVarType.COMPONENT)
         addTsvLoader("categories", ScriptVarType.CATEGORY)
         addTsvLoader("wmas", ScriptVarType.MAPAREA)
+        addTsvLoader("mapelements", ScriptVarType.MAPELEMENT)
 
         addTsvLoader("locs", ScriptVarType.LOC)
         addTsvLoader("npcs", ScriptVarType.NPC)
