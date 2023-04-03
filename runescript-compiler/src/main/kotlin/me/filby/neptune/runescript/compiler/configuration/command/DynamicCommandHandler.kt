@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.compiler.configuration.command
 
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.expr.CallExpression
+import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
@@ -16,7 +17,7 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
  */
 public interface DynamicCommandHandler {
     /**
-     * Handles type checking the expression. The expression will only ever be [CallExpression].
+     * Handles type checking the expression. The expression will only ever be [CallExpression] or [Identifier].
      *
      * All implementations should follow these basic rules:
      *  - `expression.type` **must** be defined.
