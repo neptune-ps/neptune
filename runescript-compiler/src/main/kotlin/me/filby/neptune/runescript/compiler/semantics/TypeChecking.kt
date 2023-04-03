@@ -600,7 +600,7 @@ public class TypeChecking(
             // if the symbol was not manually specified attempt to look up a predefined one
             if (
                 expression is Identifier && expression.reference == null ||
-                expression is CallExpression && expression.symbol == null
+                expression is CallExpression && expression.reference == null
             ) {
                 val symbol = rootTable.find(SymbolType.ClientScript(commandTrigger), name)
                 if (symbol == null) {
@@ -608,7 +608,7 @@ public class TypeChecking(
                 }
                 when (expression) {
                     is Identifier -> expression.reference = symbol
-                    is CallExpression -> expression.symbol = symbol
+                    is CallExpression -> expression.reference = symbol
                 }
             }
         }
@@ -638,7 +638,7 @@ public class TypeChecking(
             callExpression.type = MetaType.Error
             callExpression.reportError(errorMessage, name)
         } else {
-            callExpression.symbol = symbol
+            callExpression.reference = symbol
             callExpression.type = symbol.returns
         }
 
@@ -665,7 +665,7 @@ public class TypeChecking(
             clientScriptExpression.reportError(DiagnosticMessage.CLIENTSCRIPT_REFERENCE_UNRESOLVED, name)
             clientScriptExpression.type = MetaType.Error
         } else {
-            clientScriptExpression.symbol = symbol
+            clientScriptExpression.reference = symbol
             clientScriptExpression.type = typeHint
         }
 

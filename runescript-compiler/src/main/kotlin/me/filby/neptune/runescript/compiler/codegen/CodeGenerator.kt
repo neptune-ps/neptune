@@ -523,7 +523,7 @@ public class CodeGenerator(
     }
 
     override fun visitCommandCallExpression(commandCallExpression: CommandCallExpression) {
-        val symbol = commandCallExpression.symbol as? ScriptSymbol
+        val symbol = commandCallExpression.reference as? ScriptSymbol
         if (symbol == null) {
             commandCallExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
@@ -549,7 +549,7 @@ public class CodeGenerator(
     }
 
     override fun visitProcCallExpression(procCallExpression: ProcCallExpression) {
-        val symbol = procCallExpression.symbol as? ScriptSymbol
+        val symbol = procCallExpression.reference as? ScriptSymbol
         if (symbol == null) {
             procCallExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
@@ -560,7 +560,7 @@ public class CodeGenerator(
     }
 
     override fun visitClientScriptExpression(clientScriptExpression: ClientScriptExpression) {
-        val symbol = clientScriptExpression.symbol as? ScriptSymbol.ClientScriptSymbol
+        val symbol = clientScriptExpression.reference as? ScriptSymbol.ClientScriptSymbol
         if (symbol == null) {
             clientScriptExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
