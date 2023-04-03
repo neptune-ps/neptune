@@ -14,6 +14,7 @@ import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
+import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
@@ -30,6 +31,11 @@ internal var Script.symbol by Node.attribute<ScriptSymbol>("symbol")
  * The scripts defined trigger type.
  */
 internal var Script.triggerType by Node.attribute<TriggerType>("triggerType")
+
+/**
+ * The symbol that is associated with the subject of the script.
+ */
+internal var Script.subjectReference by Node.attributeOrNull<BasicSymbol>("subjectReference")
 
 /**
  * The script parameter type(s) if it returns any.

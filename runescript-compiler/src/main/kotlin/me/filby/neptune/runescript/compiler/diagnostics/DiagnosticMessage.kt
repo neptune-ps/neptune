@@ -39,6 +39,9 @@ internal object DiagnosticMessage {
     const val SCRIPT_TRIGGER_EXPECTED_PARAMETERS = "The trigger type '%s' is expected to accept (%s)."
     const val SCRIPT_TRIGGER_NO_RETURNS = "The trigger type '%s' is not allowed to return values."
     const val SCRIPT_TRIGGER_EXPECTED_RETURNS = "The trigger type '%s' is expected to return (%s)."
+    const val SCRIPT_SUBJECT_ONLY_GLOBAL = "Trigger '%s' only allows global subjects."
+    const val SCRIPT_SUBJECT_NO_GLOBAL = "Trigger '%s' does not allow global subjects."
+    const val SCRIPT_SUBJECT_NO_CAT = "Trigger '%s' does not allow category subjects."
 
     // switch statement node specific
     const val SWITCH_INVALID_TYPE = "'%s' is not allowed within a switch statement."

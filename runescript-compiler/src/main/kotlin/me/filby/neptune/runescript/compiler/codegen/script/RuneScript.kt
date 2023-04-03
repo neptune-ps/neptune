@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.compiler.codegen.script
 
+import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
@@ -7,7 +8,11 @@ import me.filby.neptune.runescript.compiler.trigger.TriggerType
 /**
  * A representation of a script containing the blocks of instructions and switch tables.
  */
-public class RuneScript(public val sourceName: String, public val symbol: ScriptSymbol) {
+public class RuneScript(
+    public val sourceName: String,
+    public val symbol: ScriptSymbol,
+    public val subjectReference: BasicSymbol?,
+) {
     /**
      * The trigger of the script.
      */

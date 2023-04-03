@@ -23,11 +23,9 @@ public interface TriggerType {
     public val identifier: String
 
     /**
-     * The expected type of the subject. If `null` then the subject is just treated as a unique name. If not `null`
-     * then the subject must be the defined type, `category` (represented as `_<category>`), or a global
-     * (represented as `_`).
+     * The [SubjectMode] for the trigger.
      */
-    public val subjectType: Type?
+    public val subjectMode: SubjectMode
 
     /**
      * Whether parameters are allowed in scripts using the trigger.

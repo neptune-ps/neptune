@@ -49,6 +49,7 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.subExpression
+import me.filby.neptune.runescript.compiler.subjectReference
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
@@ -160,7 +161,7 @@ public class CodeGenerator(
         }
 
         // add the script to the list of scripts in the file
-        _scripts += RuneScript(script.source.name, script.symbol)
+        _scripts += RuneScript(script.source.name, script.symbol, script.subjectReference)
 
         // visit parameters to add them to the scripts local table
         script.parameters.visit()

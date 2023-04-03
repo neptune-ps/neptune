@@ -21,11 +21,13 @@ import me.filby.neptune.runescript.compiler.parameterType
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.scope
+import me.filby.neptune.runescript.compiler.subjectReference
 import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
+import me.filby.neptune.runescript.compiler.trigger.SubjectMode
 import me.filby.neptune.runescript.compiler.trigger.TriggerManager
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.triggerType
@@ -48,7 +50,7 @@ internal class PreTypeChecking(
     private val typeManager: TypeManager,
     private val triggerManager: TriggerManager,
     private val rootTable: SymbolTable,
-    private val diagnostics: Diagnostics
+    private val diagnostics: Diagnostics,
 ) : AstVisitor<Unit> {
     /**
      * A stack of symbol tables to use through the script file.
@@ -59,6 +61,11 @@ internal class PreTypeChecking(
      * The current active symbol table.
      */
     private val table get() = tables.first()
+
+    /**
+     * A cached reference to a [Type] representing a `category`.
+     */
+    private val categoryType = typeManager.findOrNull("category")
 
     init {
         // init with a base table for the file
@@ -91,7 +98,8 @@ internal class PreTypeChecking(
             script.triggerType = trigger
         }
 
-        // TODO check subject if it's meant to refer to a specific thing
+        // verify subject matched what the trigger requires
+        checkScriptSubject(trigger, script)
 
         // visit the parameters
         val parameters = script.parameters
@@ -142,6 +150,116 @@ internal class PreTypeChecking(
 
         // set the root symbol table for the script
         script.scope = table
+    }
+
+    /**
+     * Validates the subject of [script] is allowed following [SubjectMode] for the
+     * [trigger].
+     */
+    private fun checkScriptSubject(trigger: TriggerType?, script: Script) {
+        val mode = trigger?.subjectMode ?: return
+        val subject = script.name.text
+
+        // name mode allows anything as the subject
+        if (mode == SubjectMode.Name) {
+            return
+        }
+
+        // check for global subject
+        if (subject == "_") {
+            checkGlobalScriptSubject(trigger, script)
+            return
+        }
+
+        // check for category reference subject
+        if (subject.startsWith("_")) {
+            checkCategoryScriptSubject(trigger, script, subject.substring(1))
+            return
+        }
+
+        // check for reference subject
+        checkTypeScriptSubject(trigger, script, subject)
+    }
+
+    /**
+     * Verifies the trigger subject mode is allowed to be a global subject.
+     */
+    private fun checkGlobalScriptSubject(trigger: TriggerType, script: Script) {
+        val mode = trigger.subjectMode
+
+        // trigger only allows global
+        if (mode == SubjectMode.None) {
+            return
+        }
+
+        // subject references a type, verify it allows global subject
+        if (mode is SubjectMode.Type) {
+            if (!mode.global) {
+                script.name.reportError(DiagnosticMessage.SCRIPT_SUBJECT_NO_GLOBAL, trigger.identifier)
+            }
+            return
+        }
+        error(mode)
+    }
+
+    /**
+     * Verifies the trigger subject mode is allowed to be a category subject.
+     */
+    private fun checkCategoryScriptSubject(trigger: TriggerType, script: Script, subject: String) {
+        val mode = trigger.subjectMode
+        val categoryType = categoryType ?: error("'category' type not defined.")
+
+        // trigger only allows global
+        if (mode == SubjectMode.None) {
+            script.name.reportError(DiagnosticMessage.SCRIPT_SUBJECT_ONLY_GLOBAL, trigger.identifier)
+            return
+        }
+
+        // subject references a type, verify it allows category subject
+        if (mode is SubjectMode.Type) {
+            if (!mode.category) {
+                script.name.reportError(DiagnosticMessage.SCRIPT_SUBJECT_NO_CAT, trigger.identifier)
+                return
+            }
+
+            // attempt to resolve the subject to a category
+            resolveSubjectSymbol(script, subject, categoryType)
+            return
+        }
+        error(mode)
+    }
+
+    /**
+     * Verifies the trigger subject is allowed to refer to a type, category, or global subject.
+     */
+    private fun checkTypeScriptSubject(trigger: TriggerType, script: Script, subject: String) {
+        val mode = trigger.subjectMode
+
+        // trigger only allows global
+        if (mode == SubjectMode.None) {
+            script.name.reportError(DiagnosticMessage.SCRIPT_SUBJECT_ONLY_GLOBAL, trigger.identifier)
+            return
+        }
+
+        // subject references a type
+        if (mode is SubjectMode.Type) {
+            // attempt to resolve the subject to the specified type
+            resolveSubjectSymbol(script, subject, mode.type)
+            return
+        }
+        error(mode)
+    }
+
+    /**
+     * Attempts to find a reference to the subject of a script.
+     */
+    private fun resolveSubjectSymbol(script: Script, subject: String, type: Type) {
+        val symbol = rootTable.find(SymbolType.Basic(type), subject)
+        if (symbol == null) {
+            script.name.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, subject)
+            return
+        }
+        script.subjectReference = symbol
     }
 
     /**
