@@ -10,7 +10,6 @@ import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
 import me.filby.neptune.runescript.compiler.incremental.IncrementalData
 import me.filby.neptune.runescript.compiler.incremental.IncrementalFile
-import me.filby.neptune.runescript.compiler.incremental.ScriptFileDependencyCollector
 import me.filby.neptune.runescript.compiler.incremental.ScriptHeaderGenerator
 import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
@@ -456,7 +455,6 @@ public open class ScriptCompiler(
         }
 
         val scriptHeaderGenerator = ScriptHeaderGenerator()
-        val dependencyCollector = ScriptFileDependencyCollector()
 
         val files = mutableListOf<IncrementalFile>()
         val fileDependents = HashMap<String, HashSet<String>>(fileNodes.size)
@@ -484,7 +482,7 @@ public open class ScriptCompiler(
         // inverse dependencies
         for (fileNode in fileNodes) {
             val path = Path(fileNode.source.name).relativeTo(sourcePath).toString()
-            val dependencies = fileNode.accept(dependencyCollector)
+            val dependencies = fileNode.dependencies
 
             for (dependency in dependencies) {
                 val dependencyFile = symbolToPath[dependency] ?: continue

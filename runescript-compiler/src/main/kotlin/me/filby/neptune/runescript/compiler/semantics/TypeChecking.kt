@@ -42,6 +42,7 @@ import me.filby.neptune.runescript.compiler.ParserErrorListener
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.defaultCase
+import me.filby.neptune.runescript.compiler.dependencies
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
@@ -112,6 +113,11 @@ public class TypeChecking(
     private val clientscriptTrigger = triggerManager.findOrNull("clientscript")
 
     /**
+     * The current [ScriptFile] that is being processed.
+     */
+    private var file: ScriptFile? = null
+
+    /**
      * The current table. This is updated each time when entering a new script or block.
      */
     private var table: SymbolTable = rootTable
@@ -145,7 +151,9 @@ public class TypeChecking(
 
     override fun visitScriptFile(scriptFile: ScriptFile) {
         // visit all scripts in the file
+        file = scriptFile
         scriptFile.scripts.visit()
+        file = null
     }
 
     override fun visitScript(script: Script) {
@@ -558,6 +566,16 @@ public class TypeChecking(
         inCalc = false
     }
 
+    override fun visitProcCallExpression(procCallExpression: ProcCallExpression) {
+        super.visitProcCallExpression(procCallExpression)
+
+        val reference = procCallExpression.reference as? ScriptSymbol
+        if (reference != null) {
+            // add the symbol to file dependencies
+            file?.dependencies?.add(reference)
+        }
+    }
+
     /**
      * Overrides original implementation that would fall through to [visitCallExpression]
      * so that we can display an error for attempting to `jump` within a clientscript.
@@ -665,6 +683,9 @@ public class TypeChecking(
             clientScriptExpression.reportError(DiagnosticMessage.CLIENTSCRIPT_REFERENCE_UNRESOLVED, name)
             clientScriptExpression.type = MetaType.Error
         } else {
+            // add the symbol to file dependencies
+            file?.dependencies?.add(symbol)
+
             clientScriptExpression.reference = symbol
             clientScriptExpression.type = typeHint
         }
