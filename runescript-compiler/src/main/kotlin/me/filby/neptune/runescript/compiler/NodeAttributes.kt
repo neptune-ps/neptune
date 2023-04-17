@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.compiler
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
+import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
@@ -21,6 +22,11 @@ import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type.Type
+
+/**
+ * A set of [ScriptSymbol] that the file depends on.
+ */
+internal var ScriptFile.dependencies by Node.attribute<MutableSet<ScriptSymbol>>("dependencies") { mutableSetOf() }
 
 /**
  * The [ScriptSymbol] associated with the script.

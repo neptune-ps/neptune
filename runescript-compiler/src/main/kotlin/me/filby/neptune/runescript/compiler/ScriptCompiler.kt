@@ -8,8 +8,12 @@ import me.filby.neptune.runescript.compiler.configuration.SymbolLoader
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
+import me.filby.neptune.runescript.compiler.incremental.IncrementalData
+import me.filby.neptune.runescript.compiler.incremental.IncrementalFile
+import me.filby.neptune.runescript.compiler.incremental.ScriptHeaderGenerator
 import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
+import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.trigger.TriggerManager
@@ -20,7 +24,15 @@ import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import me.filby.neptune.runescript.parser.ScriptParser
 import java.nio.file.Path
+import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.Path
 import kotlin.io.path.absolute
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.inputStream
+import kotlin.io.path.notExists
+import kotlin.io.path.outputStream
+import kotlin.io.path.readAttributes
+import kotlin.io.path.relativeTo
 import kotlin.system.measureTimeMillis
 
 /**
@@ -28,7 +40,7 @@ import kotlin.system.measureTimeMillis
  */
 public open class ScriptCompiler(
     sourcePath: Path,
-    private val scriptWriter: ScriptWriter
+    private val scriptWriter: ScriptWriter,
 ) {
     /**
      * Logger for this class.
@@ -39,6 +51,18 @@ public open class ScriptCompiler(
      * The root folder path that contains the source code.
      */
     private val sourcePath: Path = sourcePath.absolute().normalize()
+
+    /**
+     * The path to the incremental file that stores information for the last build.
+     *
+     * Set via `INCREMENTAL_PATH` environmental variable.
+     */
+    private val incrementalPath: Path?
+
+    /**
+     * The loaded [IncrementalData] from [incrementalPath] if it was loaded.
+     */
+    private var incrementalData: IncrementalData? = null
 
     /**
      * The root table that contains all global symbols.
@@ -71,6 +95,10 @@ public open class ScriptCompiler(
     public var diagnosticsHandler: DiagnosticsHandler = DEFAULT_DIAGNOSTICS_HANDLER
 
     init {
+        // set up the incremental file path from environmental variable
+        val incrementalPathEnv: String? = System.getenv("INCREMENTAL_PATH")
+        incrementalPath = if (incrementalPathEnv != null) Path(incrementalPathEnv).absolute() else null
+
         // register the core types
         types.registerAll<PrimitiveType>()
         setupDefaultTypeCheckers()
@@ -126,6 +154,7 @@ public open class ScriptCompiler(
      */
     public fun run() {
         loadSymbols()
+        loadIncrementalData()
         compile()
     }
 
@@ -139,6 +168,25 @@ public open class ScriptCompiler(
             }
         }
         // logger.info { "Loaded 1234 symbols." }
+    }
+
+    /**
+     * Loads the incremental data if the path is specified and the file exists.
+     */
+    private fun loadIncrementalData() {
+        if (incrementalPath == null || incrementalPath.notExists()) {
+            return
+        }
+
+        logger.info { "Loading incremental data from $incrementalPath." }
+        val inputStream = incrementalPath.inputStream().buffered()
+        val incrementalData = inputStream.use { IncrementalData.unpack(it) }
+        if (incrementalData != null) {
+            logger.info { "Loaded incremental data for ${incrementalData.files.size} files." }
+        } else {
+            logger.info { "Failed to load incremental data." }
+        }
+        this.incrementalData = incrementalData
     }
 
     /**
@@ -165,6 +213,9 @@ public open class ScriptCompiler(
 
         // 4) Write scripts
         write(scripts)
+
+        // 5) Write build info for incremental compilation
+        writeBuildInfo(fileNodes)
     }
 
     /**
@@ -174,33 +225,123 @@ public open class ScriptCompiler(
         val diagnostics = Diagnostics()
 
         logger.info { "Parsing files in $sourcePath" }
-        val fileNodes = mutableListOf<ScriptFile>()
-        // iterate over all folders and files in the source path
-        var fileCount = 0
-        for (file in sourcePath.toFile().walkTopDown()) {
-            // TODO ability to configure file extension
-            // skip directories and non .cs2 files
-            if (file.isDirectory || file.extension != "cs2") {
-                continue
-            }
 
-            val time = measureTimeMillis {
-                val errorListener = ParserErrorListener(file.absolutePath, diagnostics)
-                val node = ScriptParser.createScriptFile(file.toPath(), errorListener)
-                if (node != null) {
-                    fileNodes += node
-                }
-            }
-            fileCount++
-            logger.trace { "Parsed $file in ${time}ms" }
+        // find all files in source directory
+        var files = sourcePath.toFile().walkTopDown()
+            .filter { !it.isDirectory && it.extension == "cs2" }
+            .map { it.toPath() }
+            .toList()
+
+        // narrow down files if incremental file exists
+        if (incrementalData != null) {
+            files = processIncrementalData(files)
         }
-        logger.info { "Parsed $fileCount files" }
+
+        // iterate over all files and parse them
+        val fileNodes = mutableListOf<ScriptFile>()
+        val time = measureTimeMillis {
+            for (file in files) {
+                val time = measureTimeMillis {
+                    val errorListener = ParserErrorListener(file.absolutePathString(), diagnostics)
+                    val node = ScriptParser.createScriptFile(file, errorListener)
+                    if (node != null) {
+                        fileNodes += node
+                    }
+                }
+                logger.trace { "Parsed $file in ${time}ms" }
+            }
+        }
+        logger.info { "Parsed ${files.size} files in ${time}ms" }
 
         // call the diagnostics handler
         with(diagnosticsHandler) {
             diagnostics.handleParse()
         }
         return !diagnostics.hasErrors() to fileNodes
+    }
+
+    /**
+     * Handles figuring out which files were added, deleted, or modified. Any files that were
+     * determined to not be modified will load a small portion of the script so references can
+     * be resolved.
+     */
+    private fun processIncrementalData(all: List<Path>): List<Path> {
+        // if incremental data hasn't been loaded yet just parse everything in the list
+        val incrementalData = incrementalData ?: return all
+
+        // figure out which files need to be parsed
+        val fullFilesToParse = hashSetOf<String>()
+        val partialFilesToParse = hashSetOf<IncrementalFile>()
+        val time = measureTimeMillis {
+            logger.debug { "Computing modified files." }
+            val nameToFile = incrementalData.files.associateByTo(HashMap()) { it.name }
+            for (file in all) {
+                // normalize the path to be relative to the source path
+                val relativeFile = file.relativeTo(sourcePath).toString()
+                val incrementalFile = nameToFile.remove(relativeFile)
+                if (incrementalFile == null) {
+                    // file added
+                    fullFilesToParse += relativeFile
+                    // logger.trace { "New file $relativeFile." }
+                    continue
+                }
+
+                // check for changes using file size and last modified time
+                val attributes = file.readAttributes<BasicFileAttributes>()
+                val curSize = attributes.size()
+                val curLastModified = attributes.lastModifiedTime().toMillis()
+                val (previousSize, previousLastModified) = incrementalFile.meta
+                if (curSize != previousSize || curLastModified != previousLastModified) {
+                    // file modified, add file and direct dependents
+                    fullFilesToParse += relativeFile
+                    fullFilesToParse += incrementalFile.dependents
+                    // logger.trace { "Modified file $relativeFile." }
+                    continue
+                }
+                // logger.trace { "Unmodified file $relativeFile." }
+                partialFilesToParse += incrementalFile
+            }
+            // remaining things in nameToFile were delete
+        }
+        logger.debug { "Computed modified files in ${time}ms." }
+
+        // remove all files that are needing a full parse
+        partialFilesToParse.removeIf { it.name in fullFilesToParse }
+
+        logger.debug { "Processing previous build data." }
+        // iterate over all the remaining partial files and parse them
+        val diagnostics = Diagnostics()
+        val parseTime = measureTimeMillis {
+            for (file in partialFilesToParse) {
+                parseAndCheckIncrementalFile(file, diagnostics)
+            }
+        }
+        logger.debug { "Processed previous build data for ${partialFilesToParse.size} files in ${parseTime}ms." }
+
+        // verify there were no errors during parsing or checking previous build scripts
+        require(!diagnostics.hasErrors())
+
+        return fullFilesToParse.map { sourcePath.resolve(it) }
+    }
+
+    /**
+     * Parses [file] and runs it through [PreTypeChecking] to verify the header and insert it into
+     * the symbol table.
+     */
+    private fun parseAndCheckIncrementalFile(file: IncrementalFile, diagnostics: Diagnostics) {
+        // the checker that inserts script symbols to the symbol table
+        val checker = PreTypeChecking(types, triggers, rootTable, diagnostics)
+
+        val filePath = sourcePath.resolve(file.name).toString()
+        val errorListener = ParserErrorListener(filePath, diagnostics)
+        val contents = file.scripts.joinToString("")
+        val scriptFile = ScriptParser.createScriptFile(contents, errorListener) ?: return
+
+        // Note: We do the checking here so that we don't need to add the file to the main list of file
+        //       nodes that will be passed through other stages of the compiler. The only stage we care
+        //       for is pre-type checking since it is what inserts the script symbol so references will
+        //       be resolvable to scripts that are being skipped.
+        scriptFile.accept(checker)
     }
 
     /**
@@ -287,6 +428,86 @@ public open class ScriptCompiler(
             }
         }
         logger.debug { "Finished script writing in ${writingTime}ms" }
+    }
+
+    /**
+     * Writes the build information to disk if a path is specified.
+     */
+    private fun writeBuildInfo(fileNodes: List<ScriptFile>) {
+        if (incrementalPath == null) {
+            return
+        }
+
+        val buildInfo = createBuildInfo(fileNodes) ?: return
+        incrementalPath.outputStream().buffered().use {
+            buildInfo.pack(it)
+        }
+    }
+
+    /**
+     * Creates [IncrementalData] for the current build, merging any information
+     * possible from previous data if it exists.
+     */
+    private fun createBuildInfo(fileNodes: List<ScriptFile>): IncrementalData? {
+        // early return if there is no data to save
+        if (fileNodes.isEmpty()) {
+            return null
+        }
+
+        val scriptHeaderGenerator = ScriptHeaderGenerator()
+
+        val files = mutableListOf<IncrementalFile>()
+        val fileDependents = HashMap<String, HashSet<String>>(fileNodes.size)
+        val symbolToPath = HashMap<ScriptSymbol, String>(fileNodes.size)
+        var headerTimer = 0L
+        for (fileNode in fileNodes) {
+            val path = Path(fileNode.source.name)
+            val relativePath = path.relativeTo(sourcePath).toString()
+            val scriptHeaders = ArrayList<String>(fileNode.scripts.size)
+            for (script in fileNode.scripts) {
+                val time = measureTimeMillis {
+                    scriptHeaders += script.accept(scriptHeaderGenerator)
+                }
+                headerTimer += time
+                symbolToPath[script.symbol] = relativePath
+            }
+
+            val attributes = path.readAttributes<BasicFileAttributes>()
+            val fileMeta = IncrementalFile.MetaData(attributes.size(), attributes.lastModifiedTime().toMillis())
+            val dependents = hashSetOf<String>()
+            files += IncrementalFile(relativePath, fileMeta, scriptHeaders, dependents)
+            fileDependents[relativePath] = dependents
+        }
+
+        // inverse dependencies
+        for (fileNode in fileNodes) {
+            val path = Path(fileNode.source.name).relativeTo(sourcePath).toString()
+            val dependencies = fileNode.dependencies
+
+            for (dependency in dependencies) {
+                val dependencyFile = symbolToPath[dependency] ?: continue
+                if (dependencyFile == path) {
+                    continue
+                }
+
+                val dependents = fileDependents[dependencyFile] ?: error(dependencyFile)
+                dependents += path
+            }
+        }
+
+        // merge existing data for unchanged files
+        val incrementalData = incrementalData
+        if (incrementalData != null) {
+            for (file in incrementalData.files) {
+                if (file.name in fileDependents) {
+                    // file was modified
+                    continue
+                }
+
+                files += file
+            }
+        }
+        return IncrementalData(files)
     }
 
     public companion object {

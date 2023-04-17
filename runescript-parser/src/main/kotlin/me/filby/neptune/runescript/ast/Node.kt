@@ -87,7 +87,7 @@ public abstract class Node(public val source: NodeSourceLocation) {
     /**
      * Adds (or replaces) an attribute with the given [key] with a value [value].
      */
-    public fun <T> putAttribute(key: String, value: T?): T? {
+    public fun <T> putAttribute(key: String, value: T): T {
         attributes[key] = value
         return value
     }
@@ -119,6 +119,22 @@ public abstract class Node(public val source: NodeSourceLocation) {
                         return thisRef.getAttribute<T>(key) as T
                     }
                     throw IllegalStateException("Property '${property.name}' should be initialized before get.")
+                }
+
+                override fun setValue(thisRef: Node, property: KProperty<*>, value: T) {
+                    thisRef.putAttribute(key, value)
+                }
+            }
+
+        /**
+         * Returns a [ReadWriteProperty] for accessing attributes through delegation with support for an
+         * initial value.
+         */
+        public fun <T> attribute(key: String, default: () -> T): ReadWriteProperty<Node, T> =
+            object : ReadWriteProperty<Node, T> {
+                @Suppress("UNCHECKED_CAST")
+                override fun getValue(thisRef: Node, property: KProperty<*>): T {
+                    return thisRef.getAttribute<T>(key) ?: thisRef.putAttribute(key, default())
                 }
 
                 override fun setValue(thisRef: Node, property: KProperty<*>, value: T) {
