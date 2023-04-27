@@ -21,6 +21,7 @@ import me.filby.neptune.runescript.compiler.type.wrapped.VarPlayerType
 import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 
 class ClientScriptCompiler(
     sourcePath: Path,
@@ -112,8 +113,7 @@ class ClientScriptCompiler(
      * Helper for loading external symbols from `tsv` files with a specific [type].
      */
     private fun addTsvLoader(name: String, type: Type) {
-        val path = SYMBOLS_PATH.resolve("$name.tsv")
-        addSymbolLoader(TsvSymbolLoader(mapper, path, type))
+        addTsvLoader(name) { type }
     }
 
     /**
@@ -121,7 +121,14 @@ class ClientScriptCompiler(
      */
     private fun addTsvLoader(name: String, typeSuppler: (subTypes: Type) -> Type) {
         val path = SYMBOLS_PATH.resolve("$name.tsv")
-        addSymbolLoader(TsvSymbolLoader(mapper, path, typeSuppler))
+        if (path.exists()) {
+            addSymbolLoader(TsvSymbolLoader(mapper, path, typeSuppler))
+        }
+
+        val customPath = SYMBOLS_PATH.resolve("$name-custom.tsv")
+        if (customPath.exists()) {
+            addSymbolLoader(TsvSymbolLoader(mapper, customPath, typeSuppler))
+        }
     }
 
     private companion object {
