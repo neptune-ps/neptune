@@ -84,7 +84,7 @@ public open class ScriptCompiler(
      */
     private fun setupDefaultTypeCheckers() {
         // allow anything to be assigned to any
-        types.addTypeChecker { left, right -> left == MetaType.Any || right == MetaType.Any }
+        types.addTypeChecker { left, _ -> left == MetaType.Any }
 
         // allow anything to be assigned to error to prevent error propagation
         types.addTypeChecker { left, right -> left == MetaType.Error || right == MetaType.Error }
