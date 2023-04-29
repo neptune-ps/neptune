@@ -1,4 +1,4 @@
-[proc,main]
+[test,jump]
 ~test;
 @test(1, label_script1, label_script2);
 @label_script2;

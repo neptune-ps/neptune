@@ -28,6 +28,7 @@ import java.io.File
 import java.nio.file.Paths
 import kotlin.io.path.exists
 import kotlin.system.exitProcess
+import kotlin.system.measureTimeMillis
 
 private val logger = InlineLogger()
 private val testsPath = Paths.get("tests").toAbsolutePath()
@@ -81,18 +82,18 @@ private fun testScriptFile(scriptFile: File): Boolean {
     if (!diagnosticsHandler.hasSemanticErrors) {
         val runner = createRuntime(scriptManager)
 
-        // search for the entry point
-        val entryPoint = scriptManager.getOrNull("[proc,main]")
-        if (entryPoint == null) {
-            println("$scriptFile:0: Unable to locate [proc,main]")
-            return true
-        }
-
-        runner.execute(entryPoint) {
-            // count all aborted scripts as error
-            if (execution == ScriptState.ExecutionState.ABORTED) {
-                hasRuntimeErrors = true
+        // run all tests in the file
+        val tests = scriptManager.getAllByTrigger(TestTriggerType.TEST)
+        for (test in tests) {
+            val time = measureTimeMillis {
+                runner.execute(test) {
+                    // count all aborted scripts as error
+                    if (execution == ScriptState.ExecutionState.ABORTED) {
+                        hasRuntimeErrors = true
+                    }
+                }
             }
+            logger.info { "Ran ${test.name} in ${time}ms." }
         }
     }
     return diagnosticsHandler.hasUnexpectedErrors || hasRuntimeErrors

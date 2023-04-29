@@ -1,4 +1,4 @@
-[proc,main]
+[test,constants]
 assert_equals( 2147483647, ^max_32bit_int);
 assert_equals(-2147483648, ^min_32bit_int);
 

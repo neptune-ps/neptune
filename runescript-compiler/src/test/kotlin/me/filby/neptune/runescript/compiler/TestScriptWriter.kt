@@ -18,7 +18,7 @@ internal class TestScriptWriter(
     private val scriptManager: ScriptManager
 ) : BaseScriptWriter<TestScriptWriterContext>(scriptManager) {
     override fun finishWrite(script: RuneScript, context: TestScriptWriterContext) {
-        scriptManager.add(context.build())
+        scriptManager.add(script.trigger, context.build())
     }
 
     override fun createContext(script: RuneScript): TestScriptWriterContext {

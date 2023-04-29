@@ -1,78 +1,71 @@
-[proc,main]
-// int branching
-{
-    // test int equal operator
-    if (0 = 0) {
-        // pass
-    } else {
-        error("Int branch test failed.");
-    }
-
-    // test int not operator
-    if (0 ! 0) {
-        error("Int branch test failed.");
-    }
-
-    // test int relational operators
-    if (0 < 0) {
-        error("Int branch test failed.");
-    }
-    if (0 > 0) {
-        error("Int branch test failed.");
-    }
-    if (0 <= 0 & 0 >= 0) {
-        // pass
-    } else {
-        error("Int branch test failed.");
-    }
+[test,int_branching]
+// test int equal operator
+if (0 = 0) {
+    // pass
+} else {
+    error("Int branch test failed.");
 }
 
-// object (string) branching
-{
-    def_string $a = "Testing";
-    def_string $b = "Testing";
-
-    // test string equal operator
-    if ($a = $b) {
-        // pass
-    } else {
-        error("String branch test failed.");
-    }
-
-    // test string not operator
-    if ($a ! $b) {
-        error("String branch test failed.");
-    }
+// test int not operator
+if (0 ! 0) {
+    error("Int branch test failed.");
 }
 
-// long branching
-{
-    // unable to make long literals at the time of writing this, so need to create variables with default val
-    def_long $a;
-    def_long $b;
+// test int relational operators
+if (0 < 0) {
+    error("Int branch test failed.");
+}
+if (0 > 0) {
+    error("Int branch test failed.");
+}
+if (0 <= 0 & 0 >= 0) {
+    // pass
+} else {
+    error("Int branch test failed.");
+}
 
-    // test long equal operator
-    if ($a = $b) {
-        // pass
-    } else {
-        error("Long branch test failed.");
-    }
+[test,string_branching]
+def_string $a = "Testing";
+def_string $b = "Testing";
 
-    // test long not operator
-    if ($a ! $b) {
-        error("Long branch test failed.");
-    }
+// test string equal operator
+if ($a = $b) {
+    // pass
+} else {
+    error("String branch test failed.");
+}
 
-    // test long relational operators
-    if ($a < $b) {
-        error("Long branch test failed.");
-    }
-    if ($a > $b) {
-        error("Long branch test failed.");
-    }
-    if ($a <= $b & $a >= $b) {
-        // pass
-    } else {
-        error("Long branch test failed.");
-    }
+// test string not operator
+if ($a ! $b) {
+    error("String branch test failed.");
+}
+
+[test,long_branching]
+// unable to make long literals at the time of writing this, so need to create variables with default val
+def_long $a;
+def_long $b;
+
+// test long equal operator
+if ($a = $b) {
+    // pass
+} else {
+    error("Long branch test failed.");
+}
+
+// test long not operator
+if ($a ! $b) {
+    error("Long branch test failed.");
+}
+
+// test long relational operators
+if ($a < $b) {
+    error("Long branch test failed.");
+}
+if ($a > $b) {
+    error("Long branch test failed.");
+}
+if ($a <= $b & $a >= $b) {
+    // pass
+} else {
+    error("Long branch test failed.");
 }
