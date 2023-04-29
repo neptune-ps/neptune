@@ -1,6 +1,11 @@
-[test,jump]
+// tests that jump doesn't return back to the call site
+[test,jump_noreturn]
 ~test;
+
+// jump to [label,test] which will conditionally jump to another label supplied through arguments
 @test(1, label_script1, label_script2);
+
+// this should be unrechable
 @label_script2;
 
 [proc,test]
@@ -15,3 +20,16 @@ else jump($label2);
 
 [label,label_script2]
 error("Should not be hit.");
+
+// tests that jump and gosub work along side each other correctly
+[test,jump_gosub]
+~call_proc;
+
+[proc,call_proc]
+~call_jump;
+
+[proc,call_jump]
+@exit;
+
+[label,exit]
+// no-op
