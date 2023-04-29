@@ -145,7 +145,7 @@ private class CommandSymbolLoader : SymbolLoader {
         addConstant("c", "^a")
 
         // general commands
-        addCommand("jump", compiler.types.find("label"))
+        addCommand("jump", compiler.types.find("label"), MetaType.Nothing)
         addCommand("gosub", compiler.types.find("proc"))
         addCommand("println", PrimitiveType.STRING)
         addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)
