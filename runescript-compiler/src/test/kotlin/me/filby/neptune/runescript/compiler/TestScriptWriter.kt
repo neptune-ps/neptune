@@ -41,7 +41,7 @@ internal class TestScriptWriter(
     }
 
     override fun TestScriptWriterContext.writePushConstantSymbol(value: Symbol) {
-        error("identifier references not supported")
+        instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT, idProvider.get(value))
     }
 
     override fun TestScriptWriterContext.writePushLocalVar(symbol: LocalVariableSymbol) {
@@ -79,8 +79,13 @@ internal class TestScriptWriter(
     }
 
     override fun TestScriptWriterContext.writeGosub(symbol: ScriptSymbol) {
-        val id = scriptManager.get(symbol)
+        val id = idProvider.get(symbol)
         instruction(BaseCoreOpcodes.GOSUB_WITH_PARAMS, id)
+    }
+
+    override fun TestScriptWriterContext.writeJump(symbol: ScriptSymbol) {
+        val id = idProvider.get(symbol)
+        instruction(BaseCoreOpcodes.JUMP_WITH_PARAMS, id)
     }
 
     override fun TestScriptWriterContext.writeCommand(symbol: ScriptSymbol) {
@@ -134,6 +139,8 @@ internal class TestScriptWriter(
         )
 
         private val COMMANDS = mapOf(
+            "jump" to BaseCoreOpcodes.JUMP,
+            "gosub" to BaseCoreOpcodes.GOSUB,
             "tostring" to BaseCoreOpcodes.TOSTRING,
             "tostring_long" to BaseCoreOpcodes.TOSTRING_LONG,
             "string_length" to BaseCoreOpcodes.STRING_LENGTH,

@@ -18,6 +18,7 @@ import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
+import me.filby.neptune.runescript.ast.expr.JumpCallExpression
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
@@ -557,6 +558,17 @@ public class CodeGenerator(
         procCallExpression.arguments.visit()
         procCallExpression.lineInstruction()
         instruction(Opcode.Gosub, symbol)
+    }
+
+    override fun visitJumpCallExpression(jumpCallExpression: JumpCallExpression) {
+        val symbol = jumpCallExpression.reference as? ScriptSymbol
+        if (symbol == null) {
+            jumpCallExpression.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
+            return
+        }
+        jumpCallExpression.arguments.visit()
+        jumpCallExpression.lineInstruction()
+        instruction(Opcode.Jump, symbol)
     }
 
     override fun visitClientScriptExpression(clientScriptExpression: ClientScriptExpression) {

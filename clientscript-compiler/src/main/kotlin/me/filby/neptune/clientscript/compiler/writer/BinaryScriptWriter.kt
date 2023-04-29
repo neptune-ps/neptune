@@ -192,6 +192,10 @@ abstract class BinaryScriptWriter(
         instruction(ClientScriptOpcode.GOSUB_WITH_PARAMS, id)
     }
 
+    override fun BinaryScriptWriterContext.writeJump(symbol: ScriptSymbol) {
+        error("Not supported.")
+    }
+
     override fun BinaryScriptWriterContext.writeCommand(symbol: ScriptSymbol) {
         val secondary = symbol.name.startsWith(".")
         val name = if (secondary) symbol.name.substring(1) else symbol.name

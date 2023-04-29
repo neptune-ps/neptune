@@ -67,7 +67,7 @@ public class TupleType(vararg children: Type) : Type {
          * Converts the [type] into a `List<Type>`.
          *
          * - If the [type] is a [TupleType], [TupleType.children] are returned as a list.
-         * - If the [type] is `null` or [MetaType.Unit], an empty list is returned.
+         * - If the [type] is `null`, [MetaType.Unit], or [MetaType.Nothing] an empty list is returned.
          * - If the [type] is a singular type, and is not `unit`, a list with just the [type] is returned.
          */
         // TODO move to a different location?
@@ -76,8 +76,8 @@ public class TupleType(vararg children: Type) : Type {
                 // special case for tuples since we can convert the children into a list
                 return type.children.toList()
             }
-            if (type == null || type == MetaType.Unit) {
-                // special case for null and unit since it takes place of there being no types
+            if (type == null || type == MetaType.Unit || type == MetaType.Nothing) {
+                // special case for null, unit, and nothing since it takes place of there being no types
                 return emptyList()
             }
             // all other types just get wrapped in a list

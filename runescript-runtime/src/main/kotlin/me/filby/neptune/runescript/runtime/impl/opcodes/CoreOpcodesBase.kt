@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.runtime.impl.opcodes
 
+import me.filby.neptune.runescript.runtime.Script
 import me.filby.neptune.runescript.runtime.impl.Instruction
 import me.filby.neptune.runescript.runtime.impl.ScriptProvider
 import me.filby.neptune.runescript.runtime.state.GosubStackFramePool
@@ -192,28 +193,22 @@ public open class CoreOpcodesBase<T : ScriptState>(private val scriptProvider: S
         }
     }
 
+    @Instruction(BaseCoreOpcodes.GOSUB)
+    public open fun T._gosub(id: Int) {
+        if (id == -1) {
+            error("Attempt gosub with 'null' script.")
+        }
+        gosub(id)
+    }
+
     @Instruction(BaseCoreOpcodes.GOSUB_WITH_PARAMS)
     public open fun T._gosub_with_params() {
-        // lookup the script that is being called
-        val proc = scriptProvider.get(intOperand)
+        gosub(intOperand)
+    }
 
-        // only allow up to 100 frames
+    private fun T.gosub(id: Int) {
         if (frames.size >= 100) {
             throw StackOverflowError()
-        }
-
-        // set up the locals and pop parameters
-        val intLocals = IntArray(proc.intLocalCount)
-        val longLocals = LongArray(proc.longLocalCount)
-        val objLocals = arrayOfNulls<Any>(proc.objLocalCount)
-        for (i in 0 until proc.intParameterCount) {
-            intLocals[proc.intParameterCount - i - 1] = popInt()
-        }
-        for (i in 0 until proc.longParameterCount) {
-            longLocals[proc.longParameterCount - i - 1] = popLong()
-        }
-        for (i in 0 until proc.objParameterCount) {
-            objLocals[proc.objParameterCount - i - 1] = popObj()
         }
 
         // set up the gosub frame
@@ -221,8 +216,55 @@ public open class CoreOpcodesBase<T : ScriptState>(private val scriptProvider: S
         frame.setup(this)
         frames.addLast(frame)
 
+        // lookup the proc script by id and set up the state with the new script
+        val proc = scriptProvider.get(id)
+        setupNewScript(proc)
+    }
+
+    @Instruction(BaseCoreOpcodes.JUMP)
+    public open fun T._jump(id: Int) {
+        if (id == -1) {
+            error("Attempt jump with 'null' script.")
+        }
+        jump(id)
+    }
+
+    @Instruction(BaseCoreOpcodes.JUMP_WITH_PARAMS)
+    public open fun T._jump_with_params() {
+        jump(intOperand)
+    }
+
+    private fun T.jump(id: Int) {
+        // lookup the label script by id and set up the state with the new script
+        val label = scriptProvider.get(id)
+        setupNewScript(label)
+
+        // release all frames in the stack
+        while (frames.isNotEmpty()) {
+            gosubStackFramePool.push(frames.removeLast())
+        }
+    }
+
+    /**
+     * Sets up the script state using the [script] information.
+     */
+    private fun T.setupNewScript(script: Script) {
+        // set up the locals and pop parameters
+        val intLocals = IntArray(script.intLocalCount)
+        val longLocals = LongArray(script.longLocalCount)
+        val objLocals = arrayOfNulls<Any>(script.objLocalCount)
+        for (i in 0 until script.intParameterCount) {
+            intLocals[script.intParameterCount - i - 1] = popInt()
+        }
+        for (i in 0 until script.longParameterCount) {
+            longLocals[script.longParameterCount - i - 1] = popLong()
+        }
+        for (i in 0 until script.objParameterCount) {
+            objLocals[script.objParameterCount - i - 1] = popObj()
+        }
+
         // set up the state for new script
-        this.script = proc
+        this.script = script
         this.pc = -1
         this.intLocals = intLocals
         this.longLocals = longLocals

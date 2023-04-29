@@ -34,9 +34,12 @@ public object BaseCoreOpcodes {
     public const val OBJ_BRANCH_EQUALS: Int = 21
     public const val JOIN_STRING: Int = 22
     public const val POP_DISCARD: Int = 23
-    public const val GOSUB_WITH_PARAMS: Int = 24
-    public const val RETURN: Int = 25
-    public const val SWITCH: Int = 26
+    public const val GOSUB: Int = 24
+    public const val GOSUB_WITH_PARAMS: Int = 25
+    public const val JUMP: Int = 26
+    public const val JUMP_WITH_PARAMS: Int = 27
+    public const val RETURN: Int = 28
+    public const val SWITCH: Int = 29
 
     // int math ops
     public const val ADD: Int = 100

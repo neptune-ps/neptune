@@ -66,6 +66,13 @@ private fun testScriptFile(scriptFile: File): Boolean {
     val compiler = ScriptCompiler(scriptFile.toPath(), writer)
     compiler.triggers.registerAll<TestTriggerType>()
     compiler.addSymbolLoader(CommandSymbolLoader())
+
+    // setup proc type
+    compiler.types.register("proc", MetaType.Script(TestTriggerType.PROC, MetaType.Unit, MetaType.Unit))
+
+    // setup label type
+    compiler.types.register("label", MetaType.Script(TestTriggerType.LABEL, MetaType.Unit, MetaType.Nothing))
+
     compiler.diagnosticsHandler = diagnosticsHandler
     compiler.run()
 
@@ -138,6 +145,8 @@ private class CommandSymbolLoader : SymbolLoader {
         addConstant("c", "^a")
 
         // general commands
+        addCommand("jump", compiler.types.find("label"))
+        addCommand("gosub", compiler.types.find("proc"))
         addCommand("println", PrimitiveType.STRING)
         addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)
         addCommand("int_to_long", PrimitiveType.INT, PrimitiveType.LONG)

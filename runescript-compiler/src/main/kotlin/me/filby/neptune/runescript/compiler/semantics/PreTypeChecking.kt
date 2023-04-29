@@ -124,7 +124,15 @@ internal class PreTypeChecking(
             }
             script.returnType = TupleType.fromList(returns)
         } else {
-            script.returnType = MetaType.Unit
+            // default return based on trigger if the trigger was found
+            // triggers that allow returns will default to `unit` instead of `nothing`.
+            script.returnType = if (trigger == null) {
+                MetaType.Error
+            } else if (trigger.allowReturns) {
+                MetaType.Unit
+            } else {
+                MetaType.Nothing
+            }
         }
 
         // verify returns match what the trigger type allows
@@ -286,7 +294,7 @@ internal class PreTypeChecking(
     private fun checkScriptReturns(trigger: TriggerType?, script: Script) {
         val triggerReturns = trigger?.returns
         val scriptReturns = script.returnType
-        if (trigger != null && !trigger.allowReturns && scriptReturns != MetaType.Unit) {
+        if (trigger != null && !trigger.allowReturns && scriptReturns != MetaType.Nothing) {
             script.reportError(DiagnosticMessage.SCRIPT_TRIGGER_NO_RETURNS, trigger.identifier)
         } else if (triggerReturns != null && scriptReturns != triggerReturns) {
             val expectedReturnTypes = triggerReturns.representation

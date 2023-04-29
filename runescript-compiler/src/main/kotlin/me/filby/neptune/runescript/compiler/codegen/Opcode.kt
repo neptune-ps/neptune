@@ -209,6 +209,13 @@ public sealed class Opcode<T : Any> {
     public object Gosub : Opcode<ScriptSymbol>()
 
     /**
+     * Jumps to another script while never returning to the original call site.
+     *
+     * Operand: The script to jump to.
+     */
+    public object Jump : Opcode<ScriptSymbol>()
+
+    /**
      * Calls an engine command with optional return values.
      *
      * Operand: The command to call.

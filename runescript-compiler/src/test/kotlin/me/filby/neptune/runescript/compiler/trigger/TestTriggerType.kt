@@ -11,6 +11,7 @@ enum class TestTriggerType(
     override val returns: Type? = null,
 ) : TriggerType {
     PROC(0, allowParameters = true, allowReturns = true),
+    LABEL(1, allowParameters = true)
     ;
 
     override val identifier: String get() = name.lowercase()

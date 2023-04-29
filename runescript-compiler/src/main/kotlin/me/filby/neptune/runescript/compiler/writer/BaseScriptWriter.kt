@@ -79,6 +79,7 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
             Opcode.JoinString -> context.writeJoinString(operand as Int)
             Opcode.Discard -> context.writeDiscard(operand as BaseVarType)
             Opcode.Gosub -> context.writeGosub(operand as ScriptSymbol)
+            Opcode.Jump -> context.writeJump(operand as ScriptSymbol)
             Opcode.Command -> context.writeCommand(operand as ScriptSymbol)
             Opcode.Return -> context.writeReturn()
             Opcode.Add -> context.writeMath(opcode)
@@ -152,6 +153,10 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
     }
 
     protected open fun T.writeDiscard(baseType: BaseVarType) {
+        error("not implemented")
+    }
+
+    protected open fun T.writeJump(symbol: ScriptSymbol) {
         error("not implemented")
     }
 

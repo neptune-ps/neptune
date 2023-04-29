@@ -61,6 +61,7 @@ import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.trigger.TriggerManager
+import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
@@ -107,9 +108,14 @@ public class TypeChecking(
     private val procTrigger = triggerManager.find("proc")
 
     /**
-     * The trigger that represents `proc`. This trigger is optional.
+     * The trigger that represents `clientscript`. This trigger is optional.
      */
     private val clientscriptTrigger = triggerManager.findOrNull("clientscript")
+
+    /**
+     * The trigger that represents `label`. This trigger is optional.
+     */
+    private val labelTrigger = triggerManager.findOrNull("label")
 
     /**
      * The current table. This is updated each time when entering a new script or block.
@@ -558,15 +564,6 @@ public class TypeChecking(
         inCalc = false
     }
 
-    /**
-     * Overrides original implementation that would fall through to [visitCallExpression]
-     * so that we can display an error for attempting to `jump` within a clientscript.
-     */
-    override fun visitJumpCallExpression(jumpCallExpression: JumpCallExpression) {
-        jumpCallExpression.reportError(DiagnosticMessage.JUMP_CALL_IN_CS2, jumpCallExpression.name.text)
-        jumpCallExpression.type = MetaType.Unit
-    }
-
     override fun visitCommandCallExpression(commandCallExpression: CommandCallExpression) {
         val name = commandCallExpression.name.text
 
@@ -575,8 +572,23 @@ public class TypeChecking(
             return
         }
 
-        // fall back to normal call expression implementation
-        visitCallExpression(commandCallExpression)
+        // check the command call
+        checkCallExpression(commandCallExpression, commandTrigger, DiagnosticMessage.COMMAND_REFERENCE_UNRESOLVED)
+    }
+
+    override fun visitProcCallExpression(procCallExpression: ProcCallExpression) {
+        // check the proc call
+        checkCallExpression(procCallExpression, procTrigger, DiagnosticMessage.PROC_REFERENCE_UNRESOLVED)
+    }
+
+    override fun visitJumpCallExpression(jumpCallExpression: JumpCallExpression) {
+        if (labelTrigger == null) {
+            jumpCallExpression.reportError("Jump expression not allowed.")
+            return
+        }
+
+        // check the jump call
+        checkCallExpression(jumpCallExpression, labelTrigger, DiagnosticMessage.JUMP_REFERENCE_UNRESOLVED)
     }
 
     /**
@@ -618,32 +630,21 @@ public class TypeChecking(
     /**
      * Handles looking up and type checking all call expressions.
      */
-    override fun visitCallExpression(callExpression: CallExpression) {
-        // lookup the expected symbol type based on the call expression type
-        val symbolType = when (callExpression) {
-            is CommandCallExpression -> SymbolType.ClientScript(commandTrigger)
-            is ProcCallExpression -> SymbolType.ClientScript(procTrigger)
-            else -> error(callExpression)
-        }
-
+    private fun checkCallExpression(call: CallExpression, trigger: TriggerType, unresolvedSymbolMessage: String) {
         // lookup the symbol using the symbol type and name
-        val name = callExpression.name.text
+        val name = call.name.text
+        val symbolType = SymbolType.ClientScript(trigger)
         val symbol = rootTable.find(symbolType, name)
         if (symbol == null) {
-            val errorMessage = when (callExpression) {
-                is CommandCallExpression -> DiagnosticMessage.COMMAND_REFERENCE_UNRESOLVED
-                is ProcCallExpression -> DiagnosticMessage.PROC_REFERENCE_UNRESOLVED
-                else -> error(callExpression)
-            }
-            callExpression.type = MetaType.Error
-            callExpression.reportError(errorMessage, name)
+            call.type = MetaType.Error
+            call.reportError(unresolvedSymbolMessage, name)
         } else {
-            callExpression.reference = symbol
-            callExpression.type = symbol.returns
+            call.reference = symbol
+            call.type = symbol.returns
         }
 
         // verify the arguments are all valid
-        typeCheckArguments(symbol, callExpression, name)
+        typeCheckArguments(symbol, call, name)
     }
 
     override fun visitClientScriptExpression(clientScriptExpression: ClientScriptExpression) {
@@ -719,6 +720,7 @@ public class TypeChecking(
             val errorMessage = when (callExpression) {
                 is CommandCallExpression -> DiagnosticMessage.COMMAND_NOARGS_EXPECTED
                 is ProcCallExpression -> DiagnosticMessage.PROC_NOARGS_EXPECTED
+                is JumpCallExpression -> DiagnosticMessage.JUMP_NOARGS_EXPECTED
                 is ClientScriptExpression -> DiagnosticMessage.CLIENTSCRIPT_NOARGS_EXPECTED
                 else -> error(callExpression)
             }
@@ -1047,15 +1049,12 @@ public class TypeChecking(
      * If the symbol is not valid for direct identifier lookup then `null` is returned.
      */
     private fun symbolToType(symbol: Symbol) = when (symbol) {
-        is ScriptSymbol -> if (symbol.trigger != CommandTrigger) {
-            // skip any non-command reference
-            null
-        } else if (symbol.parameters != null && symbol.parameters != MetaType.Unit) {
-            // things with arguments should not be looked up by only via identifier, so we just
-            // skip them by returning null here.
-            null
-        } else {
+        is ScriptSymbol -> if (symbol.trigger == CommandTrigger) {
+            // only commands can be referenced by an identifier and return a value
             symbol.returns
+        } else {
+            // all other triggers get wrapped in a script type
+            MetaType.Script(symbol.trigger, symbol.parameters ?: MetaType.Unit, symbol.returns ?: MetaType.Unit)
         }
         is LocalVariableSymbol -> symbol.type
         is BasicSymbol -> symbol.type
@@ -1128,7 +1127,7 @@ public class TypeChecking(
 
         if (!match && reportError) {
             val actualRepresentation = if (actual == MetaType.Unit) {
-                "<nothing>"
+                "<unit>"
             } else {
                 actual.representation
             }

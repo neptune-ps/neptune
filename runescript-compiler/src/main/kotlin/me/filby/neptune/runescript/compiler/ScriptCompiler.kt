@@ -83,14 +83,24 @@ public open class ScriptCompiler(
      * Adds the core type checkers that the compiler depends on.
      */
     private fun setupDefaultTypeCheckers() {
-        // allow anything to be assigned to any
+        // allow anything to be assigned to any (top type)
         types.addTypeChecker { left, _ -> left == MetaType.Any }
+
+        // allow nothing to be assigned to any (bottom type)
+        types.addTypeChecker { _, right -> right == MetaType.Nothing }
 
         // allow anything to be assigned to error to prevent error propagation
         types.addTypeChecker { left, right -> left == MetaType.Error || right == MetaType.Error }
 
         // basic checker where both types are equal
         types.addTypeChecker { left, right -> left == right }
+
+        // checker for Script types that compares parameter and return types
+        types.addTypeChecker { left, right ->
+            left is MetaType.Script && right is MetaType.Script &&
+                types.check(left.parameterType, right.parameterType) &&
+                types.check(left.returnType, right.returnType)
+        }
 
         // checker for WrappedType that compares the inner types
         types.addTypeChecker { left, right ->

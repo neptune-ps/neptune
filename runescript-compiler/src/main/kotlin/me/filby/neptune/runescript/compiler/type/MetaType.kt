@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.compiler.type
 
+import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 import me.filby.neptune.runescript.compiler.type.Type as MainType
 
@@ -18,6 +19,16 @@ public sealed class MetaType(private val name: String) : MainType {
     public object Any : MetaType("any")
 
     /**
+     * A type that says that nothing is returned. This is intended to be used
+     * for `error`-like and `jump`-like commands that will not continue
+     * execution in the script that called it. This type should not be exposed
+     * to scripts directly except for `command` declarations.
+     *
+     * See Also: [Bottom type](https://en.wikipedia.org/wiki/Bottom_type)
+     */
+    public object Nothing : MetaType("nothing")
+
+    /**
      * A type used to specify the type resolution resulted into an error. This
      * type is comparable to **all** other types to prevent error propagation.
      */
@@ -33,6 +44,18 @@ public sealed class MetaType(private val name: String) : MainType {
      */
     public data class Type(override val inner: MainType) : MetaType("type"), WrappedType {
         override val representation: String = "type<${inner.representation}>"
+    }
+
+    /**
+     * A special type that refers to some sort of script. The type includes the
+     * script trigger type, parameter type(s), and return type(s).
+     */
+    public class Script(
+        public val trigger: TriggerType,
+        public val parameterType: MainType,
+        public val returnType: MainType,
+    ) : MetaType("script") {
+        override val representation: String = trigger.identifier
     }
 
     /**
