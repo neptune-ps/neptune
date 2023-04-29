@@ -703,7 +703,7 @@ public class TypeChecking(
         // If the symbol is null then that means we failed to look up the symbol,
         // therefore we should specify the parameter types as error, so we can continue
         // analysis on all the arguments without worrying about a type mismatch.
-        val parameterTypes = if (symbol == null) MetaType.Error else symbol.parameters ?: MetaType.Unit
+        val parameterTypes = symbol?.parameters ?: MetaType.Error
         val expectedTypes = if (parameterTypes is TupleType) {
             parameterTypes.children.toList()
         } else {
@@ -1054,7 +1054,7 @@ public class TypeChecking(
             symbol.returns
         } else {
             // all other triggers get wrapped in a script type
-            MetaType.Script(symbol.trigger, symbol.parameters ?: MetaType.Unit, symbol.returns ?: MetaType.Unit)
+            MetaType.Script(symbol.trigger, symbol.parameters, symbol.returns)
         }
         is LocalVariableSymbol -> symbol.type
         is BasicSymbol -> symbol.type

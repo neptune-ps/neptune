@@ -19,21 +19,20 @@ public sealed interface ScriptSymbol : Symbol {
     override val name: String
 
     /**
-     * The type needed for the scripts parameters. If `null`, the script has no
-     * defined parameters. If the script has multiple parameters, `TupleType`
-     * may be used.
+     * The type needed for the scripts parameters. If the script has multiple parameters,
+     * `TupleType` may be used.
      *
      * @see me.filby.neptune.runescript.compiler.type.TupleType
      */
-    public val parameters: Type?
+    public val parameters: Type
 
     /**
-     * The type that the script returns. If `null`, the script has no return
-     * types. If the script has multiple returns, `TupleType` may be used.
+     * The type that the script returns. If the script has multiple returns,
+     * `TupleType` may be used.
      *
      * @see me.filby.neptune.runescript.compiler.type.TupleType
      */
-    public val returns: Type?
+    public val returns: Type
 
     /**
      * A [ScriptSymbol] type specific for server sided scripts.
@@ -41,7 +40,7 @@ public sealed interface ScriptSymbol : Symbol {
     public data class ServerScriptSymbol(
         override val trigger: TriggerType,
         override val name: String,
-        override val parameters: Type?,
+        override val parameters: Type,
         override val returns: Type
     ) : ScriptSymbol
 
@@ -51,7 +50,7 @@ public sealed interface ScriptSymbol : Symbol {
     public data class ClientScriptSymbol(
         override val trigger: TriggerType,
         override val name: String,
-        override val parameters: Type?,
+        override val parameters: Type,
         override val returns: Type
     ) : ScriptSymbol
 }
