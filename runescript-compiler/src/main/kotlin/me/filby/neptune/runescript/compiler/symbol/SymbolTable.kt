@@ -52,8 +52,10 @@ public class SymbolTable private constructor(private val parent: SymbolTable? = 
      */
     @Suppress("UNCHECKED_CAST")
     public fun <T : Symbol> findAll(name: String, type: KClass<T>): Sequence<T> = sequence {
-        for (symbol in symbols.column(name).values.filterIsInstance(type.java)) {
-            yield(symbol)
+        for (symbol in symbols.column(name).values) {
+            if (type.isInstance(symbol)) {
+                yield(symbol as T)
+            }
         }
         if (parent != null) {
             yieldAll(parent.findAll(name, type))
