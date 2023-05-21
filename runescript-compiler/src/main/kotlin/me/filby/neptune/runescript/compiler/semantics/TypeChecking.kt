@@ -1010,7 +1010,13 @@ public class TypeChecking(
         var symbolType: Type? = null
         for (temp in rootTable.findAll<Symbol>(name)) {
             val tempSymbolType = symbolToType(temp) ?: continue
-            if (hint == null || typeManager.check(hint, tempSymbolType)) {
+            if (hint == null && tempSymbolType is MetaType.Script) {
+                // if the hint is unknown it means we're somewhere that probably shouldn't
+                // be referring to a script by only the name. this will not capture command
+                // "scripts" since the symbolToType for commands returns the return value of
+                // the command instead of being wrapped in MetaType.Script.
+                continue
+            } else if (hint == null || typeManager.check(hint, tempSymbolType)) {
                 // hint type matches (or is null) so we can stop looking
                 symbol = temp
                 symbolType = tempSymbolType

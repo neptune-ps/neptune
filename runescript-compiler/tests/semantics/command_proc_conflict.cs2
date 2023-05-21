@@ -1,0 +1,46 @@
+// this verifies that referring to a command with no arguments still properly
+// resolves regardless of declaration order.
+
+[proc,something1](boolean)
+[command,something1](boolean)
+
+[command,something2](boolean)
+[proc,something2](boolean)
+
+[proc,main]
+if (something1 = true) {
+
+}
+
+if (true = something1) {
+
+}
+
+if (something2 = true) {
+
+}
+
+if (true = something2) {
+
+}
+
+// test proc access still valid
+
+if (~something1 = true) {
+
+}
+
+if (true = ~something1) {
+
+}
+
+if (~something2 = true) {
+
+}
+
+if (true = ~something2) {
+
+}
+
+// hack to make tests not attempt to write and run this file
+unknown(); // Expect: 'unknown' cannot be resolved to a command.
