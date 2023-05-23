@@ -43,6 +43,7 @@ enum class ClientTriggerType(
     ),
     LOADNPC(35, subjectMode = SubjectMode.Type(ScriptVarType.NPC)),
     LOADLOC(37, subjectMode = SubjectMode.Type(ScriptVarType.LOC)),
+    TRIGGER_45(45),
     TRIGGER_47(47),
     TRIGGER_48(48),
     TRIGGER_49(49),

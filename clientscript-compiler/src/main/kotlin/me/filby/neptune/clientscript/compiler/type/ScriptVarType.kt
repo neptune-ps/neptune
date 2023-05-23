@@ -51,6 +51,7 @@ enum class ScriptVarType(
     // LONG
     ENTITYOVERLAY('-'),
     DBTABLE(null),
+    STRINGVECTOR('¸'),
     ;
 
     override val representation: String = representation ?: name.lowercase()

@@ -89,7 +89,6 @@ class ClientScriptCompiler(
         addTsvLoader("categories", ScriptVarType.CATEGORY)
         addTsvLoader("wmas", ScriptVarType.MAPAREA)
         addTsvLoader("mapelements", ScriptVarType.MAPELEMENT)
-
         addTsvLoader("locs", ScriptVarType.LOC)
         addTsvLoader("npcs", ScriptVarType.NPC)
         addTsvLoader("objs", ScriptVarType.NAMEDOBJ)
@@ -107,6 +106,7 @@ class ClientScriptCompiler(
         addTsvLoader("varbits", VarBitType)
         addTsvLoader("varclans") { VarClanType(it) }
         addTsvLoader("varclansettings") { VarClanSettingsType(it) }
+        addTsvLoader("stringvectors", ScriptVarType.STRINGVECTOR)
     }
 
     /**
