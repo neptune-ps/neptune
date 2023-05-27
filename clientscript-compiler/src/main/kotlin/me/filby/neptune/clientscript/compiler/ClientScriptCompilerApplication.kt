@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
     val mapper = SymbolMapper()
 
     // TODO move somewhere else?
-    val scriptMappings = Path("symbols/scripts.tsv")
+    val scriptMappings = Path("symbols/clientscript.tsv")
     if (scriptMappings.exists()) {
         for (line in scriptMappings.readLines()) {
             val split = line.split("\t")
