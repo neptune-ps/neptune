@@ -17,3 +17,9 @@ def_int $d = calc($int + long_to_int($long));
 
 // should work
 def_long $e = calc($long);
+
+// should work
+def_int $f = calc(1 + ~do_something(calc(2 + 2)) + 1);
+
+[proc,do_something](int $num)(int)
+return($num);

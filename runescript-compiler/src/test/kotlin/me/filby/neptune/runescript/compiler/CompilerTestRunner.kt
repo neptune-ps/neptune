@@ -158,10 +158,10 @@ private class CommandSymbolLoader : SymbolLoader {
         addCommand("error", PrimitiveType.STRING)
         addCommand("assert_equals", TupleType(MetaType.Any, MetaType.Any))
         addCommand("assert_equals_obj", TupleType(MetaType.Any, MetaType.Any))
-        addCommand("assert_equals_long", TupleType(MetaType.Any, MetaType.Any))
+        addCommand("assert_equals_long", TupleType(PrimitiveType.LONG, PrimitiveType.LONG))
         addCommand("assert_not", TupleType(MetaType.Any, MetaType.Any))
         addCommand("assert_not_obj", TupleType(MetaType.Any, MetaType.Any))
-        addCommand("assert_not_long", TupleType(MetaType.Any, MetaType.Any))
+        addCommand("assert_not_long", TupleType(PrimitiveType.LONG, PrimitiveType.LONG))
     }
 
     fun SymbolTable.addCommand(name: String, parameters: Type = MetaType.Unit, returns: Type = MetaType.Unit) {

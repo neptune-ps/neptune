@@ -1,7 +1,6 @@
 parser grammar RuneScriptParser;
 
 @members {
-boolean inCalc = false;
 boolean inCondition = false;
 }
 
@@ -105,13 +104,11 @@ singleExpression
 
 expression
     : parenthesis                                                               # ParenthesizedExpression
-    | expression {inCalc}? op=(MUL | DIV | MOD) expression                      # BinaryExpression
-    | expression {inCalc}? op=(PLUS | MINUS) expression                         # BinaryExpression
     | expression {inCondition}? op=(LT | GT | LTE | GTE) expression             # BinaryExpression
     | expression {inCondition}? op=(EQ | EXCL) expression                       # BinaryExpression
-    | expression {inCalc || inCondition}? op=AND expression                     # BinaryExpression
-    | expression {inCalc || inCondition}? op=OR expression                      # BinaryExpression
-    | {!inCalc}? CALC {inCalc=true;} parenthesis {inCalc=false;}                # CalcExpression
+    | expression {inCondition}? op=AND expression                               # BinaryExpression
+    | expression {inCondition}? op=OR expression                                # BinaryExpression
+    | calc                                                                      # CalcExpression
     | call                                                                      # CallExpression
     | localVariable                                                             # LocalVariableExpression
     | localArrayVariable                                                        # LocalArrayVariableExpression
@@ -120,6 +117,19 @@ expression
     | literal                                                                   # LiteralExpression
     | joinedString                                                              # JoinedStringExpression
     | identifier                                                                # IdentifierExpression
+    ;
+
+calc
+    : CALC LPAREN arithemitic RPAREN
+    ;
+
+arithemitic
+    : LPAREN arithemitic RPAREN                                                 # ArithemiticParenthesizedExpression
+    | arithemitic op=(MUL | DIV | MOD) arithemitic                              # ArithemiticBinaryExpression
+    | arithemitic op=(PLUS | MINUS) arithemitic                                 # ArithemiticBinaryExpression
+    | arithemitic op=AND arithemitic                                            # ArithemiticBinaryExpression
+    | arithemitic op=OR arithemitic                                             # ArithemiticBinaryExpression
+    | expression                                                                # NormalExpression
     ;
 
 call

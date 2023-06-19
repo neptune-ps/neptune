@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.ast
 
+import me.filby.neptune.runescript.ast.expr.ArithmeticExpression
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
@@ -98,6 +99,10 @@ public interface AstVisitor<R> {
 
     public fun visitParenthesizedExpression(parenthesizedExpression: ParenthesizedExpression): R {
         return visitExpression(parenthesizedExpression)
+    }
+
+    public fun visitArithmeticExpression(arithmeticExpression: ArithmeticExpression): R {
+        return visitBinaryExpression(arithmeticExpression)
     }
 
     public fun visitBinaryExpression(binaryExpression: BinaryExpression): R {

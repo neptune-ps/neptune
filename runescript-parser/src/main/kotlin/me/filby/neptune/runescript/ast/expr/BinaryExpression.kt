@@ -15,11 +15,11 @@ import java.util.Objects
  * 1 + 1
  * ```
  */
-public class BinaryExpression(
+public open class BinaryExpression(
     source: NodeSourceLocation,
     public val left: Expression,
     public val operator: Token,
-    public val right: Expression
+    public val right: Expression,
 ) : Expression(source) {
     init {
         addChild(left)
@@ -55,5 +55,21 @@ public class BinaryExpression(
             .add("operator", operator)
             .add("right", right)
             .toString()
+    }
+}
+
+/**
+ * A type of [BinaryExpression] that is used for arithmetic within [CalcExpression].
+ *
+ * The valid operators are: `*` (multiply), `/` (divide), `%` (modulo), `+` (add), `-` (subtract), `&` (and), `|` (or).
+ */
+public class ArithmeticExpression(
+    source: NodeSourceLocation,
+    left: Expression,
+    operator: Token,
+    right: Expression,
+) : BinaryExpression(source, left, operator, right) {
+    override fun <R> accept(visitor: AstVisitor<R>): R {
+        return visitor.visitArithmeticExpression(this)
     }
 }

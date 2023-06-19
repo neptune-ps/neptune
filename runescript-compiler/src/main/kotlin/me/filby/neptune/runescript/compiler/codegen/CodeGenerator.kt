@@ -5,6 +5,7 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
+import me.filby.neptune.runescript.ast.expr.ArithmeticExpression
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
@@ -499,9 +500,9 @@ public class CodeGenerator(
         parenthesizedExpression.expression.visit()
     }
 
-    override fun visitBinaryExpression(binaryExpression: BinaryExpression) {
-        val operator = binaryExpression.operator.text
-        val opcodes = when (val type = binaryExpression.left.type.baseType) {
+    override fun visitArithmeticExpression(arithmeticExpression: ArithmeticExpression) {
+        val operator = arithmeticExpression.operator.text
+        val opcodes = when (val type = arithmeticExpression.left.type.baseType) {
             BaseVarType.INTEGER -> INT_OPERATIONS
             BaseVarType.LONG -> LONG_OPERATIONS
             else -> error("No mappings for BaseType: $type")
@@ -509,10 +510,10 @@ public class CodeGenerator(
         val opcode = opcodes[operator] ?: error("No mappings for operator: $operator")
 
         // visit left side
-        binaryExpression.left.visit()
+        arithmeticExpression.left.visit()
 
         // visit right side
-        binaryExpression.right.visit()
+        arithmeticExpression.right.visit()
 
         // add the instruction with the opcode based on the operator
         instruction(opcode)

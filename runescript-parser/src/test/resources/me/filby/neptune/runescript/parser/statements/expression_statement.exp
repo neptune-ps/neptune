@@ -1,9 +1,9 @@
 ExpressionStatement() 1:1
  CalcExpression() 1:1
-  BinaryExpression() 1:6
+  ArithmeticExpression() 1:6
    IntegerLiteral(value=1) 1:6
    Token(text=+) 1:8
-   BinaryExpression() 1:10
+   ArithmeticExpression() 1:10
     IntegerLiteral(value=2) 1:10
     Token(text=*) 1:12
     IntegerLiteral(value=3) 1:14

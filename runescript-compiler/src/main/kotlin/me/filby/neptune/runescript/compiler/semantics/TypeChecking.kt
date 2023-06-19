@@ -6,6 +6,7 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.Token
+import me.filby.neptune.runescript.ast.expr.ArithmeticExpression
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
@@ -127,11 +128,6 @@ public class TypeChecking(
      * evaluated as a condition.
      */
     private var inCondition = false
-
-    /**
-     * State for if we're currently within a `calc` expression.
-     */
-    private var inCalc = false
 
     /**
      * A set of symbols that are currently being evaluated. Used to prevent re-entering
@@ -383,24 +379,57 @@ public class TypeChecking(
         parenthesizedExpression.type = innerExpression.type
     }
 
+    override fun visitArithmeticExpression(arithmeticExpression: ArithmeticExpression) {
+        val left = arithmeticExpression.left
+        val right = arithmeticExpression.right
+        val operator = arithmeticExpression.operator
+
+        // arithmetic expression only expect int or long return types, but just allow
+        val expectedType = when (val hint = arithmeticExpression.typeHint) {
+            null -> PrimitiveType.INT
+            else -> hint
+        }
+
+        // visit left-hand side
+        left.typeHint = expectedType
+        left.visit()
+
+        // visit right-hand side
+        right.typeHint = expectedType
+        right.visit()
+
+        // verify if both sides are the expected type
+        if (
+            !checkTypeMatch(left, expectedType, left.type, reportError = false) ||
+            !checkTypeMatch(right, expectedType, right.type, reportError = false)
+        ) {
+            operator.reportError(
+                DiagnosticMessage.BINOP_INVALID_TYPES,
+                operator.text,
+                left.type.representation,
+                right.type.representation
+            )
+            arithmeticExpression.type = MetaType.Error
+            return
+        }
+
+        arithmeticExpression.type = expectedType
+    }
+
     override fun visitBinaryExpression(binaryExpression: BinaryExpression) {
         val left = binaryExpression.left
         val right = binaryExpression.right
         val operator = binaryExpression.operator
 
         // we should only ever be within a condition or within calc at this point
-        if (!inCondition && !inCalc) {
+        if (!inCondition) {
             binaryExpression.type = MetaType.Error
             binaryExpression.reportError(DiagnosticMessage.INVALID_BINEXP_STATE)
             return
         }
 
         // check for validation based on if we're within calc or condition.
-        val validOperation = if (inCalc) {
-            checkBinaryMathOperation(binaryExpression.typeHint ?: PrimitiveType.INT, left, operator, right)
-        } else {
-            checkBinaryConditionOperation(left, operator, right)
-        }
+        val validOperation = checkBinaryConditionOperation(left, operator, right)
 
         // early return if it isn't a valid operation
         if (!validOperation) {
@@ -408,52 +437,8 @@ public class TypeChecking(
             return
         }
 
-        // conditions expect boolean, calc expects int/long
-        // we shouldn't get to this point without one of those two being true due to the above check
-        binaryExpression.type = if (inCalc) {
-            binaryExpression.typeHint ?: PrimitiveType.INT
-        } else {
-            PrimitiveType.BOOLEAN
-        }
-    }
-
-    /**
-     * Verifies the binary expression is a valid math operation.
-     */
-    private fun checkBinaryMathOperation(
-        typeHint: Type,
-        left: Expression,
-        operator: Token,
-        right: Expression
-    ): Boolean {
-        if (operator.text !in MATH_OPS) {
-            operator.reportError(DiagnosticMessage.INVALID_MATHOP, operator)
-            return false
-        }
-
-        // visit left-hand side
-        left.typeHint = typeHint
-        left.visit()
-
-        // visit right-hand side
-        right.typeHint = typeHint
-        right.visit()
-
-        // verify if both sides are ints
-        var bothMatch = checkTypeMatch(left, typeHint, left.type, reportError = false)
-        bothMatch = bothMatch and checkTypeMatch(right, typeHint, right.type, reportError = false)
-
-        // one or both don't match so report an error
-        if (!bothMatch) {
-            operator.reportError(
-                DiagnosticMessage.BINOP_INVALID_TYPES,
-                operator.text,
-                left.type.representation,
-                right.type.representation
-            )
-        }
-
-        return bothMatch
+        // conditions expect boolean
+        binaryExpression.type = PrimitiveType.BOOLEAN
     }
 
     /**
@@ -544,9 +529,6 @@ public class TypeChecking(
     }
 
     override fun visitCalcExpression(calcExpression: CalcExpression) {
-        // update state to inside calc
-        inCalc = true
-
         val typeHint = calcExpression.typeHint ?: PrimitiveType.INT
         val innerExpression = calcExpression.expression
 
@@ -560,8 +542,6 @@ public class TypeChecking(
         } else {
             calcExpression.type = typeHint
         }
-        // update state to outside calc
-        inCalc = false
     }
 
     override fun visitCommandCallExpression(commandCallExpression: CommandCallExpression) {
@@ -1191,15 +1171,6 @@ public class TypeChecking(
     }
 
     private companion object {
-        /**
-         * Array of valid math operations allowed within `calc` expressions.
-         */
-        private val MATH_OPS = arrayOf(
-            "*", "/", "%",
-            "+", "-",
-            "&", "|"
-        )
-
         /**
          * Array of valid conditional operations allowed within `if` and `while` statements.
          */

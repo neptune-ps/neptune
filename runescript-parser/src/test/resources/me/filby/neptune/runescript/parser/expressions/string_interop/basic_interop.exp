@@ -1,7 +1,7 @@
 JoinedStringExpression() 1:1
  StringLiteral(value="1 + 1 = ") 1:2
  CalcExpression() 1:11
-  BinaryExpression() 1:16
+  ArithmeticExpression() 1:16
    IntegerLiteral(value=1) 1:16
    Token(text=+) 1:18
    IntegerLiteral(value=1) 1:20
