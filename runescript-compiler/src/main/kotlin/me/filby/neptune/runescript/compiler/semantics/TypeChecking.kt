@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.compiler.semantics
 import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.Node
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.Token
@@ -811,29 +812,31 @@ public class TypeChecking(
             // base the source information on the string literal
             val (sourceName, sourceLine, sourceColumn) = constantVariableExpression.source
 
-            // wrap string and quote
+            // check if the expected type is a string type
             val graphicType = typeManager.findOrNull("graphic")
             val stringExpected = typeHint == PrimitiveType.STRING || graphicType != null && typeHint == graphicType
-            val valueToParse = if (stringExpected && shouldQuoteConstantValue(symbol.value)) {
-                "\"${escapeString(symbol.value)}\""
-            } else {
-                symbol.value
-            }
 
             // attempt to parse the constant value
-            val parsedExpression = ScriptParser.invokeParser(
-                CharStreams.fromString(valueToParse, sourceName),
-                RuneScriptParser::singleExpression,
-                DISCARD_ERROR_LISTENER,
-                sourceLine - 1,
-                sourceColumn - 1
-            ) as? Expression
+            val parsedExpression = if (stringExpected) {
+                StringLiteral(
+                    NodeSourceLocation(sourceName, sourceLine - 1, sourceColumn - 1),
+                    symbol.value
+                )
+            } else {
+                ScriptParser.invokeParser(
+                    CharStreams.fromString(symbol.value, sourceName),
+                    RuneScriptParser::singleExpression,
+                    DISCARD_ERROR_LISTENER,
+                    sourceLine - 1,
+                    sourceColumn - 1
+                ) as? Expression
+            }
 
             // verify that the expression parsed properly
             if (parsedExpression == null) {
                 constantVariableExpression.reportError(
                     DiagnosticMessage.CONSTANT_PARSE_ERROR,
-                    valueToParse,
+                    symbol.value,
                     typeHint.representation
                 )
                 constantVariableExpression.type = MetaType.Error
@@ -846,7 +849,7 @@ public class TypeChecking(
 
             // verify the constant evaluates to a constant expression (no macros!)
             if (!isConstantExpression(parsedExpression)) {
-                constantVariableExpression.reportError(DiagnosticMessage.CONSTANT_NONCONSTANT, valueToParse)
+                constantVariableExpression.reportError(DiagnosticMessage.CONSTANT_NONCONSTANT, symbol.value)
                 constantVariableExpression.type = MetaType.Error
                 return
             }
@@ -858,25 +861,6 @@ public class TypeChecking(
             // remove the symbol from the set since it is no longer being evaluated
             constantsBeingEvaluated -= symbol
         }
-    }
-
-    /**
-     * Determines if the [value] given should implicitly add double quotes (")
-     * to it to make it parse-able.
-     */
-    private fun shouldQuoteConstantValue(value: String): Boolean {
-        if (value.length == 1) {
-            return true
-        }
-
-        if (!value.startsWith("\"") && !value.endsWith("\"")) {
-            return true
-        }
-        return false
-    }
-
-    private fun escapeString(value: String): String {
-        return value.replace("\"", "\\\"")
     }
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
