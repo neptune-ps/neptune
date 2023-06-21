@@ -7,10 +7,8 @@ internal object DiagnosticMessage {
     // internal compiler errors
     const val UNSUPPORTED_SYMBOLTYPE_TO_TYPE = "Internal compiler error: Unsupported SymbolType -> Type conversion: %s"
     const val INVALID_BINEXP_STATE = "Internal compiler error: not in condition or calc"
-    const val INVALID_MATHOP = "Internal compiler error: '%s' is not a valid binary math operation."
     const val INVALID_CONDITIONOP = "Internal compiler error: '%s' is not a valid binary condition operation."
     const val CASE_WITHOUT_SWITCH = "Internal compiler error: Case without switch statement as parent."
-    const val LOCAL_REFERENCE_WRONG = "Internal compiler error: '$%s' refers to a non-local variable symbol: %s"
     const val RETURN_ORPHAN = "Internal compiler error: Orphaned `return` statement, no parent `script` node found."
     const val TRIGGER_TYPE_NOT_FOUND = "Internal compiler error: The trigger '%s' has no declaration."
 
@@ -30,6 +28,7 @@ internal object DiagnosticMessage {
     const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
     const val GENERIC_TYPE_MISMATCH = "Type mismatch: '%s' was given but '%s' was expected."
     const val GENERIC_UNRESOLVED_SYMBOL = "'%s' could not be resolved to a symbol."
+    const val ARITHMETIC_INVALID_TYPE = "Type mismatch: '%s' was given but 'int' or 'long' was expected."
 
     // script node specific
     const val SCRIPT_REDECLARATION = "[%s,%s] is already defined."

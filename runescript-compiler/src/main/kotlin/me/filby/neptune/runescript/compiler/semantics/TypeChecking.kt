@@ -399,8 +399,10 @@ public class TypeChecking(
         right.typeHint = expectedType
         right.visit()
 
-        // verify if both sides are the expected type
+        // verify if both sides are int or long and are of the same type
         if (
+            !checkTypeMatchAny(left, ALLOWED_ARITHMETIC_TYPES, left.type) ||
+            !checkTypeMatchAny(left, ALLOWED_ARITHMETIC_TYPES, right.type) ||
             !checkTypeMatch(left, expectedType, left.type, reportError = false) ||
             !checkTypeMatch(right, expectedType, right.type, reportError = false)
         ) {
@@ -538,10 +540,11 @@ public class TypeChecking(
         innerExpression.visit()
 
         // verify type is an int
-        if (!checkTypeMatch(innerExpression, typeHint, innerExpression.type)) {
+        if (!checkTypeMatchAny(innerExpression, ALLOWED_ARITHMETIC_TYPES, innerExpression.type)) {
+            innerExpression.reportError(DiagnosticMessage.ARITHMETIC_INVALID_TYPE, innerExpression.type.representation)
             calcExpression.type = MetaType.Error
         } else {
-            calcExpression.type = typeHint
+            calcExpression.type = innerExpression.type
         }
     }
 
@@ -1111,6 +1114,26 @@ public class TypeChecking(
     }
 
     /**
+     * Checks if the [actual] matches any of [expected], including accepted casting.
+     *
+     * If the types passed in are a [TupleType] they will be compared using their flattened types.
+     *
+     * @see TypeManager.check
+     */
+    private fun checkTypeMatchAny(
+        node: Node,
+        expected: Array<out Type>,
+        actual: Type,
+    ): Boolean {
+        for (type in expected) {
+            if (checkTypeMatch(node, type, actual, false)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
      * Helper function to report a diagnostic with the type of [DiagnosticType.INFO].
      */
     private fun Node.reportInfo(message: String, vararg args: Any) {
@@ -1162,6 +1185,14 @@ public class TypeChecking(
             "<", ">", "<=", ">=",
             "=", "!",
             "&", "|"
+        )
+
+        /**
+         * Array of valid types allowed in arithmetic expressions.
+         */
+        private val ALLOWED_ARITHMETIC_TYPES = arrayOf(
+            PrimitiveType.INT,
+            PrimitiveType.LONG
         )
 
         /**

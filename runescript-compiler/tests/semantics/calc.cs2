@@ -1,4 +1,4 @@
-[proc,test]
+[proc,core_math]
 def_int  $int;
 def_long $long;
 
@@ -20,6 +20,10 @@ def_long $e = calc($long);
 
 // should work
 def_int $f = calc(1 + ~do_something(calc(2 + 2)) + 1);
+
+[proc,invalid_types]
+def_npc $test1 = calc(hans + hans); // Expect: Operator '+' cannot be applied to 'npc', 'npc'.
+def_npc $test2 = calc(hans); // Expect: Type mismatch: 'npc' was given but 'int' or 'long' was expected.
 
 [proc,do_something](int $num)(int)
 return($num);

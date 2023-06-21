@@ -74,6 +74,9 @@ private fun testScriptFile(scriptFile: File): Boolean {
     // setup label type
     compiler.types.register("label", MetaType.Script(TestTriggerType.LABEL, MetaType.Unit, MetaType.Nothing))
 
+    // setup npc type
+    compiler.types.register("npc")
+
     compiler.diagnosticsHandler = diagnosticsHandler
     compiler.run()
 
@@ -134,6 +137,7 @@ private class CommandSymbolLoader : SymbolLoader {
         addBasic(VarBitType, "varbit")
         addBasic(VarClientType(PrimitiveType.INT), "varc")
         addBasic(VarClientType(PrimitiveType.STRING), "varcstr")
+        addBasic(compiler.types.find("npc"), "hans")
 
         // constants
         addConstant("max_32bit_int", "2147483647")
@@ -156,7 +160,7 @@ private class CommandSymbolLoader : SymbolLoader {
         // test specific commands
         // TODO implement the argument checks better once dynamic command handling is added to compiler
         addCommand("error", PrimitiveType.STRING)
-        addCommand("assert_equals", TupleType(MetaType.Any, MetaType.Any))
+        addCommand("assert_equals", TupleType(PrimitiveType.INT, PrimitiveType.INT))
         addCommand("assert_equals_obj", TupleType(MetaType.Any, MetaType.Any))
         addCommand("assert_equals_long", TupleType(PrimitiveType.LONG, PrimitiveType.LONG))
         addCommand("assert_not", TupleType(MetaType.Any, MetaType.Any))
