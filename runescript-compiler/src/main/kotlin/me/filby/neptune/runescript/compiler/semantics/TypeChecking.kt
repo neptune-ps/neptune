@@ -421,7 +421,7 @@ public class TypeChecking(
         right.typeHint = right.typeHint ?: left.type
         right.visit()
 
-        // check if either side is a tuple type. the runtime only allows comparing two values
+        // verify the left and right type only return 1 type that is not 'unit'.
         if (left.type is TupleType || right.type is TupleType) {
             if (left.type is TupleType) {
                 left.reportError(DiagnosticMessage.BINOP_TUPLE_TYPE, "Left", left.type.representation)
@@ -429,6 +429,14 @@ public class TypeChecking(
             if (right.type is TupleType) {
                 right.reportError(DiagnosticMessage.BINOP_TUPLE_TYPE, "Right", right.type.representation)
             }
+            return false
+        } else if (left.type == MetaType.Unit || right.type == MetaType.Unit) {
+            operator.reportError(
+                DiagnosticMessage.BINOP_INVALID_TYPES,
+                operator.text,
+                left.type.representation,
+                right.type.representation
+            )
             return false
         }
 

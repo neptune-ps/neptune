@@ -33,6 +33,13 @@ if (~tuple = true) {
 
 }
 
+// disallow comparing unit in conditions
+// Expect: Operator '=' cannot be applied to 'unit', 'int'.
+// Expect: Operator '=' cannot be applied to 'unit', 'unit'.
+if (test_command = 1 | test_command = test_command) {
+
+}
+
 // disallow using some operators on non-int or non-long types
 {
     def_long $a;
