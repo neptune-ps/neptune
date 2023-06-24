@@ -14,8 +14,11 @@ import java.util.Objects
  * ```
  * 1 + 1
  * ```
+ *
+ * @see ConditionExpression
+ * @see ArithmeticExpression
  */
-public open class BinaryExpression(
+public sealed class BinaryExpression(
     source: NodeSourceLocation,
     public val left: Expression,
     public val operator: Token,
@@ -55,6 +58,20 @@ public open class BinaryExpression(
             .add("operator", operator)
             .add("right", right)
             .toString()
+    }
+}
+
+/**
+ * A type of [BinaryExpression] that is used for conditions within `if` and `while` statements.
+ */
+public class ConditionExpression(
+    source: NodeSourceLocation,
+    left: Expression,
+    operator: Token,
+    right: Expression,
+) : BinaryExpression(source, left, operator, right) {
+    override fun <R> accept(visitor: AstVisitor<R>): R {
+        return visitor.visitConditionExpression(this)
     }
 }
 

@@ -15,6 +15,7 @@ import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.ClientScriptExpression
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
+import me.filby.neptune.runescript.ast.expr.ConditionExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
@@ -125,12 +126,6 @@ public class TypeChecking(
     private var table: SymbolTable = rootTable
 
     /**
-     * State for if we're currently within an expression that is meant to be
-     * evaluated as a condition.
-     */
-    private var inCondition = false
-
-    /**
      * A set of symbols that are currently being evaluated. Used to prevent re-entering
      * a constant and causing a stack overflow.
      */
@@ -204,9 +199,6 @@ public class TypeChecking(
      * condition expression, an error is emitted.
      */
     private fun checkCondition(expression: Expression) {
-        // update state to inside condition
-        inCondition = true
-
         // type hint and visit condition
         expression.typeHint = PrimitiveType.BOOLEAN
 
@@ -221,9 +213,6 @@ public class TypeChecking(
             // report invalid condition expression on the erroneous node.
             invalidExpression.reportError(DiagnosticMessage.CONDITION_INVALID_NODE_TYPE)
         }
-
-        // update state to outside condition
-        inCondition = false
     }
 
     /**
@@ -232,7 +221,7 @@ public class TypeChecking(
      * is all valid conditional expressions.
      */
     private fun findInvalidConditionExpression(expression: Expression): Node? = when (expression) {
-        is BinaryExpression -> if (expression.operator.text == "|" || expression.operator.text == "&") {
+        is ConditionExpression -> if (expression.operator.text == "|" || expression.operator.text == "&") {
             // check the left side and return it if it isn't null, otherwise return the value
             // of the right side
             findInvalidConditionExpression(expression.left) ?: findInvalidConditionExpression(expression.right)
@@ -380,6 +369,100 @@ public class TypeChecking(
         parenthesizedExpression.type = innerExpression.type
     }
 
+    override fun visitConditionExpression(conditionExpression: ConditionExpression) {
+        val left = conditionExpression.left
+        val right = conditionExpression.right
+        val operator = conditionExpression.operator
+
+        // check for validation based on if we're within calc or condition.
+        val validOperation = checkBinaryConditionOperation(left, operator, right)
+
+        // early return if it isn't a valid operation
+        if (!validOperation) {
+            conditionExpression.type = MetaType.Error
+            return
+        }
+
+        // conditions expect boolean
+        conditionExpression.type = PrimitiveType.BOOLEAN
+    }
+
+    /**
+     * Verifies the binary expression is a valid condition operation.
+     */
+    private fun checkBinaryConditionOperation(
+        left: Expression,
+        operator: Token,
+        right: Expression
+    ): Boolean {
+        // some operators expect a specific type on both sides, specify those type(s) here
+        val allowedTypes = when (operator.text) {
+            "&", "|" -> ALLOWED_LOGICAL_TYPES
+            "<", ">", "<=", ">=" -> ALLOWED_RELATIONAL_TYPES
+            else -> null
+        }
+
+        // if required type is set we should type hint with those, otherwise use the opposite
+        // sides type as a hint.
+        if (allowedTypes != null) {
+            left.typeHint = allowedTypes.first()
+            right.typeHint = allowedTypes.first()
+        } else {
+            // assign the type hints using the opposite side if it isn't already assigned.
+            left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
+            right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
+        }
+
+        // TODO better logic for this to allow things such as 'if (null ! $var)', should also revisit the above
+        // visit left side to get the type for hinting to the right side if needed
+        left.visit()
+
+        // type hint right if not already hinted to the left type and then visit
+        right.typeHint = right.typeHint ?: left.type
+        right.visit()
+
+        // check if either side is a tuple type. the runtime only allows comparing two values
+        if (left.type is TupleType || right.type is TupleType) {
+            if (left.type is TupleType) {
+                left.reportError(DiagnosticMessage.BINOP_TUPLE_TYPE, "Left", left.type.representation)
+            }
+            if (right.type is TupleType) {
+                right.reportError(DiagnosticMessage.BINOP_TUPLE_TYPE, "Right", right.type.representation)
+            }
+            return false
+        }
+
+        // handle operator specific required types, this applies to all except `!` and `=`.
+        if (allowedTypes != null) {
+            if (
+                !checkTypeMatchAny(left, allowedTypes, left.type) ||
+                !checkTypeMatchAny(right, allowedTypes, right.type)
+            ) {
+                operator.reportError(
+                    DiagnosticMessage.BINOP_INVALID_TYPES,
+                    operator.text,
+                    left.type.representation,
+                    right.type.representation
+                )
+                return false
+            }
+        }
+
+        // handle equality operator, which allows any type on either side as long as they match
+        if (!checkTypeMatch(left, left.type, right.type, reportError = false)) {
+            operator.reportError(
+                DiagnosticMessage.BINOP_INVALID_TYPES,
+                operator.text,
+                left.type.representation,
+                right.type.representation
+            )
+            return false
+        }
+
+        // other cases are true
+        return true
+    }
+
     override fun visitArithmeticExpression(arithmeticExpression: ArithmeticExpression) {
         val left = arithmeticExpression.left
         val right = arithmeticExpression.right
@@ -417,118 +500,6 @@ public class TypeChecking(
         }
 
         arithmeticExpression.type = expectedType
-    }
-
-    override fun visitBinaryExpression(binaryExpression: BinaryExpression) {
-        val left = binaryExpression.left
-        val right = binaryExpression.right
-        val operator = binaryExpression.operator
-
-        // we should only ever be within a condition or within calc at this point
-        if (!inCondition) {
-            binaryExpression.type = MetaType.Error
-            binaryExpression.reportError(DiagnosticMessage.INVALID_BINEXP_STATE)
-            return
-        }
-
-        // check for validation based on if we're within calc or condition.
-        val validOperation = checkBinaryConditionOperation(left, operator, right)
-
-        // early return if it isn't a valid operation
-        if (!validOperation) {
-            binaryExpression.type = MetaType.Error
-            return
-        }
-
-        // conditions expect boolean
-        binaryExpression.type = PrimitiveType.BOOLEAN
-    }
-
-    /**
-     * Verifies the binary expression is a valid condition operation.
-     */
-    private fun checkBinaryConditionOperation(
-        left: Expression,
-        operator: Token,
-        right: Expression
-    ): Boolean {
-        if (operator.text !in CONDITIONAL_OPS) {
-            operator.reportError(DiagnosticMessage.INVALID_CONDITIONOP, operator)
-            return false
-        }
-
-        // some operators expect a specific type on both sides, specify those type(s) here
-        val allowedTypes = when (operator.text) {
-            "&", "|" -> arrayOf(PrimitiveType.BOOLEAN)
-            "<", ">", "<=", ">=" -> arrayOf(PrimitiveType.INT, PrimitiveType.LONG)
-            else -> null
-        }
-
-        // if required type is set we should type hint with those, otherwise use the opposite
-        // sides type as a hint.
-        if (allowedTypes != null) {
-            left.typeHint = allowedTypes.first()
-            right.typeHint = allowedTypes.first()
-        } else {
-            // assign the type hints using the opposite side if it isn't already assigned.
-            left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
-            right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
-        }
-
-        // TODO better logic for this to allow things such as 'if (null ! $var)', should also revisit the above
-        // visit left side to get the type for hinting to the right side if needed
-        left.visit()
-
-        // type hint right if not already hinted to the left type and then visit
-        right.typeHint = right.typeHint ?: left.type
-        right.visit()
-
-        // check if either side is a tuple type. the runtime only allows comparing two values
-        if (left.type is TupleType || right.type is TupleType) {
-            if (left.type is TupleType) {
-                left.reportError(DiagnosticMessage.BINOP_TUPLE_TYPE, "Left", left.type.representation)
-            }
-            if (right.type is TupleType) {
-                right.reportError(DiagnosticMessage.BINOP_TUPLE_TYPE, "Right", right.type.representation)
-            }
-            return false
-        }
-
-        // handle operator specific required types, this applies to all except `!` and `=`.
-        if (allowedTypes != null) {
-            var leftMatch = false
-            var rightMatch = false
-
-            // loop through allowed types and check if any of them match for both left and right
-            for (type in allowedTypes) {
-                leftMatch = leftMatch || checkTypeMatch(left, type, left.type, reportError = false)
-                rightMatch = rightMatch || checkTypeMatch(right, type, right.type, reportError = false)
-            }
-
-            if (!leftMatch || !rightMatch) {
-                operator.reportError(
-                    DiagnosticMessage.BINOP_INVALID_TYPES,
-                    operator.text,
-                    left.type.representation,
-                    right.type.representation
-                )
-                return false
-            }
-        }
-
-        // handle equality operator, which allows any type on either side as long as they match
-        if (!checkTypeMatch(left, left.type, right.type, reportError = false)) {
-            operator.reportError(
-                DiagnosticMessage.BINOP_INVALID_TYPES,
-                operator.text,
-                left.type.representation,
-                right.type.representation
-            )
-            return false
-        }
-
-        // other cases are true
-        return true
     }
 
     override fun visitCalcExpression(calcExpression: CalcExpression) {
@@ -1179,12 +1150,18 @@ public class TypeChecking(
 
     private companion object {
         /**
-         * Array of valid conditional operations allowed within `if` and `while` statements.
+         * Array of valid types allowed in logical conditional expressions.
          */
-        private val CONDITIONAL_OPS = arrayOf(
-            "<", ">", "<=", ">=",
-            "=", "!",
-            "&", "|"
+        private val ALLOWED_LOGICAL_TYPES = arrayOf(
+            PrimitiveType.BOOLEAN
+        )
+
+        /**
+         * Array of valid types allowed in relational conditional expressions.
+         */
+        private val ALLOWED_RELATIONAL_TYPES = arrayOf(
+            PrimitiveType.INT,
+            PrimitiveType.LONG
         )
 
         /**

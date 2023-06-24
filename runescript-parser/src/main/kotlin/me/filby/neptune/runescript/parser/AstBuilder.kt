@@ -6,12 +6,13 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.ArithemiticBinaryExpre
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ArithemiticParenthesizedExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ArrayDeclarationStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.AssignmentStatementContext
-import me.filby.neptune.runescript.antlr.RuneScriptParser.BinaryExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BlockStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BooleanLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.CalcExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.CharacterLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.CommandCallExpressionContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.ConditionBinaryExpressionContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.ConditionParenthesizedExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ConstantVariableContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.DeclarationStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.EmptyStatementContext
@@ -47,12 +48,12 @@ import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.ArithmeticExpression
-import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.ClientScriptExpression
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
+import me.filby.neptune.runescript.ast.expr.ConditionExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
@@ -123,7 +124,7 @@ public class AstBuilder(
     override fun visitIfStatement(ctx: IfStatementContext): Node {
         return IfStatement(
             source = ctx.location,
-            condition = ctx.parenthesis().visit(),
+            condition = ctx.condition().visit(),
             thenStatement = ctx.statement(0).visit(),
             elseStatement = ctx.statement(1)?.visit()
         )
@@ -132,7 +133,7 @@ public class AstBuilder(
     override fun visitWhileStatement(ctx: WhileStatementContext): Node {
         return WhileStatement(
             source = ctx.location,
-            condition = ctx.parenthesis().visit(),
+            condition = ctx.condition().visit(),
             thenStatement = ctx.statement().visit()
         )
     }
@@ -197,16 +198,20 @@ public class AstBuilder(
         return ParenthesizedExpression(ctx.location, ctx.parenthesis().visit())
     }
 
+    override fun visitConditionParenthesizedExpression(ctx: ConditionParenthesizedExpressionContext): Node {
+        return ParenthesizedExpression(ctx.location, ctx.condition().visit())
+    }
+
     override fun visitArithemiticParenthesizedExpression(ctx: ArithemiticParenthesizedExpressionContext): Node {
         return ParenthesizedExpression(ctx.location, ctx.arithemitic().visit())
     }
 
-    override fun visitBinaryExpression(ctx: BinaryExpressionContext): Node {
-        return BinaryExpression(
+    override fun visitConditionBinaryExpression(ctx: ConditionBinaryExpressionContext): Node {
+        return ConditionExpression(
             source = ctx.location,
-            left = ctx.expression(0).visit(),
+            left = ctx.condition(0).visit(),
             operator = ctx.op.toAstToken(),
-            right = ctx.expression(1).visit()
+            right = ctx.condition(1).visit()
         )
     }
 

@@ -1,17 +1,17 @@
 IfStatement() 1:1
- BinaryExpression() 1:5
-  BinaryExpression() 1:5
+ ConditionExpression() 1:5
+  ConditionExpression() 1:5
    IntegerLiteral(value=1) 1:5
    Token(text==) 1:7
    IntegerLiteral(value=1) 1:9
   Token(text=|) 1:11
-  BinaryExpression() 1:13
-   BinaryExpression() 1:13
+  ConditionExpression() 1:13
+   ConditionExpression() 1:13
     IntegerLiteral(value=2) 1:13
     Token(text==) 1:15
     IntegerLiteral(value=2) 1:17
    Token(text=&) 1:19
-   BinaryExpression() 1:21
+   ConditionExpression() 1:21
     IntegerLiteral(value=3) 1:21
     Token(text==) 1:23
     IntegerLiteral(value=3) 1:25

@@ -1,5 +1,5 @@
 WhileStatement() 1:1
- BinaryExpression() 1:8
+ ConditionExpression() 1:8
   BooleanLiteral(value=true) 1:8
   Token(text==) 1:13
   BooleanLiteral(value=true) 1:15

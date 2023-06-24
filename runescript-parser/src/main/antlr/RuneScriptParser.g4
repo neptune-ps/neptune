@@ -1,9 +1,5 @@
 parser grammar RuneScriptParser;
 
-@members {
-boolean inCondition = false;
-}
-
 @lexer::header {package me.filby.neptune.runescript.antlr;}
 
 options { tokenVocab = RuneScriptLexer; }
@@ -54,11 +50,11 @@ returnStatement
     ;
 
 ifStatement
-    : IF {inCondition=true;} parenthesis {inCondition=false;} statement (ELSE statement)?
+    : IF LPAREN condition RPAREN statement (ELSE statement)?
     ;
 
 whileStatement
-    : WHILE {inCondition=true;} parenthesis {inCondition=false;} statement
+    : WHILE LPAREN condition RPAREN statement
     ;
 
 switchStatement
@@ -104,10 +100,6 @@ singleExpression
 
 expression
     : parenthesis                                                               # ParenthesizedExpression
-    | expression {inCondition}? op=(LT | GT | LTE | GTE) expression             # BinaryExpression
-    | expression {inCondition}? op=(EQ | EXCL) expression                       # BinaryExpression
-    | expression {inCondition}? op=AND expression                               # BinaryExpression
-    | expression {inCondition}? op=OR expression                                # BinaryExpression
     | calc                                                                      # CalcExpression
     | call                                                                      # CallExpression
     | localVariable                                                             # LocalVariableExpression
@@ -117,6 +109,15 @@ expression
     | literal                                                                   # LiteralExpression
     | joinedString                                                              # JoinedStringExpression
     | identifier                                                                # IdentifierExpression
+    ;
+
+condition
+    : LPAREN condition RPAREN                                                   # ConditionParenthesizedExpression
+    | condition op=(LT | GT | LTE | GTE) condition                              # ConditionBinaryExpression
+    | condition op=(EQ | EXCL) condition                                        # ConditionBinaryExpression
+    | condition op=AND condition                                                # ConditionBinaryExpression
+    | condition op=OR condition                                                 # ConditionBinaryExpression
+    | expression                                                                # ConditionNormalExpression
     ;
 
 calc
@@ -129,7 +130,7 @@ arithemitic
     | arithemitic op=(PLUS | MINUS) arithemitic                                 # ArithemiticBinaryExpression
     | arithemitic op=AND arithemitic                                            # ArithemiticBinaryExpression
     | arithemitic op=OR arithemitic                                             # ArithemiticBinaryExpression
-    | expression                                                                # NormalExpression
+    | expression                                                                # ArithemiticNormalExpression
     ;
 
 call

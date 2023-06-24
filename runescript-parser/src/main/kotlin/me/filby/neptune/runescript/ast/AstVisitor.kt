@@ -8,6 +8,7 @@ import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
 import me.filby.neptune.runescript.ast.expr.ClientScriptExpression
 import me.filby.neptune.runescript.ast.expr.CommandCallExpression
+import me.filby.neptune.runescript.ast.expr.ConditionExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
@@ -99,6 +100,10 @@ public interface AstVisitor<R> {
 
     public fun visitParenthesizedExpression(parenthesizedExpression: ParenthesizedExpression): R {
         return visitExpression(parenthesizedExpression)
+    }
+
+    public fun visitConditionExpression(conditionExpression: ConditionExpression): R {
+        return visitBinaryExpression(conditionExpression)
     }
 
     public fun visitArithmeticExpression(arithmeticExpression: ArithmeticExpression): R {

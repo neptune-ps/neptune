@@ -6,8 +6,6 @@ package me.filby.neptune.runescript.compiler.diagnostics
 internal object DiagnosticMessage {
     // internal compiler errors
     const val UNSUPPORTED_SYMBOLTYPE_TO_TYPE = "Internal compiler error: Unsupported SymbolType -> Type conversion: %s"
-    const val INVALID_BINEXP_STATE = "Internal compiler error: not in condition or calc"
-    const val INVALID_CONDITIONOP = "Internal compiler error: '%s' is not a valid binary condition operation."
     const val CASE_WITHOUT_SWITCH = "Internal compiler error: Case without switch statement as parent."
     const val RETURN_ORPHAN = "Internal compiler error: Orphaned `return` statement, no parent `script` node found."
     const val TRIGGER_TYPE_NOT_FOUND = "Internal compiler error: The trigger '%s' has no declaration."
