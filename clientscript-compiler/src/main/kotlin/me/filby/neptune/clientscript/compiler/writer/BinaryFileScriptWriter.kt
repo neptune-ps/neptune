@@ -32,7 +32,6 @@ class BinaryFileScriptWriter(
         val id = idProvider.get(script.symbol)
         val scriptOutput = output.resolve("$id")
         scriptOutput.outputStream(WRITE, TRUNCATE_EXISTING, CREATE).use {
-            require(data.writerIndex() == data.readableBytes())
             data.readBytes(it, data.readableBytes())
         }
     }
