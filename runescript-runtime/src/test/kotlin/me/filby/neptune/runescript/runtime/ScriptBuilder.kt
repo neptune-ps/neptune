@@ -61,7 +61,7 @@ internal class ScriptBuilder private constructor() {
     }
 
     fun build(): Script {
-        require(opcodes.isNotEmpty() && opcodes.last() == BaseCoreOpcodes.RETURN) {
+        check(opcodes.isNotEmpty() && opcodes.last() == BaseCoreOpcodes.RETURN) {
             "`return` is required to be the last instruction"
         }
 

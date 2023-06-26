@@ -617,7 +617,7 @@ public class TypeChecking(
         }
 
         val typeHint = clientScriptExpression.typeHint
-        require(typeHint is MetaType.ClientScript)
+        check(typeHint is MetaType.ClientScript)
 
         // lookup the symbol by name
         val name = clientScriptExpression.name.text

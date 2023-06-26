@@ -61,7 +61,7 @@ public data class CodeGeneratorContext(
             else -> error("Unsupported expression type.")
         } as? ScriptSymbol
         expression.lineInstruction()
-        instruction(Opcode.Command, requireNotNull(symbol))
+        instruction(Opcode.Command, checkNotNull(symbol))
     }
 
     /**

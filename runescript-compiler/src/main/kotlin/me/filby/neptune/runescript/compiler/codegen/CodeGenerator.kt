@@ -584,7 +584,7 @@ public class CodeGenerator(
         var argumentTypesShort = argumentTypes.mapNotNull { it.code }.joinToString("")
 
         // safety check in case there was a type with no char code defined
-        require(argumentTypes.size == argumentTypesShort.length)
+        check(argumentTypes.size == argumentTypesShort.length)
 
         // write the clientscript reference and arguments
         instruction(Opcode.PushConstantSymbol, symbol)
