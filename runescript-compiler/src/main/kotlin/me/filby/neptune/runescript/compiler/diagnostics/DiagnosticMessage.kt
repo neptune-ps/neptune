@@ -64,6 +64,7 @@ internal object DiagnosticMessage {
     const val JUMP_NOARGS_EXPECTED = "'@%s' is expected to have no arguments but has '%s'."
     const val CLIENTSCRIPT_REFERENCE_UNRESOLVED = "'%s' cannot be resolved to a clientscript."
     const val CLIENTSCRIPT_NOARGS_EXPECTED = "'%s' is expected to have no arguments but has '%s'."
+    const val HOOK_TRANSMIT_LIST_UNEXPECTED = "Unexpected hook transmit list."
 
     // local variable specific
     const val LOCAL_DECLARATION_INVALID_TYPE = "'%s' is not allowed to be declared as a type."

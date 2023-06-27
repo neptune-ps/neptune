@@ -639,15 +639,15 @@ public class TypeChecking(
         // disallow transmit list when not expected
         val transmitListType = typeHint.transmitListType
         if (transmitListType == MetaType.Unit && clientScriptExpression.transmitList.isNotEmpty()) {
-            clientScriptExpression.transmitList.first().reportError("Unexpected hook transmit list.")
+            clientScriptExpression.transmitList.first().reportError(DiagnosticMessage.HOOK_TRANSMIT_LIST_UNEXPECTED)
             clientScriptExpression.type = MetaType.Error
             return
-        } else {
-            for (expr in clientScriptExpression.transmitList) {
-                expr.typeHint = transmitListType
-                expr.visit()
-                checkTypeMatch(expr, transmitListType, expr.type)
-            }
+        }
+
+        for (expr in clientScriptExpression.transmitList) {
+            expr.typeHint = transmitListType
+            expr.visit()
+            checkTypeMatch(expr, transmitListType, expr.type)
         }
     }
 
