@@ -50,14 +50,6 @@ subprojects {
         apply(plugin = "org.jmailen.kotlinter")
 
         dependencies {
-            for (module in listOf("stdlib", "stdlib-common", "stdlib-jdk7", "stdlib-jdk8")) {
-                api("org.jetbrains.kotlin:kotlin-$module") {
-                    version {
-                        strictly(project.getKotlinPluginVersion())
-                    }
-                }
-            }
-
             implementation(libs.inlineLogger)
             implementation(libs.guava)
 
