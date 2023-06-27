@@ -20,6 +20,10 @@ tasks.compileKotlin {
     dependsOn(tasks.generateGrammarSource)
 }
 
+tasks.compileTestKotlin {
+    dependsOn(tasks.generateTestGrammarSource)
+}
+
 task("antlrOutputDir") {
     doLast {
         mkdir(antlrOutput)
