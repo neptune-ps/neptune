@@ -67,11 +67,11 @@ class ClientScriptCompiler(
         addDynamicCommandHandler("event_mousex", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 1))
         addDynamicCommandHandler("event_mousey", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 2))
         addDynamicCommandHandler("event_com", PlaceholderCommand(ScriptVarType.COMPONENT, Int.MIN_VALUE + 3))
-        addDynamicCommandHandler("event_opindex", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 4))
+        addDynamicCommandHandler("event_op", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 4))
         addDynamicCommandHandler("event_comsubid", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 5))
-        addDynamicCommandHandler("event_drop", PlaceholderCommand(ScriptVarType.COMPONENT, Int.MIN_VALUE + 6))
-        addDynamicCommandHandler("event_dropsubid", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 7))
-        addDynamicCommandHandler("event_key", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 8))
+        addDynamicCommandHandler("event_com2", PlaceholderCommand(ScriptVarType.COMPONENT, Int.MIN_VALUE + 6))
+        addDynamicCommandHandler("event_comsubid2", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 7))
+        addDynamicCommandHandler("event_keycode", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 8))
         addDynamicCommandHandler("event_keychar", PlaceholderCommand(PrimitiveType.CHAR, Int.MIN_VALUE + 9))
 
         // symbol loaders
