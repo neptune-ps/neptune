@@ -39,10 +39,10 @@ class ClientScriptCompiler(
         }
 
         // special types for commands
-        types.register("clientscript", MetaType.ClientScript(MetaType.Unit))
-        types.register("clientscript_stat", MetaType.ClientScript(ScriptVarType.STAT))
-        types.register("clientscript_inv", MetaType.ClientScript(ScriptVarType.INV))
-        types.register("clientscript_varp", MetaType.ClientScript(VarPlayerType(MetaType.Any)))
+        types.register("hook", MetaType.Hook(MetaType.Unit))
+        types.register("stathook", MetaType.Hook(ScriptVarType.STAT))
+        types.register("invhook", MetaType.Hook(ScriptVarType.INV))
+        types.register("varphook", MetaType.Hook(VarPlayerType(MetaType.Any)))
         types.register("dbcolumn", DbColumnType(MetaType.Any))
 
         // allow assignment of namedobj to obj

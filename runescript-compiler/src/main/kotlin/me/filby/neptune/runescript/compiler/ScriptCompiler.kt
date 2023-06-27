@@ -102,6 +102,12 @@ public open class ScriptCompiler(
                 types.check(left.returnType, right.returnType)
         }
 
+        // checker for Hook types that compares the trigger list type.
+        types.addTypeChecker { left, right ->
+            left is MetaType.Hook && right is MetaType.Hook &&
+                types.check(left.transmitListType, right.transmitListType)
+        }
+
         // checker for WrappedType that compares the inner types
         types.addTypeChecker { left, right ->
             left is WrappedType && right is WrappedType && left::class == right::class &&

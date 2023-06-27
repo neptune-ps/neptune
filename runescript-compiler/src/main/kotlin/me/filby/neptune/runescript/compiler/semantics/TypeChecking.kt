@@ -617,7 +617,7 @@ public class TypeChecking(
         }
 
         val typeHint = clientScriptExpression.typeHint
-        check(typeHint is MetaType.ClientScript)
+        check(typeHint is MetaType.Hook)
 
         // lookup the symbol by name
         val name = clientScriptExpression.name.text
@@ -637,7 +637,7 @@ public class TypeChecking(
         typeCheckArguments(symbol, clientScriptExpression, name)
 
         // disallow transmit list when not expected
-        val transmitListType = typeHint.inner
+        val transmitListType = typeHint.transmitListType
         if (transmitListType == MetaType.Unit && clientScriptExpression.transmitList.isNotEmpty()) {
             clientScriptExpression.transmitList.first().reportError("Unexpected hook transmit list.")
             clientScriptExpression.type = MetaType.Error
@@ -884,7 +884,7 @@ public class TypeChecking(
             stringLiteral.reference = symbol
             stringLiteral.type = graphicType
             return
-        } else if (typeHint is MetaType.ClientScript) {
+        } else if (typeHint is MetaType.Hook) {
             handleClientScriptExpression(stringLiteral, typeHint)
             return
         }
@@ -894,7 +894,7 @@ public class TypeChecking(
     /**
      * Handles parsing and checking a [ClientScriptExpression] that is parsed from withing the [stringLiteral].
      *
-     * This assigns the [StringLiteral.type] to [MetaType.ClientScript] and stores the [ClientScriptExpression]
+     * This assigns the [StringLiteral.type] to [MetaType.Hook] and stores the [ClientScriptExpression]
      * as an attribute on [stringLiteral] for usage later.
      */
     private fun handleClientScriptExpression(stringLiteral: StringLiteral, typeHint: Type) {

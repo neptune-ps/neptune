@@ -633,7 +633,7 @@ public class CodeGenerator(
             return
         }
         instruction(Opcode.PushConstantInt, -1)
-        if (nullLiteral.type is MetaType.ClientScript) {
+        if (nullLiteral.type is MetaType.Hook) {
             // hack to make null clientscript references work properly
             // TODO figure out better way to handle this
             instruction(Opcode.PushConstantString, "")
@@ -653,7 +653,7 @@ public class CodeGenerator(
 
             instruction(Opcode.PushConstantSymbol, symbol)
             return
-        } else if (stringLiteral.type is MetaType.ClientScript) {
+        } else if (stringLiteral.type is MetaType.Hook) {
             val subExpression = stringLiteral.subExpression
             if (subExpression == null) {
                 stringLiteral.reportError(DiagnosticMessage.EXPRESSION_NO_SUBEXPR)

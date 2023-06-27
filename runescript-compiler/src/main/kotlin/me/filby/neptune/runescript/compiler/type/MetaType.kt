@@ -60,11 +60,11 @@ public sealed class MetaType(private val name: String) : MainType {
 
     /**
      * A special type used when referencing a script with a trigger type of `clientscript`.
-     * The inner type is the type allowed in the transmit list, if transmit list isn't expected,
+     * The [transmitListType] is the type allowed in the transmit list, if transmit list isn't expected,
      * use [Unit].
      */
-    public data class ClientScript(override val inner: MainType) : MetaType("clientscript"), WrappedType {
-        override val representation: String = "clientscript<${inner.representation}>"
+    public data class Hook(val transmitListType: MainType) : MetaType("hook") {
+        override val representation: String = "hook<${transmitListType.representation}>"
     }
 
     override val representation: String
