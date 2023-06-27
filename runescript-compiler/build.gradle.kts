@@ -17,7 +17,7 @@ val compilerTest = tasks.create<JavaExec>("compilerTest") {
     description = "Runs tests for the compiler."
     group = "verification"
     classpath = sourceSets["test"].runtimeClasspath
-    main = "me.filby.neptune.runescript.compiler.CompilerTestRunner"
+    mainClass.set("me.filby.neptune.runescript.compiler.CompilerTestRunner")
 }
 
 tasks.test {
