@@ -476,7 +476,7 @@ enum class ClientScriptOpcode(val id: Int, val largeOperand: Boolean = false) {
     _3655(3655),
     _3656(3656),
     _3657(3657),
-    STEAM_SETACHIVEMENT(3700),
+    STEAM_SETACHIEVEMENT(3700),
     STEAM_SETSTAT(3701),
     STEAM_STORESTATS(3702),
     ACTIVECLANSETTINGS_FIND_LISTENED(3800),
