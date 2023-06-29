@@ -568,6 +568,7 @@ enum class ClientScriptOpcode(val id: Int, val largeOperand: Boolean = false) {
     COS_DEG(4033),
     ATAN2_DEG(4034),
     ABS(4035),
+    PARSEINT(4036),
     APPEND_NUM(4100),
     APPEND(4101),
     APPEND_SIGNNUM(4102),

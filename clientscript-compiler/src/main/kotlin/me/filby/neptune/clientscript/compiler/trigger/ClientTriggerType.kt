@@ -18,26 +18,26 @@ enum class ClientTriggerType(
     override val allowReturns: Boolean = false,
     override val returns: Type? = null,
 ) : TriggerType {
-    OPWORLDMAPELEMENT1(10, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT, global = false)),
-    OPWORLDMAPELEMENT2(11, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT, global = false)),
-    OPWORLDMAPELEMENT3(12, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT, global = false)),
-    OPWORLDMAPELEMENT4(13, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT, global = false)),
-    OPWORLDMAPELEMENT5(14, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT, global = false)),
+    OPWORLDMAPELEMENT1(10, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT)),
+    OPWORLDMAPELEMENT2(11, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT)),
+    OPWORLDMAPELEMENT3(12, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT)),
+    OPWORLDMAPELEMENT4(13, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT)),
+    OPWORLDMAPELEMENT5(14, subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT)),
     WORLDMAPELEMENTMOUSEOVER(
         15,
-        subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT, global = false),
+        subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT),
         allowParameters = true,
         parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT)
     ),
     WORLDMAPELEMENTMOUSELEAVE(
         16,
-        subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT, global = false),
+        subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT),
         allowParameters = true,
         parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT)
     ),
     WORLDMAPELEMENTMOUSEREPEAT(
         17,
-        subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT, global = false),
+        subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT),
         allowParameters = true,
         parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT)
     ),
