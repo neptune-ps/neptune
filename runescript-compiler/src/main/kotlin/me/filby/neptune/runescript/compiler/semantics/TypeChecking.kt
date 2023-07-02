@@ -316,16 +316,38 @@ public class TypeChecking(
     }
 
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
+        val typeName = declarationStatement.typeToken.text.removePrefix("def_")
+        val name = declarationStatement.name.text
+        val type = typeManager.findOrNull(typeName)
+
+        // notify invalid type
+        if (type == null) {
+            declarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
+        } else if (!type.options.allowDeclaration) {
+            declarationStatement.typeToken.reportError(
+                DiagnosticMessage.LOCAL_DECLARATION_INVALID_TYPE,
+                type.representation
+            )
+        }
+
+        // attempt to insert the local variable into the symbol table and display error if failed to insert
+        val symbol = LocalVariableSymbol(name, type ?: MetaType.Error)
+        val inserted = table.insert(SymbolType.LocalVariable, symbol)
+        if (!inserted) {
+            declarationStatement.name.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
+        }
+
+        // visit the initializer if it exists to resolve references in it
         val initializer = declarationStatement.initializer
         if (initializer != null) {
-            val symbol = declarationStatement.symbol
-
             // type hint that we want whatever the declarations type is then visit
             initializer.typeHint = symbol.type
             initializer.visit()
 
             checkTypeMatch(initializer, symbol.type, initializer.type)
         }
+
+        declarationStatement.symbol = symbol
     }
 
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {

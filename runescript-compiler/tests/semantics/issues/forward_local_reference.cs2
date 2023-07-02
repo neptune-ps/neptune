@@ -1,0 +1,7 @@
+[proc,main]
+$some_variable; // Expect: '$some_variable' cannot be resolved to a local variable.
+def_int $some_variable = 5;
+
+//$some_array(1); // Expect1: '$some_array' cannot be resolved to a local variable.
+//some_array; // Expect1: 'some_array' could not be resolved to a symbol.
+//def_int $some_array(1);
