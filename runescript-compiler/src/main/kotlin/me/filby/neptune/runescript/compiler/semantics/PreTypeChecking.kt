@@ -5,8 +5,6 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
-import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
-import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
@@ -363,17 +361,6 @@ internal class PreTypeChecking(
 
             // set the symbol table for the block
             switchCase.scope = table
-        }
-    }
-
-    override fun visitAssignmentStatement(assignmentStatement: AssignmentStatement) {
-        assignmentStatement.children.visit()
-
-        // disallow arrays in multi-assign statements
-        val vars = assignmentStatement.vars
-        val firstArrayRef = vars.firstOrNull { it is LocalVariableExpression && it.isArray }
-        if (vars.size > 1 && firstArrayRef != null) {
-            firstArrayRef.reportError(DiagnosticMessage.ASSIGN_MULTI_ARRAY)
         }
     }
 

@@ -394,11 +394,13 @@ public class TypeChecking(
     }
 
     override fun visitAssignmentStatement(assignmentStatement: AssignmentStatement) {
+        val vars = assignmentStatement.vars
+
         // visit the lhs to fetch the references
-        assignmentStatement.vars.visit()
+        vars.visit()
 
         // store the lhs types to help with type hinting
-        val leftTypes = assignmentStatement.vars.map { it.type }
+        val leftTypes = vars.map { it.type }
         val rightTypes = typeHintExpressionList(leftTypes, assignmentStatement.expressions)
 
         // convert types to tuple type if necessary for easy comparison
@@ -406,6 +408,12 @@ public class TypeChecking(
         val rightType = TupleType.fromList(rightTypes)
 
         checkTypeMatch(assignmentStatement, leftType, rightType)
+
+        // prevent multi assignment involving arrays
+        val firstArrayRef = vars.firstOrNull { it is LocalVariableExpression && it.isArray }
+        if (vars.size > 1 && firstArrayRef != null) {
+            firstArrayRef.reportError(DiagnosticMessage.ASSIGN_MULTI_ARRAY)
+        }
     }
 
     override fun visitExpressionStatement(expressionStatement: ExpressionStatement) {
