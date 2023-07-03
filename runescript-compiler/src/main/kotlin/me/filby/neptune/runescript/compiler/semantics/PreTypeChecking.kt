@@ -5,12 +5,9 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
-import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
-import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
-import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
@@ -18,7 +15,6 @@ import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.parameterType
-import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.returnType
 import me.filby.neptune.runescript.compiler.scope
 import me.filby.neptune.runescript.compiler.subjectReference
@@ -36,7 +32,6 @@ import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.TypeManager
-import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
 /**
  * An [AstVisitor] implementation that handles the following.
@@ -69,7 +64,7 @@ internal class PreTypeChecking(
 
     init {
         // init with a base table for the file
-        tables.addFirst(SymbolTable())
+        tables.addFirst(rootTable.createSubTable())
     }
 
     /**
@@ -371,47 +366,6 @@ internal class PreTypeChecking(
         }
     }
 
-    override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
-        val typeName = arrayDeclarationStatement.typeToken.text.removePrefix("def_")
-        val name = arrayDeclarationStatement.name.text
-        var type = typeManager.findOrNull(typeName)
-
-        // notify invalid type
-        if (type == null) {
-            arrayDeclarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
-        } else if (!type.options.allowDeclaration) {
-            arrayDeclarationStatement.typeToken.reportError(
-                DiagnosticMessage.LOCAL_DECLARATION_INVALID_TYPE,
-                type.representation
-            )
-        } else if (!type.options.allowArray) {
-            arrayDeclarationStatement.typeToken.reportError(
-                DiagnosticMessage.LOCAL_ARRAY_INVALID_TYPE,
-                type.representation
-            )
-        }
-
-        type = if (type != null) {
-            // convert type into an array of type
-            ArrayType(type)
-        } else {
-            // type doesn't exist so give it error type
-            MetaType.Error
-        }
-
-        // visit the initializer if it exists to resolve references in it
-        arrayDeclarationStatement.initializer.accept(this)
-
-        // attempt to insert the local variable into the symbol table and display error if failed to insert
-        val symbol = LocalVariableSymbol(name, type)
-        val inserted = table.insert(SymbolType.LocalVariable, LocalVariableSymbol(name, type))
-        if (!inserted) {
-            arrayDeclarationStatement.name.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
-        }
-
-        arrayDeclarationStatement.symbol = symbol
-    }
-
     override fun visitAssignmentStatement(assignmentStatement: AssignmentStatement) {
         assignmentStatement.children.visit()
 
@@ -420,16 +374,6 @@ internal class PreTypeChecking(
         val firstArrayRef = vars.firstOrNull { it is LocalVariableExpression && it.isArray }
         if (vars.size > 1 && firstArrayRef != null) {
             firstArrayRef.reportError(DiagnosticMessage.ASSIGN_MULTI_ARRAY)
-        }
-    }
-
-    override fun visitIdentifier(identifier: Identifier) {
-        val arraySymbol = table.find(SymbolType.LocalVariable, identifier.text)
-        if (arraySymbol != null && arraySymbol.type is ArrayType) {
-            // Note: array references without index just looks up using a normal identifier,
-            // so we prevent accessing an array using a $ without an index in visitLocalVariableExpression.
-            identifier.reference = arraySymbol
-            identifier.type = arraySymbol.type
         }
     }
 

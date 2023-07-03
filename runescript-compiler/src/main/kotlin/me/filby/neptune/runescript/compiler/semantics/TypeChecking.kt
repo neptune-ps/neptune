@@ -351,9 +351,46 @@ public class TypeChecking(
     }
 
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
+        val typeName = arrayDeclarationStatement.typeToken.text.removePrefix("def_")
+        val name = arrayDeclarationStatement.name.text
+        var type = typeManager.findOrNull(typeName)
+
+        // notify invalid type
+        if (type == null) {
+            arrayDeclarationStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
+        } else if (!type.options.allowDeclaration) {
+            arrayDeclarationStatement.typeToken.reportError(
+                DiagnosticMessage.LOCAL_DECLARATION_INVALID_TYPE,
+                type.representation
+            )
+        } else if (!type.options.allowArray) {
+            arrayDeclarationStatement.typeToken.reportError(
+                DiagnosticMessage.LOCAL_ARRAY_INVALID_TYPE,
+                type.representation
+            )
+        }
+
+        type = if (type != null) {
+            // convert type into an array of type
+            ArrayType(type)
+        } else {
+            // type doesn't exist so give it error type
+            MetaType.Error
+        }
+
+        // visit the initializer if it exists to resolve references in it
         val initializer = arrayDeclarationStatement.initializer
         initializer.visit()
         checkTypeMatch(initializer, PrimitiveType.INT, initializer.type)
+
+        // attempt to insert the local variable into the symbol table and display error if failed to insert
+        val symbol = LocalVariableSymbol(name, type)
+        val inserted = table.insert(SymbolType.LocalVariable, LocalVariableSymbol(name, type))
+        if (!inserted) {
+            arrayDeclarationStatement.name.reportError(DiagnosticMessage.SCRIPT_LOCAL_REDECLARATION, name)
+        }
+
+        arrayDeclarationStatement.symbol = symbol
     }
 
     override fun visitAssignmentStatement(assignmentStatement: AssignmentStatement) {
@@ -960,11 +997,6 @@ public class TypeChecking(
     }
 
     override fun visitIdentifier(identifier: Identifier) {
-        if (identifier.reference != null) {
-            // handled already in pre-type checking for array references.
-            return
-        }
-
         val name = identifier.text
         val hint = identifier.typeHint
 
@@ -973,10 +1005,10 @@ public class TypeChecking(
             return
         }
 
-        // look through the global table for a symbol with the given name and type
+        // look through the current scopes table for a symbol with the given name and type
         var symbol: Symbol? = null
         var symbolType: Type? = null
-        for (temp in rootTable.findAll<Symbol>(name)) {
+        for (temp in table.findAll<Symbol>(name)) {
             val tempSymbolType = symbolToType(temp) ?: continue
             if (hint == null && tempSymbolType is MetaType.Script) {
                 // if the hint is unknown it means we're somewhere that probably shouldn't
@@ -1030,7 +1062,12 @@ public class TypeChecking(
             // all other triggers get wrapped in a script type
             MetaType.Script(symbol.trigger, symbol.parameters, symbol.returns)
         }
-        is LocalVariableSymbol -> symbol.type
+        is LocalVariableSymbol -> if (symbol.type is ArrayType) {
+            // only local array variables are accessible by only their identifier
+            symbol.type
+        } else {
+            null
+        }
         is BasicSymbol -> symbol.type
         is ConstantSymbol -> null
     }
