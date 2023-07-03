@@ -11,6 +11,7 @@ class TestScriptWriterContext(script: RuneScript) : BaseScriptWriterContext(scri
     private val opcodes = mutableListOf<Int>()
     private val intOperands = mutableListOf<Int>()
     private val objOperands = mutableListOf<Any?>()
+    private val switchTables = mutableListOf<Map<Int, Int>>()
 
     fun instruction(opcode: Int, operand: Int = 0) {
         opcodes += opcode
@@ -28,6 +29,10 @@ class TestScriptWriterContext(script: RuneScript) : BaseScriptWriterContext(scri
         opcodes += opcode
         intOperands += 0
         objOperands += operand
+    }
+
+    fun switchTable(id: Int, cases: Map<Int, Int>) {
+        switchTables.add(id, cases)
     }
 
     fun build(): Script {
@@ -49,7 +54,7 @@ class TestScriptWriterContext(script: RuneScript) : BaseScriptWriterContext(scri
             longLocalCount,
             intOperands.toIntArray(),
             objOperands.toTypedArray(),
-            emptyList() // TODO
+            switchTables
         )
     }
 }

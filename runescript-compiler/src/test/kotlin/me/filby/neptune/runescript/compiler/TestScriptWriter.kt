@@ -61,7 +61,21 @@ internal class TestScriptWriter(
     }
 
     override fun TestScriptWriterContext.writeSwitch(switchTable: SwitchTable) {
-        error("not implemented")
+        val cases = mutableMapOf<Int, Int>()
+        for ((label, keys) in switchTable.cases) {
+            val jumpLocation = jumpTable[label] ?: error("Label not found: $label")
+            val relativeJumpLocation = jumpLocation - curIndex - 1
+            for (key in keys) {
+                val intKey = when (key) {
+                    is Int -> key
+                    is Symbol -> idProvider.get(key)
+                    else -> error(key)
+                }
+                cases[intKey] = relativeJumpLocation
+            }
+        }
+        switchTable(switchTable.id, cases)
+        instruction(BaseCoreOpcodes.SWITCH, switchTable.id)
     }
 
     override fun TestScriptWriterContext.writeBranch(opcode: Opcode<*>, label: Label) {

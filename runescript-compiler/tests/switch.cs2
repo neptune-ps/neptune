@@ -1,0 +1,8 @@
+[test,test_switch]
+def_int $test = 2;
+switch_int ($test) {
+    case default : error("Not hit");
+    case 1 : error("Not hit.");
+    case 2 : // do nothing
+    case 3 : error("Not hit.");
+}
