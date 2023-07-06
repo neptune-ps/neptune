@@ -98,6 +98,7 @@ public open class ScriptCompiler(
         // checker for Script types that compares parameter and return types
         types.addTypeChecker { left, right ->
             left is MetaType.Script && right is MetaType.Script &&
+                left.trigger == right.trigger &&
                 types.check(left.parameterType, right.parameterType) &&
                 types.check(left.returnType, right.returnType)
         }
