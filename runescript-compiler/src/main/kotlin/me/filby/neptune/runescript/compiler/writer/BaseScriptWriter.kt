@@ -46,6 +46,10 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
      */
     protected abstract fun createContext(script: RuneScript): T
 
+    override fun close() {
+        // no-op
+    }
+
     // Opcode specific write functions
 
     private fun writeInstruction(context: T, instruction: Instruction<*>) {

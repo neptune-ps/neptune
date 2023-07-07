@@ -296,11 +296,13 @@ public open class ScriptCompiler(
     private fun write(scripts: List<RuneScript>) {
         logger.debug { "Starting script writing" }
         val writingTime = measureTimeMillis {
-            for (script in scripts) {
-                val scriptWriteTimer = measureTimeMillis {
-                    scriptWriter.write(script)
+            scriptWriter.use {
+                for (script in scripts) {
+                    val scriptWriteTimer = measureTimeMillis {
+                        it.write(script)
+                    }
+                    logger.trace { "Wrote ${script.fullName} in ${scriptWriteTimer}ms" }
                 }
-                logger.trace { "Wrote [${script.trigger.identifier},${script.name}] in ${scriptWriteTimer}ms" }
             }
         }
         logger.debug { "Finished script writing in ${writingTime}ms" }
