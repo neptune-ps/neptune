@@ -38,6 +38,12 @@ class BinaryScriptWriterContext(
         }
     }
 
+    fun instruction(opcode: Int, operand: Int) {
+        instructionCount += 1
+        instructionBuffer.writeShort(opcode)
+        instructionBuffer.writeByte(operand)
+    }
+
     fun instruction(opcode: ClientScriptOpcode, operand: String) {
         instructionCount += 1
         instructionBuffer.writeShort(opcode.id)

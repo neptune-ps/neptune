@@ -197,9 +197,8 @@ abstract class BinaryScriptWriter(
     }
 
     override fun BinaryScriptWriterContext.writeCommand(symbol: ScriptSymbol) {
+        val op = idProvider.get(symbol)
         val secondary = symbol.name.startsWith(".")
-        val name = if (secondary) symbol.name.substring(1) else symbol.name
-        val op = ClientScriptOpcode.LOOKUP[name] ?: error("Unknown ClientScriptOpcode: $name")
         instruction(op, if (secondary) 1 else 0)
     }
 
