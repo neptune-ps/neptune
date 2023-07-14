@@ -1,0 +1,6 @@
+[proc,main]
+{
+    def_npc $a = hans; // resolve basic identifier
+    def_npc $b = "complex npc name"; // resolve quoted identifier
+    def_npc $c = "invalid npc"; // Expect: 'invalid npc' could not be resolved to a symbol.
+}

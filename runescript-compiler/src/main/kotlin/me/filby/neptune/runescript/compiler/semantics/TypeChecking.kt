@@ -939,23 +939,27 @@ public class TypeChecking(
     }
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
-        val typeHint = stringLiteral.typeHint
-        val graphicType = typeManager.findOrNull("graphic")
-        if (graphicType != null && typeHint == graphicType) {
-            val symbol = rootTable.find(SymbolType.Basic(graphicType), stringLiteral.value)
-            if (symbol == null) {
-                stringLiteral.type = MetaType.Error
-                stringLiteral.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, stringLiteral.value)
-                return
-            }
-            stringLiteral.reference = symbol
-            stringLiteral.type = graphicType
-            return
-        } else if (typeHint is MetaType.Hook) {
-            handleClientScriptExpression(stringLiteral, typeHint)
-            return
+        val hint = stringLiteral.typeHint
+
+        // These ugly conditions are here to enable special cases.
+        // 1) If the hint is a hook
+        // 2) If the hint is not a string, and not any of the other types
+        //    representable by a literal expression. It should be possible to
+        //    reference a symbol via quoting it, this enables the ability to
+        //    reference a symbol without it being a valid identifier.
+
+        if (hint == null || typeManager.check(hint, PrimitiveType.STRING)) {
+            // early check if string is assignable to hint
+            // this mostly exists for when the expected type is `any`, we just
+            // treat it as a string
+            stringLiteral.type = PrimitiveType.STRING
+        } else if (hint is MetaType.Hook) {
+            handleClientScriptExpression(stringLiteral, hint)
+        } else if (hint !in LITERAL_TYPES) {
+            resolveSymbol(stringLiteral, stringLiteral.value, hint)
+        } else {
+            stringLiteral.type = PrimitiveType.STRING
         }
-        stringLiteral.type = PrimitiveType.STRING
     }
 
     /**
@@ -1013,6 +1017,10 @@ public class TypeChecking(
             return
         }
 
+        resolveSymbol(identifier, name, hint)
+    }
+
+    private fun resolveSymbol(node: Expression, name: String, hint: Type?) {
         // look through the current scopes table for a symbol with the given name and type
         var symbol: Symbol? = null
         var symbolType: Type? = null
@@ -1039,8 +1047,8 @@ public class TypeChecking(
 
         if (symbol == null) {
             // unable to resolve the symbol
-            identifier.type = MetaType.Error
-            identifier.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, name)
+            node.type = MetaType.Error
+            node.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, name)
             return
         }
 
@@ -1048,13 +1056,17 @@ public class TypeChecking(
 
         // compiler error if the symbol type isn't defined here
         if (symbolType == null) {
-            identifier.type = MetaType.Error
-            identifier.reportError(DiagnosticMessage.UNSUPPORTED_SYMBOLTYPE_TO_TYPE, symbol::class.java.simpleName)
+            node.type = MetaType.Error
+            node.reportError(DiagnosticMessage.UNSUPPORTED_SYMBOLTYPE_TO_TYPE, symbol::class.java.simpleName)
             return
         }
 
-        identifier.reference = symbol
-        identifier.type = symbolType
+        when (node) {
+            is Identifier -> node.reference = symbol
+            is StringLiteral -> node.reference = symbol
+            else -> error(node)
+        }
+        node.type = symbolType
     }
 
     /**
@@ -1245,6 +1257,18 @@ public class TypeChecking(
         private val ALLOWED_ARITHMETIC_TYPES = arrayOf(
             PrimitiveType.INT,
             PrimitiveType.LONG
+        )
+
+        /**
+         * Set of types that have a literal representation.
+         */
+        private val LITERAL_TYPES = setOf(
+            PrimitiveType.INT,
+            PrimitiveType.BOOLEAN,
+            PrimitiveType.COORD,
+            PrimitiveType.STRING,
+            PrimitiveType.CHAR,
+            PrimitiveType.LONG,
         )
 
         /**

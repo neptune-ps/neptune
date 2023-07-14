@@ -643,25 +643,20 @@ public class CodeGenerator(
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
         stringLiteral.lineInstruction()
 
-        val graphicType = typeManager.findOrNull("graphic")
-        if (graphicType != null && stringLiteral.type == graphicType) {
-            val symbol = stringLiteral.reference
-            if (symbol == null) {
-                stringLiteral.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
-                return
-            }
-
-            instruction(Opcode.PushConstantSymbol, symbol)
-            return
-        } else if (stringLiteral.type is MetaType.Hook) {
-            val subExpression = stringLiteral.subExpression
-            if (subExpression == null) {
-                stringLiteral.reportError(DiagnosticMessage.EXPRESSION_NO_SUBEXPR)
-                return
-            }
+        // visit the sub expression if it exists
+        val subExpression = stringLiteral.subExpression
+        if (subExpression != null) {
             subExpression.visit()
             return
         }
+
+        // push the reference if one exists
+        val reference = stringLiteral.reference
+        if (reference != null) {
+            instruction(Opcode.PushConstantSymbol, reference)
+            return
+        }
+
         instruction(Opcode.PushConstantString, stringLiteral.value)
     }
 

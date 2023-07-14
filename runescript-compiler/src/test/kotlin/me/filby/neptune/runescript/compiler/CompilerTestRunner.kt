@@ -138,6 +138,7 @@ private class CommandSymbolLoader : SymbolLoader {
         addBasic(VarClientType(PrimitiveType.INT), "varc")
         addBasic(VarClientType(PrimitiveType.STRING), "varcstr")
         addBasic(compiler.types.find("npc"), "hans")
+        addBasic(compiler.types.find("npc"), "complex npc name")
 
         // constants
         addConstant("max_32bit_int", "2147483647")
