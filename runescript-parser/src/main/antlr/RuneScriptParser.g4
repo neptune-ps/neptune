@@ -205,6 +205,7 @@ identifier
     | NULL_LITERAL
     | TYPE_ARRAY
     | DEF_TYPE
+    | DEFAULT
     ;
 
 // advanced identifier that allows more keywords
