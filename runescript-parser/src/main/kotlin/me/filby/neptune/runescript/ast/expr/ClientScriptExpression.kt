@@ -20,8 +20,6 @@ public class ClientScriptExpression(
     public val transmitList: List<Expression>
 ) : CallExpression(source, name, arguments) {
     init {
-        addChild(name)
-        addChild(arguments)
         addChild(transmitList)
     }
 
