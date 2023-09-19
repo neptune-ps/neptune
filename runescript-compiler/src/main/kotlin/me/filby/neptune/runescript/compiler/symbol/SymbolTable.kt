@@ -26,9 +26,16 @@ public class SymbolTable private constructor(private val parent: SymbolTable? = 
      * successful.
      */
     public fun <T : Symbol> insert(type: SymbolType<T>, symbol: T): Boolean {
-        if (symbols.contains(type, symbol.name)) {
-            return false
+        // prevent shadowing of symbols with the same type by traversing up
+        // the tree to check if the symbol exists in any of them
+        var current: SymbolTable? = this
+        while (current != null) {
+            if (current.symbols.contains(type, symbol.name)) {
+                return false
+            }
+            current = current.parent
         }
+
         symbols.put(type, symbol.name, symbol)
         return true
     }
