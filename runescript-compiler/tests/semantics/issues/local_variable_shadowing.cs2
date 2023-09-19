@@ -1,0 +1,9 @@
+// Issue #10
+
+[proc,test]
+def_int $test = 0;
+{
+    def_int $test = 1; // Expect: '$test' is already defined.
+    println(tostring($test)); // 1
+}
+println(tostring($test)); // 0
