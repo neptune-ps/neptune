@@ -102,8 +102,7 @@ class ClientScriptCompiler(
         addSymLoader("dbcolumn") { DbColumnType(it) }
         addSymLoader("param") { ParamType(it) }
         addSymLoader("varp") { VarPlayerType(it) }
-        addSymLoader("varcint") { VarClientType(it) }
-        addSymLoader("varcstring") { VarClientType(it) }
+        addSymLoader("varc") { VarClientType(it) }
         addSymLoader("varbit", VarBitType)
         addSymLoader("varclan") { VarClanType(it) }
         addSymLoader("varclansetting") { VarClanSettingsType(it) }
