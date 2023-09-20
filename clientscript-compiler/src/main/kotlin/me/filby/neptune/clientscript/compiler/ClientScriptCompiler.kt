@@ -75,59 +75,59 @@ class ClientScriptCompiler(
         addDynamicCommandHandler("event_keychar", PlaceholderCommand(PrimitiveType.CHAR, Int.MIN_VALUE + 9))
 
         // symbol loaders
-        addTsvConstantLoaders()
+        addSymConstantLoaders()
 
-        addTsvLoader("graphic", ScriptVarType.GRAPHIC)
-        addTsvLoader("fontmetrics", ScriptVarType.FONTMETRICS)
-        addTsvLoader("stat", ScriptVarType.STAT)
-        addTsvLoader("synth", ScriptVarType.SYNTH)
-        addTsvLoader("locshape", ScriptVarType.LOC_SHAPE)
-        addTsvLoader("model", ScriptVarType.MODEL)
-        addTsvLoader("interface", ScriptVarType.INTERFACE)
-        addTsvLoader("toplevelinterface", ScriptVarType.TOPLEVELINTERFACE)
-        addTsvLoader("overlayinterface", ScriptVarType.OVERLAYINTERFACE)
-        addTsvLoader("component", ScriptVarType.COMPONENT)
-        addTsvLoader("category", ScriptVarType.CATEGORY)
-        addTsvLoader("wma", ScriptVarType.MAPAREA)
-        addTsvLoader("mapelement", ScriptVarType.MAPELEMENT)
-        addTsvLoader("loc", ScriptVarType.LOC)
-        addTsvLoader("npc", ScriptVarType.NPC)
-        addTsvLoader("obj", ScriptVarType.NAMEDOBJ)
-        addTsvLoader("inv", ScriptVarType.INV)
-        addTsvLoader("enum", ScriptVarType.ENUM)
-        addTsvLoader("struct", ScriptVarType.STRUCT)
-        addTsvLoader("seq", ScriptVarType.SEQ)
-        addTsvLoader("dbtable", ScriptVarType.DBTABLE)
-        addTsvLoader("dbrow", ScriptVarType.DBROW)
-        addTsvLoader("dbcolumn") { DbColumnType(it) }
-        addTsvLoader("param") { ParamType(it) }
-        addTsvLoader("varp") { VarPlayerType(it) }
-        addTsvLoader("varcint") { VarClientType(it) }
-        addTsvLoader("varcstring") { VarClientType(it) }
-        addTsvLoader("varbit", VarBitType)
-        addTsvLoader("varclan") { VarClanType(it) }
-        addTsvLoader("varclansetting") { VarClanSettingsType(it) }
-        addTsvLoader("stringvector", ScriptVarType.STRINGVECTOR)
+        addSymLoader("graphic", ScriptVarType.GRAPHIC)
+        addSymLoader("fontmetrics", ScriptVarType.FONTMETRICS)
+        addSymLoader("stat", ScriptVarType.STAT)
+        addSymLoader("synth", ScriptVarType.SYNTH)
+        addSymLoader("locshape", ScriptVarType.LOC_SHAPE)
+        addSymLoader("model", ScriptVarType.MODEL)
+        addSymLoader("interface", ScriptVarType.INTERFACE)
+        addSymLoader("toplevelinterface", ScriptVarType.TOPLEVELINTERFACE)
+        addSymLoader("overlayinterface", ScriptVarType.OVERLAYINTERFACE)
+        addSymLoader("component", ScriptVarType.COMPONENT)
+        addSymLoader("category", ScriptVarType.CATEGORY)
+        addSymLoader("wma", ScriptVarType.MAPAREA)
+        addSymLoader("mapelement", ScriptVarType.MAPELEMENT)
+        addSymLoader("loc", ScriptVarType.LOC)
+        addSymLoader("npc", ScriptVarType.NPC)
+        addSymLoader("obj", ScriptVarType.NAMEDOBJ)
+        addSymLoader("inv", ScriptVarType.INV)
+        addSymLoader("enum", ScriptVarType.ENUM)
+        addSymLoader("struct", ScriptVarType.STRUCT)
+        addSymLoader("seq", ScriptVarType.SEQ)
+        addSymLoader("dbtable", ScriptVarType.DBTABLE)
+        addSymLoader("dbrow", ScriptVarType.DBROW)
+        addSymLoader("dbcolumn") { DbColumnType(it) }
+        addSymLoader("param") { ParamType(it) }
+        addSymLoader("varp") { VarPlayerType(it) }
+        addSymLoader("varcint") { VarClientType(it) }
+        addSymLoader("varcstring") { VarClientType(it) }
+        addSymLoader("varbit", VarBitType)
+        addSymLoader("varclan") { VarClanType(it) }
+        addSymLoader("varclansetting") { VarClanSettingsType(it) }
+        addSymLoader("stringvector", ScriptVarType.STRINGVECTOR)
     }
 
     /**
-     * Looks for `constant.tsv` and all `tsv` files in `/constant` and registers them
+     * Looks for `constant.sym` and all `sym` files in `/constant` and registers them
      * with a [ConstantLoader].
      */
-    private fun addTsvConstantLoaders() {
-        // look for {symbol_path}/constant.tsv
-        val constantsFile = SYMBOLS_PATH.resolve("constant.tsv")
+    private fun addSymConstantLoaders() {
+        // look for {symbol_path}/constant.sym
+        val constantsFile = SYMBOLS_PATH.resolve("constant.sym")
         if (constantsFile.exists()) {
             addSymbolLoader(ConstantLoader(constantsFile))
         }
 
-        // look for {symbol_path}/constant/**.tsv
+        // look for {symbol_path}/constant/**.sym
         val constantDir = SYMBOLS_PATH.resolve("constant")
         if (constantDir.exists() && constantDir.isDirectory()) {
             val files = constantDir
                 .toFile()
                 .walkTopDown()
-                .filter { it.isFile && it.extension == "tsv" }
+                .filter { it.isFile && it.extension == "sym" }
             for (file in files) {
                 addSymbolLoader(ConstantLoader(file.toPath()))
             }
@@ -135,29 +135,29 @@ class ClientScriptCompiler(
     }
 
     /**
-     * Helper for loading external symbols from `tsv` files with a specific [type].
+     * Helper for loading external symbols from `sym` files with a specific [type].
      */
-    private fun addTsvLoader(name: String, type: Type) {
-        addTsvLoader(name) { type }
+    private fun addSymLoader(name: String, type: Type) {
+        addSymLoader(name) { type }
     }
 
     /**
-     * Helper for loading external symbols from `tsv` files with subtypes.
+     * Helper for loading external symbols from `sym` files with subtypes.
      */
-    private fun addTsvLoader(name: String, typeSuppler: (subTypes: Type) -> Type) {
-        // look for {symbol_path}/{name}.tsv
-        val typeFile = SYMBOLS_PATH.resolve("$name.tsv")
+    private fun addSymLoader(name: String, typeSuppler: (subTypes: Type) -> Type) {
+        // look for {symbol_path}/{name}.sym
+        val typeFile = SYMBOLS_PATH.resolve("$name.sym")
         if (typeFile.exists()) {
             addSymbolLoader(TsvSymbolLoader(mapper, typeFile, typeSuppler))
         }
 
-        // look for {symbol_path}/{name}/**.tsv
+        // look for {symbol_path}/{name}/**.sym
         val typeDir = SYMBOLS_PATH.resolve(name)
         if (typeDir.exists() && typeDir.isDirectory()) {
             val files = typeDir
                 .toFile()
                 .walkTopDown()
-                .filter { it.isFile && it.extension == "tsv" }
+                .filter { it.isFile && it.extension == "sym" }
             for (file in files) {
                 addSymbolLoader(TsvSymbolLoader(mapper, file.toPath(), typeSuppler))
             }

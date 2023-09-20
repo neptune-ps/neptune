@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
     val mapper = SymbolMapper()
 
     // temporary until attributes are added, just makes it easier to add commands without new compiler build
-    val commandMappings = Path("symbols/commands.tsv")
+    val commandMappings = Path("symbols/commands.sym")
     if (commandMappings.exists()) {
         for (line in commandMappings.readLines()) {
             val split = line.split("\t")
@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
     }
 
     // TODO move somewhere else?
-    val scriptMappings = Path("symbols/clientscript.tsv")
+    val scriptMappings = Path("symbols/clientscript.sym")
     if (scriptMappings.exists()) {
         for (line in scriptMappings.readLines()) {
             val split = line.split("\t")
