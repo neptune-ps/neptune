@@ -1,7 +1,9 @@
 package me.filby.neptune.clientscript.compiler.type
 
 import me.filby.neptune.runescript.compiler.type.BaseVarType
+import me.filby.neptune.runescript.compiler.type.MutableTypeOptions
 import me.filby.neptune.runescript.compiler.type.Type
+import me.filby.neptune.runescript.compiler.type.TypeOptions
 
 enum class ScriptVarType(
     override val code: Char?,
@@ -11,6 +13,7 @@ enum class ScriptVarType(
 ) : Type {
     // INT
     // BOOLEAN
+    CURSOR('@'),
     SEQ('A'),
     LOC_SHAPE('H', representation = "locshape"),
     COMPONENT('I'),
@@ -25,9 +28,11 @@ enum class ScriptVarType(
     MAPAREA('`', representation = "wma"),
     // COORDGRID
     GRAPHIC('d'),
+    CHATPHRASE('e'),
     FONTMETRICS('f'),
     ENUM('g'),
     JINGLE('j'),
+    CHATCAT('k'),
     LOC('l'),
     MODEL('m'),
     NPC('n'),
@@ -55,4 +60,6 @@ enum class ScriptVarType(
     ;
 
     override val representation: String = representation ?: name.lowercase()
+
+    override val options: TypeOptions = MutableTypeOptions()
 }

@@ -1,7 +1,5 @@
 package me.filby.neptune.clientscript.compiler
 
-import me.filby.neptune.clientscript.compiler.command.DbFindCommandHandler
-import me.filby.neptune.clientscript.compiler.command.DbGetFieldCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumCommandHandler
 import me.filby.neptune.clientscript.compiler.command.ParamCommandHandler
 import me.filby.neptune.clientscript.compiler.command.PlaceholderCommand
@@ -37,13 +35,21 @@ class ClientScriptCompiler(
         types.changeOptions("long") {
             allowDeclaration = false
         }
+        disableUnsupportedTypes()
 
         // special types for commands
         types.register("hook", MetaType.Hook(MetaType.Unit))
         types.register("stathook", MetaType.Hook(ScriptVarType.STAT))
         types.register("invhook", MetaType.Hook(ScriptVarType.INV))
         types.register("varphook", MetaType.Hook(VarPlayerType(MetaType.Any)))
+        types.register("varchook", MetaType.Hook(VarClientType(MetaType.Any)))
+        types.register("varcstrhook", MetaType.Hook(VarClientType(PrimitiveType.STRING)))
         types.register("dbcolumn", DbColumnType(MetaType.Any))
+        val basetypeint = types.register("basetypeint") {
+            allowSwitch = false
+            allowArray = false
+            allowDeclaration = false
+        }
 
         // allow assignment of namedobj to obj
         types.addTypeChecker { left, right -> left == ScriptVarType.OBJ && right == ScriptVarType.NAMEDOBJ }
@@ -51,17 +57,20 @@ class ClientScriptCompiler(
         // allow assignment of graphic to fontmetrics
         types.addTypeChecker { left, right -> left == ScriptVarType.FONTMETRICS && right == ScriptVarType.GRAPHIC }
 
+        // special type that allows any types with a base type of int
+        types.addTypeChecker { left, right -> left == basetypeint && right.baseType == left.baseType }
+
         // register the dynamic command handlers
         addDynamicCommandHandler("enum", EnumCommandHandler())
         addDynamicCommandHandler("oc_param", ParamCommandHandler(ScriptVarType.OBJ))
         addDynamicCommandHandler("nc_param", ParamCommandHandler(ScriptVarType.NPC))
         addDynamicCommandHandler("lc_param", ParamCommandHandler(ScriptVarType.LOC))
         addDynamicCommandHandler("struct_param", ParamCommandHandler(ScriptVarType.STRUCT))
-        addDynamicCommandHandler("db_find", DbFindCommandHandler(false))
-        addDynamicCommandHandler("db_find_with_count", DbFindCommandHandler(true))
-        addDynamicCommandHandler("db_find_refine", DbFindCommandHandler(false))
-        addDynamicCommandHandler("db_find_refine_with_count", DbFindCommandHandler(true))
-        addDynamicCommandHandler("db_getfield", DbGetFieldCommandHandler())
+        // addDynamicCommandHandler("db_find", DbFindCommandHandler(false))
+        // addDynamicCommandHandler("db_find_with_count", DbFindCommandHandler(true))
+        // addDynamicCommandHandler("db_find_refine", DbFindCommandHandler(false))
+        // addDynamicCommandHandler("db_find_refine_with_count", DbFindCommandHandler(true))
+        // addDynamicCommandHandler("db_getfield", DbGetFieldCommandHandler())
 
         addDynamicCommandHandler("event_opbase", PlaceholderCommand(PrimitiveType.STRING, "event_opbase"))
         addDynamicCommandHandler("event_mousex", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 1))
@@ -107,6 +116,46 @@ class ClientScriptCompiler(
         addSymLoader("varclan") { VarClanType(it) }
         addSymLoader("varclansetting") { VarClanSettingsType(it) }
         addSymLoader("stringvector", ScriptVarType.STRINGVECTOR)
+        addSymLoader("midi", ScriptVarType.MIDI)
+        addSymLoader("chatcat", ScriptVarType.CHATCAT)
+        addSymLoader("chatphrase", ScriptVarType.CHATPHRASE)
+    }
+
+    /**
+     * Disables registered types that are not actually supported for the target. Example being
+     * OSRS specific types that rs2 may not support.
+     */
+    private fun disableUnsupportedTypes() {
+        types.changeOptions("toplevelinterface") {
+            allowSwitch = false
+            allowArray = false
+            allowDeclaration = false
+        }
+        types.changeOptions("wma") {
+            allowSwitch = false
+            allowArray = false
+            allowDeclaration = false
+        }
+        types.changeOptions("mapelement") {
+            allowSwitch = false
+            allowArray = false
+            allowDeclaration = false
+        }
+        types.changeOptions("entityoverlay") {
+            allowSwitch = false
+            allowArray = false
+            allowDeclaration = false
+        }
+        types.changeOptions("dbtable") {
+            allowSwitch = false
+            allowArray = false
+            allowDeclaration = false
+        }
+        types.changeOptions("stringvector") {
+            allowSwitch = false
+            allowArray = false
+            allowDeclaration = false
+        }
     }
 
     /**

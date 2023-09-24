@@ -16,8 +16,6 @@ import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarBitType
-import me.filby.neptune.runescript.compiler.type.wrapped.VarClanSettingsType
-import me.filby.neptune.runescript.compiler.type.wrapped.VarClanType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarClientType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarPlayerType
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
@@ -110,8 +108,6 @@ abstract class BinaryScriptWriter(
                 BaseVarType.STRING -> ClientScriptOpcode.PUSH_VARC_STRING
                 else -> error(type.inner)
             }
-            is VarClanType -> ClientScriptOpcode.PUSH_VARCLAN
-            is VarClanSettingsType -> ClientScriptOpcode.PUSH_VARCLANSETTING
             else -> error(symbol)
         }
         instruction(opcode, id)
