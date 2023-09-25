@@ -126,36 +126,19 @@ class ClientScriptCompiler(
      * OSRS specific types that rs2 may not support.
      */
     private fun disableUnsupportedTypes() {
-        types.changeOptions("toplevelinterface") {
-            allowSwitch = false
-            allowArray = false
-            allowDeclaration = false
+        fun disableType(typeName: String) {
+            types.changeOptions(typeName) {
+                allowSwitch = false
+                allowArray = false
+                allowDeclaration = false
+            }
         }
-        types.changeOptions("wma") {
-            allowSwitch = false
-            allowArray = false
-            allowDeclaration = false
-        }
-        types.changeOptions("mapelement") {
-            allowSwitch = false
-            allowArray = false
-            allowDeclaration = false
-        }
-        types.changeOptions("entityoverlay") {
-            allowSwitch = false
-            allowArray = false
-            allowDeclaration = false
-        }
-        types.changeOptions("dbtable") {
-            allowSwitch = false
-            allowArray = false
-            allowDeclaration = false
-        }
-        types.changeOptions("stringvector") {
-            allowSwitch = false
-            allowArray = false
-            allowDeclaration = false
-        }
+        disableType("toplevelinterface")
+        disableType("wma")
+        disableType("mapelement")
+        disableType("entityoverlay")
+        disableType("dbtable")
+        disableType("stringvector")
     }
 
     /**
