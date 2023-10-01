@@ -78,7 +78,10 @@ mode String ;
 
 QUOTE_CLOSE         : '"' {depth--;} -> popMode ;
 STRING_TEXT         : StringEscapeSequence | ~('\\' | '"' | '<')+ ;
-STRING_TAG          : '<' '/'? Tag ('=' ~'>'+)? '>' ;
+STRING_TAG          : '<' Tag ('=' ~('<' | '>')+)? '>' ;
+STRING_CLOSE_TAG    : '</' Tag '>' ;
+STRING_PARTIAL_TAG  : '<' Tag '=' ;
+STRING_P_TAG        : '<p,' ~('<' | '>')+ '>'  ;
 STRING_EXPR_START   : '<' -> pushMode(DEFAULT_MODE) ;
 STRING_EXPR_END     : '>' ;
 

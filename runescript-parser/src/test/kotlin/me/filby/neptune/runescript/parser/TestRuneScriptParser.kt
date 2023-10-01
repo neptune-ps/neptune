@@ -3,6 +3,7 @@ package me.filby.neptune.runescript.parser
 import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Token
+import me.filby.neptune.runescript.ast.expr.BasicStringPart
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.StringLiteral
@@ -133,10 +134,10 @@ class TestRuneScriptParser {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["basic_interop", "escape", "tags"])
+    @ValueSource(strings = ["basic_interop", "escape", "tags", "ptag"])
     @Order(EXPRESSION)
-    fun testInterpolatedString(test: String) {
-        runFileTest("expressions/string_interop/$test", RuneScriptParser::joinedString)
+    fun testJoinedString(test: String) {
+        runFileTest("expressions/joined_string/$test", RuneScriptParser::joinedString)
     }
 
     @ParameterizedTest
@@ -144,7 +145,7 @@ class TestRuneScriptParser {
         strings = [
             "null",
             "bool_true", "bool_false",
-            "string_basic", "string_escape", "string_tags",
+            "string_basic", "string_escape",
             "char_basic", "char_escape",
             "int_basic", "int_hex",
             "coord"
@@ -200,6 +201,7 @@ class TestRuneScriptParser {
                         is SwitchCase -> "SwitchCase(default=$isDefault)"
                         is Identifier -> "Identifier(text=\"$text\")"
                         is StringLiteral -> "StringLiteral(value=\"$value\")"
+                        is BasicStringPart -> "${this::class.simpleName}(value=\"$value\")"
                         is Literal<*> -> "${this::class.simpleName}(value=$value)"
                         is Token -> "Token(text=$text)"
                         else -> "${this::class.simpleName}()"

@@ -1,0 +1,6 @@
+JoinedStringExpression() 1:1
+ PTagStringPart(value="<p,happy>") 1:2
+ BasicStringPart(value="Hello ") 1:11
+ ExpressionStringPart() 1:17
+  Identifier(text="name") 1:18
+ BasicStringPart(value="!") 1:23

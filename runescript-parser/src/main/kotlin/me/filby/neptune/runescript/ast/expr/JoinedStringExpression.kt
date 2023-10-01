@@ -15,7 +15,7 @@ import java.util.Objects
  */
 public class JoinedStringExpression(
     source: NodeSourceLocation,
-    public val parts: List<Expression>
+    public val parts: List<StringPart>
 ) : Expression(source) {
     init {
         addChild(parts)

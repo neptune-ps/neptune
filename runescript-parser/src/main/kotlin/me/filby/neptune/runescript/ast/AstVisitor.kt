@@ -23,6 +23,7 @@ import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
+import me.filby.neptune.runescript.ast.expr.StringPart
 import me.filby.neptune.runescript.ast.expr.VariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
@@ -188,6 +189,10 @@ public interface AstVisitor<R> {
 
     public fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression): R {
         return visitExpression(joinedStringExpression)
+    }
+
+    public fun visitJoinedStringPart(stringPart: StringPart): R {
+        return visitNode(stringPart)
     }
 
     public fun visitIdentifier(identifier: Identifier): R {

@@ -186,11 +186,20 @@ stringLiteral
 
 stringLiteralContent
     : STRING_TEXT
-    | STRING_TAG
     ;
 
 joinedString
-    : QUOTE_OPEN (stringLiteralContent | stringExpression)* QUOTE_CLOSE
+    : QUOTE_OPEN (stringLiteralContent | stringTag | stringPTag | stringExpression)* QUOTE_CLOSE
+    ;
+
+stringTag
+    : STRING_TAG
+    | STRING_CLOSE_TAG
+    | STRING_PARTIAL_TAG
+    ;
+
+stringPTag
+    : STRING_P_TAG
     ;
 
 stringExpression

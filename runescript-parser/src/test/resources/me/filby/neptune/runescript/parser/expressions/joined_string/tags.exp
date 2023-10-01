@@ -1,0 +1,5 @@
+JoinedStringExpression() 1:1
+ BasicStringPart(value="<col=ffffff>") 1:2
+ ExpressionStringPart() 1:14
+  IntegerLiteral(value=1) 1:15
+ BasicStringPart(value="</col>") 1:17

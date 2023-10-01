@@ -19,6 +19,7 @@ import me.filby.neptune.runescript.ast.expr.ConditionExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
+import me.filby.neptune.runescript.ast.expr.ExpressionStringPart
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
@@ -30,6 +31,7 @@ import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
+import me.filby.neptune.runescript.ast.expr.StringPart
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
@@ -998,14 +1000,19 @@ public class TypeChecking(
     }
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {
-        // visit the parts and verify they're all strings
-        for (part in joinedStringExpression.parts) {
-            part.typeHint = PrimitiveType.STRING
-            part.visit()
-            checkTypeMatch(part, PrimitiveType.STRING, part.type)
-        }
-
+        // visit the parts
+        joinedStringExpression.parts.visit()
         joinedStringExpression.type = PrimitiveType.STRING
+    }
+
+    override fun visitJoinedStringPart(stringPart: StringPart) {
+        if (stringPart is ExpressionStringPart) {
+            // typehint, visit, check the inner expression
+            val expression = stringPart.expression
+            expression.typeHint = PrimitiveType.STRING
+            expression.visit()
+            checkTypeMatch(expression, PrimitiveType.STRING, expression.type)
+        }
     }
 
     override fun visitIdentifier(identifier: Identifier) {

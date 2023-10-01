@@ -37,6 +37,8 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptFileContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContentContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.StringPTagContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.StringTagContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.SwitchCaseContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.SwitchStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.WhileStatementContext
@@ -48,6 +50,7 @@ import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.Token
 import me.filby.neptune.runescript.ast.expr.ArithmeticExpression
+import me.filby.neptune.runescript.ast.expr.BasicStringPart
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
 import me.filby.neptune.runescript.ast.expr.CharacterLiteral
@@ -57,6 +60,7 @@ import me.filby.neptune.runescript.ast.expr.ConditionExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
+import me.filby.neptune.runescript.ast.expr.ExpressionStringPart
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
@@ -64,9 +68,11 @@ import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
 import me.filby.neptune.runescript.ast.expr.JumpCallExpression
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
+import me.filby.neptune.runescript.ast.expr.PTagStringPart
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
+import me.filby.neptune.runescript.ast.expr.StringPart
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
@@ -328,17 +334,25 @@ public class AstBuilder(
     }
 
     override fun visitJoinedString(ctx: JoinedStringContext): Node {
-        val parts = mutableListOf<Expression>()
+        // minus 2 because of the two quotation marks
+        val parts = ArrayList<StringPart>(ctx.childCount - 2)
 
         for (child in ctx.children) {
             when (child) {
                 is StringLiteralContentContext -> {
                     // create a new literal since the rule only allows valid string parts
-                    parts += StringLiteral(child.location, child.text.unescape())
+                    parts += BasicStringPart(child.location, child.text.unescape())
+                }
+                is StringTagContext -> {
+                    parts += BasicStringPart(child.location, child.text)
+                }
+                is StringPTagContext -> {
+                    parts += PTagStringPart(child.location, child.text)
                 }
                 is StringExpressionContext -> {
                     // visit the inner expression
-                    parts += child.expression().visit<Expression>()
+                    val expression = child.expression().visit<Expression>()
+                    parts += ExpressionStringPart(child.location, expression)
                 }
                 else -> {
                     // noop, any other rules are things we don't care about (e.g. double quotes)

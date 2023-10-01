@@ -6,6 +6,7 @@ import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.expr.ArithmeticExpression
+import me.filby.neptune.runescript.ast.expr.BasicStringPart
 import me.filby.neptune.runescript.ast.expr.BinaryExpression
 import me.filby.neptune.runescript.ast.expr.BooleanLiteral
 import me.filby.neptune.runescript.ast.expr.CalcExpression
@@ -15,6 +16,7 @@ import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
+import me.filby.neptune.runescript.ast.expr.ExpressionStringPart
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
@@ -26,6 +28,7 @@ import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
+import me.filby.neptune.runescript.ast.expr.StringPart
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
@@ -662,8 +665,20 @@ public class CodeGenerator(
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {
         joinedStringExpression.parts.visit()
-        joinedStringExpression.lineInstruction()
-        instruction(Opcode.JoinString, joinedStringExpression.parts.size)
+
+        if (joinedStringExpression.parts.size > 1) {
+            joinedStringExpression.lineInstruction()
+            instruction(Opcode.JoinString, joinedStringExpression.parts.size)
+        }
+    }
+
+    override fun visitJoinedStringPart(stringPart: StringPart) {
+        stringPart.lineInstruction()
+        when (stringPart) {
+            is BasicStringPart -> instruction(Opcode.PushConstantString, stringPart.value)
+            is ExpressionStringPart -> stringPart.expression.visit()
+            else -> error("Unsupported StringPart: ${stringPart::class}")
+        }
     }
 
     override fun visitIdentifier(identifier: Identifier) {
