@@ -140,7 +140,7 @@ public data class TypeCheckingContext(
     }
 
     /**
-     * Verifies that the command argument types matche [expected]. This function
+     * Verifies that the command argument types matches [expected]. This function
      * should be used  for validation the argument types passed to the command.
      * When needing to compare multiple types, use [TupleType].
      *
