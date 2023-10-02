@@ -10,6 +10,7 @@ import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.reference
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
+import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 
 /**
  * Contains the context of the [CodeGenerator] and supplies useful functions when
@@ -17,6 +18,7 @@ import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
  */
 public data class CodeGeneratorContext(
     private val codeGenerator: CodeGenerator,
+    val rootTable: SymbolTable,
     val expression: Expression,
     val diagnostics: Diagnostics
 ) {

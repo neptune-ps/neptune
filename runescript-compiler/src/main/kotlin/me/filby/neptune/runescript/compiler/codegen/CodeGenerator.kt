@@ -59,19 +59,19 @@ import me.filby.neptune.runescript.compiler.symbol
 import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
+import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.TupleType
-import me.filby.neptune.runescript.compiler.type.TypeManager
 
 /**
  * A [AstVisitor] implementation that converts AST nodes into a set of instructions.
  */
 public class CodeGenerator(
-    private val typeManager: TypeManager,
+    private val rootTable: SymbolTable,
     private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
     private val diagnostics: Diagnostics
 ) : AstVisitor<Unit> {
@@ -547,7 +547,7 @@ public class CodeGenerator(
     private fun emitDynamicCommand(name: String, expression: Expression): Boolean {
         val dynamicCommand = dynamicCommands[name] ?: return false
         with(dynamicCommand) {
-            val context = CodeGeneratorContext(this@CodeGenerator, expression, diagnostics)
+            val context = CodeGeneratorContext(this@CodeGenerator, rootTable, expression, diagnostics)
             context.generateCode()
         }
         return true

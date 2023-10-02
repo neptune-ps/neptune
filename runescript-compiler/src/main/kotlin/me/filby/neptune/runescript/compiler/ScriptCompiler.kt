@@ -273,7 +273,7 @@ public open class ScriptCompiler(
         val codegenTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    val codegen = CodeGenerator(types, dynamicCommandHandlers, diagnostics)
+                    val codegen = CodeGenerator(rootTable, dynamicCommandHandlers, diagnostics)
                     file.accept(codegen)
                     scripts.addAll(codegen.scripts)
                 }
