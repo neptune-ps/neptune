@@ -6,5 +6,6 @@ package me.filby.neptune.clientscript.compiler.configuration
 data class ClientScriptCompilerConfig(
     val sourcePaths: List<String> = listOf("src/"),
     val symbolPaths: List<String> = listOf("symbols/"),
+    val excludePaths: List<String> = emptyList(),
     val writers: ClientScriptWriterConfig = ClientScriptWriterConfig(),
 )

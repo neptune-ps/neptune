@@ -64,7 +64,7 @@ private fun testScriptFile(scriptFile: File): Boolean {
 
     // run compiler
     val writer = TestScriptWriter(scriptManager)
-    val compiler = ScriptCompiler(listOf(scriptFile.toPath()), writer)
+    val compiler = ScriptCompiler(listOf(scriptFile.toPath()), emptyList(), writer)
     compiler.triggers.registerAll<TestTriggerType>()
     compiler.addSymbolLoader(CommandSymbolLoader())
 

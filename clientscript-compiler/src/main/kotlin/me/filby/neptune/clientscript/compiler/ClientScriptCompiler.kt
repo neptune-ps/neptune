@@ -25,10 +25,11 @@ import kotlin.io.path.isDirectory
 
 class ClientScriptCompiler(
     sourcePaths: List<Path>,
+    excludePaths: List<Path>,
     scriptWriter: ScriptWriter,
     private val symbolPaths: List<Path>,
     private val mapper: SymbolMapper,
-) : ScriptCompiler(sourcePaths, scriptWriter) {
+) : ScriptCompiler(sourcePaths, excludePaths, scriptWriter) {
     fun setup() {
         triggers.registerAll<ClientTriggerType>()
 

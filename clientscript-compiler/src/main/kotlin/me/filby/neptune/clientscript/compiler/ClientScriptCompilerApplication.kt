@@ -22,6 +22,7 @@ fun main(args: Array<String>) {
 
     val sourcePaths = config.sourcePaths.map { Path(it) }
     val symbolPaths = config.symbolPaths.map { Path(it) }
+    val excludePaths = config.excludePaths.map { Path(it) }
     val (binaryWriterConfig) = config.writers
 
     val mapper = SymbolMapper()
@@ -37,7 +38,7 @@ fun main(args: Array<String>) {
     loadSpecialSymbols(symbolPaths, mapper)
 
     // setup compiler and execute it
-    val compiler = ClientScriptCompiler(sourcePaths, writer, symbolPaths, mapper)
+    val compiler = ClientScriptCompiler(sourcePaths, excludePaths, writer, symbolPaths, mapper)
     compiler.setup()
     compiler.run()
 }
@@ -52,6 +53,7 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
         mapping<ClientScriptCompilerConfig>(
             "sources" to "sourcePaths",
             "symbols" to "symbolPaths",
+            "excluded" to "excludePaths",
             "writer" to "writers",
         )
         mapping<BinaryFileWriterConfig>("output" to "outputPath")
