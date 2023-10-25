@@ -8,6 +8,7 @@ dependencies {
         exclude("com.ibm.icu", "icu4j")
     }
     implementation(libs.netty.buffer)
+    implementation(libs.fourkoma)
     runtimeOnly(libs.logback)
 }
 

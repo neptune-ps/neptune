@@ -20,15 +20,15 @@ import me.filby.neptune.runescript.compiler.type.wrapped.VarClientType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarPlayerType
 import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
 class ClientScriptCompiler(
-    sourcePath: Path,
+    sourcePaths: List<Path>,
     scriptWriter: ScriptWriter,
+    private val symbolPaths: List<Path>,
     private val mapper: SymbolMapper,
-) : ScriptCompiler(sourcePath, scriptWriter) {
+) : ScriptCompiler(sourcePaths, scriptWriter) {
     fun setup() {
         triggers.registerAll<ClientTriggerType>()
 
@@ -114,21 +114,23 @@ class ClientScriptCompiler(
      * with a [ConstantLoader].
      */
     private fun addSymConstantLoaders() {
-        // look for {symbol_path}/constant.sym
-        val constantsFile = SYMBOLS_PATH.resolve("constant.sym")
-        if (constantsFile.exists()) {
-            addSymbolLoader(ConstantLoader(constantsFile))
-        }
+        for (symbolPath in symbolPaths) {
+            // look for {symbol_path}/constant.sym
+            val constantsFile = symbolPath.resolve("constant.sym")
+            if (constantsFile.exists()) {
+                addSymbolLoader(ConstantLoader(constantsFile))
+            }
 
-        // look for {symbol_path}/constant/**.sym
-        val constantDir = SYMBOLS_PATH.resolve("constant")
-        if (constantDir.exists() && constantDir.isDirectory()) {
-            val files = constantDir
-                .toFile()
-                .walkTopDown()
-                .filter { it.isFile && it.extension == "sym" }
-            for (file in files) {
-                addSymbolLoader(ConstantLoader(file.toPath()))
+            // look for {symbol_path}/constant/**.sym
+            val constantDir = symbolPath.resolve("constant")
+            if (constantDir.exists() && constantDir.isDirectory()) {
+                val files = constantDir
+                    .toFile()
+                    .walkTopDown()
+                    .filter { it.isFile && it.extension == "sym" }
+                for (file in files) {
+                    addSymbolLoader(ConstantLoader(file.toPath()))
+                }
             }
         }
     }
@@ -144,26 +146,24 @@ class ClientScriptCompiler(
      * Helper for loading external symbols from `sym` files with subtypes.
      */
     private fun addSymLoader(name: String, typeSuppler: (subTypes: Type) -> Type) {
-        // look for {symbol_path}/{name}.sym
-        val typeFile = SYMBOLS_PATH.resolve("$name.sym")
-        if (typeFile.exists()) {
-            addSymbolLoader(TsvSymbolLoader(mapper, typeFile, typeSuppler))
-        }
+        for (symbolPath in symbolPaths) {
+            // look for {symbol_path}/{name}.sym
+            val typeFile = symbolPath.resolve("$name.sym")
+            if (typeFile.exists()) {
+                addSymbolLoader(TsvSymbolLoader(mapper, typeFile, typeSuppler))
+            }
 
-        // look for {symbol_path}/{name}/**.sym
-        val typeDir = SYMBOLS_PATH.resolve(name)
-        if (typeDir.exists() && typeDir.isDirectory()) {
-            val files = typeDir
-                .toFile()
-                .walkTopDown()
-                .filter { it.isFile && it.extension == "sym" }
-            for (file in files) {
-                addSymbolLoader(TsvSymbolLoader(mapper, file.toPath(), typeSuppler))
+            // look for {symbol_path}/{name}/**.sym
+            val typeDir = symbolPath.resolve(name)
+            if (typeDir.exists() && typeDir.isDirectory()) {
+                val files = typeDir
+                    .toFile()
+                    .walkTopDown()
+                    .filter { it.isFile && it.extension == "sym" }
+                for (file in files) {
+                    addSymbolLoader(TsvSymbolLoader(mapper, file.toPath(), typeSuppler))
+                }
             }
         }
-    }
-
-    private companion object {
-        val SYMBOLS_PATH = Path("symbols")
     }
 }

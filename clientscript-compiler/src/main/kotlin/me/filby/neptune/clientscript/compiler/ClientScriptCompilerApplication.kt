@@ -1,48 +1,86 @@
 package me.filby.neptune.clientscript.compiler
 
+import cc.ekblad.toml.decode
+import cc.ekblad.toml.tomlMapper
+import com.github.michaelbull.logging.InlineLogger
+import me.filby.neptune.clientscript.compiler.configuration.BinaryFileWriterConfig
+import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerConfig
 import me.filby.neptune.clientscript.compiler.writer.BinaryFileScriptWriter
+import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolute
 import kotlin.io.path.exists
+import kotlin.io.path.notExists
 import kotlin.io.path.readLines
+import kotlin.system.exitProcess
+
+private val logger = InlineLogger()
 
 fun main(args: Array<String>) {
-    if (args.size != 2) {
-        error("usage: compiler.jar [src path] [output path]")
-    }
+    val configPath = if (args.isNotEmpty()) Path(args[0]) else Path("neptune.toml")
+    val config = loadConfig(configPath.absolute())
 
-    val srcPath = Path(args[0])
-    if (!srcPath.exists()) {
-        error("$srcPath does not exist.")
-    }
-
-    val outputPath = Path(args[1])
+    val sourcePaths = config.sourcePaths.map { Path(it) }
+    val symbolPaths = config.symbolPaths.map { Path(it) }
+    val (binaryWriterConfig) = config.writers
 
     val mapper = SymbolMapper()
-
-    // temporary until attributes are added, just makes it easier to add commands without new compiler build
-    val commandMappings = Path("symbols/commands.sym")
-    if (commandMappings.exists()) {
-        for (line in commandMappings.readLines()) {
-            val split = line.split("\t")
-            val id = split[0].toInt()
-            val name = split[1]
-            mapper.putCommand(id, name)
-        }
+    val writer = if (binaryWriterConfig != null) {
+        val outputPath = Path(binaryWriterConfig.outputPath)
+        BinaryFileScriptWriter(outputPath, mapper)
+    } else {
+        logger.error { "No writer configured." }
+        exitProcess(1)
     }
 
-    // TODO move somewhere else?
-    val scriptMappings = Path("symbols/clientscript.sym")
-    if (scriptMappings.exists()) {
-        for (line in scriptMappings.readLines()) {
-            val split = line.split("\t")
-            val id = split[0].toInt()
-            val name = split[1]
-            mapper.putScript(id, name)
-        }
-    }
+    // load commands and clientscript id mappings
+    loadSpecialSymbols(symbolPaths, mapper)
 
-    val writer = BinaryFileScriptWriter(outputPath, mapper)
-    val compiler = ClientScriptCompiler(srcPath, writer, mapper)
+    // setup compiler and execute it
+    val compiler = ClientScriptCompiler(sourcePaths, writer, symbolPaths, mapper)
     compiler.setup()
     compiler.run()
+}
+
+private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
+    if (configPath.notExists()) {
+        logger.error { "Unable to locate configuration file: $configPath." }
+        exitProcess(1)
+    }
+
+    val tomlMapper = tomlMapper {
+        mapping<ClientScriptCompilerConfig>(
+            "sources" to "sourcePaths",
+            "symbols" to "symbolPaths",
+            "writer" to "writers",
+        )
+        mapping<BinaryFileWriterConfig>("output" to "outputPath")
+    }
+    logger.info { "Loading configuration from $configPath." }
+    return tomlMapper.decode<ClientScriptCompilerConfig>(configPath)
+}
+
+private fun loadSpecialSymbols(symbolsPaths: List<Path>, mapper: SymbolMapper) {
+    for (symbolPath in symbolsPaths) {
+        val commandMappings = symbolPath.resolve("commands.sym")
+        if (commandMappings.exists()) {
+            for (line in commandMappings.readLines()) {
+                val split = line.split("\t")
+                val id = split[0].toInt()
+                val name = split[1]
+                mapper.putCommand(id, name)
+            }
+        }
+
+        // TODO move somewhere else?
+        val scriptMappings = symbolPath.resolve("clientscript.sym")
+        if (scriptMappings.exists()) {
+            for (line in scriptMappings.readLines()) {
+                val split = line.split("\t")
+                val id = split[0].toInt()
+                val name = split[1]
+                mapper.putScript(id, name)
+            }
+        }
+    }
 }

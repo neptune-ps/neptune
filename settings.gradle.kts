@@ -1,9 +1,11 @@
 rootProject.name = "neptune"
 
 dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
         mavenLocal()
+        maven("https://jitpack.io")
     }
 }
 

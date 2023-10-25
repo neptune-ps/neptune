@@ -27,8 +27,8 @@ import kotlin.system.measureTimeMillis
  * An entry point for compiling scripts.
  */
 public open class ScriptCompiler(
-    sourcePath: Path,
-    private val scriptWriter: ScriptWriter
+    sourcePaths: List<Path>,
+    private val scriptWriter: ScriptWriter,
 ) {
     /**
      * Logger for this class.
@@ -36,9 +36,9 @@ public open class ScriptCompiler(
     private val logger = InlineLogger()
 
     /**
-     * The root folder path that contains the source code.
+     * The paths that contain the source code.
      */
-    private val sourcePath: Path = sourcePath.absolute().normalize()
+    private val sourcePaths: List<Path> = sourcePaths.map { it.absolute().normalize() }
 
     /**
      * The root table that contains all global symbols.
@@ -190,26 +190,28 @@ public open class ScriptCompiler(
     private fun parse(): Pair<Boolean, List<ScriptFile>> {
         val diagnostics = Diagnostics()
 
-        logger.info { "Parsing files in $sourcePath" }
         val fileNodes = mutableListOf<ScriptFile>()
-        // iterate over all folders and files in the source path
         var fileCount = 0
-        for (file in sourcePath.toFile().walkTopDown()) {
-            // TODO ability to configure file extension
-            // skip directories and non .cs2 files
-            if (file.isDirectory || file.extension != "cs2") {
-                continue
-            }
-
-            val time = measureTimeMillis {
-                val errorListener = ParserErrorListener(file.absolutePath, diagnostics)
-                val node = ScriptParser.createScriptFile(file.toPath(), errorListener)
-                if (node != null) {
-                    fileNodes += node
+        for (sourcePath in sourcePaths) {
+            logger.info { "Parsing files in $sourcePath" }
+            // iterate over all folders and files in the source path
+            for (file in sourcePath.toFile().walkTopDown()) {
+                // TODO ability to configure file extension
+                // skip directories and non .cs2 files
+                if (file.isDirectory || file.extension != "cs2") {
+                    continue
                 }
+
+                val time = measureTimeMillis {
+                    val errorListener = ParserErrorListener(file.absolutePath, diagnostics)
+                    val node = ScriptParser.createScriptFile(file.toPath(), errorListener)
+                    if (node != null) {
+                        fileNodes += node
+                    }
+                }
+                fileCount++
+                logger.trace { "Parsed $file in ${time}ms" }
             }
-            fileCount++
-            logger.trace { "Parsed $file in ${time}ms" }
         }
         logger.info { "Parsed $fileCount files" }
 
@@ -217,6 +219,7 @@ public open class ScriptCompiler(
         with(diagnosticsHandler) {
             diagnostics.handleParse()
         }
+
         return !diagnostics.hasErrors() to fileNodes
     }
 
