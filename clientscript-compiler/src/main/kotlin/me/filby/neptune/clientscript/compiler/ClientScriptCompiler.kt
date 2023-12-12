@@ -12,6 +12,7 @@ import me.filby.neptune.clientscript.compiler.type.DbColumnType
 import me.filby.neptune.clientscript.compiler.type.ParamType
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.ScriptCompiler
+import me.filby.neptune.runescript.compiler.pointer.PointerHolder
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.Type
@@ -29,9 +30,10 @@ class ClientScriptCompiler(
     sourcePaths: List<Path>,
     libraryPaths: List<Path>,
     scriptWriter: ScriptWriter?,
+    commandPointers: Map<String, PointerHolder>,
     private val symbolPaths: List<Path>,
     private val mapper: SymbolMapper,
-) : ScriptCompiler(sourcePaths, libraryPaths, scriptWriter) {
+) : ScriptCompiler(sourcePaths, libraryPaths, scriptWriter, commandPointers) {
     fun setup() {
         triggers.registerAll<ClientTriggerType>()
 

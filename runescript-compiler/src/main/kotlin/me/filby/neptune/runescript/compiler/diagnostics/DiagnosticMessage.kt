@@ -82,4 +82,10 @@ internal object DiagnosticMessage {
     const val CONSTANT_UNKNOWN_TYPE = "Unable to infer type for '^%s'."
     const val CONSTANT_PARSE_ERROR = "Unable to parse constant value of '%s' into type '%s'."
     const val CONSTANT_NONCONSTANT = "Constant value of '%s' evaluated to a non-constant expression."
+
+    // pointer checking specific
+    const val POINTER_UNINITIALIZED = "Attempt to access uninitialized pointer %s."
+    const val POINTER_CORRUPTED = "Attempt to access corrupted pointer %s."
+    const val POINTER_CORRUPTED_LOC = "%s corrupted here."
+    const val POINTER_REQUIRED_LOC = "%s required here."
 }

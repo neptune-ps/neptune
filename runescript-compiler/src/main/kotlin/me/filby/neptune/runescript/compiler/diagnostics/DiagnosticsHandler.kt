@@ -27,6 +27,12 @@ public interface DiagnosticsHandler {
     }
 
     /**
+     * Allows handling diagnostics after pointer checking step.
+     */
+    public fun Diagnostics.handlePointerChecking() {
+    }
+
+    /**
      * A base implementation of a diagnostics handler that points to the line an error occurs on
      * and exits the process with exit code `1` if there were any errors during any steps.
      */
@@ -40,6 +46,10 @@ public interface DiagnosticsHandler {
         }
 
         override fun Diagnostics.handleCodeGeneration() {
+            handleShared()
+        }
+
+        override fun Diagnostics.handlePointerChecking() {
             handleShared()
         }
 
