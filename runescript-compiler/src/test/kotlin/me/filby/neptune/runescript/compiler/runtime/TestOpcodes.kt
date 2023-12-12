@@ -69,6 +69,28 @@ class TestOpcodes {
         pushInt(input.toInt())
     }
 
+    @Instruction(PLAYER_FIND)
+    fun ScriptState._player_find() {
+        pushInt(1)
+    }
+
+    @Suppress("UnusedReceiverParameter")
+    @Instruction(PLAYER_FIND_FORCE)
+    fun ScriptState._player_find_force() {
+        // no-op
+    }
+
+    @Suppress("UnusedReceiverParameter")
+    @Instruction(PLAYER_CORRUPT)
+    fun ScriptState._player_corrupt() {
+        // no-op
+    }
+
+    @Instruction(PLAYER_NAME)
+    fun ScriptState._player_name() {
+        pushObj("test")
+    }
+
     private fun ScriptState.scriptError(mes: String) {
         val error = buildString {
             append(scriptPath)
@@ -104,5 +126,9 @@ class TestOpcodes {
         const val ASSERT_NOT_LONG = ERROR + 6
         const val INT_TO_LONG = ERROR + 7
         const val LONG_TO_INT = ERROR + 8
+        const val PLAYER_FIND = ERROR + 9
+        const val PLAYER_FIND_FORCE = ERROR + 10
+        const val PLAYER_CORRUPT = ERROR + 11
+        const val PLAYER_NAME = ERROR + 12
     }
 }
