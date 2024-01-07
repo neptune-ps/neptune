@@ -52,8 +52,11 @@ public interface DiagnosticsHandler {
                 val formattedMessage = message.format(*args.toTypedArray())
                 println("$location: $type: $formattedMessage")
                 if (source.line - 1 < lines.size) {
-                    println("    > ${lines[source.line - 1]}")
-                    println("    > ${"-".repeat(source.column - 1)}^")
+                    val line = lines[source.line - 1]
+                    val lineNoTabs = line.replace("\t", "    ")
+                    val tabCount = line.count { it == '\t' }
+                    println("    > $lineNoTabs")
+                    println("    > ${" ".repeat((tabCount * 3) + (source.column - 1))}^")
                 }
             }
 
