@@ -50,7 +50,7 @@ enum class ScriptVarType(
     MOVESPEED('Ý'),
     // LONG
     ENTITYOVERLAY('-'),
-    DBTABLE(null),
+    DBTABLE('Ø'), // unconfirmed code
     STRINGVECTOR('¸'),
     ;
 
