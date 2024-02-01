@@ -28,7 +28,7 @@ public class ReturnStatement(source: NodeSourceLocation, public val expressions:
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other === other) {
+        if (this === other) {
             return true
         }
 
