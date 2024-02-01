@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.compiler.codegen
 
 import me.filby.neptune.runescript.ast.AstVisitor
 import me.filby.neptune.runescript.ast.Node
+import me.filby.neptune.runescript.ast.NodeSourceLocation
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
@@ -73,7 +74,7 @@ import me.filby.neptune.runescript.compiler.type.TupleType
 public class CodeGenerator(
     private val rootTable: SymbolTable,
     private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
-    private val diagnostics: Diagnostics
+    private val diagnostics: Diagnostics,
 ) : AstVisitor<Unit> {
     /**
      * An instance of a [LabelGenerator] used to created labels within the instance.
@@ -132,15 +133,24 @@ public class CodeGenerator(
     /**
      * Adds an instruction to [block], which defaults to the most recently bound [Block].
      */
-    internal fun <T : Any> instruction(opcode: Opcode<T>, operand: T, block: Block = this.block) {
-        block += Instruction(opcode, operand)
+    internal fun <T : Any> instruction(
+        opcode: Opcode<T>,
+        operand: T,
+        source: NodeSourceLocation? = null,
+        block: Block = this.block,
+    ) {
+        block += Instruction(opcode, operand, source)
     }
 
     /**
      * Adds an instruction to [block], which defaults to the most recently bound [Block].
      */
-    internal fun instruction(opcode: Opcode<Unit>, block: Block = this.block) {
-        block += Instruction(opcode, Unit)
+    internal fun instruction(
+        opcode: Opcode<Unit>,
+        source: NodeSourceLocation? = null,
+        block: Block = this.block,
+    ) {
+        block += Instruction(opcode, Unit, source)
     }
 
     /**
@@ -150,7 +160,7 @@ public class CodeGenerator(
      */
     internal fun Node.lineInstruction() {
         if (source.line != lastLineNumber) {
-            instruction(Opcode.LineNumber, source.line)
+            // instruction(Opcode.LineNumber, source.line)
             lastLineNumber = source.line
         }
     }
@@ -227,7 +237,7 @@ public class CodeGenerator(
     override fun visitReturnStatement(returnStatement: ReturnStatement) {
         returnStatement.expressions.visit()
         returnStatement.lineInstruction()
-        instruction(Opcode.Return)
+        instruction(Opcode.Return, returnStatement.source)
     }
 
     override fun visitIfStatement(ifStatement: IfStatement) {
@@ -296,8 +306,8 @@ public class CodeGenerator(
                 condition.right.visit()
 
                 // add the true branch opcode and false branch instructions
-                instruction(branchOpcode, branchTrue, block)
-                instruction(Opcode.Branch, branchFalse, block)
+                instruction(branchOpcode, branchTrue, block = block)
+                instruction(Opcode.Branch, branchFalse, block = block)
             } else {
                 // generate the label for the next block
                 val nextBlockLabel = if (condition.operator.text == LOGICAL_OR) {
@@ -331,7 +341,7 @@ public class CodeGenerator(
         switchStatement.condition.visit()
 
         // add the switch instruction with a reference to the table
-        instruction(Opcode.Switch, table)
+        instruction(Opcode.Switch, table, switchStatement.source)
 
         // jump to either the default or end depending on if a default is defined
         instruction(Opcode.Branch, switchDefault ?: switchEnd)
@@ -401,7 +411,7 @@ public class CodeGenerator(
                 else -> error("Unsupported default type: ${default?.javaClass?.simpleName}")
             }
         }
-        instruction(Opcode.PopLocalVar, symbol)
+        instruction(Opcode.PopLocalVar, symbol, declarationStatement.source)
     }
 
     override fun visitArrayDeclarationStatement(arrayDeclarationStatement: ArrayDeclarationStatement) {
@@ -412,7 +422,7 @@ public class CodeGenerator(
 
         // visit the initializer and add the define_array instruction
         arrayDeclarationStatement.initializer.visit()
-        instruction(Opcode.DefineArray, symbol)
+        instruction(Opcode.DefineArray, symbol, arrayDeclarationStatement.source)
     }
 
     override fun visitAssignmentStatement(assignmentStatement: AssignmentStatement) {
@@ -437,8 +447,8 @@ public class CodeGenerator(
                 return
             }
             when (reference) {
-                is LocalVariableSymbol -> instruction(Opcode.PopLocalVar, reference)
-                is BasicSymbol -> instruction(Opcode.PopVar, reference)
+                is LocalVariableSymbol -> instruction(Opcode.PopLocalVar, reference, variable.source)
+                is BasicSymbol -> instruction(Opcode.PopVar, reference, variable.source)
                 else -> error("Unsupported reference type: ${reference.javaClass.simpleName}")
             }
         }
@@ -474,7 +484,7 @@ public class CodeGenerator(
         }
         localVariableExpression.lineInstruction()
         localVariableExpression.index?.visit()
-        instruction(Opcode.PushLocalVar, reference)
+        instruction(Opcode.PushLocalVar, reference, localVariableExpression.source)
     }
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
@@ -484,7 +494,7 @@ public class CodeGenerator(
             return
         }
         gameVariableExpression.lineInstruction()
-        instruction(Opcode.PushVar, reference)
+        instruction(Opcode.PushVar, reference, gameVariableExpression.source)
     }
 
     override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression) {
@@ -541,7 +551,7 @@ public class CodeGenerator(
 
         commandCallExpression.arguments.visit()
         commandCallExpression.lineInstruction()
-        instruction(Opcode.Command, symbol)
+        instruction(Opcode.Command, symbol, commandCallExpression.source)
     }
 
     private fun emitDynamicCommand(name: String, expression: Expression): Boolean {
@@ -561,7 +571,7 @@ public class CodeGenerator(
         }
         procCallExpression.arguments.visit()
         procCallExpression.lineInstruction()
-        instruction(Opcode.Gosub, symbol)
+        instruction(Opcode.Gosub, symbol, procCallExpression.source)
     }
 
     override fun visitJumpCallExpression(jumpCallExpression: JumpCallExpression) {
@@ -572,7 +582,7 @@ public class CodeGenerator(
         }
         jumpCallExpression.arguments.visit()
         jumpCallExpression.lineInstruction()
-        instruction(Opcode.Jump, symbol)
+        instruction(Opcode.Jump, symbol, jumpCallExpression.source)
     }
 
     override fun visitClientScriptExpression(clientScriptExpression: ClientScriptExpression) {
@@ -590,7 +600,7 @@ public class CodeGenerator(
         check(argumentTypes.size == argumentTypesShort.length)
 
         // write the clientscript reference and arguments
-        instruction(Opcode.PushConstantSymbol, symbol)
+        instruction(Opcode.PushConstantSymbol, symbol, clientScriptExpression.source)
         clientScriptExpression.arguments.visit()
 
         // optionally handle the transmit list if it exists
@@ -610,32 +620,32 @@ public class CodeGenerator(
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
         integerLiteral.lineInstruction()
-        instruction(Opcode.PushConstantInt, integerLiteral.value)
+        instruction(Opcode.PushConstantInt, integerLiteral.value, integerLiteral.source)
     }
 
     override fun visitCoordLiteral(coordLiteral: CoordLiteral) {
         coordLiteral.lineInstruction()
-        instruction(Opcode.PushConstantInt, coordLiteral.value)
+        instruction(Opcode.PushConstantInt, coordLiteral.value, coordLiteral.source)
     }
 
     override fun visitBooleanLiteral(booleanLiteral: BooleanLiteral) {
         booleanLiteral.lineInstruction()
-        instruction(Opcode.PushConstantInt, if (booleanLiteral.value) 1 else 0)
+        instruction(Opcode.PushConstantInt, if (booleanLiteral.value) 1 else 0, booleanLiteral.source)
     }
 
     override fun visitCharacterLiteral(characterLiteral: CharacterLiteral) {
         characterLiteral.lineInstruction()
-        instruction(Opcode.PushConstantInt, characterLiteral.value.code)
+        instruction(Opcode.PushConstantInt, characterLiteral.value.code, characterLiteral.source)
     }
 
     override fun visitNullLiteral(nullLiteral: NullLiteral) {
         nullLiteral.lineInstruction()
 
         if (nullLiteral.type.baseType == BaseVarType.LONG) {
-            instruction(Opcode.PushConstantLong, -1L)
+            instruction(Opcode.PushConstantLong, -1L, nullLiteral.source)
             return
         }
-        instruction(Opcode.PushConstantInt, -1)
+        instruction(Opcode.PushConstantInt, -1, nullLiteral.source)
         if (nullLiteral.type is MetaType.Hook) {
             // hack to make null clientscript references work properly
             // TODO figure out better way to handle this
@@ -656,11 +666,11 @@ public class CodeGenerator(
         // push the reference if one exists
         val reference = stringLiteral.reference
         if (reference != null) {
-            instruction(Opcode.PushConstantSymbol, reference)
+            instruction(Opcode.PushConstantSymbol, reference, stringLiteral.source)
             return
         }
 
-        instruction(Opcode.PushConstantString, stringLiteral.value)
+        instruction(Opcode.PushConstantString, stringLiteral.value, stringLiteral.source)
     }
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {
@@ -668,14 +678,14 @@ public class CodeGenerator(
 
         if (joinedStringExpression.parts.size > 1) {
             joinedStringExpression.lineInstruction()
-            instruction(Opcode.JoinString, joinedStringExpression.parts.size)
+            instruction(Opcode.JoinString, joinedStringExpression.parts.size, joinedStringExpression.source)
         }
     }
 
     override fun visitJoinedStringPart(stringPart: StringPart) {
         stringPart.lineInstruction()
         when (stringPart) {
-            is BasicStringPart -> instruction(Opcode.PushConstantString, stringPart.value)
+            is BasicStringPart -> instruction(Opcode.PushConstantString, stringPart.value, stringPart.source)
             is ExpressionStringPart -> stringPart.expression.visit()
             else -> error("Unsupported StringPart: ${stringPart::class}")
         }
@@ -698,10 +708,10 @@ public class CodeGenerator(
             }
 
             // commands can be referenced by just their name if they have no arguments
-            instruction(Opcode.Command, reference)
+            instruction(Opcode.Command, reference, identifier.source)
         } else {
             // default to just pushing the symbol as a constant
-            instruction(Opcode.PushConstantSymbol, reference)
+            instruction(Opcode.PushConstantSymbol, reference, identifier.source)
         }
     }
 

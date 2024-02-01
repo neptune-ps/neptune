@@ -6,7 +6,10 @@ import com.github.michaelbull.logging.InlineLogger
 import me.filby.neptune.clientscript.compiler.configuration.BinaryFileWriterConfig
 import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerConfig
 import me.filby.neptune.clientscript.compiler.writer.BinaryFileScriptWriter
+import me.filby.neptune.runescript.compiler.pointer.PointerHolder
+import me.filby.neptune.runescript.compiler.pointer.PointerType
 import java.nio.file.Path
+import java.util.EnumSet
 import kotlin.io.path.Path
 import kotlin.io.path.absolute
 import kotlin.io.path.exists
@@ -35,10 +38,11 @@ fun main(args: Array<String>) {
     }
 
     // load commands and clientscript id mappings
-    loadSpecialSymbols(symbolPaths, mapper)
+    val commandPointers = hashMapOf<String, PointerHolder>()
+    loadSpecialSymbols(symbolPaths, mapper, commandPointers)
 
     // setup compiler and execute it
-    val compiler = ClientScriptCompiler(sourcePaths, excludePaths, writer, symbolPaths, mapper)
+    val compiler = ClientScriptCompiler(sourcePaths, excludePaths, writer, commandPointers, symbolPaths, mapper)
     compiler.setup()
     compiler.run()
 }
@@ -62,7 +66,11 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
     return tomlMapper.decode<ClientScriptCompilerConfig>(configPath)
 }
 
-private fun loadSpecialSymbols(symbolsPaths: List<Path>, mapper: SymbolMapper) {
+private fun loadSpecialSymbols(
+    symbolsPaths: List<Path>,
+    mapper: SymbolMapper,
+    commandPointers: MutableMap<String, PointerHolder>,
+) {
     for (symbolPath in symbolsPaths) {
         val commandMappings = symbolPath.resolve("commands.sym")
         if (commandMappings.exists()) {
@@ -70,6 +78,29 @@ private fun loadSpecialSymbols(symbolsPaths: List<Path>, mapper: SymbolMapper) {
                 val split = line.split("\t")
                 val id = split[0].toInt()
                 val name = split[1]
+
+                if (split.size > 2) {
+                    val requiredText = split.getOrNull(2)
+                    val setTextTemp = split.getOrNull(3)
+                    val setText = setTextTemp?.substringAfter("CONDITIONAL:")
+                    val corruptedText = split.getOrNull(4)
+
+                    val required = parsePointerList(requiredText?.substringBefore(':'))
+                    val required2 = parsePointerList(requiredText?.substringAfter(':'))
+
+                    val set = parsePointerList(setText?.substringBefore(':'))
+                    val set2 = parsePointerList(setText?.substringAfter(':'))
+                    val conditionalSet = setTextTemp != setText
+
+                    val corrupted = parsePointerList(corruptedText?.substringBefore(':'))
+                    val corrupted2 = parsePointerList(corruptedText?.substringAfter(':'))
+
+                    commandPointers[name] = PointerHolder(required, set, conditionalSet, corrupted)
+                    if (required2.isNotEmpty() || set2.isNotEmpty() || corrupted2.isNotEmpty()) {
+                        val dotName = ".$name"
+                        commandPointers[dotName] = PointerHolder(required2, set2, conditionalSet, corrupted2)
+                    }
+                }
                 mapper.putCommand(id, name)
             }
         }
@@ -85,4 +116,22 @@ private fun loadSpecialSymbols(symbolsPaths: List<Path>, mapper: SymbolMapper) {
             }
         }
     }
+}
+
+private fun parsePointerList(text: String?): Set<PointerType> {
+    if (text.isNullOrEmpty() || text == "none") {
+        return emptySet()
+    }
+
+    val pointers = EnumSet.noneOf(PointerType::class.java)
+    val pointerNames = text.split(',')
+    for (pointerName in pointerNames) {
+        val pointer = PointerType.forName(pointerName)
+        if (pointer != null) {
+            pointers += pointer
+        } else {
+            error("Invalid pointer name: $pointerName")
+        }
+    }
+    return pointers
 }

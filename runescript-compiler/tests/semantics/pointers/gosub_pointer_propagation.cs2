@@ -1,0 +1,42 @@
+// Simple tests that do the follow:
+//  1. proc_propagation1 attempts to access an uninitialized pointer via proc. (fail)
+//  2. proc_propagation2 sets the pointer then attempts to access it via proc. (success)
+//  3. proc_propagation3 sets the pointer, corrupts it, then attempts to access it via proc. (fail)
+//  4. proc_propagation_corrupt sets the pointer, calls a proc that corrupts it, then tries to access it. (fail)
+
+[test,proc_propagation1]
+~player_name; // Expect: Attempt to access uninitialized pointer active_player.
+
+[test,proc_propagation2]
+~player_find_force;
+~player_name;
+
+[test,proc_propagation3]
+~player_find_force;
+~player_corrupt;
+~player_name; // Expect: Attempt to access corrupted pointer active_player.
+
+[test,proc_propagation_corrupt]
+~player_find_force;
+~player_corrupt;
+~player_name; // Expect: Attempt to access corrupted pointer active_player.
+
+// helpers
+
+[proc,player_find_force]
+~player_find_force2;
+
+[proc,player_find_force2]
+player_find_force;
+
+[proc,player_name]()(string)
+return(~player_name2);
+
+[proc,player_name2]()(string)
+return(player_name);
+
+[proc,player_corrupt]
+~player_corrupt2;
+
+[proc,player_corrupt2]
+player_corrupt;

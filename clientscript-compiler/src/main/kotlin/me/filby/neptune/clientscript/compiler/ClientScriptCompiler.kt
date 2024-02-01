@@ -10,6 +10,7 @@ import me.filby.neptune.clientscript.compiler.type.DbColumnType
 import me.filby.neptune.clientscript.compiler.type.ParamType
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.ScriptCompiler
+import me.filby.neptune.runescript.compiler.pointer.PointerHolder
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.Type
@@ -27,9 +28,10 @@ class ClientScriptCompiler(
     sourcePaths: List<Path>,
     excludePaths: List<Path>,
     scriptWriter: ScriptWriter,
+    commandPointers: Map<String, PointerHolder>,
     private val symbolPaths: List<Path>,
     private val mapper: SymbolMapper,
-) : ScriptCompiler(sourcePaths, excludePaths, scriptWriter) {
+) : ScriptCompiler(sourcePaths, excludePaths, scriptWriter, commandPointers) {
     fun setup() {
         triggers.registerAll<ClientTriggerType>()
 
@@ -45,6 +47,11 @@ class ClientScriptCompiler(
         types.register("invhook", MetaType.Hook(ScriptVarType.INV))
         types.register("varphook", MetaType.Hook(VarPlayerType(MetaType.Any)))
         types.register("dbcolumn", DbColumnType(MetaType.Any))
+        types.register("shiftopnpc", MetaType.Script(ClientTriggerType.SHIFTOPNPC, MetaType.Unit, MetaType.Unit))
+        types.register("shiftoploc", MetaType.Script(ClientTriggerType.SHIFTOPLOC, MetaType.Unit, MetaType.Unit))
+        types.register("shiftopobj", MetaType.Script(ClientTriggerType.SHIFTOPOBJ, MetaType.Unit, MetaType.Unit))
+        types.register("shiftopplayer", MetaType.Script(ClientTriggerType.SHIFTOPPLAYER, MetaType.Unit, MetaType.Unit))
+        types.register("shiftoptile", MetaType.Script(ClientTriggerType.SHIFTOPTILE, MetaType.Unit, MetaType.Unit))
 
         // allow assignment of namedobj to obj
         types.addTypeChecker { left, right -> left == ScriptVarType.OBJ && right == ScriptVarType.NAMEDOBJ }

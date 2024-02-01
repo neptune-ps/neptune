@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.compiler.trigger
 
+import me.filby.neptune.runescript.compiler.pointer.PointerType
 import me.filby.neptune.runescript.compiler.type.Type
 
 /**
@@ -46,4 +47,9 @@ public interface TriggerType {
      * The return types that must be defined. If `null` no returns are expected.
      */
     public val returns: Type?
+
+    /**
+     * The pointers that the trigger has by default.
+     */
+    public val pointers: Set<PointerType>?
 }
