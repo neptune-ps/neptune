@@ -534,6 +534,14 @@ public class TypeChecking(
                 right.type.representation
             )
             return false
+        } else if (left.type == PrimitiveType.STRING && right.type == PrimitiveType.STRING) {
+            operator.reportError(
+                DiagnosticMessage.BINOP_INVALID_TYPES,
+                operator.text,
+                left.type.representation,
+                right.type.representation
+            )
+            return false
         }
 
         // other cases are true
