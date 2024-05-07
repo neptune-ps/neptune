@@ -382,6 +382,7 @@ public class TypeChecking(
 
         // visit the initializer if it exists to resolve references in it
         val initializer = arrayDeclarationStatement.initializer
+        initializer.typeHint = PrimitiveType.INT
         initializer.visit()
         checkTypeMatch(initializer, PrimitiveType.INT, initializer.type)
 
