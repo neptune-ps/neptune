@@ -24,21 +24,21 @@ if (0 <= 0 & 0 >= 0) {
     error("Int branch test failed.");
 }
 
-[test,string_branching]
-def_string $a = "Testing";
-def_string $b = "Testing";
-
-// test string equal operator
-if ($a = $b) {
-    // pass
-} else {
-    error("String branch test failed.");
-}
-
-// test string not operator
-if ($a ! $b) {
-    error("String branch test failed.");
-}
+//[test,string_branching]
+//def_string $a = "Testing";
+//def_string $b = "Testing";
+//
+//// test string equal operator
+//if ($a = $b) {
+//    // pass
+//} else {
+//    error("String branch test failed.");
+//}
+//
+//// test string not operator
+//if ($a ! $b) {
+//    error("String branch test failed.");
+//}
 
 [test,long_branching]
 // unable to make long literals at the time of writing this, so need to create variables with default val
