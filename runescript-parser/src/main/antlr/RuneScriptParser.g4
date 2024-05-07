@@ -213,6 +213,7 @@ identifier
     | BOOLEAN_LITERAL
     | NULL_LITERAL
     | TYPE_ARRAY
+    | SWITCH_TYPE
     | DEF_TYPE
     | DEFAULT
     ;
