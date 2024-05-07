@@ -967,7 +967,7 @@ public class TypeChecking(
         } else if (hint is MetaType.Hook) {
             handleClientScriptExpression(stringLiteral, hint)
         } else if (hint !in LITERAL_TYPES) {
-            resolveSymbol(stringLiteral, stringLiteral.value, hint)
+            stringLiteral.reference = resolveSymbol(stringLiteral, stringLiteral.value, hint)
         } else {
             stringLiteral.type = PrimitiveType.STRING
         }
@@ -1033,10 +1033,20 @@ public class TypeChecking(
             return
         }
 
-        resolveSymbol(identifier, name, hint)
+        // error is reported in resolveSymbol
+        val symbol = resolveSymbol(identifier, name, hint) ?: return
+        if (symbol is ScriptSymbol && symbol.parameters != MetaType.Unit) {
+            identifier.reportError(
+                DiagnosticMessage.GENERIC_TYPE_MISMATCH,
+                "<unit>",
+                symbol.parameters.representation
+            )
+        }
+
+        identifier.reference = symbol
     }
 
-    private fun resolveSymbol(node: Expression, name: String, hint: Type?) {
+    private fun resolveSymbol(node: Expression, name: String, hint: Type?): Symbol? {
         // look through the current scopes table for a symbol with the given name and type
         var symbol: Symbol? = null
         var symbolType: Type? = null
@@ -1065,24 +1075,20 @@ public class TypeChecking(
             // unable to resolve the symbol
             node.type = MetaType.Error
             node.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, name)
-            return
+            return null
         }
 
-        // identifier.reportInfo("hint=%s, symbol=%s", hint?.representation ?: "null", symbol)
+        // node.reportInfo("hint=%s, symbol=%s", hint?.representation ?: "null", symbol)
 
         // compiler error if the symbol type isn't defined here
         if (symbolType == null) {
             node.type = MetaType.Error
             node.reportError(DiagnosticMessage.UNSUPPORTED_SYMBOLTYPE_TO_TYPE, symbol::class.java.simpleName)
-            return
+            return null
         }
 
-        when (node) {
-            is Identifier -> node.reference = symbol
-            is StringLiteral -> node.reference = symbol
-            else -> error(node)
-        }
         node.type = symbolType
+        return symbol
     }
 
     /**

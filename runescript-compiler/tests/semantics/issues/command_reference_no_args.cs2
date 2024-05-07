@@ -1,0 +1,4 @@
+// Issue #26
+
+[proc,main]
+error; // Expect: Type mismatch: '<unit>' was given but 'string' was expected.
