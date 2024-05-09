@@ -236,21 +236,21 @@ public class CodeGenerator(
         val ifEnd = labelGenerator.generate("if_end")
 
         // generate the condition
-        generateCondition(ifStatement.condition, block, ifTrue, ifElse ?: ifEnd)
+        generateCondition(ifStatement.condition, block, ifTrue)
+        instruction(Opcode.Branch, ifElse ?: ifEnd)
 
         // bind the if_true block and visit the statements within
         bind(generateBlock(ifTrue))
         ifStatement.thenStatement.visit()
-        instruction(Opcode.Branch, ifEnd)
 
         // handle else statement if it exists
         if (ifElse != null) {
+            // jump to end after the true branch if an else branch is defined
+            instruction(Opcode.Branch, ifEnd)
+
             // bind the if_else block and visit the statements within
             bind(generateBlock(ifElse))
             ifStatement.elseStatement.visit()
-
-            // branch to the if_end label
-            instruction(Opcode.Branch, ifEnd)
         }
 
         // bind the if_end block
@@ -264,7 +264,8 @@ public class CodeGenerator(
 
         // bind the start block and generate the condition in it
         val startBlock = bind(generateBlock(whileStart))
-        generateCondition(whileStatement.condition, startBlock, whileBody, whileEnd)
+        generateCondition(whileStatement.condition, startBlock, whileBody)
+        instruction(Opcode.Branch, whileEnd)
 
         // generate the body and branch back up to the condition
         bind(generateBlock(whileBody))
@@ -275,7 +276,7 @@ public class CodeGenerator(
         bind(generateBlock(whileEnd))
     }
 
-    private fun generateCondition(condition: Expression, block: Block, branchTrue: Label, branchFalse: Label) {
+    private fun generateCondition(condition: Expression, block: Block, branchTrue: Label) {
         if (condition is BinaryExpression) {
             val isLogical = condition.operator.text in LOGICAL_OPERATORS
             if (!isLogical) {
@@ -295,9 +296,8 @@ public class CodeGenerator(
                 condition.left.visit()
                 condition.right.visit()
 
-                // add the true branch opcode and false branch instructions
+                // add the true branch opcode instruction
                 instruction(branchOpcode, branchTrue, block)
-                instruction(Opcode.Branch, branchFalse, block)
             } else {
                 // generate the label for the next block
                 val nextBlockLabel = if (condition.operator.text == LOGICAL_OR) {
@@ -308,14 +308,26 @@ public class CodeGenerator(
 
                 // figure out which labels should be the true and false labels
                 val trueLabel = if (condition.operator.text == LOGICAL_OR) branchTrue else nextBlockLabel
-                val falseLabel = if (condition.operator.text == LOGICAL_OR) nextBlockLabel else branchFalse
+                val falseLabel =
+                    if (condition.operator.text == LOGICAL_AND) {
+                        labelGenerator.generate("condition_and_fail")
+                    } else {
+                        null
+                    }
 
-                generateCondition(condition.left, block, trueLabel, falseLabel)
+                generateCondition(condition.left, block, trueLabel)
+                if (falseLabel != null) {
+                    instruction(Opcode.Branch, falseLabel)
+                }
+
                 val nextBlock = bind(generateBlock(nextBlockLabel))
-                generateCondition(condition.right, nextBlock, branchTrue, branchFalse)
+                generateCondition(condition.right, nextBlock, branchTrue)
+                if (falseLabel != null) {
+                    bind(generateBlock(falseLabel))
+                }
             }
         } else if (condition is ParenthesizedExpression) {
-            generateCondition(condition.expression, block, branchTrue, branchFalse)
+            generateCondition(condition.expression, block, branchTrue)
         } else {
             condition.reportError(DiagnosticMessage.INVALID_CONDITION, condition::class.java.simpleName)
         }
@@ -336,6 +348,7 @@ public class CodeGenerator(
         // jump to either the default or end depending on if a default is defined
         instruction(Opcode.Branch, switchDefault ?: switchEnd)
 
+        val lastCase = switchStatement.cases.lastOrNull()
         for (case in switchStatement.cases) {
             // generate a label if the case isn't a default case.
             val caseLabel = if (!case.isDefault) {
@@ -364,7 +377,9 @@ public class CodeGenerator(
             // generate the block for the case and then add the code within it
             bind(generateBlock(caseLabel))
             case.statements.visit()
-            instruction(Opcode.Branch, switchEnd)
+            if (case !== lastCase) {
+                instruction(Opcode.Branch, switchEnd)
+            }
         }
 
         // bind the switch end block that all cases jump to (no fallthrough)

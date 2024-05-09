@@ -69,3 +69,28 @@ if ($a <= $b & $a >= $b) {
 } else {
     error("Long branch test failed.");
 }
+
+[test,complex_branching]
+def_boolean $a = false;
+def_boolean $b = true;
+def_boolean $c = false;
+def_boolean $d = false;
+
+// test logical and
+if ($a = false & $b = true) {
+    // pass
+} else {
+    error("Logical AND failed.");
+}
+
+// test logical or
+if ($a = true | $b = true) {
+    // pass
+} else {
+    error("Logical OR failed.");
+}
+
+// test mixing logical AND and logical OR
+if ($a = true & $b = true | $c = true & $d = true) {
+    error("Logical AND and logical OR failed.");
+}
