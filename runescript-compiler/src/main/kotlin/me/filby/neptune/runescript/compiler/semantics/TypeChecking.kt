@@ -303,7 +303,7 @@ public class TypeChecking(
         is Literal<*> -> true
         is Identifier -> {
             val ref = expression.reference
-            ref != null && isConstantSymbol(ref)
+            ref == null || isConstantSymbol(ref)
         }
         else -> false
     }
