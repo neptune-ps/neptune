@@ -242,16 +242,20 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
          * Returns the total number of local variables with a base var type of [baseType].
          */
         public fun RuneScript.LocalTable.getLocalCount(baseType: BaseVarType): Int {
-            return all.count { it.type.baseType == baseType }
+            return all.count { it.type.baseType == baseType && (it.type !is ArrayType || it in parameters) }
         }
 
         /**
          * Finds the unique identifier for the given [local] variable.
          */
         public fun RuneScript.LocalTable.getVariableId(local: LocalVariableSymbol): Int {
-            val isArray = local.type is ArrayType
+            if (local.type is ArrayType) {
+                return all.asSequence()
+                    .filter { it.type is ArrayType }
+                    .indexOf(local)
+            }
             return all.asSequence()
-                .filter { isArray && it.type is ArrayType || !isArray && it.type.baseType == local.type.baseType }
+                .filter { it.type.baseType == local.type.baseType && (it.type !is ArrayType || it in parameters) }
                 .indexOf(local)
         }
     }
