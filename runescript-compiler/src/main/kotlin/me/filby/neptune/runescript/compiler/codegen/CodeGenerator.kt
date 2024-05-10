@@ -345,8 +345,11 @@ public class CodeGenerator(
         // add the switch instruction with a reference to the table
         instruction(Opcode.Switch, table)
 
-        // jump to either the default or end depending on if a default is defined
-        instruction(Opcode.Branch, switchDefault ?: switchEnd)
+        val firstCase = switchStatement.cases.firstOrNull()
+        if (firstCase == null || !firstCase.isDefault) {
+            // jump to either the default or end depending on if a default is defined
+            instruction(Opcode.Branch, switchDefault ?: switchEnd)
+        }
 
         val lastCase = switchStatement.cases.lastOrNull()
         for (case in switchStatement.cases) {
