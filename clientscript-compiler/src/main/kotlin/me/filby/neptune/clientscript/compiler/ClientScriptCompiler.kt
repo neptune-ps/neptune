@@ -5,6 +5,8 @@ import me.filby.neptune.clientscript.compiler.command.DbGetFieldCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumCommandHandler
 import me.filby.neptune.clientscript.compiler.command.ParamCommandHandler
 import me.filby.neptune.clientscript.compiler.command.PlaceholderCommand
+import me.filby.neptune.clientscript.compiler.command.debug.DumpCommandHandler
+import me.filby.neptune.clientscript.compiler.command.debug.ScriptCommandHandler
 import me.filby.neptune.clientscript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.clientscript.compiler.type.DbColumnType
 import me.filby.neptune.clientscript.compiler.type.ParamType
@@ -74,6 +76,9 @@ class ClientScriptCompiler(
         addDynamicCommandHandler("event_comsubid2", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 7))
         addDynamicCommandHandler("event_keycode", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 8))
         addDynamicCommandHandler("event_keychar", PlaceholderCommand(PrimitiveType.CHAR, Int.MIN_VALUE + 9))
+
+        addDynamicCommandHandler("dump", DumpCommandHandler())
+        addDynamicCommandHandler("script", ScriptCommandHandler())
 
         // symbol loaders
         addSymConstantLoaders()
