@@ -65,6 +65,7 @@ import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
+import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
 /**
@@ -205,16 +206,16 @@ public class CodeGenerator(
 
         val types = TupleType.toList(script.returnType)
         for (type in types) {
-            val default = type.defaultValue
-            if (default == null) {
-                script.reportError(DiagnosticMessage.TYPE_HAS_NO_DEFAULT, type)
-                return
-            }
-            when (default) {
-                is Int -> instruction(Opcode.PushConstantInt, default)
-                is String -> instruction(Opcode.PushConstantString, default)
-                is Long -> instruction(Opcode.PushConstantLong, default)
-                else -> error("Unsupported default type: ${default.javaClass.simpleName}")
+            if (type == PrimitiveType.INT) {
+                instruction(Opcode.PushConstantInt, 0)
+            } else if (type.baseType == BaseVarType.INTEGER) {
+                instruction(Opcode.PushConstantInt, -1)
+            } else if (type.baseType == BaseVarType.STRING) {
+                instruction(Opcode.PushConstantString, "")
+            } else if (type.baseType == BaseVarType.LONG) {
+                instruction(Opcode.PushConstantLong, -1L)
+            } else {
+                error("Unsupported type in returns: $type")
             }
         }
         instruction(Opcode.Return)
