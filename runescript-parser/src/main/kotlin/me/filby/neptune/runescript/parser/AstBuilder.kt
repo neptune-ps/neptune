@@ -2,8 +2,8 @@ package me.filby.neptune.runescript.parser
 
 import me.filby.neptune.runescript.antlr.RuneScriptParser
 import me.filby.neptune.runescript.antlr.RuneScriptParser.AdvancedIdentifierContext
-import me.filby.neptune.runescript.antlr.RuneScriptParser.ArithemiticBinaryExpressionContext
-import me.filby.neptune.runescript.antlr.RuneScriptParser.ArithemiticParenthesizedExpressionContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.ArithmeticBinaryExpressionContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.ArithmeticParenthesizedExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ArrayDeclarationStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.AssignmentStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.BlockStatementContext
@@ -208,8 +208,8 @@ public class AstBuilder(
         return ParenthesizedExpression(ctx.location, ctx.condition().visit())
     }
 
-    override fun visitArithemiticParenthesizedExpression(ctx: ArithemiticParenthesizedExpressionContext): Node {
-        return ParenthesizedExpression(ctx.location, ctx.arithemitic().visit())
+    override fun visitArithmeticParenthesizedExpression(ctx: ArithmeticParenthesizedExpressionContext): Node {
+        return ParenthesizedExpression(ctx.location, ctx.arithmetic().visit())
     }
 
     override fun visitConditionBinaryExpression(ctx: ConditionBinaryExpressionContext): Node {
@@ -221,17 +221,17 @@ public class AstBuilder(
         )
     }
 
-    override fun visitArithemiticBinaryExpression(ctx: ArithemiticBinaryExpressionContext): Node {
+    override fun visitArithmeticBinaryExpression(ctx: ArithmeticBinaryExpressionContext): Node {
         return ArithmeticExpression(
             source = ctx.location,
-            left = ctx.arithemitic(0).visit(),
+            left = ctx.arithmetic(0).visit(),
             operator = ctx.op.toAstToken(),
-            right = ctx.arithemitic(1).visit()
+            right = ctx.arithmetic(1).visit()
         )
     }
 
     override fun visitCalcExpression(ctx: CalcExpressionContext): Node {
-        return CalcExpression(ctx.location, ctx.calc().arithemitic().visit())
+        return CalcExpression(ctx.location, ctx.calc().arithmetic().visit())
     }
 
     override fun visitCommandCallExpression(ctx: CommandCallExpressionContext): Node {
