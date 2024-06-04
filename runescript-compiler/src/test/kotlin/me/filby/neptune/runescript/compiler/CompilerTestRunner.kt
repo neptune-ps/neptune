@@ -158,6 +158,9 @@ private class CommandSymbolLoader : SymbolLoader {
         addCommand("int_to_long", PrimitiveType.INT, PrimitiveType.LONG)
         addCommand("long_to_int", PrimitiveType.LONG, PrimitiveType.INT)
 
+        // special commands that are only intended on testing semantic checker and are not intended to be run
+        addCommand("call_label_with_args", MetaType.Script(TestTriggerType.LABEL, MetaType.Any, MetaType.Nothing))
+
         // test specific commands
         // TODO implement the argument checks better once dynamic command handling is added to compiler
         addCommand("error", PrimitiveType.STRING)

@@ -1035,7 +1035,7 @@ public class TypeChecking(
 
         // error is reported in resolveSymbol
         val symbol = resolveSymbol(identifier, name, hint) ?: return
-        if (symbol is ScriptSymbol && symbol.parameters != MetaType.Unit) {
+        if (symbol is ScriptSymbol && symbol.trigger == CommandTrigger && symbol.parameters != MetaType.Unit) {
             identifier.reportError(
                 DiagnosticMessage.GENERIC_TYPE_MISMATCH,
                 "<unit>",

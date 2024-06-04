@@ -2,3 +2,8 @@
 
 [proc,main]
 error; // Expect: Type mismatch: '<unit>' was given but 'string' was expected.
+
+// Verify referring to a script by name is still valid.
+call_label_with_args(label_a);
+
+[label,label_a](int $a)
