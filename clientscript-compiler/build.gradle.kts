@@ -9,7 +9,9 @@ dependencies {
     }
     implementation(libs.netty.buffer)
     implementation(libs.fourkoma)
-    runtimeOnly(libs.logback)
+    implementation(libs.clikt)
+    implementation(libs.gson)
+    implementation(libs.logback)
 }
 
 application {

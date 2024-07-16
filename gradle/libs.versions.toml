@@ -6,6 +6,8 @@ junit = "5.7.1"
 logback = "1.2.11"
 netty-buffer = "4.1.90.Final"
 fourkoma = "1.2.0"
+clikt = "4.4.0"
+gson = "2.11.0"
 
 [libraries]
 antlr = { module = "org.antlr:antlr4", version.ref = "antlr" }
@@ -17,3 +19,5 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 netty-buffer = { module = "io.netty:netty-buffer", version.ref = "netty-buffer" }
 fourkoma = { module = "cc.ekblad:4koma", version.ref = "fourkoma" }
+clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

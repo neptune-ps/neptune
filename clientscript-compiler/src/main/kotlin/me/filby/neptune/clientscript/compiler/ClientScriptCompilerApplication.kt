@@ -2,13 +2,22 @@ package me.filby.neptune.clientscript.compiler
 
 import cc.ekblad.toml.decode
 import cc.ekblad.toml.tomlMapper
+import ch.qos.logback.classic.LoggerContext
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.clikt.parameters.types.path
 import com.github.michaelbull.logging.InlineLogger
+import com.github.michaelbull.logging.Logger
+import com.google.gson.GsonBuilder
 import me.filby.neptune.clientscript.compiler.configuration.BinaryFileWriterConfig
 import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerConfig
 import me.filby.neptune.clientscript.compiler.writer.BinaryFileScriptWriter
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.io.path.absolute
 import kotlin.io.path.exists
 import kotlin.io.path.notExists
 import kotlin.io.path.readLines
@@ -16,31 +25,70 @@ import kotlin.system.exitProcess
 
 private val logger = InlineLogger()
 
-fun main(args: Array<String>) {
-    val configPath = if (args.isNotEmpty()) Path(args[0]) else Path("neptune.toml")
-    val config = loadConfig(configPath.absolute())
+class ClientScriptCommand : CliktCommand() {
+    private val configPath by option("--config-path", help = "Path to the config file.")
+        .path(mustExist = true, canBeDir = false, mustBeReadable = true)
+        .default(Path("neptune.toml"))
 
-    val sourcePaths = config.sourcePaths.map { Path(it) }
-    val symbolPaths = config.symbolPaths.map { Path(it) }
-    val excludePaths = config.excludePaths.map { Path(it) }
-    val (binaryWriterConfig) = config.writers
+    private val print by option("--print", help = "Print the configuration and exit.")
+        .flag()
 
-    val mapper = SymbolMapper()
-    val writer = if (binaryWriterConfig != null) {
-        val outputPath = Path(binaryWriterConfig.outputPath)
-        BinaryFileScriptWriter(outputPath, mapper)
-    } else {
-        logger.error { "No writer configured." }
-        exitProcess(1)
+    private val logLevelName by option("--log-level", help = "Set the log level.")
+        .choice("off", "error", "warn", "info", "debug", "trace", "all", ignoreCase = true)
+        .default("info")
+
+    override fun run() {
+        configureLogLevel(logLevelName)
+
+        val config = loadConfig(configPath)
+        if (print) {
+            val json = GsonBuilder()
+                .create()
+                .toJson(config)
+            println(json)
+            exitProcess(0)
+        }
+
+        val sourcePaths = config.sourcePaths.map { Path(it) }
+        val symbolPaths = config.symbolPaths.map { Path(it) }
+        val excludePaths = config.excludePaths.map { Path(it) }
+        val (binaryWriterConfig) = config.writers
+
+        val mapper = SymbolMapper()
+        val writer = if (binaryWriterConfig != null) {
+            val outputPath = Path(binaryWriterConfig.outputPath)
+            BinaryFileScriptWriter(outputPath, mapper)
+        } else {
+            logger.error { "No writer configured." }
+            exitProcess(1)
+        }
+
+        // load commands and clientscript id mappings
+        loadSpecialSymbols(symbolPaths, mapper)
+
+        // setup compiler and execute it
+        val compiler = ClientScriptCompiler(sourcePaths, excludePaths, writer, symbolPaths, mapper)
+        compiler.setup()
+        compiler.run()
     }
+}
 
-    // load commands and clientscript id mappings
-    loadSpecialSymbols(symbolPaths, mapper)
+fun main(args: Array<String>) = ClientScriptCommand().main(args)
 
-    // setup compiler and execute it
-    val compiler = ClientScriptCompiler(sourcePaths, excludePaths, writer, symbolPaths, mapper)
-    compiler.setup()
-    compiler.run()
+private fun configureLogLevel(levelName: String) {
+    val context = LoggerFactory.getILoggerFactory() as LoggerContext
+    val root = context.getLogger(Logger.ROOT_LOGGER_NAME)
+    val level = when (levelName) {
+        "off" -> ch.qos.logback.classic.Level.OFF
+        "error" -> ch.qos.logback.classic.Level.ERROR
+        "warn" -> ch.qos.logback.classic.Level.WARN
+        "info" -> ch.qos.logback.classic.Level.INFO
+        "debug" -> ch.qos.logback.classic.Level.DEBUG
+        "trace" -> ch.qos.logback.classic.Level.TRACE
+        "all" -> ch.qos.logback.classic.Level.ALL
+        else -> error("Unknown log level: $levelName")
+    }
+    root.level = level
 }
 
 private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
