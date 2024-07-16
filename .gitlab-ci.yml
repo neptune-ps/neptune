@@ -13,6 +13,7 @@ cache:
 
 workflow:
   rules:
+    - if: $CI_COMMIT_BRANCH == "master" && $CI_PIPELINE_SOURCE == "push"
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 stages:
