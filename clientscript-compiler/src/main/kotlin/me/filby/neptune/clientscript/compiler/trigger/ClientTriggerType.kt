@@ -55,6 +55,11 @@ enum class ClientTriggerType(
     ONCLICKNPC(80),
     ONCLICKPLAYER(81),
     TRIGGER_82(82),
+    SHIFTOPNPC(-1),
+    SHIFTOPLOC(-1),
+    SHIFTOPOBJ(-1),
+    SHIFTOPPLAYER(-1),
+    SHIFTOPTILE(-1),
     ;
 
     override val identifier: String get() = name.lowercase()
