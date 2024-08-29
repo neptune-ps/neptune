@@ -1,11 +1,11 @@
 // this verifies that referring to a command with no arguments still properly
 // resolves regardless of declaration order.
 
-[proc,something1](boolean)
-[command,something1](boolean)
+[proc,something1]()(boolean)
+[command,something1]()(boolean)
 
-[command,something2](boolean)
-[proc,something2](boolean)
+[command,something2]()(boolean)
+[proc,something2]()(boolean)
 
 [proc,main]
 if (something1 = true) {

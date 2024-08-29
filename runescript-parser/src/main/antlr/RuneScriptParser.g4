@@ -10,8 +10,7 @@ scriptFile
 
 script
     : LBRACK trigger=identifier COMMA name=identifier RBRACK
-      (LPAREN parameterList? RPAREN)?
-      (LPAREN typeList? RPAREN)?
+      ((LPAREN parameterList? RPAREN) (LPAREN typeList? RPAREN)?)?
       statement*
     ;
 

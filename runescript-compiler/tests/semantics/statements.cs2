@@ -79,7 +79,7 @@ if (true) {
 ;
 
 // dummy proc that returns multiple things
-[proc,tuple](boolean,boolean)
+[proc,tuple]()(boolean,boolean)
 
 // dummy test command
 [command,test_command]
