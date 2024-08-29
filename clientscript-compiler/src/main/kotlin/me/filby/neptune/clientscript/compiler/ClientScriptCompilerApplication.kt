@@ -59,8 +59,7 @@ class ClientScriptCommand : CliktCommand() {
             val outputPath = Path(binaryWriterConfig.outputPath)
             BinaryFileScriptWriter(outputPath, mapper)
         } else {
-            logger.error { "No writer configured." }
-            exitProcess(1)
+            null
         }
 
         // load commands and clientscript id mappings

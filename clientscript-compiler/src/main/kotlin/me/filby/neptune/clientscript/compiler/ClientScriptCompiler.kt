@@ -28,7 +28,7 @@ import kotlin.io.path.isDirectory
 class ClientScriptCompiler(
     sourcePaths: List<Path>,
     excludePaths: List<Path>,
-    scriptWriter: ScriptWriter,
+    scriptWriter: ScriptWriter?,
     private val symbolPaths: List<Path>,
     private val mapper: SymbolMapper,
 ) : ScriptCompiler(sourcePaths, excludePaths, scriptWriter) {

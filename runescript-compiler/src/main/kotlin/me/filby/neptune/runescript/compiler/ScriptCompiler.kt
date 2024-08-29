@@ -30,7 +30,7 @@ import kotlin.system.measureTimeMillis
 public open class ScriptCompiler(
     sourcePaths: List<Path>,
     excludePaths: List<Path>,
-    private val scriptWriter: ScriptWriter,
+    private val scriptWriter: ScriptWriter?,
 ) {
     /**
      * Logger for this class.
@@ -306,6 +306,11 @@ public open class ScriptCompiler(
      * Runs all [scripts] through the [ScriptWriter].
      */
     private fun write(scripts: List<RuneScript>) {
+        if (scriptWriter == null) {
+            logger.info { "Skipping script writing, no writer configured." }
+            return
+        }
+
         logger.debug { "Starting script writing" }
         val writingTime = measureTimeMillis {
             scriptWriter.use {
