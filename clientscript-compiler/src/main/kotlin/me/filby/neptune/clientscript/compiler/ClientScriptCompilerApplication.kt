@@ -51,7 +51,7 @@ class ClientScriptCommand : CliktCommand() {
 
         val sourcePaths = config.sourcePaths.map { Path(it) }
         val symbolPaths = config.symbolPaths.map { Path(it) }
-        val excludePaths = config.excludePaths.map { Path(it) }
+        val libraryPaths = config.libraryPaths.map { Path(it) }
         val (binaryWriterConfig) = config.writers
 
         val mapper = SymbolMapper()
@@ -66,7 +66,7 @@ class ClientScriptCommand : CliktCommand() {
         loadSpecialSymbols(symbolPaths, mapper)
 
         // setup compiler and execute it
-        val compiler = ClientScriptCompiler(sourcePaths, excludePaths, writer, symbolPaths, mapper)
+        val compiler = ClientScriptCompiler(sourcePaths, libraryPaths, writer, symbolPaths, mapper)
         compiler.setup()
         compiler.run()
     }
@@ -100,7 +100,8 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
         mapping<ClientScriptCompilerConfig>(
             "sources" to "sourcePaths",
             "symbols" to "symbolPaths",
-            "excluded" to "excludePaths",
+            "libraries" to "libraryPaths",
+            "excludes" to "excludePaths",
             "writer" to "writers",
         )
         mapping<BinaryFileWriterConfig>("output" to "outputPath")

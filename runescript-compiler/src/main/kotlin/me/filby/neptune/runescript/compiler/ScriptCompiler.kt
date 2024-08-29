@@ -29,7 +29,7 @@ import kotlin.system.measureTimeMillis
  */
 public open class ScriptCompiler(
     sourcePaths: List<Path>,
-    excludePaths: List<Path>,
+    libraryPaths: List<Path>,
     private val scriptWriter: ScriptWriter?,
 ) {
     /**
@@ -43,9 +43,9 @@ public open class ScriptCompiler(
     private val sourcePaths: List<Path> = sourcePaths.map { it.absolute().normalize() }
 
     /**
-     * The paths that contain source code that is (mostly) excluded.
+     * The paths that contain source code that is excluded from output.
      */
-    private val excludePaths: List<Path> = excludePaths.map { it.absolute().normalize() }
+    private val libraryPaths: List<Path> = libraryPaths.map { it.absolute().normalize() }
 
     /**
      * The root table that contains all global symbols.
@@ -315,8 +315,8 @@ public open class ScriptCompiler(
         val writingTime = measureTimeMillis {
             scriptWriter.use {
                 for (script in scripts) {
-                    if (isExcluded(script.sourceName)) {
-                        logger.trace { "Skipping writing of excluded file: ${script.sourceName}" }
+                    if (isLibrary(script.sourceName)) {
+                        logger.trace { "Skipping writing of library file: ${script.sourceName}" }
                         continue
                     }
 
@@ -331,10 +331,10 @@ public open class ScriptCompiler(
     }
 
     /**
-     * Checks if [sourceName] is within any of the excluded paths. Invalid [Path]s
+     * Checks if [sourceName] is within any of the library paths. Invalid [Path]s
      * will return `false`.
      */
-    private fun isExcluded(sourceName: String): Boolean {
+    private fun isLibrary(sourceName: String): Boolean {
         val sourcePath = try {
             Path(sourceName)
         } catch (_: Exception) {
@@ -342,7 +342,7 @@ public open class ScriptCompiler(
             return false
         }
 
-        return excludePaths.any { sourcePath == it || sourcePath.startsWith(it) }
+        return libraryPaths.any { sourcePath == it || sourcePath.startsWith(it) }
     }
 
     public companion object {
