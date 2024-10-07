@@ -68,7 +68,6 @@ import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.trigger.TriggerManager
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type
-import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
@@ -941,7 +940,7 @@ public class TypeChecking(
 
     override fun visitNullLiteral(nullLiteral: NullLiteral) {
         val hint = nullLiteral.typeHint
-        if (hint != null && (hint.baseType == BaseVarType.INTEGER || hint.baseType == BaseVarType.LONG)) {
+        if (hint != null) {
             // infer the type if the hint base type is an int OR long.
             nullLiteral.type = hint
             return

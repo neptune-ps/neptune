@@ -69,6 +69,11 @@ class TestOpcodes {
         pushInt(input.toInt())
     }
 
+    @Instruction(COMPARE)
+    fun ScriptState._compare(str1: String, str2: String) {
+        pushInt(str1.compareTo(str2))
+    }
+
     private fun ScriptState.scriptError(mes: String) {
         val error = buildString {
             append(scriptPath)
@@ -104,5 +109,6 @@ class TestOpcodes {
         const val ASSERT_NOT_LONG = ERROR + 6
         const val INT_TO_LONG = ERROR + 7
         const val LONG_TO_INT = ERROR + 8
+        const val COMPARE = ERROR + 9
     }
 }

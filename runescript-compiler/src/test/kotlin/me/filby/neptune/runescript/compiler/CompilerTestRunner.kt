@@ -157,6 +157,7 @@ private class CommandSymbolLoader : SymbolLoader {
         addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)
         addCommand("int_to_long", PrimitiveType.INT, PrimitiveType.LONG)
         addCommand("long_to_int", PrimitiveType.LONG, PrimitiveType.INT)
+        addCommand("compare", TupleType(PrimitiveType.STRING, PrimitiveType.STRING), PrimitiveType.INT)
 
         // special commands that are only intended on testing semantic checker and are not intended to be run
         addCommand("call_label_with_args", MetaType.Script(TestTriggerType.LABEL, MetaType.Any, MetaType.Nothing))

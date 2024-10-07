@@ -1,0 +1,5 @@
+[test,null_string]
+def_string $text = null;
+if (compare($text, "null") ! 0) {
+    error("$text does not equal \"null\".");
+}

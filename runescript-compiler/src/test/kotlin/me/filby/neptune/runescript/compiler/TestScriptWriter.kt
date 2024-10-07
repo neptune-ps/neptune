@@ -171,6 +171,7 @@ internal class TestScriptWriter(
             "assert_not_long" to TestOpcodes.ASSERT_NOT_LONG,
             "int_to_long" to TestOpcodes.INT_TO_LONG,
             "long_to_int" to TestOpcodes.LONG_TO_INT,
+            "compare" to TestOpcodes.COMPARE,
         )
     }
 }
