@@ -237,7 +237,7 @@ public class CodeGenerator(
         val ifEnd = labelGenerator.generate("if_end")
 
         // generate the condition
-        generateCondition(ifStatement.condition, block, ifTrue)
+        generateCondition(ifStatement.condition, block, ifTrue, ifElse ?: ifEnd)
         instruction(Opcode.Branch, ifElse ?: ifEnd)
 
         // bind the if_true block and visit the statements within
@@ -265,7 +265,7 @@ public class CodeGenerator(
 
         // bind the start block and generate the condition in it
         val startBlock = bind(generateBlock(whileStart))
-        generateCondition(whileStatement.condition, startBlock, whileBody)
+        generateCondition(whileStatement.condition, startBlock, whileBody, whileEnd)
         instruction(Opcode.Branch, whileEnd)
 
         // generate the body and branch back up to the condition
@@ -277,7 +277,7 @@ public class CodeGenerator(
         bind(generateBlock(whileEnd))
     }
 
-    private fun generateCondition(condition: Expression, block: Block, branchTrue: Label) {
+    private fun generateCondition(condition: Expression, block: Block, branchTrue: Label, branchFalse: Label?) {
         if (condition is BinaryExpression) {
             val isLogical = condition.operator.text in LOGICAL_OPERATORS
             if (!isLogical) {
@@ -311,24 +311,24 @@ public class CodeGenerator(
                 val trueLabel = if (condition.operator.text == LOGICAL_OR) branchTrue else nextBlockLabel
                 val falseLabel =
                     if (condition.operator.text == LOGICAL_AND) {
-                        labelGenerator.generate("condition_and_fail")
+                        branchFalse ?: labelGenerator.generate("condition_and_fail")
                     } else {
                         null
                     }
 
-                generateCondition(condition.left, block, trueLabel)
+                generateCondition(condition.left, block, trueLabel, falseLabel)
                 if (falseLabel != null) {
                     instruction(Opcode.Branch, falseLabel)
                 }
 
                 val nextBlock = bind(generateBlock(nextBlockLabel))
-                generateCondition(condition.right, nextBlock, branchTrue)
-                if (falseLabel != null) {
+                generateCondition(condition.right, nextBlock, branchTrue, branchFalse)
+                if (falseLabel != null && falseLabel != branchFalse) {
                     bind(generateBlock(falseLabel))
                 }
             }
         } else if (condition is ParenthesizedExpression) {
-            generateCondition(condition.expression, block, branchTrue)
+            generateCondition(condition.expression, block, branchTrue, branchFalse)
         } else {
             condition.reportError(DiagnosticMessage.INVALID_CONDITION, condition::class.java.simpleName)
         }
