@@ -347,7 +347,7 @@ public class CodeGenerator(
         instruction(Opcode.Switch, table)
 
         val firstCase = switchStatement.cases.firstOrNull()
-        if (firstCase == null || !firstCase.isDefault) {
+        if (firstCase != null && !firstCase.isDefault) {
             // jump to either the default or end depending on if a default is defined
             instruction(Opcode.Branch, switchDefault ?: switchEnd)
         }
