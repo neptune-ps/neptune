@@ -115,6 +115,10 @@ private fun loadSpecialSymbols(symbolsPaths: List<Path>, mapper: SymbolMapper) {
         val commandMappings = symbolPath.resolve("commands.sym")
         if (commandMappings.exists()) {
             for (line in commandMappings.readLines()) {
+                if (line.isBlank()) {
+                    continue
+                }
+
                 val split = line.split("\t")
                 val id = split[0].toInt()
                 val name = split[1]
@@ -126,6 +130,10 @@ private fun loadSpecialSymbols(symbolsPaths: List<Path>, mapper: SymbolMapper) {
         val scriptMappings = symbolPath.resolve("clientscript.sym")
         if (scriptMappings.exists()) {
             for (line in scriptMappings.readLines()) {
+                if (line.isBlank()) {
+                    continue
+                }
+
                 val split = line.split("\t")
                 val id = split[0].toInt()
                 val name = split[1]
