@@ -101,7 +101,7 @@ class BinaryScriptWriterContext(
 
     private fun ByteBuf.writeString(text: String) {
         for (char in text) {
-            writeByte(char.code)
+            writeByte(wideToCp1252(char))
         }
         writeByte(0)
     }
@@ -112,5 +112,44 @@ class BinaryScriptWriterContext(
          * in OSRS and rounding to the next power of two.
          */
         const val INITIAL_CAPACITY = 512
+
+        /**
+         * Converts a widened character to its CP1251 representation.
+         */
+        fun wideToCp1252(char: Char): Int {
+            if (char.code in 1..127 || char.code in 160..255) {
+                return char.code
+            }
+            return when (char) {
+                '€' -> -128
+                '‚' -> -126
+                'ƒ' -> -125
+                '„' -> -124
+                '…' -> -123
+                '†' -> -122
+                '‡' -> -121
+                'ˆ' -> -120
+                '‰' -> -119
+                'Š' -> -118
+                '‹' -> -117
+                'Œ' -> -116
+                'Ž' -> -114
+                '‘' -> -111
+                '’' -> -110
+                '“' -> -109
+                '”' -> -108
+                '•' -> -107
+                '–' -> -106
+                '—' -> -105
+                '˜' -> -104
+                '™' -> -103
+                'š' -> -102
+                '›' -> -101
+                'œ' -> -100
+                'ž' -> -98
+                'Ÿ' -> -97
+                else -> '?'.code
+            }
+        }
     }
 }
