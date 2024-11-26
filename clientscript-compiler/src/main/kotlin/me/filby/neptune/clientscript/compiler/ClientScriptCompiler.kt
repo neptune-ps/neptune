@@ -56,6 +56,12 @@ class ClientScriptCompiler(
         // allow assignment of namedobj to obj
         types.addTypeChecker { left, right -> left == ScriptVarType.OBJ && right == ScriptVarType.NAMEDOBJ }
 
+        // treat varp as alias of varp<int>
+        types.addTypeChecker { left, right ->
+            (left is VarPlayerType && left.inner == PrimitiveType.INT && right == ScriptVarType.VARP) ||
+                (left == ScriptVarType.VARP && right is VarPlayerType && right.inner == PrimitiveType.INT)
+        }
+
         // register the dynamic command handlers
         addDynamicCommandHandler("enum", EnumCommandHandler())
         addDynamicCommandHandler("oc_param", ParamCommandHandler(ScriptVarType.OBJ))
