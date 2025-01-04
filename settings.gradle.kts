@@ -1,7 +1,7 @@
 rootProject.name = "neptune"
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
     repositories {
         mavenCentral()
         mavenLocal()
@@ -15,8 +15,6 @@ pluginManagement {
         id("org.jmailen.kotlinter") version "3.4.5"
     }
 }
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
     "clientscript-compiler",

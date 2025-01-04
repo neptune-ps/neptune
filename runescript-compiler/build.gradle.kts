@@ -13,7 +13,7 @@ kotlin {
     explicitApi()
 }
 
-val compilerTest = tasks.create<JavaExec>("compilerTest") {
+val compilerTest = tasks.register<JavaExec>("compilerTest") {
     description = "Runs tests for the compiler."
     group = "verification"
     classpath = sourceSets["test"].runtimeClasspath
