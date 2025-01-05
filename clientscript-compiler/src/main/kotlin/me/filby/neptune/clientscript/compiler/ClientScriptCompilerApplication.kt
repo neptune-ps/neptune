@@ -26,6 +26,7 @@ import kotlin.io.path.notExists
 import kotlin.io.path.readLines
 import kotlin.system.exitProcess
 
+private const val VERSION = "0.0.1-SNAPSHOT"
 private val logger = InlineLogger()
 
 class ClientScriptCommand : CliktCommand(name = "cs2") {
@@ -40,6 +41,9 @@ class ClientScriptCommand : CliktCommand(name = "cs2") {
         .choice("off", "error", "warn", "info", "debug", "trace", "all", ignoreCase = true)
         .default("info")
 
+    private val version by option("--version", help = "Print the version of the compiler.")
+        .flag()
+
     init {
         context {
             helpFormatter = { MordantHelpFormatter(it, showDefaultValues = true) }
@@ -48,6 +52,12 @@ class ClientScriptCommand : CliktCommand(name = "cs2") {
 
     override fun run() {
         configureLogLevel(logLevelName)
+
+        if (version) {
+            echo("Neptune ClientScript 2 Compiler")
+            echo("Version $VERSION")
+            exitProcess(0)
+        }
 
         val config = loadConfig(configPath)
         if (print) {
