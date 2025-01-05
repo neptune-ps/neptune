@@ -36,7 +36,7 @@ The `neptune.toml` file lets the compiler know information about the project.
 
 ```toml
 # The name of the project, currently this has no usage within the compiler
-# itself, but it is used within the RuneScript IntelliJ plugin.
+# itself, but it is used within the RuneScript IntelliJ IDEA plugin.
 name = "neptune"
 
 # An array of source locations. A source can be a directory or a specific file.
@@ -45,7 +45,7 @@ name = "neptune"
 sources = ["src/"]
 
 # An array of symbol root locations. These locations must be to a folder.
-# Symbols are searched for by <path>/<type>.sym and <path>/<type>/*.sym.
+# Symbols are searched for by <path>/<type>.sym and <path>/<type>/**.sym.
 symbols = ["symbols/"]
 
 # An array of library source files. These files should also be included in
@@ -56,7 +56,7 @@ symbols = ["symbols/"]
 libraries = ["src/orig"]
 
 # An array of paths that are excluded from the project. This is currently only
-# in used by the RuneScript IntelliJ plugin for marking a folder as excluded.
+# used by the RuneScript IntelliJ IDEA plugin for marking a folder as excluded.
 excludes = ["pack/"]
 
 # Configuration for the binary file writer. This writer outputs scripts to the
