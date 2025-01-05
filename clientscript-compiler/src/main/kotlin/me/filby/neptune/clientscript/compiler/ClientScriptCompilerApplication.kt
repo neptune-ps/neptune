@@ -26,7 +26,7 @@ import kotlin.system.exitProcess
 
 private val logger = InlineLogger()
 
-class ClientScriptCommand : CliktCommand() {
+class ClientScriptCommand : CliktCommand(name = "cs2") {
     private val configPath by option("--config-path", help = "Path to the config file.")
         .path(mustExist = true, canBeDir = false, mustBeReadable = true)
         .default(Path("neptune.toml"))
