@@ -26,7 +26,7 @@ import kotlin.io.path.notExists
 import kotlin.io.path.readLines
 import kotlin.system.exitProcess
 
-private const val VERSION = "1.0.0"
+private const val VERSION = "1.0.1-SNAPSHOT"
 private val logger = InlineLogger()
 
 class ClientScriptCommand : CliktCommand(name = "cs2") {
