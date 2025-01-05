@@ -3,6 +3,8 @@ plugins {
     kotlin("jvm")
 }
 
+version = "1.0.0"
+
 dependencies {
     api(project(":runescript-compiler")) {
         exclude("com.ibm.icu", "icu4j")
