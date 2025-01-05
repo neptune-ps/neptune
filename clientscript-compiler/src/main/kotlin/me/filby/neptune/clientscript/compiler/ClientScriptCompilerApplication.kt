@@ -4,7 +4,9 @@ import cc.ekblad.toml.decode
 import cc.ekblad.toml.tomlMapper
 import ch.qos.logback.classic.LoggerContext
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.core.main
+import com.github.ajalt.clikt.output.MordantHelpFormatter
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -37,6 +39,12 @@ class ClientScriptCommand : CliktCommand(name = "cs2") {
     private val logLevelName by option("--log-level", help = "Set the log level.")
         .choice("off", "error", "warn", "info", "debug", "trace", "all", ignoreCase = true)
         .default("info")
+
+    init {
+        context {
+            helpFormatter = { MordantHelpFormatter(it, showDefaultValues = true) }
+        }
+    }
 
     override fun run() {
         configureLogLevel(logLevelName)
