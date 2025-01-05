@@ -35,7 +35,7 @@ class EnumCommandHandler : DynamicCommandHandler {
             MetaType.Type(inputType ?: MetaType.Any),
             MetaType.Type(outputType ?: MetaType.Any),
             ScriptVarType.ENUM,
-            inputType ?: MetaType.Any
+            inputType ?: MetaType.Any,
         )
 
         // compare the expected types with the actual types

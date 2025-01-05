@@ -18,20 +18,16 @@ import java.util.Objects
 public class AssignmentStatement(
     source: NodeSourceLocation,
     public val vars: List<VariableExpression>,
-    public val expressions: List<Expression>
+    public val expressions: List<Expression>,
 ) : Statement(source) {
     init {
         addChild(vars)
         addChild(expressions)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitAssignmentStatement(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitAssignmentStatement(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(vars, expressions)
-    }
+    override fun hashCode(): Int = Objects.hash(vars, expressions)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -45,10 +41,8 @@ public class AssignmentStatement(
         return vars == other.vars && expressions == other.expressions
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("vars", vars)
-            .add("expressions", expressions)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("vars", vars)
+        .add("expressions", expressions)
+        .toString()
 }

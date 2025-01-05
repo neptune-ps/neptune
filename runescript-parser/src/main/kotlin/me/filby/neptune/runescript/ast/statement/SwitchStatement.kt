@@ -24,7 +24,7 @@ public class SwitchStatement(
     source: NodeSourceLocation,
     public val typeToken: Token,
     public val condition: Expression,
-    public val cases: List<SwitchCase>
+    public val cases: List<SwitchCase>,
 ) : Statement(source) {
     init {
         addChild(typeToken)
@@ -32,13 +32,9 @@ public class SwitchStatement(
         addChild(cases)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitSwitchStatement(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitSwitchStatement(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(typeToken, condition, cases)
-    }
+    override fun hashCode(): Int = Objects.hash(typeToken, condition, cases)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -52,11 +48,9 @@ public class SwitchStatement(
         return typeToken == other.typeToken && condition == other.condition && cases == other.cases
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("typeToken", typeToken)
-            .add("condition", condition)
-            .add("cases", cases)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("typeToken", typeToken)
+        .add("condition", condition)
+        .add("cases", cases)
+        .toString()
 }

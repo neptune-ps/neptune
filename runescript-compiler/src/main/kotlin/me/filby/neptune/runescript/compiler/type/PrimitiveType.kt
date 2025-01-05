@@ -17,9 +17,15 @@ public enum class PrimitiveType(
     INT('i', defaultValue = 0),
     BOOLEAN('1', defaultValue = 0),
     COORD('c', defaultValue = -1),
-    STRING('s', BaseVarType.STRING, defaultValue = "", { allowArray = false; allowSwitch = false }),
+    STRING('s', BaseVarType.STRING, defaultValue = "", {
+        allowArray = false
+        allowSwitch = false
+    }),
     CHAR('z', defaultValue = -1),
-    LONG('Ï', BaseVarType.LONG, defaultValue = -1L, { allowArray = false; allowSwitch = false }),
+    LONG('Ï', BaseVarType.LONG, defaultValue = -1L, {
+        allowArray = false
+        allowSwitch = false
+    }),
     ;
 
     override val representation: String = name.lowercase()
@@ -32,6 +38,6 @@ public enum class PrimitiveType(
     constructor(baseType: BaseVarType = BaseVarType.INTEGER, defaultValue: Any? = null) : this(
         null,
         baseType,
-        defaultValue
+        defaultValue,
     )
 }

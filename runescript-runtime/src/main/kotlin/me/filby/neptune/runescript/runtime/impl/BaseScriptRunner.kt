@@ -95,7 +95,9 @@ public abstract class BaseScriptRunner<T : ScriptState> : ScriptRunner<T> {
         private val POPINT_HANDLE = MethodHandles.lookup().unreflect(ScriptState::popInt.javaMethod)
         private val POPLONG_HANDLE = MethodHandles.lookup().unreflect(ScriptState::popLong.javaMethod)
         private val POPOBJ_HANDLE = MethodHandles.lookup().findVirtual(
-            ScriptState::class.java, "popObj", MethodType.methodType(Any::class.java)
+            ScriptState::class.java,
+            "popObj",
+            MethodType.methodType(Any::class.java),
         )
 
         fun buildHandle(instance: Any, func: KFunction<*>): MethodHandle {
@@ -137,7 +139,7 @@ public abstract class BaseScriptRunner<T : ScriptState> : ScriptRunner<T> {
             return MethodHandles.permuteArguments(
                 target,
                 MethodType.methodType(target.type().returnType(), permutedParameters),
-                *permutation
+                *permutation,
             )
         }
     }

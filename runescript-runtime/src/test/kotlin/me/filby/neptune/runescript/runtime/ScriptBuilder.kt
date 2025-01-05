@@ -36,17 +36,11 @@ internal class ScriptBuilder private constructor() {
         return createLongLocal()
     }
 
-    fun createIntLocal(): Int {
-        return intLocalCount++
-    }
+    fun createIntLocal(): Int = intLocalCount++
 
-    fun createObjLocal(): Int {
-        return objLocalCount++
-    }
+    fun createObjLocal(): Int = objLocalCount++
 
-    fun createLongLocal(): Int {
-        return longLocalCount++
-    }
+    fun createLongLocal(): Int = longLocalCount++
 
     fun instruction(opcode: Int, operand: Int = 0) {
         opcodes += opcode
@@ -76,7 +70,7 @@ internal class ScriptBuilder private constructor() {
             longLocalCount,
             intOperands.toIntArray(),
             objOperands.toTypedArray(),
-            emptyList()
+            emptyList(),
         )
     }
 

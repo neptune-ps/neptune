@@ -4,7 +4,7 @@ import me.filby.neptune.runescript.runtime.impl.Instruction
 import me.filby.neptune.runescript.runtime.impl.opcodes.BaseCoreOpcodes
 import me.filby.neptune.runescript.runtime.state.ScriptState
 
-@Suppress("unused", "TestFunctionName")
+@Suppress("unused", "TestFunctionName", "ktlint:standard:function-naming")
 class TestOpcodes {
     @Suppress("UnusedReceiverParameter")
     @Instruction(BaseCoreOpcodes.PRINTLN)

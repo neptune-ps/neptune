@@ -63,8 +63,8 @@ class TestRuneScriptParser {
     @ParameterizedTest
     @ValueSource(
         strings = [
-            "normal", "array"
-        ]
+            "normal", "array",
+        ],
     )
     @Order(STATEMENT)
     fun testDeclarationStatement(test: String) {
@@ -74,8 +74,8 @@ class TestRuneScriptParser {
     @ParameterizedTest
     @ValueSource(
         strings = [
-            "local", "local_array", "local_multi", "game", "game_multi", "mixed_multi"
-        ]
+            "local", "local_array", "local_multi", "game", "game_multi", "mixed_multi",
+        ],
     )
     @Order(STATEMENT)
     fun testAssignmentStatement(test: String) {
@@ -105,8 +105,8 @@ class TestRuneScriptParser {
         strings = [
             "add", "sub", "multiply", "divide",
             "modulo", "and", "or",
-            "precedence_core", "precedence_bitwise"
-        ]
+            "precedence_core", "precedence_bitwise",
+        ],
     )
     @Order(EXPRESSION)
     fun testCalc(test: String) {
@@ -118,8 +118,8 @@ class TestRuneScriptParser {
         strings = [
             "proc_no_args", "proc_args",
             "command_no_args", "command_args", "command_dot",
-            "jump_no_args", "jump_args"
-        ]
+            "jump_no_args", "jump_args",
+        ],
     )
     @Order(EXPRESSION)
     fun testCall(test: String) {
@@ -148,8 +148,8 @@ class TestRuneScriptParser {
             "string_basic", "string_escape",
             "char_basic", "char_escape",
             "int_basic", "int_hex",
-            "coord"
-        ]
+            "coord",
+        ],
     )
     @Order(EXPRESSION)
     fun testLiteral(test: String) {
@@ -179,7 +179,7 @@ class TestRuneScriptParser {
          */
         private fun runFileTest(name: String, entry: (RuneScriptParser) -> ParserRuleContext) = doubleUse(
             this::class.java.getResourceAsStream("$name.src") ?: error("$name.src does not exist"),
-            this::class.java.getResourceAsStream("$name.exp") ?: error("$name.exp does not exist")
+            this::class.java.getResourceAsStream("$name.exp") ?: error("$name.exp does not exist"),
         ) { input, output ->
             val ast = invokeParser(CharStreams.fromStream(input), entry) ?: error("parse error")
             val tree = ast.toStringTree().trim()
@@ -205,7 +205,7 @@ class TestRuneScriptParser {
                         is Literal<*> -> "${this::class.simpleName}(value=$value)"
                         is Token -> "Token(text=$text)"
                         else -> "${this::class.simpleName}()"
-                    }
+                    },
                 )
 
                 append(' ')
@@ -220,7 +220,7 @@ class TestRuneScriptParser {
         private inline fun doubleUse(
             s1: InputStream,
             s2: InputStream,
-            crossinline block: (InputStream, InputStream) -> Unit
+            crossinline block: (InputStream, InputStream) -> Unit,
         ) {
             s1.use {
                 s2.use {

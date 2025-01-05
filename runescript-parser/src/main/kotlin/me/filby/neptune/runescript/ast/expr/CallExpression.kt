@@ -11,19 +11,17 @@ import java.util.Objects
 public sealed class CallExpression(
     source: NodeSourceLocation,
     public val name: Identifier,
-    public val arguments: List<Expression>
+    public val arguments: List<Expression>,
 ) : Expression(source) {
     init {
         addChild(name)
         addChild(arguments)
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("name", name)
-            .add("arguments", arguments)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("name", name)
+        .add("arguments", arguments)
+        .toString()
 }
 
 /**
@@ -34,18 +32,11 @@ public sealed class CallExpression(
  * cc_settext("Example text")
  * ```
  */
-public class CommandCallExpression(
-    source: NodeSourceLocation,
-    name: Identifier,
-    arguments: List<Expression>
-) : CallExpression(source, name, arguments) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitCommandCallExpression(this)
-    }
+public class CommandCallExpression(source: NodeSourceLocation, name: Identifier, arguments: List<Expression>) :
+    CallExpression(source, name, arguments) {
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitCommandCallExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(name, arguments)
-    }
+    override fun hashCode(): Int = Objects.hash(name, arguments)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -67,18 +58,11 @@ public class CommandCallExpression(
  * ~some_user_defined_script(true);
  * ```
  */
-public class ProcCallExpression(
-    source: NodeSourceLocation,
-    name: Identifier,
-    arguments: List<Expression>
-) : CallExpression(source, name, arguments) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitProcCallExpression(this)
-    }
+public class ProcCallExpression(source: NodeSourceLocation, name: Identifier, arguments: List<Expression>) :
+    CallExpression(source, name, arguments) {
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitProcCallExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(name, arguments)
-    }
+    override fun hashCode(): Int = Objects.hash(name, arguments)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -101,18 +85,11 @@ public class ProcCallExpression(
  * @some_label(42);
  * ```
  */
-public class JumpCallExpression(
-    source: NodeSourceLocation,
-    name: Identifier,
-    arguments: List<Expression>
-) : CallExpression(source, name, arguments) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitJumpCallExpression(this)
-    }
+public class JumpCallExpression(source: NodeSourceLocation, name: Identifier, arguments: List<Expression>) :
+    CallExpression(source, name, arguments) {
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitJumpCallExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(name, arguments)
-    }
+    override fun hashCode(): Int = Objects.hash(name, arguments)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

@@ -7,5 +7,5 @@ package me.filby.neptune.runescript.compiler.type
 public enum class BaseVarType {
     INTEGER,
     STRING,
-    LONG
+    LONG,
 }

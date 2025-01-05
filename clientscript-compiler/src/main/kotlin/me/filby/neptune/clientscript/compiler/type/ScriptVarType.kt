@@ -3,11 +3,12 @@ package me.filby.neptune.clientscript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.Type
 
+@Suppress("ktlint:standard:spacing-between-declarations-with-comments")
 enum class ScriptVarType(
     override val code: Char?,
     override val baseType: BaseVarType = BaseVarType.INTEGER,
     override val defaultValue: Any? = -1,
-    representation: String? = null
+    representation: String? = null,
 ) : Type {
     // INT
     // BOOLEAN

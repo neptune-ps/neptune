@@ -74,7 +74,7 @@ import me.filby.neptune.runescript.compiler.type.TupleType
 public class CodeGenerator(
     private val rootTable: SymbolTable,
     private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
-    private val diagnostics: Diagnostics
+    private val diagnostics: Diagnostics,
 ) : AstVisitor<Unit> {
     /**
      * An instance of a [LabelGenerator] used to created labels within the instance.

@@ -26,7 +26,8 @@ public enum class ScriptStackType {
      * @see ScriptState.pushLong
      * @see ScriptState.popLong
      */
-    LONG;
+    LONG,
+    ;
 
     public companion object {
         /**

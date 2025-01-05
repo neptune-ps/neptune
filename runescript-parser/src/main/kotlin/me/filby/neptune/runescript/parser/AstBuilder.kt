@@ -90,14 +90,10 @@ import org.antlr.v4.runtime.ParserRuleContext
  * A visitor that converts an antlr parse tree into an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree). See
  * [Node] implementations for all possible pieces of the tree.
  */
-public class AstBuilder(
-    private val source: String,
-    private val lineOffset: Int,
-    private val columnOffset: Int
-) : RuneScriptParserBaseVisitor<Node>() {
-    override fun visitScriptFile(ctx: ScriptFileContext): Node {
-        return ScriptFile(ctx.location, ctx.script().map { it.visit() })
-    }
+public class AstBuilder(private val source: String, private val lineOffset: Int, private val columnOffset: Int) :
+    RuneScriptParserBaseVisitor<Node>() {
+    override fun visitScriptFile(ctx: ScriptFileContext): Node =
+        ScriptFile(ctx.location, ctx.script().map { it.visit() })
 
     override fun visitScript(ctx: ScriptContext): Node {
         val returns = ctx.typeList()?.IDENTIFIER()?.map { it.symbol.toAstToken() }
@@ -107,189 +103,149 @@ public class AstBuilder(
             name = ctx.name.visit(),
             parameters = ctx.parameterList()?.parameter()?.map { it.visit() },
             returnTokens = returns,
-            statements = ctx.statement().map { it.visit() }
+            statements = ctx.statement().map { it.visit() },
         )
     }
 
-    override fun visitParameter(ctx: ParameterContext): Node {
-        return Parameter(
-            source = ctx.location,
-            typeToken = ctx.type.toAstToken(),
-            name = ctx.advancedIdentifier().visit()
-        )
-    }
+    override fun visitParameter(ctx: ParameterContext): Node = Parameter(
+        source = ctx.location,
+        typeToken = ctx.type.toAstToken(),
+        name = ctx.advancedIdentifier().visit(),
+    )
 
-    override fun visitBlockStatement(ctx: BlockStatementContext): Node {
-        return BlockStatement(ctx.location, ctx.statement().map { it.visit() })
-    }
+    override fun visitBlockStatement(ctx: BlockStatementContext): Node = BlockStatement(
+        ctx.location,
+        ctx.statement().map {
+            it.visit()
+        },
+    )
 
-    override fun visitReturnStatement(ctx: ReturnStatementContext): Node {
-        return ReturnStatement(ctx.location, ctx.expressionList().visit())
-    }
+    override fun visitReturnStatement(ctx: ReturnStatementContext): Node =
+        ReturnStatement(ctx.location, ctx.expressionList().visit())
 
-    override fun visitIfStatement(ctx: IfStatementContext): Node {
-        return IfStatement(
-            source = ctx.location,
-            condition = ctx.condition().visit(),
-            thenStatement = ctx.statement(0).visit(),
-            elseStatement = ctx.statement(1)?.visit()
-        )
-    }
+    override fun visitIfStatement(ctx: IfStatementContext): Node = IfStatement(
+        source = ctx.location,
+        condition = ctx.condition().visit(),
+        thenStatement = ctx.statement(0).visit(),
+        elseStatement = ctx.statement(1)?.visit(),
+    )
 
-    override fun visitWhileStatement(ctx: WhileStatementContext): Node {
-        return WhileStatement(
-            source = ctx.location,
-            condition = ctx.condition().visit(),
-            thenStatement = ctx.statement().visit()
-        )
-    }
+    override fun visitWhileStatement(ctx: WhileStatementContext): Node = WhileStatement(
+        source = ctx.location,
+        condition = ctx.condition().visit(),
+        thenStatement = ctx.statement().visit(),
+    )
 
-    override fun visitSwitchStatement(ctx: SwitchStatementContext): Node {
-        return SwitchStatement(
-            source = ctx.location,
-            typeToken = ctx.SWITCH_TYPE().symbol.toAstToken(),
-            condition = ctx.parenthesis().visit(),
-            cases = ctx.switchCase().map { it.visit() }
-        )
-    }
+    override fun visitSwitchStatement(ctx: SwitchStatementContext): Node = SwitchStatement(
+        source = ctx.location,
+        typeToken = ctx.SWITCH_TYPE().symbol.toAstToken(),
+        condition = ctx.parenthesis().visit(),
+        cases = ctx.switchCase().map { it.visit() },
+    )
 
-    override fun visitSwitchCase(ctx: SwitchCaseContext): Node {
-        return SwitchCase(
-            source = ctx.location,
-            keys = ctx.expressionList()?.visit() ?: emptyList(),
-            statements = ctx.statement()?.map { it.visit() } ?: emptyList()
-        )
-    }
+    override fun visitSwitchCase(ctx: SwitchCaseContext): Node = SwitchCase(
+        source = ctx.location,
+        keys = ctx.expressionList()?.visit() ?: emptyList(),
+        statements = ctx.statement()?.map { it.visit() } ?: emptyList(),
+    )
 
-    override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node {
-        return DeclarationStatement(
-            source = ctx.location,
-            typeToken = ctx.DEF_TYPE().symbol.toAstToken(),
-            name = ctx.advancedIdentifier().visit(),
-            initializer = ctx.expression()?.visit()
-        )
-    }
+    override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node = DeclarationStatement(
+        source = ctx.location,
+        typeToken = ctx.DEF_TYPE().symbol.toAstToken(),
+        name = ctx.advancedIdentifier().visit(),
+        initializer = ctx.expression()?.visit(),
+    )
 
-    override fun visitArrayDeclarationStatement(ctx: ArrayDeclarationStatementContext): Node {
-        return ArrayDeclarationStatement(
+    override fun visitArrayDeclarationStatement(ctx: ArrayDeclarationStatementContext): Node =
+        ArrayDeclarationStatement(
             source = ctx.location,
             typeToken = ctx.DEF_TYPE().symbol.toAstToken(),
             name = ctx.advancedIdentifier().visit(),
-            initializer = ctx.parenthesis().visit()
+            initializer = ctx.parenthesis().visit(),
         )
-    }
 
-    override fun visitAssignmentStatement(ctx: AssignmentStatementContext): Node {
-        return AssignmentStatement(
-            source = ctx.location,
-            vars = ctx.assignableVariableList().assignableVariable().map { it.visit() },
-            expressions = ctx.expressionList().visit()
-        )
-    }
+    override fun visitAssignmentStatement(ctx: AssignmentStatementContext): Node = AssignmentStatement(
+        source = ctx.location,
+        vars = ctx.assignableVariableList().assignableVariable().map { it.visit() },
+        expressions = ctx.expressionList().visit(),
+    )
 
-    override fun visitExpressionStatement(ctx: ExpressionStatementContext): Node {
-        return ExpressionStatement(ctx.location, ctx.expression().visit())
-    }
+    override fun visitExpressionStatement(ctx: ExpressionStatementContext): Node =
+        ExpressionStatement(ctx.location, ctx.expression().visit())
 
-    override fun visitEmptyStatement(ctx: EmptyStatementContext): Node {
-        return EmptyStatement(ctx.location)
-    }
+    override fun visitEmptyStatement(ctx: EmptyStatementContext): Node = EmptyStatement(ctx.location)
 
     // only used for parsing constant values into an expression
-    override fun visitSingleExpression(ctx: RuneScriptParser.SingleExpressionContext): Node {
-        return ctx.expression().visit()
-    }
+    override fun visitSingleExpression(ctx: RuneScriptParser.SingleExpressionContext): Node = ctx.expression().visit()
 
-    override fun visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): Node {
-        return ParenthesizedExpression(ctx.location, ctx.parenthesis().visit())
-    }
+    override fun visitParenthesizedExpression(ctx: ParenthesizedExpressionContext): Node =
+        ParenthesizedExpression(ctx.location, ctx.parenthesis().visit())
 
-    override fun visitConditionParenthesizedExpression(ctx: ConditionParenthesizedExpressionContext): Node {
-        return ParenthesizedExpression(ctx.location, ctx.condition().visit())
-    }
+    override fun visitConditionParenthesizedExpression(ctx: ConditionParenthesizedExpressionContext): Node =
+        ParenthesizedExpression(ctx.location, ctx.condition().visit())
 
-    override fun visitArithmeticParenthesizedExpression(ctx: ArithmeticParenthesizedExpressionContext): Node {
-        return ParenthesizedExpression(ctx.location, ctx.arithmetic().visit())
-    }
+    override fun visitArithmeticParenthesizedExpression(ctx: ArithmeticParenthesizedExpressionContext): Node =
+        ParenthesizedExpression(ctx.location, ctx.arithmetic().visit())
 
-    override fun visitConditionBinaryExpression(ctx: ConditionBinaryExpressionContext): Node {
-        return ConditionExpression(
-            source = ctx.location,
-            left = ctx.condition(0).visit(),
-            operator = ctx.op.toAstToken(),
-            right = ctx.condition(1).visit()
-        )
-    }
+    override fun visitConditionBinaryExpression(ctx: ConditionBinaryExpressionContext): Node = ConditionExpression(
+        source = ctx.location,
+        left = ctx.condition(0).visit(),
+        operator = ctx.op.toAstToken(),
+        right = ctx.condition(1).visit(),
+    )
 
-    override fun visitArithmeticBinaryExpression(ctx: ArithmeticBinaryExpressionContext): Node {
-        return ArithmeticExpression(
-            source = ctx.location,
-            left = ctx.arithmetic(0).visit(),
-            operator = ctx.op.toAstToken(),
-            right = ctx.arithmetic(1).visit()
-        )
-    }
+    override fun visitArithmeticBinaryExpression(ctx: ArithmeticBinaryExpressionContext): Node = ArithmeticExpression(
+        source = ctx.location,
+        left = ctx.arithmetic(0).visit(),
+        operator = ctx.op.toAstToken(),
+        right = ctx.arithmetic(1).visit(),
+    )
 
-    override fun visitCalcExpression(ctx: CalcExpressionContext): Node {
-        return CalcExpression(ctx.location, ctx.calc().arithmetic().visit())
-    }
+    override fun visitCalcExpression(ctx: CalcExpressionContext): Node =
+        CalcExpression(ctx.location, ctx.calc().arithmetic().visit())
 
-    override fun visitCommandCallExpression(ctx: CommandCallExpressionContext): Node {
-        return CommandCallExpression(
-            source = ctx.location,
-            name = ctx.identifier().visit(),
-            arguments = ctx.expressionList().visit()
-        )
-    }
+    override fun visitCommandCallExpression(ctx: CommandCallExpressionContext): Node = CommandCallExpression(
+        source = ctx.location,
+        name = ctx.identifier().visit(),
+        arguments = ctx.expressionList().visit(),
+    )
 
-    override fun visitProcCallExpression(ctx: ProcCallExpressionContext): Node {
-        return ProcCallExpression(
-            source = ctx.location,
-            name = ctx.identifier().visit(),
-            arguments = ctx.expressionList().visit()
-        )
-    }
+    override fun visitProcCallExpression(ctx: ProcCallExpressionContext): Node = ProcCallExpression(
+        source = ctx.location,
+        name = ctx.identifier().visit(),
+        arguments = ctx.expressionList().visit(),
+    )
 
-    override fun visitJumpCallExpression(ctx: JumpCallExpressionContext): Node {
-        return JumpCallExpression(
-            source = ctx.location,
-            name = ctx.identifier().visit(),
-            arguments = ctx.expressionList().visit()
-        )
-    }
+    override fun visitJumpCallExpression(ctx: JumpCallExpressionContext): Node = JumpCallExpression(
+        source = ctx.location,
+        name = ctx.identifier().visit(),
+        arguments = ctx.expressionList().visit(),
+    )
 
-    override fun visitClientScript(ctx: RuneScriptParser.ClientScriptContext): Node {
-        return ClientScriptExpression(
-            source = ctx.location,
-            name = ctx.identifier().visit(),
-            arguments = ctx.args.visit(),
-            transmitList = ctx.triggers.visit()
-        )
-    }
+    override fun visitClientScript(ctx: RuneScriptParser.ClientScriptContext): Node = ClientScriptExpression(
+        source = ctx.location,
+        name = ctx.identifier().visit(),
+        arguments = ctx.args.visit(),
+        transmitList = ctx.triggers.visit(),
+    )
 
-    override fun visitLocalVariable(ctx: LocalVariableContext): Node {
-        return LocalVariableExpression(
-            source = ctx.location,
-            name = ctx.advancedIdentifier().visit(),
-            index = null
-        )
-    }
+    override fun visitLocalVariable(ctx: LocalVariableContext): Node = LocalVariableExpression(
+        source = ctx.location,
+        name = ctx.advancedIdentifier().visit(),
+        index = null,
+    )
 
-    override fun visitLocalArrayVariable(ctx: LocalArrayVariableContext): Node {
-        return LocalVariableExpression(
-            source = ctx.location,
-            name = ctx.advancedIdentifier().visit(),
-            index = ctx.parenthesis().visit()
-        )
-    }
+    override fun visitLocalArrayVariable(ctx: LocalArrayVariableContext): Node = LocalVariableExpression(
+        source = ctx.location,
+        name = ctx.advancedIdentifier().visit(),
+        index = ctx.parenthesis().visit(),
+    )
 
-    override fun visitGameVariable(ctx: GameVariableContext): Node {
-        return GameVariableExpression(ctx.location, ctx.advancedIdentifier().visit())
-    }
+    override fun visitGameVariable(ctx: GameVariableContext): Node =
+        GameVariableExpression(ctx.location, ctx.advancedIdentifier().visit())
 
-    override fun visitConstantVariable(ctx: ConstantVariableContext): Node {
-        return ConstantVariableExpression(ctx.location, ctx.advancedIdentifier().visit())
-    }
+    override fun visitConstantVariable(ctx: ConstantVariableContext): Node =
+        ConstantVariableExpression(ctx.location, ctx.advancedIdentifier().visit())
 
     override fun visitIntegerLiteral(ctx: IntegerLiteralContext): Node {
         val text = ctx.text
@@ -312,9 +268,10 @@ public class AstBuilder(
         return CoordLiteral(ctx.location, packed)
     }
 
-    override fun visitBooleanLiteral(ctx: BooleanLiteralContext): Node {
-        return BooleanLiteral(ctx.location, ctx.text.toBoolean())
-    }
+    override fun visitBooleanLiteral(ctx: BooleanLiteralContext): Node = BooleanLiteral(
+        ctx.location,
+        ctx.text.toBoolean(),
+    )
 
     override fun visitCharacterLiteral(ctx: CharacterLiteralContext): Node {
         val cleaned = ctx.text.substring(1, ctx.text.length - 1).unescape()
@@ -329,9 +286,7 @@ public class AstBuilder(
         return StringLiteral(ctx.location, ctx.text.substring(1, ctx.text.length - 1).unescape())
     }
 
-    override fun visitNullLiteral(ctx: NullLiteralContext): Node {
-        return NullLiteral(ctx.location)
-    }
+    override fun visitNullLiteral(ctx: NullLiteralContext): Node = NullLiteral(ctx.location)
 
     override fun visitJoinedString(ctx: JoinedStringContext): Node {
         // minus 2 because of the two quotation marks
@@ -363,13 +318,9 @@ public class AstBuilder(
         return JoinedStringExpression(ctx.location, parts.toList())
     }
 
-    override fun visitIdentifier(ctx: IdentifierContext): Node {
-        return Identifier(ctx.location, ctx.text)
-    }
+    override fun visitIdentifier(ctx: IdentifierContext): Node = Identifier(ctx.location, ctx.text)
 
-    override fun visitAdvancedIdentifier(ctx: AdvancedIdentifierContext): Node {
-        return Identifier(ctx.location, ctx.text)
-    }
+    override fun visitAdvancedIdentifier(ctx: AdvancedIdentifierContext): Node = Identifier(ctx.location, ctx.text)
 
     /**
      * The source location of the [ParserRuleContext].
@@ -394,9 +345,7 @@ public class AstBuilder(
     /**
      * Converts a [org.antlr.v4.runtime.Token] into a [Token] AST node.
      */
-    private fun org.antlr.v4.runtime.Token.toAstToken(): Token {
-        return Token(location, text)
-    }
+    private fun org.antlr.v4.runtime.Token.toAstToken(): Token = Token(location, text)
 
     /**
      * Helper that calls [RuneScriptParserBaseVisitor.visit] on the current context.
@@ -404,9 +353,7 @@ public class AstBuilder(
      * @return The [Node] casted to [T].
      */
     @Suppress("UNCHECKED_CAST")
-    private fun <T : Node> ParserRuleContext.visit(): T {
-        return visit(this) as T
-    }
+    private fun <T : Node> ParserRuleContext.visit(): T = visit(this) as T
 
     /**
      * Helper that converts an [ExpressionListContext] to a [List] of [Expression]s.
@@ -423,9 +370,7 @@ public class AstBuilder(
      *
      * @return The expression within `(` and `)`.
      */
-    private fun ParenthesisContext.visit(): Expression {
-        return expression().visit()
-    }
+    private fun ParenthesisContext.visit(): Expression = expression().visit()
 
     /**
      * Replaces escape sequences in a string.
@@ -444,7 +389,7 @@ public class AstBuilder(
                     when (next) {
                         '\\', '\'', '"', '<' -> next
                         else -> error("unsupported escape sequence: \\$next")
-                    }
+                    },
                 )
                 i++
             } else {

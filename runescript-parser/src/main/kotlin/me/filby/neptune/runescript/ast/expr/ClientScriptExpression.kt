@@ -17,19 +17,15 @@ public class ClientScriptExpression(
     source: NodeSourceLocation,
     name: Identifier,
     arguments: List<Expression>,
-    public val transmitList: List<Expression>
+    public val transmitList: List<Expression>,
 ) : CallExpression(source, name, arguments) {
     init {
         addChild(transmitList)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitClientScriptExpression(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitClientScriptExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(name, arguments, transmitList)
-    }
+    override fun hashCode(): Int = Objects.hash(name, arguments, transmitList)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -43,11 +39,9 @@ public class ClientScriptExpression(
         return name == other.name && arguments == other.arguments && transmitList == other.transmitList
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("name", name)
-            .add("arguments", arguments)
-            .add("triggers", transmitList)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("name", name)
+        .add("arguments", arguments)
+        .add("triggers", transmitList)
+        .toString()
 }

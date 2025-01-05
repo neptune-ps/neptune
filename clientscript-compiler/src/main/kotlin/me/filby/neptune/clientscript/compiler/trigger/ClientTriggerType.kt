@@ -27,19 +27,19 @@ enum class ClientTriggerType(
         15,
         subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT),
         allowParameters = true,
-        parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT)
+        parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT),
     ),
     WORLDMAPELEMENTMOUSELEAVE(
         16,
         subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT),
         allowParameters = true,
-        parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT)
+        parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT),
     ),
     WORLDMAPELEMENTMOUSEREPEAT(
         17,
         subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT),
         allowParameters = true,
-        parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT)
+        parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT),
     ),
     LOADNPC(35, subjectMode = SubjectMode.Type(ScriptVarType.NPC)),
     LOADLOC(37, subjectMode = SubjectMode.Type(ScriptVarType.LOC)),

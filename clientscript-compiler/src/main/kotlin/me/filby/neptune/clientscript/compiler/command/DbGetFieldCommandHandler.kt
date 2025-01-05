@@ -36,7 +36,7 @@ class DbGetFieldCommandHandler : DynamicCommandHandler {
         val expectedTypes = TupleType(
             ScriptVarType.DBROW,
             DbColumnType(columnReturnType ?: MetaType.Any),
-            PrimitiveType.INT
+            PrimitiveType.INT,
         )
 
         // compare the expected types with the actual types

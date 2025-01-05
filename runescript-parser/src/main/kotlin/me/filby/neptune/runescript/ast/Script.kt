@@ -26,7 +26,7 @@ public class Script(
     public val name: Identifier,
     public val parameters: List<Parameter>?,
     public val returnTokens: List<Token>?,
-    public val statements: List<Statement>
+    public val statements: List<Statement>,
 ) : Node(source) {
     init {
         addChild(trigger)
@@ -40,13 +40,9 @@ public class Script(
         addChild(statements)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitScript(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitScript(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(trigger, name, parameters, returnTokens, statements)
-    }
+    override fun hashCode(): Int = Objects.hash(trigger, name, parameters, returnTokens, statements)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -57,17 +53,18 @@ public class Script(
             return false
         }
 
-        return trigger == other.trigger && name == other.name && parameters == other.parameters &&
-            returnTokens == other.returnTokens && statements == other.statements
+        return trigger == other.trigger &&
+            name == other.name &&
+            parameters == other.parameters &&
+            returnTokens == other.returnTokens &&
+            statements == other.statements
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("trigger", trigger)
-            .add("name", name)
-            .add("parameters", parameters)
-            .add("returnTokens", returnTokens)
-            .add("statements", statements)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("trigger", trigger)
+        .add("name", name)
+        .add("parameters", parameters)
+        .add("returnTokens", returnTokens)
+        .add("statements", statements)
+        .toString()
 }

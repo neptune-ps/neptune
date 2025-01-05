@@ -15,7 +15,7 @@ internal class ParserErrorListener(
     private val sourceFile: String,
     private val diagnostics: Diagnostics,
     private val lineOffset: Int = 0,
-    private val columnOffset: Int = 0
+    private val columnOffset: Int = 0,
 ) : BaseErrorListener() {
     override fun syntaxError(
         recognizer: Recognizer<*, *>,
@@ -23,7 +23,7 @@ internal class ParserErrorListener(
         line: Int,
         charPositionInLine: Int,
         msg: String,
-        e: RecognitionException?
+        e: RecognitionException?,
     ) {
         // column offset only if we're on the first line since new line will reset the offset
         val columnOffset = if (line == 1) columnOffset else 0

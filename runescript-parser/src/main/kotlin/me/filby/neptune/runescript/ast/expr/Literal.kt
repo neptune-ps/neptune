@@ -9,9 +9,7 @@ import java.util.Objects
  * An [Expression] that represents a constant value of [T].
  */
 public sealed class Literal<T>(source: NodeSourceLocation, public val value: T) : Expression(source) {
-    override fun hashCode(): Int {
-        return Objects.hashCode(value)
-    }
+    override fun hashCode(): Int = Objects.hashCode(value)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -25,11 +23,9 @@ public sealed class Literal<T>(source: NodeSourceLocation, public val value: T) 
         return value == other.value
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("value", value)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("value", value)
+        .toString()
 }
 
 /**
@@ -41,9 +37,7 @@ public sealed class Literal<T>(source: NodeSourceLocation, public val value: T) 
  * ```
  */
 public class IntegerLiteral(source: NodeSourceLocation, value: Int) : Literal<Int>(source, value) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitIntegerLiteral(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitIntegerLiteral(this)
 }
 
 /**
@@ -55,9 +49,7 @@ public class IntegerLiteral(source: NodeSourceLocation, value: Int) : Literal<In
  * ```
  */
 public class CoordLiteral(source: NodeSourceLocation, value: Int) : Literal<Int>(source, value) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitCoordLiteral(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitCoordLiteral(this)
 }
 
 /**
@@ -69,9 +61,7 @@ public class CoordLiteral(source: NodeSourceLocation, value: Int) : Literal<Int>
  * ```
  */
 public class BooleanLiteral(source: NodeSourceLocation, value: Boolean) : Literal<Boolean>(source, value) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitBooleanLiteral(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitBooleanLiteral(this)
 }
 
 /**
@@ -83,9 +73,7 @@ public class BooleanLiteral(source: NodeSourceLocation, value: Boolean) : Litera
  * ```
  */
 public class CharacterLiteral(source: NodeSourceLocation, value: Char) : Literal<Char>(source, value) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitCharacterLiteral(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitCharacterLiteral(this)
 }
 
 /**
@@ -98,9 +86,7 @@ public class CharacterLiteral(source: NodeSourceLocation, value: Char) : Literal
  * ```
  */
 public class StringLiteral(source: NodeSourceLocation, value: String) : Literal<String>(source, value) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitStringLiteral(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitStringLiteral(this)
 }
 
 /**
@@ -112,7 +98,5 @@ public class StringLiteral(source: NodeSourceLocation, value: String) : Literal<
  * ```
  */
 public class NullLiteral(source: NodeSourceLocation) : Literal<Int>(source, -1) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitNullLiteral(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitNullLiteral(this)
 }

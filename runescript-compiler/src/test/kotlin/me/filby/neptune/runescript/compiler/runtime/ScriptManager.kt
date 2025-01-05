@@ -8,7 +8,9 @@ import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
 import me.filby.neptune.runescript.runtime.Script
 import me.filby.neptune.runescript.runtime.impl.ScriptProvider
 
-class ScriptManager : ScriptProvider, BaseScriptWriter.IdProvider {
+class ScriptManager :
+    ScriptProvider,
+    BaseScriptWriter.IdProvider {
     private val scripts = mutableMapOf<Int, Script>()
 
     private val scriptsByTrigger = HashMultimap.create<TriggerType, Script>()

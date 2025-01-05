@@ -9,10 +9,8 @@ import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter.Companion.getLocalCount
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter.Companion.getParameterCount
 
-class BinaryScriptWriterContext(
-    script: RuneScript,
-    private val allocator: ByteBufAllocator,
-) : BaseScriptWriter.BaseScriptWriterContext(script) {
+class BinaryScriptWriterContext(script: RuneScript, private val allocator: ByteBufAllocator) :
+    BaseScriptWriter.BaseScriptWriterContext(script) {
     /**
      * The buffer that contains all instruction information.
      */

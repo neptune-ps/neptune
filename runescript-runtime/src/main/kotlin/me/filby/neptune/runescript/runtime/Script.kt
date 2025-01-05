@@ -21,7 +21,7 @@ public class Script(
     public val longLocalCount: Int,
     public val intOperands: IntArray,
     public val objOperands: Array<Any?>,
-    public val switchTables: List<SwitchTable>
+    public val switchTables: List<SwitchTable>,
 ) {
     init {
         require(opcodes.size == intOperands.size) { "${opcodes.size} != ${intOperands.size}" }

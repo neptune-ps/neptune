@@ -12,23 +12,16 @@ import me.filby.neptune.runescript.ast.expr.Identifier
  * int $some_name
  * ```
  */
-public class Parameter(
-    source: NodeSourceLocation,
-    public val typeToken: Token,
-    public val name: Identifier
-) : Node(source) {
+public class Parameter(source: NodeSourceLocation, public val typeToken: Token, public val name: Identifier) :
+    Node(source) {
     init {
         addChild(typeToken)
         addChild(name)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitParameter(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitParameter(this)
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(typeToken, name)
-    }
+    override fun hashCode(): Int = Objects.hashCode(typeToken, name)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -42,10 +35,8 @@ public class Parameter(
         return typeToken == other.typeToken && name == other.name
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("typeToken", typeToken)
-            .add("name", name)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("typeToken", typeToken)
+        .add("name", name)
+        .toString()
 }

@@ -13,21 +13,15 @@ import java.util.Objects
  * "The value of $var is <$var>."
  * ```
  */
-public class JoinedStringExpression(
-    source: NodeSourceLocation,
-    public val parts: List<StringPart>
-) : Expression(source) {
+public class JoinedStringExpression(source: NodeSourceLocation, public val parts: List<StringPart>) :
+    Expression(source) {
     init {
         addChild(parts)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitJoinedStringExpression(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitJoinedStringExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(parts)
-    }
+    override fun hashCode(): Int = Objects.hashCode(parts)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -41,9 +35,7 @@ public class JoinedStringExpression(
         return parts == other.parts
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("parts", parts)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("parts", parts)
+        .toString()
 }

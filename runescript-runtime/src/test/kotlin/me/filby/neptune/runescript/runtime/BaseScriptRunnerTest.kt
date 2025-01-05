@@ -77,9 +77,7 @@ class BaseScriptRunnerTest {
 
         val runner = kotlin.run {
             val runner = object : BaseScriptRunner<ScriptState>() {
-                override fun createState(): ScriptState {
-                    return ScriptState()
-                }
+                override fun createState(): ScriptState = ScriptState()
             }
             runner.registerHandlersFrom(CoreOpcodesBase<ScriptState>(scriptProvider))
             runner.registerHandlersFrom(MathOpcodesBase<ScriptState>())

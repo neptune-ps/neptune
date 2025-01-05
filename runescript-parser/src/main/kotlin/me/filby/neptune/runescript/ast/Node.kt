@@ -80,9 +80,7 @@ public abstract class Node(public val source: NodeSourceLocation) {
      * Returns an attribute based on the given [key].
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T> getAttribute(key: String): T? {
-        return attributes[key] as T?
-    }
+    public fun <T> getAttribute(key: String): T? = attributes[key] as T?
 
     /**
      * Adds (or replaces) an attribute with the given [key] with a value [value].
@@ -111,20 +109,19 @@ public abstract class Node(public val source: NodeSourceLocation) {
          * Returns a [ReadWriteProperty] for accessing attributes through delegation. If the attribute is not found an
          * error is thrown.
          */
-        public fun <T> attribute(key: String): ReadWriteProperty<Node, T> =
-            object : ReadWriteProperty<Node, T> {
-                @Suppress("UNCHECKED_CAST")
-                override fun getValue(thisRef: Node, property: KProperty<*>): T {
-                    if (thisRef.attributes.containsKey(key)) {
-                        return thisRef.getAttribute<T>(key) as T
-                    }
-                    throw IllegalStateException("Property '${property.name}' should be initialized before get.")
+        public fun <T> attribute(key: String): ReadWriteProperty<Node, T> = object : ReadWriteProperty<Node, T> {
+            @Suppress("UNCHECKED_CAST")
+            override fun getValue(thisRef: Node, property: KProperty<*>): T {
+                if (thisRef.attributes.containsKey(key)) {
+                    return thisRef.getAttribute<T>(key) as T
                 }
-
-                override fun setValue(thisRef: Node, property: KProperty<*>, value: T) {
-                    thisRef.putAttribute(key, value)
-                }
+                throw IllegalStateException("Property '${property.name}' should be initialized before get.")
             }
+
+            override fun setValue(thisRef: Node, property: KProperty<*>, value: T) {
+                thisRef.putAttribute(key, value)
+            }
+        }
 
         /**
          * Returns a [ReadWriteProperty] for accessing attributes through delegation, if the attribute is not defined
@@ -132,10 +129,7 @@ public abstract class Node(public val source: NodeSourceLocation) {
          */
         public fun <T : Any> attributeOrNull(key: String): ReadWriteProperty<Node, T?> =
             object : ReadWriteProperty<Node, T?> {
-                @Suppress("UNCHECKED_CAST")
-                override fun getValue(thisRef: Node, property: KProperty<*>): T? {
-                    return thisRef.getAttribute(key) as T?
-                }
+                override fun getValue(thisRef: Node, property: KProperty<*>): T? = thisRef.getAttribute(key) as T?
 
                 override fun setValue(thisRef: Node, property: KProperty<*>, value: T?) {
                     thisRef.putAttribute(key, value)

@@ -180,10 +180,8 @@ private class CommandSymbolLoader : SymbolLoader {
     }
 }
 
-private class TestDiagnosticsHandler(
-    private val file: File,
-    private val expectedErrors: ArrayDeque<String>,
-) : DiagnosticsHandler {
+private class TestDiagnosticsHandler(private val file: File, private val expectedErrors: ArrayDeque<String>) :
+    DiagnosticsHandler {
     var hasUnexpectedErrors = false
         private set
 

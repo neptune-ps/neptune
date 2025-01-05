@@ -14,16 +14,13 @@ import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
 import me.filby.neptune.runescript.runtime.impl.opcodes.BaseCoreOpcodes
 
-internal class TestScriptWriter(
-    private val scriptManager: ScriptManager
-) : BaseScriptWriter<TestScriptWriterContext>(scriptManager) {
+internal class TestScriptWriter(private val scriptManager: ScriptManager) :
+    BaseScriptWriter<TestScriptWriterContext>(scriptManager) {
     override fun finishWrite(script: RuneScript, context: TestScriptWriterContext) {
         scriptManager.add(script.trigger, context.build())
     }
 
-    override fun createContext(script: RuneScript): TestScriptWriterContext {
-        return TestScriptWriterContext(script)
-    }
+    override fun createContext(script: RuneScript): TestScriptWriterContext = TestScriptWriterContext(script)
 
     override fun TestScriptWriterContext.enterBlock(block: Block) {
     }

@@ -22,9 +22,7 @@ public data class ArrayType(public override val inner: Type) : WrappedType {
     override val defaultValue: Any
         get() = error("ArrayType has no default value.")
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("inner", inner)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("inner", inner)
+        .toString()
 }

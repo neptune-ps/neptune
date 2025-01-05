@@ -14,11 +14,9 @@ public sealed class VariableExpression(source: NodeSourceLocation, public val na
         addChild(name)
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("name", name)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("name", name)
+        .toString()
 }
 
 /**
@@ -32,7 +30,7 @@ public sealed class VariableExpression(source: NodeSourceLocation, public val na
 public class LocalVariableExpression(
     source: NodeSourceLocation,
     name: Identifier,
-    public val index: Expression? = null
+    public val index: Expression? = null,
 ) : VariableExpression(source, name) {
     init {
         addChild(index)
@@ -43,13 +41,9 @@ public class LocalVariableExpression(
      */
     public val isArray: Boolean get() = index != null
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitLocalVariableExpression(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitLocalVariableExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(name, index)
-    }
+    override fun hashCode(): Int = Objects.hash(name, index)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -63,12 +57,10 @@ public class LocalVariableExpression(
         return name == other.name && index == other.index
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("name", name)
-            .add("index", index)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("name", name)
+        .add("index", index)
+        .toString()
 }
 
 /**
@@ -80,13 +72,9 @@ public class LocalVariableExpression(
  * ```
  */
 public class GameVariableExpression(source: NodeSourceLocation, name: Identifier) : VariableExpression(source, name) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitGameVariableExpression(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitGameVariableExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(name)
-    }
+    override fun hashCode(): Int = Objects.hashCode(name)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -109,17 +97,11 @@ public class GameVariableExpression(source: NodeSourceLocation, name: Identifier
  * ^var
  * ```
  */
-public class ConstantVariableExpression(
-    source: NodeSourceLocation,
-    name: Identifier
-) : VariableExpression(source, name) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitConstantVariableExpression(this)
-    }
+public class ConstantVariableExpression(source: NodeSourceLocation, name: Identifier) :
+    VariableExpression(source, name) {
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitConstantVariableExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(name)
-    }
+    override fun hashCode(): Int = Objects.hashCode(name)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

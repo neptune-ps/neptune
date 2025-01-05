@@ -45,7 +45,7 @@ public class TypeManager {
         code: Char? = null,
         baseType: BaseVarType = BaseVarType.INTEGER,
         defaultValue: Any = -1,
-        builder: TypeBuilder? = null
+        builder: TypeBuilder? = null,
     ): Type {
         val options = MutableTypeOptions()
         builder?.invoke(options)
@@ -93,9 +93,8 @@ public class TypeManager {
      *
      * If the type doesn't exist an exception is thrown.
      */
-    public fun find(name: String, allowArray: Boolean = false): Type {
-        return findOrNull(name, allowArray) ?: error("Unable to find type: '$name'")
-    }
+    public fun find(name: String, allowArray: Boolean = false): Type =
+        findOrNull(name, allowArray) ?: error("Unable to find type: '$name'")
 
     /**
      * Finds a type by [name]. If [allowArray] is enabled, names ending with `array`
@@ -134,7 +133,5 @@ public class TypeManager {
     /**
      * Checks to see if [right] is assignable to [left].
      */
-    public fun check(left: Type, right: Type): Boolean {
-        return checkers.any { checker -> checker(left, right) }
-    }
+    public fun check(left: Type, right: Type): Boolean = checkers.any { checker -> checker(left, right) }
 }

@@ -54,7 +54,7 @@ class TestScriptWriterContext(script: RuneScript) : BaseScriptWriterContext(scri
             longLocalCount,
             intOperands.toIntArray(),
             objOperands.toTypedArray(),
-            switchTables
+            switchTables,
         )
     }
 }

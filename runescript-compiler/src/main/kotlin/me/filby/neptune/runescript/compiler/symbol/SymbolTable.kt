@@ -73,14 +73,10 @@ public class SymbolTable private constructor(private val parent: SymbolTable? = 
      * Searches for all symbols in the table and all parent tables with the name of [name],
      * and optionally a type of [T].
      */
-    public inline fun <reified T : Symbol> findAll(name: String): Sequence<T> {
-        return findAll(name, T::class)
-    }
+    public inline fun <reified T : Symbol> findAll(name: String): Sequence<T> = findAll(name, T::class)
 
     /**
      * Creates a new [SymbolType] with `this` as the parent.
      */
-    public fun createSubTable(): SymbolTable {
-        return SymbolTable(this)
-    }
+    public fun createSubTable(): SymbolTable = SymbolTable(this)
 }

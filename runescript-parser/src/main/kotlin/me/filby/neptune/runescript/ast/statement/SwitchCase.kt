@@ -16,7 +16,7 @@ import java.util.Objects
 public class SwitchCase(
     source: NodeSourceLocation,
     public val keys: List<Expression>,
-    public val statements: List<Statement>
+    public val statements: List<Statement>,
 ) : Node(source) {
     init {
         addChild(keys)
@@ -28,13 +28,9 @@ public class SwitchCase(
      */
     public val isDefault: Boolean get() = keys.isEmpty()
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitSwitchCase(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitSwitchCase(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(keys, statements)
-    }
+    override fun hashCode(): Int = Objects.hash(keys, statements)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -48,10 +44,8 @@ public class SwitchCase(
         return keys == other.keys && statements == other.statements
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("keys", keys)
-            .add("statements", statements)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("keys", keys)
+        .add("statements", statements)
+        .toString()
 }

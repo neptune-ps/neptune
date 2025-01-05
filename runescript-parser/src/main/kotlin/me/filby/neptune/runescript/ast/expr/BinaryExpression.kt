@@ -30,13 +30,9 @@ public sealed class BinaryExpression(
         addChild(right)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitBinaryExpression(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitBinaryExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(left, operator, right)
-    }
+    override fun hashCode(): Int = Objects.hash(left, operator, right)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -52,27 +48,19 @@ public sealed class BinaryExpression(
             right == other.right
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("left", left)
-            .add("operator", operator)
-            .add("right", right)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("left", left)
+        .add("operator", operator)
+        .add("right", right)
+        .toString()
 }
 
 /**
  * A type of [BinaryExpression] that is used for conditions within `if` and `while` statements.
  */
-public class ConditionExpression(
-    source: NodeSourceLocation,
-    left: Expression,
-    operator: Token,
-    right: Expression,
-) : BinaryExpression(source, left, operator, right) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitConditionExpression(this)
-    }
+public class ConditionExpression(source: NodeSourceLocation, left: Expression, operator: Token, right: Expression) :
+    BinaryExpression(source, left, operator, right) {
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitConditionExpression(this)
 }
 
 /**
@@ -80,13 +68,7 @@ public class ConditionExpression(
  *
  * The valid operators are: `*` (multiply), `/` (divide), `%` (modulo), `+` (add), `-` (subtract), `&` (and), `|` (or).
  */
-public class ArithmeticExpression(
-    source: NodeSourceLocation,
-    left: Expression,
-    operator: Token,
-    right: Expression,
-) : BinaryExpression(source, left, operator, right) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitArithmeticExpression(this)
-    }
+public class ArithmeticExpression(source: NodeSourceLocation, left: Expression, operator: Token, right: Expression) :
+    BinaryExpression(source, left, operator, right) {
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitArithmeticExpression(this)
 }

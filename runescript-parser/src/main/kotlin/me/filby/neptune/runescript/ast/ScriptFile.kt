@@ -13,13 +13,9 @@ public class ScriptFile(source: NodeSourceLocation, public val scripts: List<Scr
         addChild(scripts)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitScriptFile(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitScriptFile(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(scripts)
-    }
+    override fun hashCode(): Int = Objects.hash(scripts)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -33,9 +29,7 @@ public class ScriptFile(source: NodeSourceLocation, public val scripts: List<Scr
         return scripts == other.scripts
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("scripts", scripts)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("scripts", scripts)
+        .toString()
 }

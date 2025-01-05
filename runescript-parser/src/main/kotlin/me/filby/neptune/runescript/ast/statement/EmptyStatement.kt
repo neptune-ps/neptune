@@ -13,13 +13,9 @@ import me.filby.neptune.runescript.ast.NodeSourceLocation
  * ```
  */
 public class EmptyStatement(source: NodeSourceLocation) : Statement(source) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitEmptyStatement(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitEmptyStatement(this)
 
-    override fun hashCode(): Int {
-        return EmptyStatement::class.java.hashCode()
-    }
+    override fun hashCode(): Int = EmptyStatement::class.java.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if (other is EmptyStatement) {
@@ -28,8 +24,6 @@ public class EmptyStatement(source: NodeSourceLocation) : Statement(source) {
         return false
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .toString()
 }

@@ -23,7 +23,7 @@ class DbFindCommandHandler(private val withCount: Boolean) : DynamicCommandHandl
         // define the expected types based on what is currently known
         val expectedTypes = TupleType(
             DbColumnType(keyType ?: MetaType.Any),
-            keyType ?: MetaType.Any
+            keyType ?: MetaType.Any,
         )
 
         // check that the key type is not a tuple type

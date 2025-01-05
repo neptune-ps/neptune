@@ -24,8 +24,8 @@ class TypeTest {
                     PrimitiveType.LONG,
                     PrimitiveType.BOOLEAN,
                 ),
-                PrimitiveType.INT
-            )
+                PrimitiveType.INT,
+            ),
         )
 
         // test if tuple type flattens properly
@@ -41,9 +41,9 @@ class TypeTest {
                 PrimitiveType.BOOLEAN,
                 PrimitiveType.LONG,
                 PrimitiveType.BOOLEAN,
-                PrimitiveType.INT
+                PrimitiveType.INT,
             ),
-            type.children
+            type.children,
         )
     }
 }

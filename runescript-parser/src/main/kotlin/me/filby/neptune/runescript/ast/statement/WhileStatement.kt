@@ -27,13 +27,9 @@ public class WhileStatement(
         addChild(thenStatement)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitWhileStatement(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitWhileStatement(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(condition, thenStatement)
-    }
+    override fun hashCode(): Int = Objects.hash(condition, thenStatement)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -47,10 +43,8 @@ public class WhileStatement(
         return condition == other.condition && thenStatement == other.thenStatement
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("condition", condition)
-            .add("thenStatement", thenStatement)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("condition", condition)
+        .add("thenStatement", thenStatement)
+        .toString()
 }

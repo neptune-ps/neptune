@@ -13,21 +13,15 @@ import java.util.Objects
  * ($var1 = 0 | $var2 = 0) & $var3 = 1
  * ```
  */
-public class ParenthesizedExpression(
-    source: NodeSourceLocation,
-    public val expression: Expression
-) : Expression(source) {
+public class ParenthesizedExpression(source: NodeSourceLocation, public val expression: Expression) :
+    Expression(source) {
     init {
         addChild(expression)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitParenthesizedExpression(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitParenthesizedExpression(this)
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(expression)
-    }
+    override fun hashCode(): Int = Objects.hashCode(expression)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -41,9 +35,7 @@ public class ParenthesizedExpression(
         return expression == other.expression
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("expression", expression)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("expression", expression)
+        .toString()
 }

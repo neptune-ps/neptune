@@ -42,7 +42,9 @@ public sealed class MetaType(private val name: String) : MainType {
     /**
      * A special type used when referencing other types.
      */
-    public data class Type(override val inner: MainType) : MetaType("type"), WrappedType {
+    public data class Type(override val inner: MainType) :
+        MetaType("type"),
+        WrappedType {
         override val representation: String = "type<${inner.representation}>"
     }
 
@@ -83,6 +85,6 @@ public sealed class MetaType(private val name: String) : MainType {
     override val options: TypeOptions = MutableTypeOptions(
         allowSwitch = false,
         allowArray = false,
-        allowDeclaration = false
+        allowDeclaration = false,
     )
 }

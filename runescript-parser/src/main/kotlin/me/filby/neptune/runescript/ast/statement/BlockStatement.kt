@@ -20,13 +20,9 @@ public class BlockStatement(source: NodeSourceLocation, public val statements: L
         addChild(statements)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitBlockStatement(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitBlockStatement(this)
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(statements)
-    }
+    override fun hashCode(): Int = Objects.hashCode(statements)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -40,9 +36,7 @@ public class BlockStatement(source: NodeSourceLocation, public val statements: L
         return statements == other.statements
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("statements", statements)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("statements", statements)
+        .toString()
 }

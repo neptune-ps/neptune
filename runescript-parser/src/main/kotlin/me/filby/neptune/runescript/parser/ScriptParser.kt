@@ -13,46 +13,34 @@ import org.antlr.v4.runtime.ParserRuleContext
 import java.nio.file.Path
 
 public object ScriptParser {
-    public fun createScriptFile(
-        input: Path,
-        errorListener: ANTLRErrorListener? = null,
-    ): ScriptFile? {
+    public fun createScriptFile(input: Path, errorListener: ANTLRErrorListener? = null): ScriptFile? {
         val absoluteNormalized = input.toAbsolutePath().normalize()
         return invokeParser(
             CharStreams.fromPath(absoluteNormalized),
             RuneScriptParser::scriptFile,
-            errorListener
+            errorListener,
         ) as? ScriptFile
     }
 
-    public fun createScriptFile(
-        scriptFile: String,
-        errorListener: ANTLRErrorListener? = null,
-    ): ScriptFile? {
-        return invokeParser(
+    public fun createScriptFile(scriptFile: String, errorListener: ANTLRErrorListener? = null): ScriptFile? =
+        invokeParser(
             CharStreams.fromString(scriptFile, "<source>"),
             RuneScriptParser::scriptFile,
-            errorListener
+            errorListener,
         ) as? ScriptFile
-    }
 
-    public fun createScript(
-        script: String,
-        errorListener: ANTLRErrorListener? = null,
-    ): Script? {
-        return invokeParser(
-            CharStreams.fromString(script, "<source>"),
-            RuneScriptParser::script,
-            errorListener
-        ) as? Script
-    }
+    public fun createScript(script: String, errorListener: ANTLRErrorListener? = null): Script? = invokeParser(
+        CharStreams.fromString(script, "<source>"),
+        RuneScriptParser::script,
+        errorListener,
+    ) as? Script
 
     public fun invokeParser(
         stream: CharStream,
         entry: (RuneScriptParser) -> ParserRuleContext,
         errorListener: ANTLRErrorListener? = null,
         lineOffset: Int = 0,
-        columnOffset: Int = 0
+        columnOffset: Int = 0,
     ): Node? {
         val lexer = RuneScriptLexer(stream)
         val tokens = CommonTokenStream(lexer)

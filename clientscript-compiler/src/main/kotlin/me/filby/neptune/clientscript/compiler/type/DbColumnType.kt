@@ -18,6 +18,6 @@ class DbColumnType(override val inner: Type) : WrappedType {
     override val options: TypeOptions = MutableTypeOptions(
         allowSwitch = false,
         allowArray = false,
-        allowDeclaration = false
+        allowDeclaration = false,
     )
 }

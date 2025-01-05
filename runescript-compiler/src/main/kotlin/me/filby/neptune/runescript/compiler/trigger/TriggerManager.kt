@@ -47,16 +47,12 @@ public class TriggerManager {
     /**
      * Finds a trigger by [name]. If a trigger was not found an error is thrown.
      */
-    public fun find(name: String): TriggerType {
-        return nameToTrigger[name] ?: error("Unable to find trigger '$name'.")
-    }
+    public fun find(name: String): TriggerType = nameToTrigger[name] ?: error("Unable to find trigger '$name'.")
 
     /**
      * Finds a trigger by [name].
      *
      * If a trigger with the name was not found, `null` is returned.
      */
-    public fun findOrNull(name: String): TriggerType? {
-        return nameToTrigger[name]
-    }
+    public fun findOrNull(name: String): TriggerType? = nameToTrigger[name]
 }

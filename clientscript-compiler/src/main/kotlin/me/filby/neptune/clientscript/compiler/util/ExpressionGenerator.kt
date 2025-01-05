@@ -20,13 +20,11 @@ import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.StringPart
 
 class ExpressionGenerator : AstVisitor<String> {
-    override fun visitBinaryExpression(binaryExpression: BinaryExpression): String {
-        return "${binaryExpression.left.visit()} ${binaryExpression.operator.text} ${binaryExpression.right.visit()}"
-    }
+    override fun visitBinaryExpression(binaryExpression: BinaryExpression): String =
+        "${binaryExpression.left.visit()} ${binaryExpression.operator.text} ${binaryExpression.right.visit()}"
 
-    override fun visitCalcExpression(calcExpression: CalcExpression): String {
-        return "calc(${calcExpression.expression.visit()})"
-    }
+    override fun visitCalcExpression(calcExpression: CalcExpression): String =
+        "calc(${calcExpression.expression.visit()})"
 
     override fun visitCommandCallExpression(commandCallExpression: CommandCallExpression) = buildString {
         append(commandCallExpression.name.visit())
@@ -47,33 +45,22 @@ class ExpressionGenerator : AstVisitor<String> {
         }
     }
 
-    override fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression): String {
-        return "${'$'}${localVariableExpression.name.visit()}"
-    }
+    override fun visitLocalVariableExpression(localVariableExpression: LocalVariableExpression): String =
+        "${'$'}${localVariableExpression.name.visit()}"
 
-    override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression): String {
-        return "%${gameVariableExpression.name.visit()}"
-    }
+    override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression): String =
+        "%${gameVariableExpression.name.visit()}"
 
-    override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression): String {
-        return "^${constantVariableExpression.name.visit()}"
-    }
+    override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression): String =
+        "^${constantVariableExpression.name.visit()}"
 
-    override fun visitCharacterLiteral(characterLiteral: CharacterLiteral): String {
-        return "'${characterLiteral.value}'"
-    }
+    override fun visitCharacterLiteral(characterLiteral: CharacterLiteral): String = "'${characterLiteral.value}'"
 
-    override fun visitNullLiteral(nullLiteral: NullLiteral): String {
-        return "null"
-    }
+    override fun visitNullLiteral(nullLiteral: NullLiteral): String = "null"
 
-    override fun visitStringLiteral(stringLiteral: StringLiteral): String {
-        return "\"${stringLiteral.value}\""
-    }
+    override fun visitStringLiteral(stringLiteral: StringLiteral): String = "\"${stringLiteral.value}\""
 
-    override fun visitLiteral(literal: Literal<*>): String {
-        return literal.value.toString()
-    }
+    override fun visitLiteral(literal: Literal<*>): String = literal.value.toString()
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) = buildString {
         append('"')
@@ -83,19 +70,13 @@ class ExpressionGenerator : AstVisitor<String> {
         append('"')
     }
 
-    override fun visitJoinedStringPart(stringPart: StringPart): String {
-        return when (stringPart) {
-            is BasicStringPart -> stringPart.value
-            is ExpressionStringPart -> "<${stringPart.expression.visit()}>"
-            else -> error("Unsupported StringPart: $stringPart")
-        }
+    override fun visitJoinedStringPart(stringPart: StringPart): String = when (stringPart) {
+        is BasicStringPart -> stringPart.value
+        is ExpressionStringPart -> "<${stringPart.expression.visit()}>"
+        else -> error("Unsupported StringPart: $stringPart")
     }
 
-    override fun visitIdentifier(identifier: Identifier): String {
-        return identifier.text
-    }
+    override fun visitIdentifier(identifier: Identifier): String = identifier.text
 
-    private fun Node.visit(): String {
-        return accept(this@ExpressionGenerator)
-    }
+    private fun Node.visit(): String = accept(this@ExpressionGenerator)
 }

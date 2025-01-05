@@ -234,16 +234,14 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
         /**
          * Returns the total number of parameters with a base var type of [baseType].
          */
-        public fun RuneScript.LocalTable.getParameterCount(baseType: BaseVarType): Int {
-            return parameters.count { it.type.baseType == baseType }
-        }
+        public fun RuneScript.LocalTable.getParameterCount(baseType: BaseVarType): Int =
+            parameters.count { it.type.baseType == baseType }
 
         /**
          * Returns the total number of local variables with a base var type of [baseType].
          */
-        public fun RuneScript.LocalTable.getLocalCount(baseType: BaseVarType): Int {
-            return all.count { it.type.baseType == baseType && (it.type !is ArrayType || it in parameters) }
-        }
+        public fun RuneScript.LocalTable.getLocalCount(baseType: BaseVarType): Int =
+            all.count { it.type.baseType == baseType && (it.type !is ArrayType || it in parameters) }
 
         /**
          * Finds the unique identifier for the given [local] variable.
@@ -264,9 +262,7 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
      * A base class passed that contains the context of the [ScriptWriter] when writing
      * specific instructions.
      */
-    public open class BaseScriptWriterContext(
-        public val script: RuneScript,
-    ) : Closeable {
+    public open class BaseScriptWriterContext(public val script: RuneScript) : Closeable {
         public val lineNumberTable: TreeMap<Int, Int> = script.generateLineNumberTable()
         public val jumpTable: Map<Label, Int> = script.generateJumpTable()
 

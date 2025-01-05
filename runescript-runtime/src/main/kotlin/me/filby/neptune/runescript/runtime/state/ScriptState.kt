@@ -7,7 +7,7 @@ import java.io.Closeable
 /**
  * A callback that is run after a script finishes execution gracefully.
  */
-public typealias ScriptFinishHandler <T> = T.() -> Unit
+public typealias ScriptFinishHandler<T> = T.() -> Unit
 
 /**
  * Containers all state that is required for [ScriptRunner].
@@ -118,9 +118,7 @@ public open class ScriptState : Closeable {
     /**
      * Removes an [Int] from the end of the stack and returns it.
      */
-    public fun popInt(): Int {
-        return ints[--intPointer]
-    }
+    public fun popInt(): Int = ints[--intPointer]
 
     /**
      * Adds [value] to the end of the int stack.
@@ -145,9 +143,7 @@ public open class ScriptState : Closeable {
      * `Long`s should be popped via [popInt] and [popLong].
      */
     @Suppress("UNCHECKED_CAST")
-    public fun <T> popObj(): T {
-        return objs[--objPointer] as T
-    }
+    public fun <T> popObj(): T = objs[--objPointer] as T
 
     /**
      * Adds [value] to the end of the stack. `Int`s and `Long`s should be
@@ -171,9 +167,7 @@ public open class ScriptState : Closeable {
     /**
      * Removes a [Long] from the end of the stack and returns it.
      */
-    public fun popLong(): Long {
-        return longs[--longPointer]
-    }
+    public fun popLong(): Long = longs[--longPointer]
 
     /**
      * Adds [value] to the end of the long stack.

@@ -10,18 +10,14 @@ import java.util.Objects
  * Represents a piece of a [JoinedStringExpression].
  */
 public sealed class StringPart(source: NodeSourceLocation) : Node(source) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitJoinedStringPart(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitJoinedStringPart(this)
 }
 
 /**
  * A basic part that contains only text.
  */
 public open class BasicStringPart(source: NodeSourceLocation, public val value: String) : StringPart(source) {
-    override fun hashCode(): Int {
-        return Objects.hashCode(value)
-    }
+    override fun hashCode(): Int = Objects.hashCode(value)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -35,11 +31,9 @@ public open class BasicStringPart(source: NodeSourceLocation, public val value: 
         return value == other.value
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("text", value)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("text", value)
+        .toString()
 }
 
 /**
@@ -50,17 +44,12 @@ public class PTagStringPart(source: NodeSourceLocation, text: String) : BasicStr
 /**
  * A part that contains an [Expression] that will be executed.
  */
-public class ExpressionStringPart(
-    source: NodeSourceLocation,
-    public val expression: Expression
-) : StringPart(source) {
+public class ExpressionStringPart(source: NodeSourceLocation, public val expression: Expression) : StringPart(source) {
     init {
         addChild(expression)
     }
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(expression)
-    }
+    override fun hashCode(): Int = Objects.hashCode(expression)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -74,9 +63,7 @@ public class ExpressionStringPart(
         return expression == other.expression
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("expression", expression)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("expression", expression)
+        .toString()
 }

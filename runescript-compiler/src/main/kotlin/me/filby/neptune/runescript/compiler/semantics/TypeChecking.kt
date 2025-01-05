@@ -92,7 +92,7 @@ public class TypeChecking(
     triggerManager: TriggerManager,
     private val rootTable: SymbolTable,
     private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
-    private val diagnostics: Diagnostics
+    private val diagnostics: Diagnostics,
 ) : AstVisitor<Unit> {
     // var Expression.type: Type
     //     get() = getAttribute<Type>("type") ?: error("type not set")
@@ -327,7 +327,7 @@ public class TypeChecking(
         } else if (!type.options.allowDeclaration) {
             declarationStatement.typeToken.reportError(
                 DiagnosticMessage.LOCAL_DECLARATION_INVALID_TYPE,
-                type.representation
+                type.representation,
             )
         }
 
@@ -362,12 +362,12 @@ public class TypeChecking(
         } else if (!type.options.allowDeclaration) {
             arrayDeclarationStatement.typeToken.reportError(
                 DiagnosticMessage.LOCAL_DECLARATION_INVALID_TYPE,
-                type.representation
+                type.representation,
             )
         } else if (!type.options.allowArray) {
             arrayDeclarationStatement.typeToken.reportError(
                 DiagnosticMessage.LOCAL_ARRAY_INVALID_TYPE,
-                type.representation
+                type.representation,
             )
         }
 
@@ -459,11 +459,7 @@ public class TypeChecking(
     /**
      * Verifies the binary expression is a valid condition operation.
      */
-    private fun checkBinaryConditionOperation(
-        left: Expression,
-        operator: Token,
-        right: Expression
-    ): Boolean {
+    private fun checkBinaryConditionOperation(left: Expression, operator: Token, right: Expression): Boolean {
         // some operators expect a specific type on both sides, specify those type(s) here
         val allowedTypes = when (operator.text) {
             "&", "|" -> ALLOWED_LOGICAL_TYPES
@@ -504,7 +500,7 @@ public class TypeChecking(
                 DiagnosticMessage.BINOP_INVALID_TYPES,
                 operator.text,
                 left.type.representation,
-                right.type.representation
+                right.type.representation,
             )
             return false
         }
@@ -519,7 +515,7 @@ public class TypeChecking(
                     DiagnosticMessage.BINOP_INVALID_TYPES,
                     operator.text,
                     left.type.representation,
-                    right.type.representation
+                    right.type.representation,
                 )
                 return false
             }
@@ -531,7 +527,7 @@ public class TypeChecking(
                 DiagnosticMessage.BINOP_INVALID_TYPES,
                 operator.text,
                 left.type.representation,
-                right.type.representation
+                right.type.representation,
             )
             return false
         } else if (left.type == PrimitiveType.STRING && right.type == PrimitiveType.STRING) {
@@ -539,7 +535,7 @@ public class TypeChecking(
                 DiagnosticMessage.BINOP_INVALID_TYPES,
                 operator.text,
                 left.type.representation,
-                right.type.representation
+                right.type.representation,
             )
             return false
         }
@@ -578,7 +574,7 @@ public class TypeChecking(
                 DiagnosticMessage.BINOP_INVALID_TYPES,
                 operator.text,
                 left.type.representation,
-                right.type.representation
+                right.type.representation,
             )
             arithmeticExpression.type = MetaType.Error
             return
@@ -634,10 +630,7 @@ public class TypeChecking(
     /**
      * Runs the type checking for dynamic commands if one exists with [name].
      */
-    private fun checkDynamicCommand(
-        name: String,
-        expression: Expression,
-    ): Boolean {
+    private fun checkDynamicCommand(name: String, expression: Expression): Boolean {
         val dynamicCommand = dynamicCommands[name] ?: return false
         with(dynamicCommand) {
             // invoke the custom command type checking
@@ -650,6 +643,7 @@ public class TypeChecking(
             }
 
             // if the symbol was not manually specified attempt to look up a predefined one
+            @Suppress("ktlint:standard:condition-wrapping")
             if (
                 expression is Identifier && expression.reference == null ||
                 expression is CallExpression && expression.reference == null
@@ -731,11 +725,7 @@ public class TypeChecking(
     /**
      * Verifies that [callExpression] arguments match the parameter types from [symbol].
      */
-    private fun typeCheckArguments(
-        symbol: ScriptSymbol?,
-        callExpression: CallExpression,
-        name: String,
-    ) {
+    private fun typeCheckArguments(symbol: ScriptSymbol?, callExpression: CallExpression, name: String) {
         // Type check the parameters, use `unit` if there are no parameters
         // we will display a special message if the parameter ends up having unit
         // as the type but arguments are supplied.
@@ -767,7 +757,7 @@ public class TypeChecking(
             callExpression.reportError(
                 errorMessage,
                 name,
-                actualType.representation
+                actualType.representation,
             )
             return
         }
@@ -879,7 +869,7 @@ public class TypeChecking(
             val parsedExpression = if (stringExpected) {
                 StringLiteral(
                     NodeSourceLocation(sourceName, sourceLine - 1, sourceColumn - 1),
-                    symbol.value
+                    symbol.value,
                 )
             } else {
                 ScriptParser.invokeParser(
@@ -887,7 +877,7 @@ public class TypeChecking(
                     RuneScriptParser::singleExpression,
                     DISCARD_ERROR_LISTENER,
                     sourceLine - 1,
-                    sourceColumn - 1
+                    sourceColumn - 1,
                 ) as? Expression
             }
 
@@ -896,7 +886,7 @@ public class TypeChecking(
                 constantVariableExpression.reportError(
                     DiagnosticMessage.CONSTANT_PARSE_ERROR,
                     symbol.value,
-                    typeHint.representation
+                    typeHint.representation,
                 )
                 constantVariableExpression.type = MetaType.Error
                 return
@@ -989,7 +979,7 @@ public class TypeChecking(
             RuneScriptParser::clientScript,
             errorListener,
             sourceLine - 1,
-            sourceColumn
+            sourceColumn,
         ) as? ClientScriptExpression
 
         // parser returns null if there was a parse error
@@ -1038,7 +1028,7 @@ public class TypeChecking(
             identifier.reportError(
                 DiagnosticMessage.GENERIC_TYPE_MISMATCH,
                 "<unit>",
-                symbol.parameters.representation
+                symbol.parameters.representation,
             )
         }
 
@@ -1186,7 +1176,7 @@ public class TypeChecking(
             node.reportError(
                 DiagnosticMessage.GENERIC_TYPE_MISMATCH,
                 actualRepresentation,
-                expected.representation
+                expected.representation,
             )
         }
         return match
@@ -1199,11 +1189,7 @@ public class TypeChecking(
      *
      * @see TypeManager.check
      */
-    private fun checkTypeMatchAny(
-        node: Node,
-        expected: Array<out Type>,
-        actual: Type,
-    ): Boolean {
+    private fun checkTypeMatchAny(node: Node, expected: Array<out Type>, actual: Type): Boolean {
         for (type in expected) {
             if (checkTypeMatch(node, type, actual, false)) {
                 return true
@@ -1261,7 +1247,7 @@ public class TypeChecking(
          * Array of valid types allowed in logical conditional expressions.
          */
         private val ALLOWED_LOGICAL_TYPES = arrayOf(
-            PrimitiveType.BOOLEAN
+            PrimitiveType.BOOLEAN,
         )
 
         /**
@@ -1269,7 +1255,7 @@ public class TypeChecking(
          */
         private val ALLOWED_RELATIONAL_TYPES = arrayOf(
             PrimitiveType.INT,
-            PrimitiveType.LONG
+            PrimitiveType.LONG,
         )
 
         /**
@@ -1277,7 +1263,7 @@ public class TypeChecking(
          */
         private val ALLOWED_ARITHMETIC_TYPES = arrayOf(
             PrimitiveType.INT,
-            PrimitiveType.LONG
+            PrimitiveType.LONG,
         )
 
         /**
@@ -1302,7 +1288,7 @@ public class TypeChecking(
                 line: Int,
                 charPositionInLine: Int,
                 msg: String?,
-                e: RecognitionException?
+                e: RecognitionException?,
             ) {
                 // no-op
             }

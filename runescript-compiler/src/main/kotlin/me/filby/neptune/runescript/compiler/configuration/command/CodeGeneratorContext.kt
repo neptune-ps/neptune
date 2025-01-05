@@ -20,7 +20,7 @@ public data class CodeGeneratorContext(
     private val codeGenerator: CodeGenerator,
     val rootTable: SymbolTable,
     val expression: Expression,
-    val diagnostics: Diagnostics
+    val diagnostics: Diagnostics,
 ) {
     /**
      * Returns a list of expressions that were passed to the expression as arguments.

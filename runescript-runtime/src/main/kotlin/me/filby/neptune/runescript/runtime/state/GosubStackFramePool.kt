@@ -18,9 +18,7 @@ public class GosubStackFramePool(initialCapacity: Int = 64, private val maxCapac
     /**
      * Returns an instance of [GosubStackFrame]. If the pool is empty, a new instance is created.
      */
-    public fun pop(): GosubStackFrame {
-        return pool.removeLastOrNull() ?: GosubStackFrame()
-    }
+    public fun pop(): GosubStackFrame = pool.removeLastOrNull() ?: GosubStackFrame()
 
     /**
      * Resets and pushed [frame] to the pool. If the pool is full then it is reset and discarded.

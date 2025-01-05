@@ -23,9 +23,7 @@ public class TupleType(vararg children: Type) : Type {
         assert(this.children.size >= 2) { "tuple type should not be used when type count is < 2" }
     }
 
-    override fun hashCode(): Int {
-        return children.hashCode()
-    }
+    override fun hashCode(): Int = children.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -39,11 +37,9 @@ public class TupleType(vararg children: Type) : Type {
         return children.contentEquals(other.children)
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("children", children)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("children", children)
+        .toString()
 
     public companion object {
         /**

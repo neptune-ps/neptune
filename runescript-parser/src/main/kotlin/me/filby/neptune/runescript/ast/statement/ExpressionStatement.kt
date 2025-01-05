@@ -19,13 +19,9 @@ public class ExpressionStatement(source: NodeSourceLocation, public val expressi
         addChild(expression)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitExpressionStatement(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitExpressionStatement(this)
 
-    override fun hashCode(): Int {
-        return Objects.hashCode(expression)
-    }
+    override fun hashCode(): Int = Objects.hashCode(expression)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -39,9 +35,7 @@ public class ExpressionStatement(source: NodeSourceLocation, public val expressi
         return expression == other.expression
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("expression", expression)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("expression", expression)
+        .toString()
 }

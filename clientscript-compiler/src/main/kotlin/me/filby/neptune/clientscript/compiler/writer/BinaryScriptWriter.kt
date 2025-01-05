@@ -46,9 +46,8 @@ abstract class BinaryScriptWriter(
         }
     }
 
-    override fun createContext(script: RuneScript): BinaryScriptWriterContext {
-        return BinaryScriptWriterContext(script, allocator)
-    }
+    override fun createContext(script: RuneScript): BinaryScriptWriterContext =
+        BinaryScriptWriterContext(script, allocator)
 
     override fun BinaryScriptWriterContext.enterBlock(block: Block) {
         // NO-OP

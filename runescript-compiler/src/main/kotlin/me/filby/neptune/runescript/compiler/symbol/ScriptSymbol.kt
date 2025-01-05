@@ -41,7 +41,7 @@ public sealed interface ScriptSymbol : Symbol {
         override val trigger: TriggerType,
         override val name: String,
         override val parameters: Type,
-        override val returns: Type
+        override val returns: Type,
     ) : ScriptSymbol
 
     /**
@@ -51,6 +51,6 @@ public sealed interface ScriptSymbol : Symbol {
         override val trigger: TriggerType,
         override val name: String,
         override val parameters: Type,
-        override val returns: Type
+        override val returns: Type,
     ) : ScriptSymbol
 }

@@ -21,7 +21,7 @@ public class DeclarationStatement(
     source: NodeSourceLocation,
     public val typeToken: Token,
     public val name: Identifier,
-    public val initializer: Expression?
+    public val initializer: Expression?,
 ) : Statement(source) {
     init {
         addChild(typeToken)
@@ -29,13 +29,9 @@ public class DeclarationStatement(
         addChild(initializer)
     }
 
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitDeclarationStatement(this)
-    }
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitDeclarationStatement(this)
 
-    override fun hashCode(): Int {
-        return Objects.hash(typeToken, name, initializer)
-    }
+    override fun hashCode(): Int = Objects.hash(typeToken, name, initializer)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -49,11 +45,9 @@ public class DeclarationStatement(
         return typeToken == other.typeToken && name == other.name && initializer == other.initializer
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("typeToken", typeToken)
-            .add("name", name)
-            .add("initializer", initializer)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("typeToken", typeToken)
+        .add("name", name)
+        .add("initializer", initializer)
+        .toString()
 }

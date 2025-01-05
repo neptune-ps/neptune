@@ -104,7 +104,8 @@ public open class ScriptCompiler(
 
         // checker for Script types that compares parameter and return types
         types.addTypeChecker { left, right ->
-            left is MetaType.Script && right is MetaType.Script &&
+            left is MetaType.Script &&
+                right is MetaType.Script &&
                 left.trigger == right.trigger &&
                 types.check(left.parameterType, right.parameterType) &&
                 types.check(left.returnType, right.returnType)
@@ -112,13 +113,16 @@ public open class ScriptCompiler(
 
         // checker for Hook types that compares the trigger list type.
         types.addTypeChecker { left, right ->
-            left is MetaType.Hook && right is MetaType.Hook &&
+            left is MetaType.Hook &&
+                right is MetaType.Hook &&
                 types.check(left.transmitListType, right.transmitListType)
         }
 
         // checker for WrappedType that compares the inner types
         types.addTypeChecker { left, right ->
-            left is WrappedType && right is WrappedType && left::class == right::class &&
+            left is WrappedType &&
+                right is WrappedType &&
+                left::class == right::class &&
                 types.check(left.inner, right.inner)
         }
     }

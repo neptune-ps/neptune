@@ -180,7 +180,7 @@ public open class CoreOpcodesBase<T : ScriptState>(private val scriptProvider: S
                 for (i in 0 until intOperand) {
                     append(strings[intOperand - i - 1])
                 }
-            }
+            },
         )
     }
 

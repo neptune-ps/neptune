@@ -29,7 +29,7 @@ public data class TypeCheckingContext(
     private val typeChecker: TypeChecking,
     val typeManager: TypeManager,
     val expression: Expression,
-    val diagnostics: Diagnostics
+    val diagnostics: Diagnostics,
 ) {
     /**
      * Returns a list of expressions that were passed to the expression as arguments.
@@ -126,8 +126,8 @@ public data class TypeCheckingContext(
                     DiagnosticType.ERROR,
                     argument,
                     DiagnosticMessage.GENERIC_INVALID_TYPE,
-                    argument.text
-                )
+                    argument.text,
+                ),
             )
             argument.type = MetaType.Error
             return argument
@@ -177,9 +177,8 @@ public data class TypeCheckingContext(
      *
      * @see TupleType.fromList
      */
-    public fun collectTypes(vararg expressions: Expression?): Type {
-        return TupleType.fromList(expressions.mapNotNull { it?.nullableType })
-    }
+    public fun collectTypes(vararg expressions: Expression?): Type =
+        TupleType.fromList(expressions.mapNotNull { it?.nullableType })
 
     /**
      * Passes the node through the type checker if it is not `null`.
