@@ -68,14 +68,15 @@ class ClientScriptCommand : CliktCommand(name = "cs2") {
             exitProcess(0)
         }
 
-        val sourcePaths = config.sourcePaths.map { Path(it) }
-        val symbolPaths = config.symbolPaths.map { Path(it) }
-        val libraryPaths = config.libraryPaths.map { Path(it) }
+        val basePath = configPath.parent
+        val sourcePaths = config.sourcePaths.map { basePath.resolve(it) }
+        val symbolPaths = config.symbolPaths.map { basePath.resolve(it) }
+        val libraryPaths = config.libraryPaths.map { basePath.resolve(it) }
         val (binaryWriterConfig) = config.writers
 
         val mapper = SymbolMapper()
         val writer = if (binaryWriterConfig != null) {
-            val outputPath = Path(binaryWriterConfig.outputPath)
+            val outputPath = basePath.resolve(binaryWriterConfig.outputPath)
             BinaryFileScriptWriter(outputPath, mapper)
         } else {
             null
