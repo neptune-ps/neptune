@@ -41,8 +41,13 @@ To build the project run `./gradlew build`.
 
 ## Contributing
 
-Pull requests are welcome on [GitHub][pull-requests]. All contributions must
-follow the style guidelines, for checking you can use `./gradlew check`.
+Pull requests are welcome on [GitHub][pull-requests].
+
+- All contributions must follow the style guidelines, for checking you can use
+  `./gradlew check`.
+- Commit messages must follow [conventional commits][conventionalcommits]. If a
+  commit message doesn't follow what we would like, we will request changes or
+  modify it ourselves if the PR allows it.
 
 ## Links
 
@@ -64,3 +69,4 @@ text.
 [runescript-parser]: ./runescript-parser
 [runescript-runtime]: ./runescript-runtime
 [pull-requests]: https://github.com/neptune-ps/neptune/pulls
+[conventionalcommits]: https://www.conventionalcommits.org/en/v1.0.0/#summary
