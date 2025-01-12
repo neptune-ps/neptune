@@ -22,16 +22,16 @@ if (player_find = true | player_find = true) {
 }
 
 [test,conditional_pointer_complex3]
-if (player_find = true & player_name = "test") {
+if (player_find = true & compare(player_name, "test") = 0) {
     player_name;
 }
 
-if (player_find = true & .player_find = true & player_name = .player_name) {
+if (player_find = true & .player_find = true & compare(player_name, .player_name) = 0) {
     println("player names match");
 }
 
 // Expect: Attempt to access uninitialized pointer active_player.
-if (player_find = true | player_name = "test") {
+if (player_find = true | compare(player_name, "test") = 0) {
     player_name;
 }
 

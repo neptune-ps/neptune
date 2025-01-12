@@ -33,7 +33,12 @@ public class GraphGenerator(private val commandPointers: Map<String, PointerHold
                     val next = if (instructionIdx + 1 < block.instructions.size) {
                         block.instructions[instructionIdx + 1]
                     } else if (blockIdx + 1 < blocks.size) {
-                        blocks[blockIdx + 1].instructions.first()
+                        // find the first non-empty block's first instruction
+                        var i = blockIdx + 1
+                        while (i < blocks.size && blocks[i].instructions.isEmpty()) {
+                            i++
+                        }
+                        blocks[i].instructions.first()
                     } else {
                         error("")
                     }

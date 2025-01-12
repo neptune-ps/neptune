@@ -115,7 +115,7 @@ internal class PointerChecker(
         val corrupted = EnumSet.noneOf(PointerType::class.java)
 
         pendingScripts += this
-        for (pointer in PointerType.values()) {
+        for (pointer in PointerType.entries) {
             if (script.requiresPointer(pointer)) {
                 required += pointer
             }
@@ -134,8 +134,7 @@ internal class PointerChecker(
     }
 
     private fun RuneScript.validatePointers() {
-        // TODO cache values()
-        for (pointer in PointerType.values()) {
+        for (pointer in PointerType.entries) {
             validatePointer(pointer)
         }
     }
