@@ -14,7 +14,7 @@ import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarClanSettingsType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarClanType
-import java.util.EnumSet
+import java.util.EnumMap
 import java.util.IdentityHashMap
 import java.util.LinkedList
 import kotlin.system.measureTimeMillis
@@ -44,10 +44,9 @@ internal class PointerChecker(
      */
     private val scriptGraphs = IdentityHashMap<ScriptSymbol, List<InstructionNode>>(scripts.size)
 
-    /**
-     * Cache of calculated [PointerHolder]s.
-     */
-    private val scriptPointers = IdentityHashMap<ScriptSymbol, PointerHolder>(scripts.size)
+    private val scriptPointerRequires = IdentityHashMap<ScriptSymbol, EnumMap<PointerType, Boolean>>(scripts.size)
+    private val scriptPointerSets = IdentityHashMap<ScriptSymbol, EnumMap<PointerType, Boolean>>(scripts.size)
+    private val scriptPointerCorrupts = IdentityHashMap<ScriptSymbol, EnumMap<PointerType, Boolean>>(scripts.size)
 
     /**
      * Contains the scripts currently having their pointers calculated.
@@ -71,23 +70,6 @@ internal class PointerChecker(
             return graph
         }
 
-    /**
-     * The pointer information for the script.
-     *
-     * Calculates using [calculatePointers] and caches the result for all future calls.
-     */
-    private val ScriptSymbol.pointers: PointerHolder
-        get() {
-            val cached = scriptPointers[this]
-            if (cached != null) {
-                return cached
-            }
-
-            val calculated = calculatePointers()
-            scriptPointers[this] = calculated
-            return calculated
-        }
-
     fun run() {
         for (script in scripts) {
             val time = measureTimeMillis {
@@ -95,42 +77,6 @@ internal class PointerChecker(
             }
             logger.trace { "Checked pointers for ${script.fullName} in ${time}ms" }
         }
-    }
-
-    /**
-     * Calculates the pointers a script requires, sets, and/or corrupts. This is generally
-     * only called for scripts that are invokable (e.g. procs).
-     *
-     * @see pointers
-     */
-    private fun ScriptSymbol.calculatePointers(): PointerHolder {
-        // temporary fix for recursive scripts to prevent stack overflow
-        if (this in pendingScripts) {
-            return PointerHolder(emptySet(), emptySet(), false, emptySet())
-        }
-
-        val script = scriptsBySymbol[this] ?: error("Unable to find script from sym: $this")
-        val required = EnumSet.noneOf(PointerType::class.java)
-        val set = EnumSet.noneOf(PointerType::class.java)
-        val corrupted = EnumSet.noneOf(PointerType::class.java)
-
-        pendingScripts += this
-        for (pointer in PointerType.entries) {
-            if (script.requiresPointer(pointer)) {
-                required += pointer
-            }
-
-            if (script.setsPointer(pointer)) {
-                set += pointer
-            }
-
-            if (script.corruptsPointer(pointer)) {
-                corrupted += pointer
-            }
-        }
-        pendingScripts -= this
-
-        return PointerHolder(required, set, false, corrupted)
     }
 
     private fun RuneScript.validatePointers() {
@@ -145,22 +91,14 @@ internal class PointerChecker(
      */
     private fun RuneScript.validatePointer(pointer: PointerType) {
         val required = graph.filterTo(ArrayList()) { it.requiresPointer(pointer) }
-        val set = graph.filterTo(ArrayList()) { it.setsPointer(pointer) }
-        val corrupted = graph.filterTo(ArrayList()) { it.corruptsPointer(pointer) }
-
-        // Check if the trigger implicitly defines the pointer
-        if (!trigger.setsPointer(pointer)) {
-            // If the trigger doesn't implicitly define the pointer we need to specify the starting
-            // node as corrupting it so that there is a path found, resulting in an error.
-            corrupted += graph.first()
-        }
 
         // Attempt to find a path between any of the nodes that require the pointer and any nodes
         // that corrupt the pointer.
+        val triggerSetsPointer = trigger.setsPointer(pointer)
         val path = findEdgePath(
             required,
-            { it in corrupted },
-            { it.previous.filterNotTo(ArrayList()) { prev -> prev in set } },
+            { !triggerSetsPointer && it == graph.first() || it.corruptsPointer(pointer) },
+            { it.previous.filterNotTo(ArrayList()) { prev -> prev.setsPointer(pointer) } },
         )
 
         // If a path was found then there is an error to raise.
@@ -196,7 +134,7 @@ internal class PointerChecker(
                 }
 
                 val symbol = node.instruction.operand as ScriptSymbol
-                val script = scripts.find { it.symbol == symbol } ?: error("Unable to find script.")
+                val script = scriptsBySymbol[symbol] ?: error("Unable to find script.")
                 val scriptPath = script.requiresPointerPath(pointer) ?: error("Unable to find requirement path?")
                 val requireNode = scriptPath.first()
                 val requireLocation = requireNode.instruction?.source ?: error("Invalid instruction/source")
@@ -244,6 +182,25 @@ internal class PointerChecker(
             //     }
             // }
         }
+    }
+
+    private inline fun ScriptSymbol.checkPointer(
+        pointer: PointerType,
+        cache: MutableMap<ScriptSymbol, EnumMap<PointerType, Boolean>>,
+        crossinline checker: RuneScript.(PointerType) -> Boolean,
+    ): Boolean {
+        if (this in pendingScripts) {
+            return false
+        }
+
+        pendingScripts += this
+        val scriptCache = cache.computeIfAbsent(this) { EnumMap(PointerType::class.java) }
+        val result = scriptCache.computeIfAbsent(pointer) {
+            val script = scriptsBySymbol[this]!!
+            script.checker(pointer)
+        }
+        pendingScripts -= this
+        return result
     }
 
     /**
@@ -316,7 +273,7 @@ internal class PointerChecker(
             }
             Opcode.Gosub, Opcode.Jump -> {
                 val symbol = instruction.operand as ScriptSymbol
-                pointer in symbol.pointers.required
+                symbol.checkPointer(pointer, scriptPointerRequires) { requiresPointer(it) }
             }
             Opcode.PushVar, Opcode.PopVar -> {
                 val symbol = instruction.operand as BasicSymbol
@@ -353,7 +310,7 @@ internal class PointerChecker(
             }
             Opcode.Gosub -> {
                 val symbol = instruction.operand as ScriptSymbol
-                pointer in symbol.pointers.set
+                symbol.checkPointer(pointer, scriptPointerSets) { setsPointer(it) }
             }
             else -> false
         }
@@ -374,7 +331,7 @@ internal class PointerChecker(
             }
             Opcode.Gosub -> {
                 val symbol = instruction.operand as ScriptSymbol
-                pointer in symbol.pointers.corrupted
+                symbol.checkPointer(pointer, scriptPointerCorrupts) { corruptsPointer(it) }
             }
             else -> false
         }
