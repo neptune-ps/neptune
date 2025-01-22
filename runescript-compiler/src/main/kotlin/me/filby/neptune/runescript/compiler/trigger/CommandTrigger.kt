@@ -2,7 +2,7 @@ package me.filby.neptune.runescript.compiler.trigger
 
 import me.filby.neptune.runescript.compiler.type.Type
 
-public object CommandTrigger : TriggerType {
+public data object CommandTrigger : TriggerType {
     override val id: Int = -1
     override val identifier: String = "command"
     override val subjectMode: SubjectMode = SubjectMode.Name

@@ -16,7 +16,7 @@ public sealed class MetaType(private val name: String) : MainType {
      *
      * Example: `MetaType.Type(MetaType.Any)`
      */
-    public object Any : MetaType("any")
+    public data object Any : MetaType("any")
 
     /**
      * A type that says that nothing is returned. This is intended to be used
@@ -26,18 +26,18 @@ public sealed class MetaType(private val name: String) : MainType {
      *
      * See Also: [Bottom type](https://en.wikipedia.org/wiki/Bottom_type)
      */
-    public object Nothing : MetaType("nothing")
+    public data object Nothing : MetaType("nothing")
 
     /**
      * A type used to specify the type resolution resulted into an error. This
      * type is comparable to **all** other types to prevent error propagation.
      */
-    public object Error : MetaType("error")
+    public data object Error : MetaType("error")
 
     /**
      * A type that signifies that nothing is returned.
      */
-    public object Unit : MetaType("unit")
+    public data object Unit : MetaType("unit")
 
     /**
      * A special type used when referencing other types.

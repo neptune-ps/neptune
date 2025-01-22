@@ -7,11 +7,11 @@ public sealed class SymbolType<T : Symbol> {
     // script specific
     public data class ServerScript(public val type: TriggerType) : SymbolType<ScriptSymbol.ServerScriptSymbol>()
     public data class ClientScript(public val type: TriggerType) : SymbolType<ScriptSymbol.ClientScriptSymbol>()
-    public object LocalVariable : SymbolType<LocalVariableSymbol>()
+    public data object LocalVariable : SymbolType<LocalVariableSymbol>()
 
     // global
     public data class Basic(public val type: Type) : SymbolType<BasicSymbol>()
-    public object Constant : SymbolType<ConstantSymbol>()
+    public data object Constant : SymbolType<ConstantSymbol>()
 
     override fun toString(): String = this::class.java.simpleName
 }

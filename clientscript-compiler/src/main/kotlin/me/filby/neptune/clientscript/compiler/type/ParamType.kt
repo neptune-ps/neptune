@@ -1,5 +1,6 @@
 package me.filby.neptune.clientscript.compiler.type
 
+import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MutableTypeOptions
 import me.filby.neptune.runescript.compiler.type.Type
@@ -16,4 +17,8 @@ class ParamType(override val inner: Type) : WrappedType {
         allowArray = false,
         allowDeclaration = false,
     )
+
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("inner", inner)
+        .toString()
 }
