@@ -21,6 +21,7 @@ import me.filby.neptune.clientscript.compiler.writer.BinaryFileScriptWriter
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolute
 import kotlin.io.path.exists
 import kotlin.io.path.notExists
 import kotlin.io.path.readLines
@@ -68,7 +69,7 @@ class ClientScriptCommand : CliktCommand(name = "cs2") {
             exitProcess(0)
         }
 
-        val basePath = configPath.parent
+        val basePath = configPath.absolute().parent
         val sourcePaths = config.sourcePaths.map { basePath.resolve(it) }
         val symbolPaths = config.symbolPaths.map { basePath.resolve(it) }
         val libraryPaths = config.libraryPaths.map { basePath.resolve(it) }
