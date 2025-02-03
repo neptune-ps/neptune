@@ -34,6 +34,10 @@ tasks.sourcesJar {
     dependsOn(tasks.generateGrammarSource)
 }
 
+tasks.kotlinSourcesJar {
+    dependsOn(tasks.generateGrammarSource)
+}
+
 tasks.generateGrammarSource {
     dependsOn("antlrOutputDir")
 
