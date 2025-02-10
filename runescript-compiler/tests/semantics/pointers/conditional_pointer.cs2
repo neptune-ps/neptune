@@ -1,0 +1,73 @@
+[test,conditional_pointer]
+if (player_find = true) {
+    player_name;
+}
+player_name; // Expect: Attempt to access uninitialized pointer active_player.
+
+[test,conditional_pointer_stays_active]
+player_find_force;
+if (player_find = true) {
+    player_name;
+}
+player_name;
+
+[test,conditional_pointer_complex1]
+if (player_find = true | 1 = 1) {
+    player_name; // Expect: Attempt to access uninitialized pointer active_player.
+}
+
+[test,conditional_pointer_complex2]
+if (player_find = true | player_find = true) {
+    player_name;
+}
+
+[test,conditional_pointer_complex3]
+if (player_find = true & compare(player_name, "test") = 0) {
+    player_name;
+}
+
+if (player_find = true & .player_find = true & compare(player_name, .player_name) = 0) {
+    println("player names match");
+}
+
+// Expect: Attempt to access uninitialized pointer active_player.
+if (player_find = true | compare(player_name, "test") = 0) {
+    player_name;
+}
+
+[test,conditional_pointer_loop]
+while (player_find = true) {
+    player_name;
+}
+
+[test,conditional_pointer_loop2]
+player_find_force;
+while (player_find = true | player_find = true) {
+    player_name;
+    player_corrupt;
+}
+player_name; // Expect: Attempt to access corrupted pointer active_player.
+
+// test that a proc that requires and corrupts a pointer
+[test,conditional_pointer_loop3]
+player_find_force;
+while (player_find = true) {
+    while (1 = 1) {
+        // active_player is set on first iteration, but since the proc corrupts the pointer it is no
+        // longer valid on other iterations, so it is unsafe.
+        ~player_name_and_corrupt; // Expect: Attempt to access uninitialized pointer active_player.
+    }
+}
+
+[test,conditional_pointer_loop4]
+player_find_force;
+while (player_find = true) {
+    ~player_name_and_corrupt;
+}
+
+// helpers
+
+// requires active_player and corrupts active_player
+[proc,player_name_and_corrupt]
+player_name;
+player_corrupt;

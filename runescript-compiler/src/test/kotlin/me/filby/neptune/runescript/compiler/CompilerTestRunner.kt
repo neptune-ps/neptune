@@ -4,8 +4,11 @@ package me.filby.neptune.runescript.compiler
 
 import com.github.michaelbull.logging.InlineLogger
 import me.filby.neptune.runescript.compiler.configuration.SymbolLoader
+import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
+import me.filby.neptune.runescript.compiler.pointer.PointerHolder
+import me.filby.neptune.runescript.compiler.pointer.PointerType
 import me.filby.neptune.runescript.compiler.runtime.ScriptManager
 import me.filby.neptune.runescript.compiler.runtime.TestOpcodes
 import me.filby.neptune.runescript.compiler.runtime.TestScriptRunner
@@ -56,6 +59,18 @@ fun main() {
     }
 }
 
+// manual declaration of command pointer information
+private val testCommandPointers = hashMapOf(
+    "player_find" to PointerHolder(emptySet(), setOf(PointerType.ACTIVE_PLAYER), true, emptySet()),
+    ".player_find" to PointerHolder(emptySet(), setOf(PointerType.ACTIVE_PLAYER2), true, emptySet()),
+    "player_find_force" to PointerHolder(emptySet(), setOf(PointerType.ACTIVE_PLAYER), false, emptySet()),
+    ".player_find_force" to PointerHolder(emptySet(), setOf(PointerType.ACTIVE_PLAYER2), false, emptySet()),
+    "player_corrupt" to PointerHolder(emptySet(), emptySet(), false, setOf(PointerType.ACTIVE_PLAYER)),
+    ".player_corrupt" to PointerHolder(emptySet(), emptySet(), false, setOf(PointerType.ACTIVE_PLAYER2)),
+    "player_name" to PointerHolder(setOf(PointerType.ACTIVE_PLAYER), emptySet(), false, emptySet()),
+    ".player_name" to PointerHolder(setOf(PointerType.ACTIVE_PLAYER2), emptySet(), false, emptySet()),
+)
+
 private fun testScriptFile(scriptFile: File): Boolean {
     val expectedErrors = parseExpectedErrors(scriptFile)
 
@@ -64,7 +79,7 @@ private fun testScriptFile(scriptFile: File): Boolean {
 
     // run compiler
     val writer = TestScriptWriter(scriptManager)
-    val compiler = ScriptCompiler(listOf(scriptFile.toPath()), emptyList(), writer)
+    val compiler = ScriptCompiler(listOf(scriptFile.toPath()), emptyList(), writer, testCommandPointers)
     compiler.triggers.registerAll<TestTriggerType>()
     compiler.addSymbolLoader(CommandSymbolLoader())
 
@@ -79,6 +94,9 @@ private fun testScriptFile(scriptFile: File): Boolean {
 
     compiler.diagnosticsHandler = diagnosticsHandler
     compiler.run()
+
+    // check if there are any errors not removed from the expected errors queue
+    diagnosticsHandler.checkUnexpectedErrors()
 
     // run runtime if no errors
     var hasRuntimeErrors = false
@@ -162,6 +180,16 @@ private class CommandSymbolLoader : SymbolLoader {
         // special commands that are only intended on testing semantic checker and are not intended to be run
         addCommand("call_label_with_args", MetaType.Script(TestTriggerType.LABEL, MetaType.Any, MetaType.Nothing))
 
+        // pointer test commands
+        addCommand("player_find", returns = PrimitiveType.BOOLEAN)
+        addCommand(".player_find", returns = PrimitiveType.BOOLEAN)
+        addCommand("player_find_force")
+        addCommand(".player_find_force")
+        addCommand("player_corrupt")
+        addCommand(".player_corrupt")
+        addCommand("player_name", returns = PrimitiveType.STRING)
+        addCommand(".player_name", returns = PrimitiveType.STRING)
+
         // test specific commands
         // TODO implement the argument checks better once dynamic command handling is added to compiler
         addCommand("error", PrimitiveType.STRING)
@@ -188,6 +216,15 @@ private class TestDiagnosticsHandler(private val file: File, private val expecte
     var hasSemanticErrors = false
         private set
 
+    fun checkUnexpectedErrors() {
+        if (expectedErrors.isNotEmpty()) {
+            for (expected in expectedErrors) {
+                println(TEST_FAIL_FORMAT.format(file.toString(), "0", expected, ""))
+                hasUnexpectedErrors = true
+            }
+        }
+    }
+
     override fun Diagnostics.handleParse() {
         with(ScriptCompiler.DEFAULT_DIAGNOSTICS_HANDLER) {
             handleParse()
@@ -195,12 +232,29 @@ private class TestDiagnosticsHandler(private val file: File, private val expecte
     }
 
     override fun Diagnostics.handleTypeChecking() {
+        handleSemantic()
+    }
+
+    override fun Diagnostics.handleCodeGeneration() {
+        with(ScriptCompiler.DEFAULT_DIAGNOSTICS_HANDLER) {
+            handleCodeGeneration()
+        }
+    }
+
+    override fun Diagnostics.handlePointerChecking() {
+        handleSemantic()
+    }
+
+    private fun Diagnostics.handleSemantic() {
         for (diagnostic in diagnostics) {
             val (_, source, message, args) = diagnostic
             val (_, line) = source
 
             val formatted = message.format(*args.toTypedArray())
-            if (!diagnostic.isError()) {
+            if (diagnostic.type == DiagnosticType.HINT) {
+                // skip any hint diagnostics to avoid flooding console with stuff we don't need.
+                continue
+            } else if (!diagnostic.isError()) {
                 // just print any diagnostic that isn't an error
                 println(TEST_INFO_FORMAT.format(file.toString(), line, formatted))
                 continue
@@ -213,21 +267,8 @@ private class TestDiagnosticsHandler(private val file: File, private val expecte
             }
         }
 
-        if (expectedErrors.isNotEmpty()) {
-            for (expected in expectedErrors) {
-                println(TEST_FAIL_FORMAT.format(file.toString(), "0", expected, ""))
-                hasUnexpectedErrors = true
-            }
-        }
-
         if (hasErrors()) {
             hasSemanticErrors = true
-        }
-    }
-
-    override fun Diagnostics.handleCodeGeneration() {
-        with(ScriptCompiler.DEFAULT_DIAGNOSTICS_HANDLER) {
-            handleCodeGeneration()
         }
     }
 

@@ -1,0 +1,24 @@
+// Simple tests that do the follow:
+//  1. simple_find_pointer attempts to access an uninitialized pointer. (fail)
+//  2. simple_find_pointer_force sets the pointer then attempts to access it. (success)
+//  3. simple_find_pointer_corrupt sets the pointer, corrupts it, then attempts to access it. (fail)
+
+[test,simple_find_pointer]
+player_name; // Expect: Attempt to access uninitialized pointer active_player.
+.player_name; // Expect: Attempt to access uninitialized pointer .active_player.
+
+[test,simple_find_pointer_force]
+player_find_force;
+player_name;
+
+.player_find_force;
+.player_name;
+
+[test,simple_find_pointer_corrupt]
+player_find_force;
+player_corrupt;
+player_name; // Expect: Attempt to access corrupted pointer active_player.
+
+.player_find_force;
+.player_corrupt;
+.player_name; // Expect: Attempt to access corrupted pointer .active_player.

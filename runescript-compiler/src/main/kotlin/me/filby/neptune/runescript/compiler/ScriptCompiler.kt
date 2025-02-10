@@ -4,10 +4,12 @@ import com.github.michaelbull.logging.InlineLogger
 import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.compiler.codegen.CodeGenerator
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
+import me.filby.neptune.runescript.compiler.codegen.script.cfg.PointerChecker
 import me.filby.neptune.runescript.compiler.configuration.SymbolLoader
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
+import me.filby.neptune.runescript.compiler.pointer.PointerHolder
 import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
@@ -31,6 +33,7 @@ public open class ScriptCompiler(
     sourcePaths: List<Path>,
     libraryPaths: List<Path>,
     private val scriptWriter: ScriptWriter?,
+    private val commandPointers: Map<String, PointerHolder>,
 ) {
     /**
      * Logger for this class.
@@ -191,7 +194,13 @@ public open class ScriptCompiler(
             return
         }
 
-        // 4) Write scripts
+        // 4) Check pointers
+        val pointerCheckSuccess = checkPointers(scripts)
+        if (!pointerCheckSuccess) {
+            return
+        }
+
+        // 5) Write scripts
         write(scripts)
     }
 
@@ -304,6 +313,24 @@ public open class ScriptCompiler(
         }
 
         return !diagnostics.hasErrors() to scripts
+    }
+
+    private fun checkPointers(scripts: List<RuneScript>): Boolean {
+        val diagnostics = Diagnostics()
+
+        val pointerChecker = PointerChecker(diagnostics, scripts, commandPointers)
+        logger.debug { "Starting pointer checking" }
+        val pointerCheckingTime = measureTimeMillis {
+            pointerChecker.run()
+        }
+        logger.debug { "Finished pointer checking in ${pointerCheckingTime}ms" }
+
+        // call the diagnostics handler
+        with(diagnosticsHandler) {
+            diagnostics.handlePointerChecking()
+        }
+
+        return !diagnostics.hasErrors()
     }
 
     /**
