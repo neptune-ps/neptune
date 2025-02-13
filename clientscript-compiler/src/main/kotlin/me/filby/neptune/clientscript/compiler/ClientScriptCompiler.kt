@@ -47,11 +47,14 @@ class ClientScriptCompiler(
         types.register("invhook", MetaType.Hook(ScriptVarType.INV))
         types.register("varphook", MetaType.Hook(VarPlayerType(MetaType.Any)))
         types.register("dbcolumn", DbColumnType(MetaType.Any))
-        types.register("shiftopnpc", MetaType.Script(ClientTriggerType.SHIFTOPNPC, MetaType.Unit, MetaType.Unit))
-        types.register("shiftoploc", MetaType.Script(ClientTriggerType.SHIFTOPLOC, MetaType.Unit, MetaType.Unit))
-        types.register("shiftopobj", MetaType.Script(ClientTriggerType.SHIFTOPOBJ, MetaType.Unit, MetaType.Unit))
-        types.register("shiftopplayer", MetaType.Script(ClientTriggerType.SHIFTOPPLAYER, MetaType.Unit, MetaType.Unit))
-        types.register("shiftoptile", MetaType.Script(ClientTriggerType.SHIFTOPTILE, MetaType.Unit, MetaType.Unit))
+        types.register("clientopnpc", MetaType.Script(ClientTriggerType.CLIENTOPNPC, MetaType.Unit, MetaType.Unit))
+        types.register("clientoploc", MetaType.Script(ClientTriggerType.CLIENTOPLOC, MetaType.Unit, MetaType.Unit))
+        types.register("clientopobj", MetaType.Script(ClientTriggerType.CLIENTOPOBJ, MetaType.Unit, MetaType.Unit))
+        types.register(
+            "clientopplayer",
+            MetaType.Script(ClientTriggerType.CLIENTOPPLAYER, MetaType.Unit, MetaType.Unit),
+        )
+        types.register("clientoptile", MetaType.Script(ClientTriggerType.CLIENTOPTILE, MetaType.Unit, MetaType.Unit))
 
         // allow assignment of namedobj to obj
         types.addTypeChecker { left, right -> left == ScriptVarType.OBJ && right == ScriptVarType.NAMEDOBJ }
