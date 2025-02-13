@@ -94,6 +94,7 @@ class ClientScriptCompiler(
         // symbol loaders
         addSymConstantLoaders()
 
+        addSymLoader("bugtemplate", ScriptVarType.BUG_TEMPLATE)
         addSymLoader("graphic", ScriptVarType.GRAPHIC)
         addSymLoader("fontmetrics", ScriptVarType.FONTMETRICS)
         addSymLoader("stat", ScriptVarType.STAT)
