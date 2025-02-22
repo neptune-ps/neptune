@@ -61,9 +61,9 @@ enum class ClientTriggerType(
     PLAYER_MOVE(49, subjectMode = SubjectMode.None),
     PROC(73, allowParameters = true, allowReturns = true),
     CLIENTSCRIPT(76, allowParameters = true),
-    ONCLICKLOC(78, subjectMode = SubjectMode.None),
-    ONCLICKOBJ(79, subjectMode = SubjectMode.None),
-    ONCLICKNPC(80, subjectMode = SubjectMode.None),
+    ONCLICKLOC(78, subjectMode = SubjectMode.Type(ScriptVarType.LOC)),
+    ONCLICKOBJ(79, subjectMode = SubjectMode.Type(ScriptVarType.NAMEDOBJ)),
+    ONCLICKNPC(80, subjectMode = SubjectMode.Type(ScriptVarType.NPC)),
     ONCLICKPLAYER(81, subjectMode = SubjectMode.None),
     MINIMENU_OPENED(82, subjectMode = SubjectMode.None),
     ;
