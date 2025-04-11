@@ -17,12 +17,7 @@ public class EmptyStatement(source: NodeSourceLocation) : Statement(source) {
 
     override fun hashCode(): Int = EmptyStatement::class.java.hashCode()
 
-    override fun equals(other: Any?): Boolean {
-        if (other is EmptyStatement) {
-            return true
-        }
-        return false
-    }
+    override fun equals(other: Any?): Boolean = other is EmptyStatement
 
     override fun toString(): String = MoreObjects.toStringHelper(this)
         .toString()
