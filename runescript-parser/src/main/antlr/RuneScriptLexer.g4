@@ -31,6 +31,8 @@ GT          : '>' {if (depth > 0) {setType(STRING_EXPR_END); popMode();}} ;
 GTE         : '>=' ;
 LT          : '<' ;
 LTE         : '<=' ;
+INCREMENT   : '++' ;
+DECREMENT   : '--' ;
 
 // keywords
 IF          : 'if' ;
@@ -68,7 +70,7 @@ fragment CharEscapeSequence
 
 // special
 QUOTE_OPEN      : '"' {depth++;} -> pushMode(String) ;
-IDENTIFIER      : [a-zA-Z0-9_+.:]+ ;
+IDENTIFIER      : [a-zA-Z0-9_.:]+ ;
 WHITESPACE      : [ \t\n\r]+ -> channel(HIDDEN) ;
 
 // string interpolation support

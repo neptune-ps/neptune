@@ -107,6 +107,8 @@ expression
     | constantVariable                                                          # ConstantVariableExpression
     | literal                                                                   # LiteralExpression
     | joinedString                                                              # JoinedStringExpression
+    | op=(INCREMENT | DECREMENT) expr=assignableVariable                        # PrefixExpression
+    | expr=assignableVariable op=(INCREMENT | DECREMENT)                        # PostfixExpression
     | identifier                                                                # IdentifierExpression
     ;
 

@@ -82,4 +82,12 @@ internal object DiagnosticMessage {
     const val CONSTANT_UNKNOWN_TYPE = "Unable to infer type for '^%s'."
     const val CONSTANT_PARSE_ERROR = "Unable to parse constant value of '%s' into type '%s'."
     const val CONSTANT_NONCONSTANT = "Constant value of '%s' evaluated to a non-constant expression."
+
+    // prefix/postfix operator specific
+    const val UNSUPPORTED_FIX_OPERATOR = "Unsupported %s operator: %s"
+    const val FIX_OPERATOR_REQUIRES_ASSIGNABLE = "%s operator requires an assignable variable"
+    const val FIX_OPERATOR_INVALID_TYPE = "%s operator '%s' cannot be applied to type '%s'"
+
+    // feature specific errors
+    const val FEATURE_UNSUPPORTED = "Compiler feature '%s' is not enabled."
 }

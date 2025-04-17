@@ -17,6 +17,7 @@ import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.ExpressionStringPart
+import me.filby.neptune.runescript.ast.expr.FixExpression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
@@ -26,9 +27,12 @@ import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
+import me.filby.neptune.runescript.ast.expr.PostfixExpression
+import me.filby.neptune.runescript.ast.expr.PrefixExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.StringPart
+import me.filby.neptune.runescript.ast.expr.VariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
@@ -39,6 +43,7 @@ import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
+import me.filby.neptune.runescript.compiler.CompilerFeatureSet
 import me.filby.neptune.runescript.compiler.codegen.script.Block
 import me.filby.neptune.runescript.compiler.codegen.script.Label
 import me.filby.neptune.runescript.compiler.codegen.script.LabelGenerator
@@ -75,6 +80,7 @@ public class CodeGenerator(
     private val rootTable: SymbolTable,
     private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
     private val diagnostics: Diagnostics,
+    private val features: CompilerFeatureSet,
 ) : AstVisitor<Unit> {
     /**
      * An instance of a [LabelGenerator] used to created labels within the instance.
@@ -449,17 +455,23 @@ public class CodeGenerator(
 
         // loop through the variables in reverse
         for (i in vars.indices.reversed()) {
-            val variable = vars[i]
-            val reference = variable.reference
-            if (reference == null) {
-                variable.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
-                return
-            }
-            when (reference) {
-                is LocalVariableSymbol -> instruction(Opcode.PopLocalVar, reference)
-                is BasicSymbol -> instruction(Opcode.PopVar, reference)
-                else -> error("Unsupported reference type: ${reference.javaClass.simpleName}")
-            }
+            popVar(vars[i])
+        }
+    }
+
+    /**
+     * Adds a pop var instruction based on the type of variable.
+     */
+    private fun popVar(variable: VariableExpression) {
+        val reference = variable.reference
+        if (reference == null) {
+            variable.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
+            return
+        }
+        when (reference) {
+            is LocalVariableSymbol -> instruction(Opcode.PopLocalVar, reference)
+            is BasicSymbol -> instruction(Opcode.PopVar, reference)
+            else -> error("Unsupported reference type: ${reference.javaClass.simpleName}")
         }
     }
 
@@ -539,6 +551,58 @@ public class CodeGenerator(
 
         // add the instruction with the opcode based on the operator
         instruction(opcode)
+    }
+
+    override fun visitPrefixExpression(prefixExpression: PrefixExpression) {
+        if (!features.prefixExpressions) {
+            prefixExpression.reportError(DiagnosticMessage.FEATURE_UNSUPPORTED, "Prefix Expressions")
+            return
+        }
+        visitFixExpression(prefixExpression)
+    }
+
+    override fun visitPostfixExpression(postfixExpression: PostfixExpression) {
+        if (!features.prefixExpressions) {
+            postfixExpression.reportError(DiagnosticMessage.FEATURE_UNSUPPORTED, "Postfix Expressions")
+            return
+        }
+        visitFixExpression(postfixExpression)
+    }
+
+    private fun visitFixExpression(fixExpression: FixExpression) {
+        // prefix: ++$var1 becomes "push, 1, add, pop, push"
+        // postfix: $var1++ becomes "push, push, 1, add, pop"
+
+        val variable = fixExpression.variable as VariableExpression
+
+        // add the line instruction
+        fixExpression.lineInstruction()
+
+        // visiting variables currently do a push instruction
+        variable.visit()
+
+        // if it's a suffix expression, we push the variable before changing the value.
+        if (!fixExpression.isPrefix) {
+            variable.visit()
+        }
+
+        // push the constant value of 1
+        instruction(Opcode.PushConstantInt, 1)
+
+        // add the instruction with the opcode based on the operator
+        if (fixExpression.operator.text == "++") {
+            instruction(Opcode.Add)
+        } else {
+            instruction(Opcode.Sub)
+        }
+
+        // pop the variable
+        popVar(variable)
+
+        // if it's a prefix expression, we push the variable after changing the value.
+        if (fixExpression.isPrefix) {
+            variable.visit()
+        }
     }
 
     override fun visitCalcExpression(calcExpression: CalcExpression) {

@@ -70,6 +70,8 @@ import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.PTagStringPart
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
+import me.filby.neptune.runescript.ast.expr.PostfixExpression
+import me.filby.neptune.runescript.ast.expr.PrefixExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.StringPart
@@ -200,6 +202,12 @@ public class AstBuilder(private val source: String, private val lineOffset: Int,
         operator = ctx.op.toAstToken(),
         right = ctx.arithmetic(1).visit(),
     )
+
+    override fun visitPrefixExpression(ctx: RuneScriptParser.PrefixExpressionContext): Node =
+        PrefixExpression(ctx.location, ctx.op.toAstToken(), ctx.expr.visit())
+
+    override fun visitPostfixExpression(ctx: RuneScriptParser.PostfixExpressionContext): Node =
+        PostfixExpression(ctx.location, ctx.op.toAstToken(), ctx.expr.visit())
 
     override fun visitCalcExpression(ctx: CalcExpressionContext): Node =
         CalcExpression(ctx.location, ctx.calc().arithmetic().visit())

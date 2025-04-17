@@ -20,6 +20,7 @@ import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.CoordLiteral
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.ExpressionStringPart
+import me.filby.neptune.runescript.ast.expr.FixExpression
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.ast.expr.IntegerLiteral
@@ -29,6 +30,8 @@ import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
+import me.filby.neptune.runescript.ast.expr.PostfixExpression
+import me.filby.neptune.runescript.ast.expr.PrefixExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.StringPart
@@ -1033,6 +1036,58 @@ public class TypeChecking(
         }
 
         identifier.reference = symbol
+    }
+
+    override fun visitPrefixExpression(prefixExpression: PrefixExpression) {
+        checkFixExpression(prefixExpression)
+    }
+
+    override fun visitPostfixExpression(postfixExpression: PostfixExpression) {
+        checkFixExpression(postfixExpression)
+    }
+
+    private fun checkFixExpression(fixExpression: FixExpression) {
+        val operator = fixExpression.operator
+        val variable = fixExpression.variable
+
+        // check for valid prefix/postfix operator
+        if (operator.text != "++" && operator.text != "--") {
+            operator.reportError(
+                DiagnosticMessage.UNSUPPORTED_FIX_OPERATOR,
+                if (fixExpression.isPrefix) "prefix" else "postfix",
+                operator.text
+            )
+            fixExpression.type = MetaType.Error
+            return
+        }
+
+        variable.visit()
+
+        // check if operand is an assignable variable
+        if (variable !is LocalVariableExpression && variable !is GameVariableExpression) {
+            variable.reportError(
+                DiagnosticMessage.FIX_OPERATOR_REQUIRES_ASSIGNABLE,
+                if (fixExpression.isPrefix) "Prefix" else "Postfix",
+            )
+            fixExpression.type = MetaType.Error
+            return
+        }
+
+        // since only increment/decrement is allowed, we need to check if the
+        // expression type is an arithmetic allowed type
+        if (!checkTypeMatchAny(variable, ALLOWED_ARITHMETIC_TYPES, variable.type)) {
+            variable.reportError(
+                DiagnosticMessage.FIX_OPERATOR_INVALID_TYPE,
+                if (fixExpression.isPrefix) "Prefix" else "Postfix",
+                operator.text,
+                variable.type.representation
+            )
+            fixExpression.type = MetaType.Error
+            return
+        }
+
+        // set the type to the same as the operand
+        fixExpression.type = variable.type
     }
 
     private fun resolveSymbol(node: Expression, name: String, hint: Type?): Symbol? {
