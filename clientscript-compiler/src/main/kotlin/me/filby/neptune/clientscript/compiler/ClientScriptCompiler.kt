@@ -1,5 +1,6 @@
 package me.filby.neptune.clientscript.compiler
 
+import me.filby.neptune.clientscript.compiler.command.CcCreateCommandHandler
 import me.filby.neptune.clientscript.compiler.command.DbFindCommandHandler
 import me.filby.neptune.clientscript.compiler.command.DbGetFieldCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumCommandHandler
@@ -68,6 +69,9 @@ class ClientScriptCompiler(
         }
 
         // register the dynamic command handlers
+        if (features.ccCreateAssertNewArg) {
+            addDynamicCommandHandler("cc_create", CcCreateCommandHandler(), dot = true)
+        }
         addDynamicCommandHandler("enum", EnumCommandHandler())
         addDynamicCommandHandler("oc_param", ParamCommandHandler(ScriptVarType.OBJ))
         addDynamicCommandHandler("nc_param", ParamCommandHandler(ScriptVarType.NPC))

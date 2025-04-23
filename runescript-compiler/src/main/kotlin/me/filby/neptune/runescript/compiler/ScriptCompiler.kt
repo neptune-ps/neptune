@@ -137,14 +137,20 @@ public open class ScriptCompiler(
 
     /**
      * Adds a [DynamicCommandHandler] to the compiler with the given [name]. See
-     * [DynamicCommandHandler] for information on implementation.
+     * [DynamicCommandHandler] for information on implementation. If [dot], then
+     * the "dot" version of the command is also registered by prepending a
+     * period to name.
      *
      * If a handler was registered for the [name] already an error is thrown.
      */
-    public fun addDynamicCommandHandler(name: String, handler: DynamicCommandHandler) {
+    public fun addDynamicCommandHandler(name: String, handler: DynamicCommandHandler, dot: Boolean = false) {
         val existing = dynamicCommandHandlers.putIfAbsent(name, handler)
         if (existing != null) {
             error("A dynamic command handler with the name of '$name' already exists.")
+        }
+
+        if (dot) {
+            addDynamicCommandHandler(".$name", handler, dot = false)
         }
     }
 

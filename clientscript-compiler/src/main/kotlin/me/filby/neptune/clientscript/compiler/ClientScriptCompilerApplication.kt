@@ -138,6 +138,7 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
         )
         mapping<ClientScriptCompilerFeatureSet>(
             "db_find_returns_count" to "dbFindReturnsCount",
+            "cc_create_optional_assert_new" to "ccCreateAssertNewArg",
         )
         mapping<BinaryFileWriterConfig>("output" to "outputPath")
     }
@@ -157,6 +158,7 @@ private fun getDefaultFeaturesForVersion(versionProperty: TomlValue?): ClientScr
 
     return ClientScriptCompilerFeatureSet(
         dbFindReturnsCount = version >= 228,
+        ccCreateAssertNewArg = version >= 230,
     )
 }
 
