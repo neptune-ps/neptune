@@ -1,0 +1,4 @@
+PostfixExpression() 1:1
+ Token(text=++) 1:3
+ LocalVariableExpression() 1:1
+  Identifier(text="a") 1:2
