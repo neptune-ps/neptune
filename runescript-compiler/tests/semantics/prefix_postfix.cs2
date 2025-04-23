@@ -1,0 +1,9 @@
+[proc,test]
+def_npc $a = null;
+
+// Expect: Postfix operator '++' cannot be applied to type 'npc'.
+$a++;
+
+// arrays are not allowed to use the fix operators
+def_int $array(1);
+$array(0)++; // Expect: Postfix operator '++' cannot be applied to arrays.

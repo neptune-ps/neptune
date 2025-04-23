@@ -1050,11 +1050,17 @@ public class TypeChecking(
         val operator = fixExpression.operator
         val variable = fixExpression.variable
 
-        // check for valid prefix/postfix operator
-        if (operator.text != "++" && operator.text != "--") {
-            operator.reportError(
-                DiagnosticMessage.UNSUPPORTED_FIX_OPERATOR,
-                if (fixExpression.isPrefix) "prefix" else "postfix",
+        // these two checks should always be valid with current parse rules
+        check(operator.text == "++" || operator.text == "--") { "Invalid operator: ${operator.text}" }
+        check(variable is LocalVariableExpression || variable is GameVariableExpression) {
+            "Invalid variable kind: $variable"
+        }
+
+        // disallow using fix operators on arrays
+        if (variable is LocalVariableExpression && variable.isArray) {
+            variable.reportError(
+                DiagnosticMessage.FIX_INVALID_VARIABLE_KIND,
+                if (fixExpression.isPrefix) "Prefix" else "Postfix",
                 operator.text,
             )
             fixExpression.type = MetaType.Error
@@ -1062,16 +1068,6 @@ public class TypeChecking(
         }
 
         variable.visit()
-
-        // check if operand is an assignable variable
-        if (variable !is LocalVariableExpression && variable !is GameVariableExpression) {
-            variable.reportError(
-                DiagnosticMessage.FIX_OPERATOR_REQUIRES_ASSIGNABLE,
-                if (fixExpression.isPrefix) "Prefix" else "Postfix",
-            )
-            fixExpression.type = MetaType.Error
-            return
-        }
 
         // since only increment/decrement is allowed, we need to check if the
         // expression type is an arithmetic allowed type
