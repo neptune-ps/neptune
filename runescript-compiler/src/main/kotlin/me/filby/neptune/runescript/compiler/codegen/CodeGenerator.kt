@@ -554,7 +554,7 @@ public class CodeGenerator(
     }
 
     override fun visitPrefixExpression(prefixExpression: PrefixExpression) {
-        if (!features.prefixExpressions) {
+        if (!features.prefixPostfixExpressions) {
             prefixExpression.reportError(DiagnosticMessage.FEATURE_UNSUPPORTED, "Prefix Expressions")
             return
         }
@@ -562,7 +562,7 @@ public class CodeGenerator(
     }
 
     override fun visitPostfixExpression(postfixExpression: PostfixExpression) {
-        if (!features.prefixExpressions) {
+        if (!features.prefixPostfixExpressions) {
             postfixExpression.reportError(DiagnosticMessage.FEATURE_UNSUPPORTED, "Postfix Expressions")
             return
         }
@@ -581,19 +581,35 @@ public class CodeGenerator(
         // visiting variables currently do a push instruction
         variable.visit()
 
-        // if it's a suffix expression, we push the variable before changing the value.
+        // if it's a postfix expression, we push the variable before changing the value.
         if (!fixExpression.isPrefix) {
             variable.visit()
         }
 
-        // push the constant value of 1
-        instruction(Opcode.PushConstantInt, 1)
+        when (variable.type) {
+            PrimitiveType.INT -> {
+                // push the constant value of 1
+                instruction(Opcode.PushConstantInt, 1)
 
-        // add the instruction with the opcode based on the operator
-        if (fixExpression.operator.text == "++") {
-            instruction(Opcode.Add)
-        } else {
-            instruction(Opcode.Sub)
+                // add the instruction with the opcode based on the operator
+                if (fixExpression.operator.text == "++") {
+                    instruction(Opcode.Add)
+                } else {
+                    instruction(Opcode.Sub)
+                }
+            }
+            PrimitiveType.LONG -> {
+                // push the constant value of 1
+                instruction(Opcode.PushConstantLong, 1L)
+
+                // add the instruction with the opcode based on the operator
+                if (fixExpression.operator.text == "++") {
+                    instruction(Opcode.LongAdd)
+                } else {
+                    instruction(Opcode.LongSub)
+                }
+            }
+            else -> error("Unsupported type: ${variable.type.representation}")
         }
 
         // pop the variable

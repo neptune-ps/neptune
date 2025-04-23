@@ -88,11 +88,9 @@ public interface AstVisitor<R> {
 
     public fun visitCalcExpression(calcExpression: CalcExpression): R = visitExpression(calcExpression)
 
-    public fun visitPrefixExpression(prefixExpression: PrefixExpression): R =
-        visitExpression(prefixExpression)
+    public fun visitPrefixExpression(prefixExpression: PrefixExpression): R = visitExpression(prefixExpression)
 
-    public fun visitPostfixExpression(postfixExpression: PostfixExpression): R =
-        visitExpression(postfixExpression)
+    public fun visitPostfixExpression(postfixExpression: PostfixExpression): R = visitExpression(postfixExpression)
 
     public fun visitCommandCallExpression(commandCallExpression: CommandCallExpression): R =
         visitCallExpression(commandCallExpression)

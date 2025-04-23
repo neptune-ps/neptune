@@ -31,7 +31,7 @@ public open class ScriptCompiler(
     sourcePaths: List<Path>,
     libraryPaths: List<Path>,
     private val scriptWriter: ScriptWriter?,
-    public val features: CompilerFeatureSet
+    public open val features: CompilerFeatureSet,
 ) {
     /**
      * Logger for this class.

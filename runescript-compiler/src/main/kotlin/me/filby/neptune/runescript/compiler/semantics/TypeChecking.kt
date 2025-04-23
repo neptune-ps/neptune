@@ -1055,7 +1055,7 @@ public class TypeChecking(
             operator.reportError(
                 DiagnosticMessage.UNSUPPORTED_FIX_OPERATOR,
                 if (fixExpression.isPrefix) "prefix" else "postfix",
-                operator.text
+                operator.text,
             )
             fixExpression.type = MetaType.Error
             return
@@ -1080,7 +1080,7 @@ public class TypeChecking(
                 DiagnosticMessage.FIX_OPERATOR_INVALID_TYPE,
                 if (fixExpression.isPrefix) "Prefix" else "Postfix",
                 operator.text,
-                variable.type.representation
+                variable.type.representation,
             )
             fixExpression.type = MetaType.Error
             return

@@ -23,9 +23,7 @@ public abstract class FixExpression(
         addChild(variable)
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(operator, variable)
-    }
+    override fun hashCode(): Int = Objects.hash(operator, variable)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -40,13 +38,11 @@ public abstract class FixExpression(
             variable == other.variable
     }
 
-    override fun toString(): String {
-        return MoreObjects.toStringHelper(this)
-            .add("operator", operator)
-            .add("variable", variable)
-            .add("isPrefix", isPrefix)
-            .toString()
-    }
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("operator", operator)
+        .add("variable", variable)
+        .add("isPrefix", isPrefix)
+        .toString()
 }
 
 /**
@@ -59,14 +55,9 @@ public abstract class FixExpression(
  *
  * @see FixExpression
  */
-public class PrefixExpression(
-    source: NodeSourceLocation,
-    operator: Token,
-    variable: Expression,
-) : FixExpression(source, operator, variable, false) {
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitPrefixExpression(this)
-    }
+public class PrefixExpression(source: NodeSourceLocation, operator: Token, variable: Expression) :
+    FixExpression(source, operator, variable, true) {
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitPrefixExpression(this)
 }
 
 /**
@@ -79,13 +70,7 @@ public class PrefixExpression(
  *
  * @see FixExpression
  */
-public class PostfixExpression(
-    source: NodeSourceLocation,
-    operator: Token,
-    variable: Expression,
-) : FixExpression(source, operator, variable, true) {
-
-    override fun <R> accept(visitor: AstVisitor<R>): R {
-        return visitor.visitPostfixExpression(this)
-    }
+public class PostfixExpression(source: NodeSourceLocation, operator: Token, variable: Expression) :
+    FixExpression(source, operator, variable, false) {
+    override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitPostfixExpression(this)
 }

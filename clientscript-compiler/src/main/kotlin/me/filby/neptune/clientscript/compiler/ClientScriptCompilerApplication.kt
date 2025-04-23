@@ -164,6 +164,7 @@ private fun getDefaultFeaturesForVersion(versionProperty: TomlValue?): ClientScr
     return ClientScriptCompilerFeatureSet(
         dbFindReturnsCount = version >= 228,
         ccCreateAssertNewArg = version >= 230,
+        prefixPostfixExpressions = false,
     )
 }
 
