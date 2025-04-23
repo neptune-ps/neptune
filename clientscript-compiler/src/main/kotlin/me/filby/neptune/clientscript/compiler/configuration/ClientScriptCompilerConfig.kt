@@ -10,4 +10,5 @@ data class ClientScriptCompilerConfig(
     val libraryPaths: List<String> = emptyList(),
     val excludePaths: List<String> = emptyList(),
     val writers: ClientScriptWriterConfig = ClientScriptWriterConfig(),
+    val features: ClientScriptCompilerFeatureSet,
 )

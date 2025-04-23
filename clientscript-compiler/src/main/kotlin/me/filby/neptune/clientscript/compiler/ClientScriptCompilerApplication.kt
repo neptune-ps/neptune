@@ -1,6 +1,7 @@
 package me.filby.neptune.clientscript.compiler
 
-import cc.ekblad.toml.decode
+import cc.ekblad.toml.model.TomlValue
+import cc.ekblad.toml.serialization.from
 import cc.ekblad.toml.tomlMapper
 import ch.qos.logback.classic.LoggerContext
 import com.github.ajalt.clikt.core.CliktCommand
@@ -17,6 +18,7 @@ import com.github.michaelbull.logging.Logger
 import com.google.gson.GsonBuilder
 import me.filby.neptune.clientscript.compiler.configuration.BinaryFileWriterConfig
 import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerConfig
+import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerFeatureSet
 import me.filby.neptune.clientscript.compiler.writer.BinaryFileScriptWriter
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -74,6 +76,7 @@ class ClientScriptCommand : CliktCommand(name = "cs2") {
         val symbolPaths = config.symbolPaths.map { basePath.resolve(it) }
         val libraryPaths = config.libraryPaths.map { basePath.resolve(it) }
         val (binaryWriterConfig) = config.writers
+        val features = config.features
 
         val mapper = SymbolMapper()
         val writer = if (binaryWriterConfig != null) {
@@ -87,7 +90,7 @@ class ClientScriptCommand : CliktCommand(name = "cs2") {
         loadSpecialSymbols(symbolPaths, mapper)
 
         // setup compiler and execute it
-        val compiler = ClientScriptCompiler(sourcePaths, libraryPaths, writer, symbolPaths, mapper)
+        val compiler = ClientScriptCompiler(sourcePaths, libraryPaths, writer, features, symbolPaths, mapper)
         compiler.setup()
         compiler.run()
     }
@@ -117,7 +120,15 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
         exitProcess(1)
     }
 
+    val document = TomlValue.from(configPath)
+    val defaultFeatures = getDefaultFeaturesForVersion(document.properties["client_version"])
     val tomlMapper = tomlMapper {
+        // these defaults are required for
+        //  1) if features is not defined at all
+        //  2) if some features are defined
+        default(ClientScriptCompilerConfig(features = defaultFeatures))
+        default(defaultFeatures)
+
         mapping<ClientScriptCompilerConfig>(
             "sources" to "sourcePaths",
             "symbols" to "symbolPaths",
@@ -125,10 +136,28 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
             "excludes" to "excludePaths",
             "writer" to "writers",
         )
+        mapping<ClientScriptCompilerFeatureSet>(
+            "db_find_returns_count" to "dbFindReturnsCount",
+        )
         mapping<BinaryFileWriterConfig>("output" to "outputPath")
     }
     logger.info { "Loading configuration from $configPath." }
-    return tomlMapper.decode<ClientScriptCompilerConfig>(configPath)
+    return tomlMapper.decode<ClientScriptCompilerConfig>(document)
+}
+
+private fun getDefaultFeaturesForVersion(versionProperty: TomlValue?): ClientScriptCompilerFeatureSet {
+    val version = when (versionProperty) {
+        is TomlValue.Integer -> versionProperty.value.toInt()
+        null -> Integer.MAX_VALUE
+        else -> {
+            logger.error { "The 'client_version' value must be numeric." }
+            exitProcess(1)
+        }
+    }
+
+    return ClientScriptCompilerFeatureSet(
+        dbFindReturnsCount = version >= 228,
+    )
 }
 
 private fun loadSpecialSymbols(symbolsPaths: List<Path>, mapper: SymbolMapper) {

@@ -7,6 +7,7 @@ import me.filby.neptune.clientscript.compiler.command.ParamCommandHandler
 import me.filby.neptune.clientscript.compiler.command.PlaceholderCommand
 import me.filby.neptune.clientscript.compiler.command.debug.DumpCommandHandler
 import me.filby.neptune.clientscript.compiler.command.debug.ScriptCommandHandler
+import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerFeatureSet
 import me.filby.neptune.clientscript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.clientscript.compiler.type.DbColumnType
 import me.filby.neptune.clientscript.compiler.type.ParamType
@@ -29,6 +30,7 @@ class ClientScriptCompiler(
     sourcePaths: List<Path>,
     libraryPaths: List<Path>,
     scriptWriter: ScriptWriter?,
+    private val features: ClientScriptCompilerFeatureSet,
     private val symbolPaths: List<Path>,
     private val mapper: SymbolMapper,
 ) : ScriptCompiler(sourcePaths, libraryPaths, scriptWriter) {
@@ -71,10 +73,16 @@ class ClientScriptCompiler(
         addDynamicCommandHandler("nc_param", ParamCommandHandler(ScriptVarType.NPC))
         addDynamicCommandHandler("lc_param", ParamCommandHandler(ScriptVarType.LOC))
         addDynamicCommandHandler("struct_param", ParamCommandHandler(ScriptVarType.STRUCT))
-        addDynamicCommandHandler("db_find", DbFindCommandHandler(false))
-        addDynamicCommandHandler("db_find_with_count", DbFindCommandHandler(true))
-        addDynamicCommandHandler("db_find_refine", DbFindCommandHandler(false))
-        addDynamicCommandHandler("db_find_refine_with_count", DbFindCommandHandler(true))
+
+        if (features.dbFindReturnsCount) {
+            addDynamicCommandHandler("db_find", DbFindCommandHandler(true))
+            addDynamicCommandHandler("db_find_refine", DbFindCommandHandler(true))
+        } else {
+            addDynamicCommandHandler("db_find", DbFindCommandHandler(false))
+            addDynamicCommandHandler("db_find_with_count", DbFindCommandHandler(true))
+            addDynamicCommandHandler("db_find_refine", DbFindCommandHandler(false))
+            addDynamicCommandHandler("db_find_refine_with_count", DbFindCommandHandler(true))
+        }
         addDynamicCommandHandler("db_getfield", DbGetFieldCommandHandler())
 
         addDynamicCommandHandler("event_opbase", PlaceholderCommand(PrimitiveType.STRING, "event_opbase"))
