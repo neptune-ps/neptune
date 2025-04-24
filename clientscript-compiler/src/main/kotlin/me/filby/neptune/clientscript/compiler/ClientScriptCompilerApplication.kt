@@ -20,7 +20,6 @@ import me.filby.neptune.clientscript.compiler.configuration.BinaryFileWriterConf
 import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerConfig
 import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerFeatureSet
 import me.filby.neptune.clientscript.compiler.writer.BinaryFileScriptWriter
-import me.filby.neptune.runescript.compiler.CompilerFeatureSet
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -140,12 +139,9 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
         mapping<ClientScriptCompilerFeatureSet>(
             "db_find_returns_count" to "dbFindReturnsCount",
             "cc_create_optional_assert_new" to "ccCreateAssertNewArg",
+            "prefix_postfix_expressions" to "prefixPostfixExpressions",
         )
         mapping<BinaryFileWriterConfig>("output" to "outputPath")
-        mapping<CompilerFeatureSet>(
-            "prefix_expressions" to "prefixExpressions",
-            "postfix_expressions" to "postfixExpressions",
-        )
     }
     logger.info { "Loading configuration from $configPath." }
     return tomlMapper.decode<ClientScriptCompilerConfig>(document)
