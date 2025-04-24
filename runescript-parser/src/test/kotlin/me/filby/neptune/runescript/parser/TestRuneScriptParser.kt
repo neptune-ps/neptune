@@ -127,7 +127,13 @@ class TestRuneScriptParser {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["local", "local_array", "game", "constant"])
+    @ValueSource(
+        strings = [
+            "local", "local_array", "local_prefix", "local_postfix",
+            "game", "game_prefix", "game_postfix",
+            "constant",
+        ],
+    )
     @Order(EXPRESSION)
     fun testVariable(test: String) {
         runFileTest("expressions/variables/$test", RuneScriptParser::expression)

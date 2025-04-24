@@ -21,6 +21,8 @@ import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
 import me.filby.neptune.runescript.ast.expr.ParenthesizedExpression
+import me.filby.neptune.runescript.ast.expr.PostfixExpression
+import me.filby.neptune.runescript.ast.expr.PrefixExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.StringPart
@@ -85,6 +87,10 @@ public interface AstVisitor<R> {
     public fun visitBinaryExpression(binaryExpression: BinaryExpression): R = visitExpression(binaryExpression)
 
     public fun visitCalcExpression(calcExpression: CalcExpression): R = visitExpression(calcExpression)
+
+    public fun visitPrefixExpression(prefixExpression: PrefixExpression): R = visitExpression(prefixExpression)
+
+    public fun visitPostfixExpression(postfixExpression: PostfixExpression): R = visitExpression(postfixExpression)
 
     public fun visitCommandCallExpression(commandCallExpression: CommandCallExpression): R =
         visitCallExpression(commandCallExpression)

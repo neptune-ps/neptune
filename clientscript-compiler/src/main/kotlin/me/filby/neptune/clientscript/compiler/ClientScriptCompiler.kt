@@ -31,10 +31,10 @@ class ClientScriptCompiler(
     sourcePaths: List<Path>,
     libraryPaths: List<Path>,
     scriptWriter: ScriptWriter?,
-    private val features: ClientScriptCompilerFeatureSet,
+    override val features: ClientScriptCompilerFeatureSet,
     private val symbolPaths: List<Path>,
     private val mapper: SymbolMapper,
-) : ScriptCompiler(sourcePaths, libraryPaths, scriptWriter) {
+) : ScriptCompiler(sourcePaths, libraryPaths, scriptWriter, features) {
     fun setup() {
         triggers.registerAll<ClientTriggerType>()
 

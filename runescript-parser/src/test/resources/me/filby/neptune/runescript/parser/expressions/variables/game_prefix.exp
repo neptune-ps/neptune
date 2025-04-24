@@ -1,0 +1,4 @@
+PrefixExpression() 1:1
+ Token(text=++) 1:1
+ GameVariableExpression() 1:3
+  Identifier(text="a") 1:4

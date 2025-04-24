@@ -31,6 +31,7 @@ public open class ScriptCompiler(
     sourcePaths: List<Path>,
     libraryPaths: List<Path>,
     private val scriptWriter: ScriptWriter?,
+    public open val features: CompilerFeatureSet,
 ) {
     /**
      * Logger for this class.
@@ -295,7 +296,7 @@ public open class ScriptCompiler(
         val codegenTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    val codegen = CodeGenerator(rootTable, dynamicCommandHandlers, diagnostics)
+                    val codegen = CodeGenerator(rootTable, dynamicCommandHandlers, diagnostics, features)
                     file.accept(codegen)
                     scripts.addAll(codegen.scripts)
                 }
