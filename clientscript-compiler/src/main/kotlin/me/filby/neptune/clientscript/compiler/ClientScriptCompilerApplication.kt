@@ -150,7 +150,7 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
 private fun getDefaultFeaturesForVersion(versionProperty: TomlValue?): ClientScriptCompilerFeatureSet {
     val version = when (versionProperty) {
         is TomlValue.Integer -> versionProperty.value.toInt()
-        null -> Integer.MAX_VALUE
+        null -> Integer.MIN_VALUE
         else -> {
             logger.error { "The 'client_version' value must be numeric." }
             exitProcess(1)
