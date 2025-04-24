@@ -15,6 +15,8 @@ import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
 import me.filby.neptune.runescript.ast.expr.NullLiteral
+import me.filby.neptune.runescript.ast.expr.PostfixExpression
+import me.filby.neptune.runescript.ast.expr.PrefixExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.StringPart
@@ -25,6 +27,12 @@ class ExpressionGenerator : AstVisitor<String> {
 
     override fun visitCalcExpression(calcExpression: CalcExpression): String =
         "calc(${calcExpression.expression.visit()})"
+
+    override fun visitPrefixExpression(prefixExpression: PrefixExpression): String =
+        "${prefixExpression.operator.text}${prefixExpression.variable.visit()}"
+
+    override fun visitPostfixExpression(postfixExpression: PostfixExpression): String =
+        "${postfixExpression.variable.visit()}${postfixExpression.operator.text}"
 
     override fun visitCommandCallExpression(commandCallExpression: CommandCallExpression) = buildString {
         append(commandCallExpression.name.visit())
