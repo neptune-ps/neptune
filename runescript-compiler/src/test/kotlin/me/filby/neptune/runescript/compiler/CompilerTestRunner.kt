@@ -63,12 +63,13 @@ private fun testScriptFile(scriptFile: File): Boolean {
     val diagnosticsHandler = TestDiagnosticsHandler(scriptFile, expectedErrors)
 
     // run compiler
+    val features = parseCompilerFeatureSet(scriptFile)
     val writer = TestScriptWriter(scriptManager)
     val compiler = ScriptCompiler(
         listOf(scriptFile.toPath()),
         emptyList(),
         writer,
-        TestCompilerFeatureSet(prefixPostfixExpressions = true, arraysV2 = false),
+        features,
     )
     compiler.triggers.registerAll<TestTriggerType>()
     compiler.addSymbolLoader(CommandSymbolLoader())
@@ -88,7 +89,7 @@ private fun testScriptFile(scriptFile: File): Boolean {
     // run runtime if no errors
     var hasRuntimeErrors = false
     if (!diagnosticsHandler.hasSemanticErrors) {
-        val runner = createRuntime(scriptManager)
+        val runner = createRuntime(scriptManager, features)
 
         // run all tests in the file
         val tests = scriptManager.getAllByTrigger(TestTriggerType.TEST)
@@ -105,6 +106,41 @@ private fun testScriptFile(scriptFile: File): Boolean {
         }
     }
     return diagnosticsHandler.hasUnexpectedErrors || hasRuntimeErrors
+}
+
+/**
+ * Parses comments that start with `///` from the top of a script file which can enable
+ * or disable features.
+ *
+ * Example: `/// prefix_postfix_expressions=true`
+ */
+private fun parseCompilerFeatureSet(file: File): TestCompilerFeatureSet = file.useLines { lines ->
+    val featureSet = TestCompilerFeatureSet()
+    for (line in lines) {
+        if (line.startsWith("///")) {
+            val cleanedLine = line.substringAfter("///").trim()
+            val parts = cleanedLine.split("=")
+            if (parts.size != 2) {
+                continue
+            }
+
+            val key = parts[0].trim()
+            val value = parts[1].trim()
+            when (key) {
+                "prefix_postfix_expressions" -> featureSet.prefixPostfixExpressions = value.toBoolean()
+                "arrays_v2" -> featureSet.arraysV2 = value.toBoolean()
+                else -> error("Unknown feature '$key' in $file.")
+            }
+        } else if (line.startsWith("//")) {
+            // allow comments at the top of a file without preventing flags from parsing
+            continue
+        } else {
+            // assume the first time not seeing a comment means we're at the actual script contents
+            break
+        }
+    }
+
+    featureSet
 }
 
 private fun parseExpectedErrors(file: File): ArrayDeque<String> {
@@ -127,9 +163,9 @@ private fun parseExpectedErrors(file: File): ArrayDeque<String> {
     return expectedErrors
 }
 
-private fun createRuntime(scriptManager: ScriptManager): TestScriptRunner {
+private fun createRuntime(scriptManager: ScriptManager, features: TestCompilerFeatureSet): TestScriptRunner {
     val runner = TestScriptRunner()
-    runner.registerHandlersFrom(CoreOpcodesBase<ScriptState>(scriptManager))
+    runner.registerHandlersFrom(CoreOpcodesBase<ScriptState>(scriptManager, features.arraysV2))
     runner.registerHandlersFrom(MathOpcodesBase<ScriptState>())
     runner.registerHandlersFrom(TestOpcodes())
     return runner

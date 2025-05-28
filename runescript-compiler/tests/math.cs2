@@ -1,3 +1,5 @@
+/// prefix_postfix_expressions=true
+
 [test,int_math]
 // int math tests
 def_int $a = 500;
