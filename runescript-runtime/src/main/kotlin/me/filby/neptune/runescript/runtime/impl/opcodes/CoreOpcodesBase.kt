@@ -1,6 +1,7 @@
 package me.filby.neptune.runescript.runtime.impl.opcodes
 
 import me.filby.neptune.runescript.runtime.Script
+import me.filby.neptune.runescript.runtime.ScriptArray
 import me.filby.neptune.runescript.runtime.impl.Instruction
 import me.filby.neptune.runescript.runtime.impl.ScriptProvider
 import me.filby.neptune.runescript.runtime.state.GosubStackFramePool
@@ -15,7 +16,10 @@ import me.filby.neptune.runescript.runtime.state.ScriptState
  * @see MathOpcodesBase
  */
 @Suppress("FunctionName")
-public open class CoreOpcodesBase<T : ScriptState>(private val scriptProvider: ScriptProvider) {
+public open class CoreOpcodesBase<T : ScriptState>(
+    private val scriptProvider: ScriptProvider,
+    private val arraysV2: Boolean = false,
+) {
     private val gosubStackFramePool = GosubStackFramePool()
     private val localArraySizes = IntArray(5)
     private val localArrays = Array(5) { IntArray(5000) }
@@ -309,27 +313,58 @@ public open class CoreOpcodesBase<T : ScriptState>(private val scriptProvider: S
             throw RuntimeException("Invalid array size: $size Local array: $arrId")
         }
 
-        localArraySizes[arrId] = size
-        val defaultValue = if (typeCode == 'i'.code) 0 else -1
-        localArrays[arrId].fill(defaultValue)
+        if (arraysV2) {
+            val defaultValue = when (typeCode) {
+                'i'.code -> 0
+                's'.code -> ""
+                else -> -1
+            }
+            objLocals[arrId] = ScriptArray(true, size, defaultValue)
+        } else {
+            val defaultValue = if (typeCode == 'i'.code) 0 else -1
+            localArraySizes[arrId] = size
+            localArrays[arrId].fill(defaultValue)
+        }
     }
 
     @Instruction(BaseCoreOpcodes.PUSH_ARRAY_INT)
-    public open fun T._push_array_int(index: Int) {
+    public open fun T._push_array_int() {
         val arrId = intOperand
-        if (index < 0 || index >= localArraySizes[arrId]) {
-            throw RuntimeException("Invalid array index: $index Local array: $arrId")
+        val index = popInt()
+
+        if (arraysV2) {
+            val array = objLocals[arrId] as ScriptArray
+            if (array.isStringArray) {
+                pushObj(array.getString(index))
+            } else {
+                pushInt(array.getInt(index))
+            }
+        } else {
+            pushInt(localArrays[arrId][index])
         }
-        pushInt(localArrays[arrId][index])
     }
 
     @Instruction(BaseCoreOpcodes.POP_ARRAY_INT)
-    public open fun T._pop_array_int(index: Int, value: Int) {
+    public open fun T._pop_array_int() {
         val arrId = intOperand
-        if (index < 0 || index >= localArraySizes[arrId]) {
-            throw RuntimeException("Invalid array index: $index Local array: $arrId")
+        if (arraysV2) {
+            val array = objLocals[arrId] as ScriptArray
+            check(array.mutable) { "Array is immutable." }
+
+            if (array.isStringArray) {
+                val value = popObj<String>()
+                val index = popInt()
+                array.setString(index, value)
+            } else {
+                val value = popInt()
+                val index = popInt()
+                array.setInt(index, value)
+            }
+        } else {
+            val value = popInt()
+            val index = popInt()
+            localArrays[arrId][index] = value
         }
-        localArrays[arrId][index] = value
     }
 
     // TODO remove the below implementations
