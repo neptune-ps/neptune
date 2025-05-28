@@ -40,6 +40,9 @@ public object BaseCoreOpcodes {
     public const val JUMP_WITH_PARAMS: Int = 27
     public const val RETURN: Int = 28
     public const val SWITCH: Int = 29
+    public const val DEFINE_ARRAY: Int = 30
+    public const val PUSH_ARRAY_INT: Int = 31
+    public const val POP_ARRAY_INT: Int = 32
 
     // int math ops
     public const val ADD: Int = 100

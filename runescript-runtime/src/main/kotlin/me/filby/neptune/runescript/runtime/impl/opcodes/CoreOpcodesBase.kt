@@ -17,6 +17,8 @@ import me.filby.neptune.runescript.runtime.state.ScriptState
 @Suppress("FunctionName")
 public open class CoreOpcodesBase<T : ScriptState>(private val scriptProvider: ScriptProvider) {
     private val gosubStackFramePool = GosubStackFramePool()
+    private val localArraySizes = IntArray(5)
+    private val localArrays = Array(5) { IntArray(5000) }
 
     @Instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT)
     public open fun T._push_constant_int() {
@@ -296,6 +298,38 @@ public open class CoreOpcodesBase<T : ScriptState>(private val scriptProvider: S
         val table = script.switchTables[intOperand]
         val result = table[key] ?: return
         pc += result
+    }
+
+    @Instruction(BaseCoreOpcodes.DEFINE_ARRAY)
+    public open fun T._define_array() {
+        val arrId = intOperand shr 16
+        val typeCode = intOperand and 0xFFFF
+        val size = popInt()
+        if (size < 0 || size > 5000) {
+            throw RuntimeException("Invalid array size: $size Local array: $arrId")
+        }
+
+        localArraySizes[arrId] = size
+        val defaultValue = if (typeCode == 'i'.code) 0 else -1
+        localArrays[arrId].fill(defaultValue)
+    }
+
+    @Instruction(BaseCoreOpcodes.PUSH_ARRAY_INT)
+    public open fun T._push_array_int(index: Int) {
+        val arrId = intOperand
+        if (index < 0 || index >= localArraySizes[arrId]) {
+            throw RuntimeException("Invalid array index: $index Local array: $arrId")
+        }
+        pushInt(localArrays[arrId][index])
+    }
+
+    @Instruction(BaseCoreOpcodes.POP_ARRAY_INT)
+    public open fun T._pop_array_int(index: Int, value: Int) {
+        val arrId = intOperand
+        if (index < 0 || index >= localArraySizes[arrId]) {
+            throw RuntimeException("Invalid array index: $index Local array: $arrId")
+        }
+        localArrays[arrId][index] = value
     }
 
     // TODO remove the below implementations

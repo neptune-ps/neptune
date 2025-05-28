@@ -1,0 +1,71 @@
+// simple test for passing and manipulating an array
+[test,simple_array]
+def_int $array(2);
+
+$array(0) = 1;
+$array(1) = 2;
+
+assert_equals(1, $array(0));
+assert_equals(2, $array(1));
+
+~swap_first_two(array);
+
+assert_equals(2, $array(0));
+assert_equals(1, $array(1));
+
+[proc,swap_first_two](intarray $array)
+$array(0) = 2;
+$array(1) = 1;
+
+// more complex test for passing an manipulating an array
+[test,quicksort]
+def_int $array(10);
+
+// fill array with values in random order 1-10
+$array(0) = 7;
+$array(1) = 2;
+$array(2) = 9;
+$array(3) = 1;
+$array(4) = 5;
+$array(5) = 10;
+$array(6) = 3;
+$array(7) = 6;
+$array(8) = 4;
+$array(9) = 8;
+
+// call quicksort to sort the array back in ascending order
+~quicksort(array, 0, 9);
+
+// verify array is sorted with values of 1..10
+def_int $i = 0;
+while ($i < 10) {
+    assert_equals(calc($i + 1), $array($i));
+    $i = calc($i + 1);
+}
+
+// copied from ~quicksort_componenttext and modified to fit intarray.
+[proc,quicksort](intarray $list, int $left, int $right)
+def_int $pivot = calc(($left + $right) / 2);
+def_int $pivotint = $list($pivot);
+$list($pivot) = $list($right);
+$list($right) = $pivotint;
+def_int $i = $left;
+def_int $k = $left;
+def_int $temp = null;
+while ($k < $right) {
+    if ($list($k) < $pivotint) {
+        $temp = $list($k);
+        $list($k) = $list($i);
+        $list($i) = $temp;
+        $i = calc($i + 1);
+    }
+    $k = calc($k + 1);
+}
+$list($right) = $list($i);
+$list($i) = $pivotint;
+if ($left < calc($i - 1)) {
+    ~quicksort(list, $left, calc($i - 1));
+}
+if (calc($i + 1) < $right) {
+    ~quicksort(list, calc($i + 1), $right);
+}
