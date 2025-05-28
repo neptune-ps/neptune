@@ -5,7 +5,7 @@ import me.filby.neptune.runescript.runtime.impl.opcodes.BaseCoreOpcodes
 internal class ScriptBuilder private constructor() {
     private var intParameterCount = 0
 
-    private var stringParameterCount = 0
+    private var objParameterCount = 0
 
     private var longParameterCount = 0
 
@@ -26,8 +26,8 @@ internal class ScriptBuilder private constructor() {
         return createIntLocal()
     }
 
-    fun createStringParam(): Int {
-        stringParameterCount++
+    fun createObjParam(): Int {
+        objParameterCount++
         return createObjLocal()
     }
 
@@ -63,7 +63,7 @@ internal class ScriptBuilder private constructor() {
             null,
             opcodes.toIntArray(),
             intParameterCount,
-            stringParameterCount,
+            objParameterCount,
             longParameterCount,
             intLocalCount,
             objLocalCount,
