@@ -6,4 +6,5 @@ data class ClientScriptCompilerFeatureSet(
     val dbFindReturnsCount: Boolean,
     val ccCreateAssertNewArg: Boolean,
     override val prefixPostfixExpressions: Boolean,
+    override val arraysV2: Boolean,
 ) : CompilerFeatureSet

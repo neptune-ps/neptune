@@ -1,3 +1,4 @@
 package me.filby.neptune.runescript.compiler
 
-class TestCompilerFeatureSet(override val prefixPostfixExpressions: Boolean) : CompilerFeatureSet
+class TestCompilerFeatureSet(override val prefixPostfixExpressions: Boolean, override val arraysV2: Boolean) :
+    CompilerFeatureSet

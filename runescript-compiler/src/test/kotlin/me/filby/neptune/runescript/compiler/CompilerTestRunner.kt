@@ -68,7 +68,7 @@ private fun testScriptFile(scriptFile: File): Boolean {
         listOf(scriptFile.toPath()),
         emptyList(),
         writer,
-        TestCompilerFeatureSet(true),
+        TestCompilerFeatureSet(prefixPostfixExpressions = true, arraysV2 = false),
     )
     compiler.triggers.registerAll<TestTriggerType>()
     compiler.addSymbolLoader(CommandSymbolLoader())
