@@ -79,10 +79,9 @@ abstract class BinaryScriptWriter(
 
     override fun BinaryScriptWriterContext.writePushLocalVar(symbol: LocalVariableSymbol) {
         val id = script.locals.getVariableId(symbol)
-        val op = when {
-            symbol.type is ArrayType -> ClientScriptOpcode.PUSH_ARRAY_INT
-            symbol.type.baseType == BaseVarType.STRING -> ClientScriptOpcode.PUSH_STRING_LOCAL
-            symbol.type.baseType == BaseVarType.INTEGER -> ClientScriptOpcode.PUSH_INT_LOCAL
+        val op = when (symbol.type.baseType) {
+            BaseVarType.STRING -> ClientScriptOpcode.PUSH_STRING_LOCAL
+            BaseVarType.INTEGER -> ClientScriptOpcode.PUSH_INT_LOCAL
             else -> error(symbol)
         }
         instruction(op, id)
@@ -90,10 +89,9 @@ abstract class BinaryScriptWriter(
 
     override fun BinaryScriptWriterContext.writePopLocalVar(symbol: LocalVariableSymbol) {
         val id = script.locals.getVariableId(symbol)
-        val op = when {
-            symbol.type is ArrayType -> ClientScriptOpcode.POP_ARRAY_INT
-            symbol.type.baseType == BaseVarType.STRING -> ClientScriptOpcode.POP_STRING_LOCAL
-            symbol.type.baseType == BaseVarType.INTEGER -> ClientScriptOpcode.POP_INT_LOCAL
+        val op = when (symbol.type.baseType) {
+            BaseVarType.STRING -> ClientScriptOpcode.POP_STRING_LOCAL
+            BaseVarType.INTEGER -> ClientScriptOpcode.POP_INT_LOCAL
             else -> error(symbol)
         }
         instruction(op, id)
@@ -135,6 +133,16 @@ abstract class BinaryScriptWriter(
         val id = script.locals.getVariableId(symbol)
         val code = (symbol.type as ArrayType).inner.code?.code ?: error("Type has no char code: ${symbol.type}")
         instruction(ClientScriptOpcode.DEFINE_ARRAY, (id shl 16) or code)
+    }
+
+    override fun BinaryScriptWriterContext.writePushArray(symbol: LocalVariableSymbol) {
+        val id = script.locals.getVariableId(symbol)
+        instruction(ClientScriptOpcode.PUSH_ARRAY_INT, id)
+    }
+
+    override fun BinaryScriptWriterContext.writePopArray(symbol: LocalVariableSymbol) {
+        val id = script.locals.getVariableId(symbol)
+        instruction(ClientScriptOpcode.POP_ARRAY_INT, id)
     }
 
     override fun BinaryScriptWriterContext.writeSwitch(switchTable: SwitchTable) {

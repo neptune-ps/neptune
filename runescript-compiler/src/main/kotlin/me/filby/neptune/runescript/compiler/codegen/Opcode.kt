@@ -76,6 +76,20 @@ public sealed class Opcode<T : Any> {
     public data object DefineArray : Opcode<LocalVariableSymbol>()
 
     /**
+     * Pushes a value from an array local onto the stack.
+     *
+     * Operand: The array local variable.
+     */
+    public data object PushArray : Opcode<LocalVariableSymbol>()
+
+    /**
+     * Pops a value from the stack and stores it in an array local.
+     *
+     * Operand: The array local variable.
+     */
+    public data object PopArray : Opcode<LocalVariableSymbol>()
+
+    /**
      * Looks up a location to jump to based on a popped value from the stack.
      *
      * Operand: The switch table defining all cases and jump locations.

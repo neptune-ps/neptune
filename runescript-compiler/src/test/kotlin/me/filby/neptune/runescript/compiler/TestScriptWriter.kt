@@ -49,28 +49,30 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
 
     override fun TestScriptWriterContext.writePushLocalVar(symbol: LocalVariableSymbol) {
         val id = script.locals.getVariableId(symbol)
-        if (symbol.type is ArrayType) {
-            instruction(BaseCoreOpcodes.PUSH_ARRAY_INT, id)
-        } else {
-            val type = symbol.type.baseType?.ordinal ?: error("unable to determine stack type")
-            instruction(BaseCoreOpcodes.PUSH_LOCAL, ((id shl 16) or type))
-        }
+        val type = symbol.type.baseType?.ordinal ?: error("unable to determine stack type")
+        instruction(BaseCoreOpcodes.PUSH_LOCAL, ((id shl 16) or type))
     }
 
     override fun TestScriptWriterContext.writePopLocalVar(symbol: LocalVariableSymbol) {
         val id = script.locals.getVariableId(symbol)
-        if (symbol.type is ArrayType) {
-            instruction(BaseCoreOpcodes.POP_ARRAY_INT, id)
-        } else {
-            val type = symbol.type.baseType?.ordinal ?: error("unable to determine stack type")
-            instruction(BaseCoreOpcodes.POP_LOCAL, ((id shl 16) or type))
-        }
+        val type = symbol.type.baseType?.ordinal ?: error("unable to determine stack type")
+        instruction(BaseCoreOpcodes.POP_LOCAL, ((id shl 16) or type))
     }
 
     override fun TestScriptWriterContext.writeDefineArray(symbol: LocalVariableSymbol) {
         val id = script.locals.getVariableId(symbol)
         val code = (symbol.type as ArrayType).inner.code?.code ?: error("Type has no char code: ${symbol.type}")
         instruction(BaseCoreOpcodes.DEFINE_ARRAY, (id shl 16) or code)
+    }
+
+    override fun TestScriptWriterContext.writePushArray(symbol: LocalVariableSymbol) {
+        val id = script.locals.getVariableId(symbol)
+        instruction(BaseCoreOpcodes.PUSH_ARRAY_INT, id)
+    }
+
+    override fun TestScriptWriterContext.writePopArray(symbol: LocalVariableSymbol) {
+        val id = script.locals.getVariableId(symbol)
+        instruction(BaseCoreOpcodes.POP_ARRAY_INT, id)
     }
 
     override fun TestScriptWriterContext.writeSwitch(switchTable: SwitchTable) {

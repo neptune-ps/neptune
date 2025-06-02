@@ -446,16 +446,24 @@ public class CodeGenerator(
         // special case for arrays since they need to push the index first when popping a new value
         // arrays are disallowed in multi-assignment statements in earlier steps
         val first = vars.first()
-        if (first is LocalVariableExpression && first.index != null) {
+        var isArray = false
+        if (first is LocalVariableExpression && first.isArray) {
             first.index.visit()
+            isArray = true
         }
 
         // visit the expressions from the left side
         assignmentStatement.expressions.visit()
 
-        // loop through the variables in reverse
-        for (i in vars.indices.reversed()) {
-            popVar(vars[i])
+        if (isArray) {
+            val reference = first.reference
+            check(reference is LocalVariableSymbol)
+            instruction(Opcode.PopArray, reference)
+        } else {
+            // loop through the variables in reverse
+            for (i in vars.indices.reversed()) {
+                popVar(vars[i])
+            }
         }
     }
 
@@ -504,8 +512,12 @@ public class CodeGenerator(
             return
         }
         localVariableExpression.lineInstruction()
-        localVariableExpression.index?.visit()
-        instruction(Opcode.PushLocalVar, reference)
+        if (localVariableExpression.isArray) {
+            localVariableExpression.index.visit()
+            instruction(Opcode.PushArray, reference)
+        } else {
+            instruction(Opcode.PushLocalVar, reference)
+        }
     }
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
