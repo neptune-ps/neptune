@@ -81,7 +81,7 @@ class ClientScriptCommand : CliktCommand(name = "cs2") {
         val mapper = SymbolMapper()
         val writer = if (binaryWriterConfig != null) {
             val outputPath = basePath.resolve(binaryWriterConfig.outputPath)
-            BinaryFileScriptWriter(outputPath, mapper)
+            BinaryFileScriptWriter(outputPath, mapper, features)
         } else {
             null
         }

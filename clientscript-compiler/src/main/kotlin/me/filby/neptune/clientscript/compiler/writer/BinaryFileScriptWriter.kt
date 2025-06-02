@@ -2,6 +2,7 @@ package me.filby.neptune.clientscript.compiler.writer
 
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
+import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerFeatureSet
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption.CREATE
@@ -19,8 +20,9 @@ import kotlin.io.path.outputStream
 class BinaryFileScriptWriter(
     private val output: Path,
     idProvider: IdProvider,
+    features: ClientScriptCompilerFeatureSet,
     allocator: ByteBufAllocator = ByteBufAllocator.DEFAULT,
-) : BinaryScriptWriter(idProvider, allocator) {
+) : BinaryScriptWriter(idProvider, features, allocator) {
     init {
         if (output.notExists()) {
             output.createDirectories()

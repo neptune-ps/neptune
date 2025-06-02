@@ -72,6 +72,7 @@ import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
+import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
 /**
  * A [AstVisitor] implementation that converts AST nodes into a set of instructions.
@@ -806,8 +807,14 @@ public class CodeGenerator(
 
         identifier.lineInstruction()
 
-        // add the instruction based on reference type
-        if (reference is ScriptSymbol.ClientScriptSymbol && reference.trigger == CommandTrigger) {
+        // add the instruction based on the reference type
+        if (features.arraysV2 && reference is LocalVariableSymbol) {
+            // we should only receive a local variable symbol at this point if it refers to an array
+            // due to the weird way of referencing arrays without a dollar symbol.
+            check(reference.type is ArrayType)
+
+            instruction(Opcode.PushLocalVar, reference)
+        } else if (reference is ScriptSymbol.ClientScriptSymbol && reference.trigger == CommandTrigger) {
             // attempt to call the dynamic command handlers code generation (if one exists)
             if (emitDynamicCommand(identifier.text, identifier)) {
                 return

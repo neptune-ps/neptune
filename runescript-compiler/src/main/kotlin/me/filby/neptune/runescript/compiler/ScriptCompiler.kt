@@ -264,7 +264,7 @@ public open class ScriptCompiler(
         // type check: this does all major type checking
         logger.debug { "Starting type checking" }
         val typeCheckingTime = measureTimeMillis {
-            val typeChecking = TypeChecking(types, triggers, rootTable, dynamicCommandHandlers, diagnostics)
+            val typeChecking = TypeChecking(types, triggers, rootTable, dynamicCommandHandlers, diagnostics, features)
             for (file in files) {
                 val time = measureTimeMillis {
                     file.accept(typeChecking)

@@ -1,4 +1,6 @@
-/// arrays_v2=false
+// This is more or less a copy of array.cs2 but with some additional tests that
+// are only available in arrays_v2
+/// arrays_v2=true
 
 // simple test for passing and manipulating an array
 [test,simple_array]
