@@ -4,13 +4,16 @@ import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
 import me.filby.neptune.clientscript.compiler.ClientScriptOpcode
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
-import me.filby.neptune.runescript.compiler.type.BaseVarType
+import me.filby.neptune.runescript.compiler.type.StackType
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter.Companion.getLocalCount
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter.Companion.getParameterCount
 
-class BinaryScriptWriterContext(script: RuneScript, private val allocator: ByteBufAllocator) :
-    BaseScriptWriter.BaseScriptWriterContext(script) {
+class BinaryScriptWriterContext(
+    script: RuneScript,
+    private val allocator: ByteBufAllocator,
+    private val arraysV2: Boolean,
+) : BaseScriptWriter.BaseScriptWriterContext(script) {
     /**
      * The buffer that contains all instruction information.
      */
@@ -70,10 +73,10 @@ class BinaryScriptWriterContext(script: RuneScript, private val allocator: ByteB
         buf.writeString(script.fullName)
         buf.writeBytes(instructionBuffer)
         buf.writeInt(instructionCount)
-        buf.writeShort(locals.getLocalCount(BaseVarType.INTEGER))
-        buf.writeShort(locals.getLocalCount(BaseVarType.STRING))
-        buf.writeShort(locals.getParameterCount(BaseVarType.INTEGER))
-        buf.writeShort(locals.getParameterCount(BaseVarType.STRING))
+        buf.writeShort(locals.getLocalCount(StackType.INTEGER, arraysV2))
+        buf.writeShort(locals.getLocalCount(StackType.OBJECT, arraysV2))
+        buf.writeShort(locals.getParameterCount(StackType.INTEGER, arraysV2))
+        buf.writeShort(locals.getParameterCount(StackType.OBJECT, arraysV2))
         buf.writeByte(script.switchTables.size)
         buf.writeBytes(switchBuffer)
         buf.writeShort(switchBufferSize + 1)

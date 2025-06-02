@@ -1,3 +1,5 @@
+/// arrays_v2=false
+
 [proc,main]
 def_int $a;
 def_int $b(2);

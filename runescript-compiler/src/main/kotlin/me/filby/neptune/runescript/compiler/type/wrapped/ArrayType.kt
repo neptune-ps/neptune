@@ -14,15 +14,25 @@ public data class ArrayType(public override val inner: Type) : WrappedType {
 
     override val representation: String = "${inner.representation}array"
 
-    override val code: Char
-        get() = error("ArrayType has no character representation.")
+    override val code: Char = when (inner.baseType) {
+        BaseVarType.INTEGER -> INTARRAY_CHAR
+        BaseVarType.STRING -> STRINGARRAY_CHAR
+        else -> error("Invalid type: $inner")
+    }
 
-    override val baseType: BaseVarType = BaseVarType.INTEGER
+    override val baseType: BaseVarType = BaseVarType.ARRAY
 
-    override val defaultValue: Any
-        get() = error("ArrayType has no default value.")
+    override val defaultValue: Any? = null
 
     override fun toString(): String = MoreObjects.toStringHelper(this)
         .add("inner", inner)
         .toString()
+
+    private companion object {
+        // these two values actually refer to intarray and componentarray characters,
+        // but with the array rework their char codes were repurposed for type encoding
+        // to signify "int-based" and "string-based" arrays.
+        const val INTARRAY_CHAR = 'W'
+        const val STRINGARRAY_CHAR = 'X'
+    }
 }

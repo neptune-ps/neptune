@@ -46,6 +46,7 @@ import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
+import me.filby.neptune.runescript.compiler.CompilerFeatureSet
 import me.filby.neptune.runescript.compiler.ParserErrorListener
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
@@ -96,6 +97,7 @@ public class TypeChecking(
     private val rootTable: SymbolTable,
     private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
     private val diagnostics: Diagnostics,
+    private val features: CompilerFeatureSet,
 ) : AstVisitor<Unit> {
     // var Expression.type: Type
     //     get() = getAttribute<Type>("type") ?: error("type not set")

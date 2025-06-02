@@ -64,7 +64,7 @@ private fun testScriptFile(scriptFile: File): Boolean {
 
     // run compiler
     val features = parseCompilerFeatureSet(scriptFile)
-    val writer = TestScriptWriter(scriptManager)
+    val writer = TestScriptWriter(scriptManager, features)
     val compiler = ScriptCompiler(
         listOf(scriptFile.toPath()),
         emptyList(),

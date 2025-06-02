@@ -3,6 +3,7 @@ package me.filby.neptune.clientscript.compiler.writer
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
 import me.filby.neptune.clientscript.compiler.ClientScriptOpcode
+import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerFeatureSet
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.codegen.script.Block
 import me.filby.neptune.runescript.compiler.codegen.script.Label
@@ -14,6 +15,7 @@ import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
+import me.filby.neptune.runescript.compiler.type.StackType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarBitType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarClanSettingsType
@@ -28,8 +30,9 @@ import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
  */
 abstract class BinaryScriptWriter(
     idProvider: IdProvider,
+    features: ClientScriptCompilerFeatureSet,
     private val allocator: ByteBufAllocator = ByteBufAllocator.DEFAULT,
-) : BaseScriptWriter<BinaryScriptWriterContext>(idProvider) {
+) : BaseScriptWriter<BinaryScriptWriterContext>(idProvider, features) {
     /**
      * Handles the binary output of [script] where [data] is the script in a binary format.
      *
@@ -47,7 +50,7 @@ abstract class BinaryScriptWriter(
     }
 
     override fun createContext(script: RuneScript): BinaryScriptWriterContext =
-        BinaryScriptWriterContext(script, allocator)
+        BinaryScriptWriterContext(script, allocator, features.arraysV2)
 
     override fun BinaryScriptWriterContext.enterBlock(block: Block) {
         // NO-OP
@@ -67,7 +70,7 @@ abstract class BinaryScriptWriter(
 
     override fun BinaryScriptWriterContext.writePushConstantSymbol(value: Symbol) {
         val id = when {
-            value is LocalVariableSymbol -> script.locals.getVariableId(value)
+            value is LocalVariableSymbol -> script.locals.getVariableId(value, features.arraysV2)
             value is BasicSymbol && value.type is MetaType.Type -> {
                 val type = value.type as MetaType.Type
                 type.inner.code?.code ?: error(type.inner)
@@ -78,20 +81,20 @@ abstract class BinaryScriptWriter(
     }
 
     override fun BinaryScriptWriterContext.writePushLocalVar(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
-        val op = when (symbol.type.baseType) {
-            BaseVarType.STRING -> ClientScriptOpcode.PUSH_STRING_LOCAL
-            BaseVarType.INTEGER -> ClientScriptOpcode.PUSH_INT_LOCAL
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
+        val op = when (symbol.type.baseType?.stackType) {
+            StackType.OBJECT -> ClientScriptOpcode.PUSH_STRING_LOCAL
+            StackType.INTEGER -> ClientScriptOpcode.PUSH_INT_LOCAL
             else -> error(symbol)
         }
         instruction(op, id)
     }
 
     override fun BinaryScriptWriterContext.writePopLocalVar(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
-        val op = when (symbol.type.baseType) {
-            BaseVarType.STRING -> ClientScriptOpcode.POP_STRING_LOCAL
-            BaseVarType.INTEGER -> ClientScriptOpcode.POP_INT_LOCAL
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
+        val op = when (symbol.type.baseType?.stackType) {
+            StackType.OBJECT -> ClientScriptOpcode.POP_STRING_LOCAL
+            StackType.INTEGER -> ClientScriptOpcode.POP_INT_LOCAL
             else -> error(symbol)
         }
         instruction(op, id)
@@ -130,18 +133,18 @@ abstract class BinaryScriptWriter(
     }
 
     override fun BinaryScriptWriterContext.writeDefineArray(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
         val code = (symbol.type as ArrayType).inner.code?.code ?: error("Type has no char code: ${symbol.type}")
         instruction(ClientScriptOpcode.DEFINE_ARRAY, (id shl 16) or code)
     }
 
     override fun BinaryScriptWriterContext.writePushArray(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
         instruction(ClientScriptOpcode.PUSH_ARRAY_INT, id)
     }
 
     override fun BinaryScriptWriterContext.writePopArray(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
         instruction(ClientScriptOpcode.POP_ARRAY_INT, id)
     }
 

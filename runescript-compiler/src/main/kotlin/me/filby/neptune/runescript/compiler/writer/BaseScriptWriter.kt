@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.compiler.writer
 
+import me.filby.neptune.runescript.compiler.CompilerFeatureSet
 import me.filby.neptune.runescript.compiler.codegen.Instruction
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.codegen.script.Block
@@ -11,6 +12,7 @@ import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.type.BaseVarType
+import me.filby.neptune.runescript.compiler.type.StackType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter.BaseScriptWriterContext
 import java.io.Closeable
@@ -20,7 +22,10 @@ import java.util.TreeMap
  * A basic implementation of [ScriptWriter] with some utility functions for writing
  * a script.
  */
-public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val idProvider: IdProvider) : ScriptWriter {
+public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(
+    public val idProvider: IdProvider,
+    protected val features: CompilerFeatureSet,
+) : ScriptWriter {
     override fun write(script: RuneScript) {
         createContext(script).use { context ->
             for (block in script.blocks) {
@@ -242,29 +247,60 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
         // RuneScript.LocalTable helpers
 
         /**
-         * Returns the total number of parameters with a base var type of [baseType].
+         * Returns the total number of parameters with a stack type of [stackType].
          */
-        public fun RuneScript.LocalTable.getParameterCount(baseType: BaseVarType): Int =
-            parameters.count { it.type.baseType == baseType }
+        public fun RuneScript.LocalTable.getParameterCount(stackType: StackType, arraysV2: Boolean): Int {
+            return parameters.count {
+                val type = it.type
+                if (!arraysV2 && type is ArrayType) {
+                    // array parameters become an int local when compiled prior to arrays v2, so we need to include
+                    // them when counting int parameters.
+                    return@count stackType == StackType.INTEGER
+                }
+                type.baseType?.stackType == stackType
+            }
+        }
 
         /**
-         * Returns the total number of local variables with a base var type of [baseType].
+         * Returns the total number of local variables with a stack type of [stackType].
          */
-        public fun RuneScript.LocalTable.getLocalCount(baseType: BaseVarType): Int =
-            all.count { it.type.baseType == baseType && (it.type !is ArrayType || it in parameters) }
+        public fun RuneScript.LocalTable.getLocalCount(stackType: StackType, arraysV2: Boolean): Int {
+            return all.count {
+                val type = it.type
+                if (!arraysV2 && type is ArrayType) {
+                    // array parameters become an int local when compiled prior to arrays v2, so we need to include
+                    // them when counting int parameters.
+                    return@count stackType == StackType.INTEGER && it in parameters
+                }
+                type.baseType?.stackType == stackType
+            }
+        }
 
         /**
          * Finds the unique identifier for the given [local] variable.
          */
-        public fun RuneScript.LocalTable.getVariableId(local: LocalVariableSymbol): Int {
+        public fun RuneScript.LocalTable.getVariableId(local: LocalVariableSymbol, arraysV2: Boolean): Int {
+            if (arraysV2) {
+                return all.asSequence()
+                    .filter { it.type.baseType?.stackType == local.type.baseType?.stackType }
+                    .indexOf(local)
+            }
             if (local.type is ArrayType) {
                 return all.asSequence()
                     .filter { it.type is ArrayType }
                     .indexOf(local)
             }
+            val stackType = local.type.baseType?.stackType
             return all.asSequence()
-                .filter { it.type.baseType == local.type.baseType && (it.type !is ArrayType || it in parameters) }
-                .indexOf(local)
+                .filter {
+                    val type = it.type
+                    if (type is ArrayType) {
+                        // array parameters become an int local when compiled prior to arrays v2, so we need to include
+                        // them when counting int parameters.
+                        return@filter stackType == StackType.INTEGER && it in parameters
+                    }
+                    type.baseType?.stackType == stackType
+                }.indexOf(local)
         }
     }
 

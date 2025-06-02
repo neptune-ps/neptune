@@ -16,13 +16,16 @@ import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
 import me.filby.neptune.runescript.runtime.impl.opcodes.BaseCoreOpcodes
 import kotlin.code
 
-internal class TestScriptWriter(private val scriptManager: ScriptManager) :
-    BaseScriptWriter<TestScriptWriterContext>(scriptManager) {
+internal class TestScriptWriter(private val scriptManager: ScriptManager, features: CompilerFeatureSet) :
+    BaseScriptWriter<TestScriptWriterContext>(scriptManager, features) {
     override fun finishWrite(script: RuneScript, context: TestScriptWriterContext) {
         scriptManager.add(script.trigger, context.build())
     }
 
-    override fun createContext(script: RuneScript): TestScriptWriterContext = TestScriptWriterContext(script)
+    override fun createContext(script: RuneScript): TestScriptWriterContext = TestScriptWriterContext(
+        script,
+        features.arraysV2,
+    )
 
     override fun TestScriptWriterContext.enterBlock(block: Block) {
     }
@@ -41,37 +44,41 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager) :
 
     override fun TestScriptWriterContext.writePushConstantSymbol(value: Symbol) {
         val id = when {
-            value is LocalVariableSymbol -> script.locals.getVariableId(value)
+            value is LocalVariableSymbol -> {
+                // note: this only exists still for array v1 support where a reference to the array
+                //       just pushes the array id.
+                script.locals.getVariableId(value, features.arraysV2)
+            }
             else -> idProvider.get(value)
         }
         instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT, id)
     }
 
     override fun TestScriptWriterContext.writePushLocalVar(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
-        val type = symbol.type.baseType?.ordinal ?: error("unable to determine stack type")
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
+        val type = symbol.type.baseType?.stackType?.ordinal ?: error("unable to determine stack type")
         instruction(BaseCoreOpcodes.PUSH_LOCAL, ((id shl 16) or type))
     }
 
     override fun TestScriptWriterContext.writePopLocalVar(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
-        val type = symbol.type.baseType?.ordinal ?: error("unable to determine stack type")
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
+        val type = symbol.type.baseType?.stackType?.ordinal ?: error("unable to determine stack type")
         instruction(BaseCoreOpcodes.POP_LOCAL, ((id shl 16) or type))
     }
 
     override fun TestScriptWriterContext.writeDefineArray(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
         val code = (symbol.type as ArrayType).inner.code?.code ?: error("Type has no char code: ${symbol.type}")
         instruction(BaseCoreOpcodes.DEFINE_ARRAY, (id shl 16) or code)
     }
 
     override fun TestScriptWriterContext.writePushArray(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
         instruction(BaseCoreOpcodes.PUSH_ARRAY_INT, id)
     }
 
     override fun TestScriptWriterContext.writePopArray(symbol: LocalVariableSymbol) {
-        val id = script.locals.getVariableId(symbol)
+        val id = script.locals.getVariableId(symbol, features.arraysV2)
         instruction(BaseCoreOpcodes.POP_ARRAY_INT, id)
     }
 
