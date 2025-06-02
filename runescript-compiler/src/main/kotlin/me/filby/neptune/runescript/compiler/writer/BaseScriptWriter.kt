@@ -64,6 +64,8 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
             Opcode.PushVar -> context.writePushVar(operand as BasicSymbol)
             Opcode.PopVar -> context.writePopVar(operand as BasicSymbol)
             Opcode.DefineArray -> context.writeDefineArray(operand as LocalVariableSymbol)
+            Opcode.PushArray -> context.writePushArray(operand as LocalVariableSymbol)
+            Opcode.PopArray -> context.writePopArray(operand as LocalVariableSymbol)
             Opcode.Switch -> context.writeSwitch(operand as SwitchTable)
             Opcode.Branch -> context.writeBranch(opcode, operand as Label)
             Opcode.BranchNot -> context.writeBranch(opcode, operand as Label)
@@ -141,6 +143,14 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val i
     }
 
     protected open fun T.writeDefineArray(symbol: LocalVariableSymbol) {
+        error("not implemented")
+    }
+
+    protected open fun T.writePushArray(symbol: LocalVariableSymbol) {
+        error("not implemented")
+    }
+
+    protected open fun T.writePopArray(symbol: LocalVariableSymbol) {
         error("not implemented")
     }
 
