@@ -42,7 +42,6 @@ CASE        : 'case' ;
 DEFAULT     : 'default' ;
 RETURN      : 'return' ;
 CALC        : 'calc' ;
-TYPE_ARRAY  : IDENTIFIER 'array' ;
 DEF_TYPE    : 'def_' IDENTIFIER ;
 SWITCH_TYPE : 'switch_' IDENTIFIER ;
 

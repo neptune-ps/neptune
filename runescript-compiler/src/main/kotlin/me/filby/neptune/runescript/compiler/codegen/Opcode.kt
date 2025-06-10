@@ -41,6 +41,13 @@ public sealed class Opcode<T : Any> {
     public data object PushConstantSymbol : Opcode<Symbol>()
 
     /**
+     * Pushes `null` onto the stack.
+     *
+     * Operand: N/A
+     */
+    public data object PushConstantNull : Opcode<Unit>()
+
+    /**
      * Pushes the value of the local variable to the stack.
      *
      * Operand: The local variable.

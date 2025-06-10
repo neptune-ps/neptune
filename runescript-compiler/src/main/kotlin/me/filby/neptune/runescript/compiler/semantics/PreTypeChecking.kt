@@ -8,6 +8,7 @@ import me.filby.neptune.runescript.ast.ScriptFile
 import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
+import me.filby.neptune.runescript.compiler.CompilerFeatureSet
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticType
@@ -27,9 +28,11 @@ import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
+import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.TypeManager
+import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
 /**
  * An [AstVisitor] implementation that handles the following.
@@ -44,6 +47,7 @@ internal class PreTypeChecking(
     private val triggerManager: TriggerManager,
     private val rootTable: SymbolTable,
     private val diagnostics: Diagnostics,
+    private val features: CompilerFeatureSet,
 ) : AstVisitor<Unit> {
     /**
      * A stack of symbol tables to use through the script file.
@@ -109,7 +113,7 @@ internal class PreTypeChecking(
         if (!returnTokens.isNullOrEmpty()) {
             val returns = mutableListOf<Type>()
             for (token in returnTokens) {
-                val type = typeManager.findOrNull(token.text)
+                val type = typeManager.findOrNull(token.text, allowArray = features.arraysV2)
                 if (type == null) {
                     token.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, token.text)
                 }
@@ -308,6 +312,10 @@ internal class PreTypeChecking(
 
         // type isn't valid, report the error
         if (type == null) {
+            parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
+        } else if (!features.arraysV2 && type is ArrayType && type.inner == PrimitiveType.STRING) {
+            // manually disable stringarray since it is marked as allowed now but should
+            // remain disabled for old arrays.
             parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
         }
 

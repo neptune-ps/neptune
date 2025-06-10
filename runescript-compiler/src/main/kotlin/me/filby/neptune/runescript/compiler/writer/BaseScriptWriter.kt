@@ -64,6 +64,7 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(
             Opcode.PushConstantString -> context.writePushConstantString(operand as String)
             Opcode.PushConstantLong -> context.writePushConstantLong(operand as Long)
             Opcode.PushConstantSymbol -> context.writePushConstantSymbol(operand as Symbol)
+            Opcode.PushConstantNull -> context.writePushConstantNull()
             Opcode.PushLocalVar -> context.writePushLocalVar(operand as LocalVariableSymbol)
             Opcode.PopLocalVar -> context.writePopLocalVar(operand as LocalVariableSymbol)
             Opcode.PushVar -> context.writePushVar(operand as BasicSymbol)
@@ -128,6 +129,10 @@ public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(
     }
 
     protected open fun T.writePushConstantSymbol(value: Symbol) {
+        error("not implemented")
+    }
+
+    protected open fun T.writePushConstantNull() {
         error("not implemented")
     }
 

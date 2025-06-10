@@ -1,5 +1,21 @@
 /// arrays_v2=false
 
+// note: due to a bug in the test suite these must be defined before all others so that
+//       the error reported in PreTypeChecking doesn't mess up the order of expected.
+// features only allowed with arrays_v2
+
+// Expect: 'stringarray' is not a valid type.
+// Expect: 'intarray' is not a valid type.
+[proc,return_array](stringarray $a)(intarray)
+def_int $b(0);
+
+// cannot re-assign array variable
+$b = null; // Expect: '$b' is a reference to an array variable without specifying the index.
+
+// cannot directly refer to array types
+def_intarray $c = null; // Expect: 'intarray' is not a valid type.
+return(null);
+
 [proc,main]
 def_int $a;
 def_int $b(2);

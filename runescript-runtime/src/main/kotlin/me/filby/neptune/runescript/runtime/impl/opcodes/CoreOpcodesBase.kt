@@ -39,6 +39,11 @@ public open class CoreOpcodesBase<T : ScriptState>(
         pushLong(objOperand as Long)
     }
 
+    @Instruction(BaseCoreOpcodes.PUSH_CONSTANT_NULL)
+    public open fun T._push_constant_null() {
+        pushObj(null)
+    }
+
     @Instruction(BaseCoreOpcodes.PUSH_LOCAL)
     public open fun T._push_local() {
         val index = intOperand shr 16

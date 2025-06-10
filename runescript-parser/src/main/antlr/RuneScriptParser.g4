@@ -19,7 +19,7 @@ parameterList
     ;
 
 parameter
-    : type=(IDENTIFIER | TYPE_ARRAY) DOLLAR advancedIdentifier
+    : type=IDENTIFIER DOLLAR advancedIdentifier
     ;
 
 typeList
@@ -213,7 +213,6 @@ identifier
     | HEX_LITERAL
     | BOOLEAN_LITERAL
     | NULL_LITERAL
-    | TYPE_ARRAY
     | SWITCH_TYPE
     | DEF_TYPE
     | DEFAULT

@@ -251,7 +251,7 @@ public open class ScriptCompiler(
         // pre-type check: this adds all scripts to the symbol table for lookup in the next phase
         logger.debug { "Starting pre-type checking" }
         val preTypeCheckingTime = measureTimeMillis {
-            val preTypeChecking = PreTypeChecking(types, triggers, rootTable, diagnostics)
+            val preTypeChecking = PreTypeChecking(types, triggers, rootTable, diagnostics, features)
             for (file in files) {
                 val time = measureTimeMillis {
                     file.accept(preTypeChecking)

@@ -221,6 +221,8 @@ public class CodeGenerator(
                 instruction(Opcode.PushConstantString, "")
             } else if (type.baseType == BaseVarType.LONG) {
                 instruction(Opcode.PushConstantLong, -1L)
+            } else if (type.baseType == BaseVarType.ARRAY) {
+                instruction(Opcode.PushConstantNull)
             } else {
                 error("Unsupported type in returns: $type")
             }
@@ -749,6 +751,9 @@ public class CodeGenerator(
             return
         } else if (baseType == BaseVarType.LONG) {
             instruction(Opcode.PushConstantLong, -1L)
+            return
+        } else if (features.arraysV2 && baseType == BaseVarType.ARRAY) {
+            instruction(Opcode.PushConstantNull)
             return
         }
 

@@ -324,7 +324,7 @@ public class TypeChecking(
     override fun visitDeclarationStatement(declarationStatement: DeclarationStatement) {
         val typeName = declarationStatement.typeToken.text.removePrefix("def_")
         val name = declarationStatement.name.text
-        val type = typeManager.findOrNull(typeName)
+        val type = typeManager.findOrNull(typeName, allowArray = features.arraysV2)
 
         // notify invalid type
         if (type == null) {
@@ -792,7 +792,9 @@ public class TypeChecking(
             return
         }
 
-        if (symbolIsArray && !localVariableExpression.isArray) {
+        // note(arrays-v2): array variables are able to be re-assigned, this also enables reference to arrays
+        //                  with the dollar symbol prefix.
+        if (!features.arraysV2 && symbolIsArray && !localVariableExpression.isArray) {
             // trying to reference array variable without specifying the index in which to access
             localVariableExpression.reportError(DiagnosticMessage.LOCAL_ARRAY_REFERENCE_NOINDEX, name)
             localVariableExpression.type = MetaType.Error
@@ -804,10 +806,14 @@ public class TypeChecking(
             // visit the index to set the type of any references
             indexExpression.visit()
             checkTypeMatch(indexExpression, PrimitiveType.INT, indexExpression.type)
-        }
 
+            // we are referring to a specific index within an array variable, so we need to
+            // return the element type instead of the array type itself.
+            localVariableExpression.type = symbol.type.inner
+        } else {
+            localVariableExpression.type = symbol.type
+        }
         localVariableExpression.reference = symbol
-        localVariableExpression.type = if (symbol.type is ArrayType) symbol.type.inner else symbol.type
     }
 
     override fun visitGameVariableExpression(gameVariableExpression: GameVariableExpression) {
@@ -936,7 +942,6 @@ public class TypeChecking(
     override fun visitNullLiteral(nullLiteral: NullLiteral) {
         val hint = nullLiteral.typeHint
         if (hint != null) {
-            // infer the type if the hint base type is an int OR long.
             nullLiteral.type = hint
             return
         }

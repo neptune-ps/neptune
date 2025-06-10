@@ -18,7 +18,7 @@ public enum class PrimitiveType(
     BOOLEAN('1', defaultValue = 0),
     COORD('c', defaultValue = -1),
     STRING('s', BaseVarType.STRING, defaultValue = "", {
-        allowArray = false
+        allowArray = true
         allowSwitch = false
     }),
     CHAR('z', defaultValue = -1),
