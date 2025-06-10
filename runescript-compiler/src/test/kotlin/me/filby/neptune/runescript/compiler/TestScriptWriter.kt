@@ -54,6 +54,10 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager, featur
         instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT, id)
     }
 
+    override fun TestScriptWriterContext.writePushConstantNull() {
+        instruction(BaseCoreOpcodes.PUSH_CONSTANT_NULL)
+    }
+
     override fun TestScriptWriterContext.writePushLocalVar(symbol: LocalVariableSymbol) {
         val id = script.locals.getVariableId(symbol, features.arraysV2)
         val type = symbol.type.baseType?.stackType?.ordinal ?: error("unable to determine stack type")

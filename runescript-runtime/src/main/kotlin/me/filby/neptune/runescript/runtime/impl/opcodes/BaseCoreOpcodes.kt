@@ -43,6 +43,7 @@ public object BaseCoreOpcodes {
     public const val DEFINE_ARRAY: Int = 30
     public const val PUSH_ARRAY_INT: Int = 31
     public const val POP_ARRAY_INT: Int = 32
+    public const val PUSH_CONSTANT_NULL: Int = 33
 
     // int math ops
     public const val ADD: Int = 100

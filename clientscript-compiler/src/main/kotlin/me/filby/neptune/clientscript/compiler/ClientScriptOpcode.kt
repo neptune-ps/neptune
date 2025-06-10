@@ -36,6 +36,7 @@ enum class ClientScriptOpcode(val id: Int, val largeOperand: Boolean = false) {
     PUSH_VARC_STRING(49, true),
     POP_VARC_STRING(50, true),
     SWITCH(60, true),
+    PUSH_CONSTANT_NULL(63),
     PUSH_VARCLANSETTING(74, true),
     PUSH_VARCLAN(76, true),
     ADD(4000),

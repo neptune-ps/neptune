@@ -73,3 +73,29 @@ if ($left < calc($i - 1)) {
 if (calc($i + 1) < $right) {
     ~quicksort(list, calc($i + 1), $right);
 }
+
+[test,returning_array]
+def_intarray $array = null;
+def_stringarray $array2 = null;
+$array, $array2 = ~array_create_sequences(10);
+
+def_int $i = 0;
+while ($i < 10) {
+    assert_equals($i, $array($i));
+    assert_equals_obj(tostring($i), $array2($i));
+    $i = calc($i + 1);
+}
+
+// simple script that creates an int and string array with the values of 0..<$size
+[proc,array_create_sequences](int $size)(intarray,stringarray)
+def_int $array($size);
+def_string $array2($size);
+
+def_int $i = 0;
+while ($i < 10) {
+    $array($i) = $i;
+    $array2($i) = tostring($i);
+    $i = calc($i + 1);
+}
+
+return($array, $array2);

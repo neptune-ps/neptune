@@ -80,6 +80,10 @@ abstract class BinaryScriptWriter(
         instruction(ClientScriptOpcode.PUSH_CONSTANT_INT, id)
     }
 
+    override fun BinaryScriptWriterContext.writePushConstantNull() {
+        instruction(ClientScriptOpcode.PUSH_CONSTANT_NULL, 0)
+    }
+
     override fun BinaryScriptWriterContext.writePushLocalVar(symbol: LocalVariableSymbol) {
         val id = script.locals.getVariableId(symbol, features.arraysV2)
         val op = when (symbol.type.baseType?.stackType) {
