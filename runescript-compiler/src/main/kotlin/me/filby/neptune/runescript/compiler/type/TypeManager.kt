@@ -103,9 +103,9 @@ public class TypeManager {
      * If the type doesn't exist, `null` is returned.
      */
     public fun findOrNull(name: String, allowArray: Boolean = false): Type? {
-        if (allowArray && name.endsWith("array")) {
-            // substring before last "array" to prevent requesting intarrayarray (or deeper)
-            val baseType = name.substringBeforeLast("array")
+        if (allowArray && name.length > ARRAY_SUFFIX_LENGTH && name.endsWith(ARRAY_SUFFIX)) {
+            // substring before the last "array" to prevent requesting intarrayarray (or deeper)
+            val baseType = name.substringBeforeLast(ARRAY_SUFFIX)
             val type = findOrNull(baseType)
             if (type == null || !type.options.allowArray) {
                 return null
@@ -134,4 +134,9 @@ public class TypeManager {
      * Checks to see if [right] is assignable to [left].
      */
     public fun check(left: Type, right: Type): Boolean = checkers.any { checker -> checker(left, right) }
+
+    private companion object {
+        private const val ARRAY_SUFFIX = "array"
+        private const val ARRAY_SUFFIX_LENGTH = ARRAY_SUFFIX.length
+    }
 }

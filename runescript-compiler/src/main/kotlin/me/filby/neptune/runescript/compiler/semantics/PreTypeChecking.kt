@@ -22,6 +22,7 @@ import me.filby.neptune.runescript.compiler.symbol.LocalVariableSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.symbol.SymbolType
+import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.trigger.SubjectMode
 import me.filby.neptune.runescript.compiler.trigger.TriggerManager
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
@@ -63,6 +64,11 @@ internal class PreTypeChecking(
      * A cached reference to a [Type] representing a `category`.
      */
     private val categoryType = typeManager.findOrNull("category")
+
+    /**
+     * A cached reference to a [Type] representing an `array`.
+     */
+    private val arrayType = typeManager.findOrNull("array")
 
     init {
         // init with a base table for the file
@@ -317,6 +323,13 @@ internal class PreTypeChecking(
             // manually disable stringarray since it is marked as allowed now but should
             // remain disabled for old arrays.
             parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
+        } else if (features.arraysV2 && arrayType != null && type == arrayType) {
+            // TODO better way to deal with this instead of hardcoding for each specialized type
+            // disable the use of 'array' type outside of command signatures
+            val script = checkNotNull(parameter.findParentByType<Script>())
+            if (script.triggerType != CommandTrigger) {
+                parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
+            }
         }
 
         // attempt to insert the local variable into the symbol table and display error if failed to insert
