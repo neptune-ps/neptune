@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.runtime.impl.opcodes
 
+import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.runtime.Script
 import me.filby.neptune.runescript.runtime.ScriptArray
 import me.filby.neptune.runescript.runtime.impl.Instruction
@@ -22,7 +23,7 @@ public open class CoreOpcodesBase<T : ScriptState>(
 ) {
     private val gosubStackFramePool = GosubStackFramePool()
     private val localArraySizes = IntArray(5)
-    private val localArrays = Array(5) { IntArray(5000) }
+    private val localArrays = if (!arraysV2) Array(5) { IntArray(5000) } else emptyArray()
 
     @Instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT)
     public open fun T._push_constant_int() {
@@ -319,12 +320,14 @@ public open class CoreOpcodesBase<T : ScriptState>(
         }
 
         if (arraysV2) {
-            val defaultValue = when (typeCode) {
-                'i'.code -> 0
-                's'.code -> ""
-                else -> -1
+            // TODO long support and better handling for defaults
+            if (typeCode == 's'.code) {
+                objLocals[arrId] = ScriptArray(BaseVarType.STRING, "", size, size)
+            } else if (typeCode == 'i'.code || typeCode == '1'.code) {
+                objLocals[arrId] = ScriptArray(BaseVarType.INTEGER, 0, size, size)
+            } else {
+                objLocals[arrId] = ScriptArray(BaseVarType.INTEGER, -1, size, size)
             }
-            objLocals[arrId] = ScriptArray(true, size, defaultValue)
         } else {
             val defaultValue = if (typeCode == 'i'.code) 0 else -1
             localArraySizes[arrId] = size
@@ -339,10 +342,13 @@ public open class CoreOpcodesBase<T : ScriptState>(
 
         if (arraysV2) {
             val array = objLocals[arrId] as ScriptArray
-            if (array.isStringArray) {
-                pushObj(array.getString(index))
+            val type = array.type
+            if (type == BaseVarType.INTEGER) {
+                pushInt(array.ints[index])
+            } else if (type == BaseVarType.LONG) {
+                pushLong(array.longs[index])
             } else {
-                pushInt(array.getInt(index))
+                pushObj(array.strings[index])
             }
         } else {
             pushInt(localArrays[arrId][index])
@@ -354,16 +360,21 @@ public open class CoreOpcodesBase<T : ScriptState>(
         val arrId = intOperand
         if (arraysV2) {
             val array = objLocals[arrId] as ScriptArray
-            check(array.mutable) { "Array is immutable." }
+            check(array.mutable) { "Local array $arrId is immutable." }
 
-            if (array.isStringArray) {
-                val value = popObj<String>()
-                val index = popInt()
-                array.setString(index, value)
-            } else {
+            val type = array.type
+            if (type == BaseVarType.INTEGER) {
                 val value = popInt()
                 val index = popInt()
-                array.setInt(index, value)
+                array.ints[index] = value
+            } else if (type == BaseVarType.LONG) {
+                val value = popLong()
+                val index = popInt()
+                array.longs[index] = value
+            } else {
+                val value = popObj<String>()
+                val index = popInt()
+                array.strings[index] = value
             }
         } else {
             val value = popInt()
