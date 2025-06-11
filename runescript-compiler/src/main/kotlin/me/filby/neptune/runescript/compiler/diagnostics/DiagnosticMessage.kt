@@ -3,90 +3,98 @@ package me.filby.neptune.runescript.compiler.diagnostics
 /**
  * A class containing different types of diagnostic message texts.
  */
-internal object DiagnosticMessage {
+public object DiagnosticMessage {
     // internal compiler errors
-    const val UNSUPPORTED_SYMBOLTYPE_TO_TYPE = "Internal compiler error: Unsupported SymbolType -> Type conversion: %s"
-    const val CASE_WITHOUT_SWITCH = "Internal compiler error: Case without switch statement as parent."
-    const val RETURN_ORPHAN = "Internal compiler error: Orphaned `return` statement, no parent `script` node found."
-    const val TRIGGER_TYPE_NOT_FOUND = "Internal compiler error: The trigger '%s' has no declaration."
+    public const val UNSUPPORTED_SYMBOLTYPE_TO_TYPE: String =
+        "Internal compiler error: Unsupported SymbolType -> Type conversion: %s"
+    public const val CASE_WITHOUT_SWITCH: String = "Internal compiler error: Case without switch statement as parent."
+    public const val RETURN_ORPHAN: String =
+        "Internal compiler error: Orphaned `return` statement, no parent `script` node found."
+    public const val TRIGGER_TYPE_NOT_FOUND: String = "Internal compiler error: The trigger '%s' has no declaration."
 
     // custom command handler errors
-    const val CUSTOM_HANDLER_NOTYPE = "Internal compiler error: Custom command handler did not assign return type."
-    const val CUSTOM_HANDLER_NOSYMBOL = "Internal compiler error: Custom command handler did not assign symbol."
+    public const val CUSTOM_HANDLER_NOTYPE: String =
+        "Internal compiler error: Custom command handler did not assign return type."
+    public const val CUSTOM_HANDLER_NOSYMBOL: String =
+        "Internal compiler error: Custom command handler did not assign symbol."
 
     // code gen internal compiler errors
-    const val SYMBOL_IS_NULL = "Internal compiler error: Symbol has not been defined for the node."
-    const val TYPE_HAS_NO_BASETYPE = "Internal compiler error: Type has no defined base type: %s."
-    const val TYPE_HAS_NO_DEFAULT = "Internal compiler error: Return type '%s' has no defined default value."
-    const val INVALID_CONDITION = "Internal compiler error: %s is not a supported expression type for conditions."
-    const val NULL_CONSTANT = "Internal compiler error: %s evaluated to 'null' constant value."
-    const val EXPRESSION_NO_SUBEXPR = "Internal compiler error: No sub expression node."
+    public const val SYMBOL_IS_NULL: String = "Internal compiler error: Symbol has not been defined for the node."
+    public const val TYPE_HAS_NO_BASETYPE: String = "Internal compiler error: Type has no defined base type: %s."
+    public const val TYPE_HAS_NO_DEFAULT: String =
+        "Internal compiler error: Return type '%s' has no defined default value."
+    public const val INVALID_CONDITION: String =
+        "Internal compiler error: %s is not a supported expression type for conditions."
+    public const val NULL_CONSTANT: String = "Internal compiler error: %s evaluated to 'null' constant value."
+    public const val EXPRESSION_NO_SUBEXPR: String = "Internal compiler error: No sub expression node."
 
     // node type agnostic messages
-    const val GENERIC_INVALID_TYPE = "'%s' is not a valid type."
-    const val GENERIC_TYPE_MISMATCH = "Type mismatch: '%s' was given but '%s' was expected."
-    const val GENERIC_UNRESOLVED_SYMBOL = "'%s' could not be resolved to a symbol."
-    const val ARITHMETIC_INVALID_TYPE = "Type mismatch: '%s' was given but 'int' or 'long' was expected."
+    public const val GENERIC_INVALID_TYPE: String = "'%s' is not a valid type."
+    public const val GENERIC_TYPE_MISMATCH: String = "Type mismatch: '%s' was given but '%s' was expected."
+    public const val GENERIC_UNRESOLVED_SYMBOL: String = "'%s' could not be resolved to a symbol."
+    public const val ARITHMETIC_INVALID_TYPE: String = "Type mismatch: '%s' was given but 'int' or 'long' was expected."
 
     // script node specific
-    const val SCRIPT_REDECLARATION = "[%s,%s] is already defined."
-    const val SCRIPT_LOCAL_REDECLARATION = "'$%s' is already defined."
-    const val SCRIPT_TRIGGER_INVALID = "'%s' is not a valid trigger type."
-    const val SCRIPT_TRIGGER_NO_PARAMETERS = "The trigger type '%s' is not allowed to have parameters defined."
-    const val SCRIPT_TRIGGER_EXPECTED_PARAMETERS = "The trigger type '%s' is expected to accept (%s)."
-    const val SCRIPT_TRIGGER_NO_RETURNS = "The trigger type '%s' is not allowed to return values."
-    const val SCRIPT_TRIGGER_EXPECTED_RETURNS = "The trigger type '%s' is expected to return (%s)."
-    const val SCRIPT_SUBJECT_ONLY_GLOBAL = "Trigger '%s' only allows global subjects."
-    const val SCRIPT_SUBJECT_NO_GLOBAL = "Trigger '%s' does not allow global subjects."
-    const val SCRIPT_SUBJECT_NO_CAT = "Trigger '%s' does not allow category subjects."
+    public const val SCRIPT_REDECLARATION: String = "[%s,%s] is already defined."
+    public const val SCRIPT_LOCAL_REDECLARATION: String = "'$%s' is already defined."
+    public const val SCRIPT_TRIGGER_INVALID: String = "'%s' is not a valid trigger type."
+    public const val SCRIPT_TRIGGER_NO_PARAMETERS: String =
+        "The trigger type '%s' is not allowed to have parameters defined."
+    public const val SCRIPT_TRIGGER_EXPECTED_PARAMETERS: String = "The trigger type '%s' is expected to accept (%s)."
+    public const val SCRIPT_TRIGGER_NO_RETURNS: String = "The trigger type '%s' is not allowed to return values."
+    public const val SCRIPT_TRIGGER_EXPECTED_RETURNS: String = "The trigger type '%s' is expected to return (%s)."
+    public const val SCRIPT_SUBJECT_ONLY_GLOBAL: String = "Trigger '%s' only allows global subjects."
+    public const val SCRIPT_SUBJECT_NO_GLOBAL: String = "Trigger '%s' does not allow global subjects."
+    public const val SCRIPT_SUBJECT_NO_CAT: String = "Trigger '%s' does not allow category subjects."
 
     // switch statement node specific
-    const val SWITCH_INVALID_TYPE = "'%s' is not allowed within a switch statement."
-    const val SWITCH_DUPLICATE_DEFAULT = "Duplicate default label."
-    const val SWITCH_CASE_NOT_CONSTANT = "Switch case value is not a constant expression."
+    public const val SWITCH_INVALID_TYPE: String = "'%s' is not allowed within a switch statement."
+    public const val SWITCH_DUPLICATE_DEFAULT: String = "Duplicate default label."
+    public const val SWITCH_CASE_NOT_CONSTANT: String = "Switch case value is not a constant expression."
 
     // assignment statement node specific
-    const val ASSIGN_MULTI_ARRAY = "Arrays are not allowed in multi-assignment statements."
+    public const val ASSIGN_MULTI_ARRAY: String = "Arrays are not allowed in multi-assignment statements."
 
     // condition expression specific
-    const val CONDITION_INVALID_NODE_TYPE = "Conditions are only allowed to be binary expressions."
+    public const val CONDITION_INVALID_NODE_TYPE: String = "Conditions are only allowed to be binary expressions."
 
     // binary expression specific
-    const val BINOP_INVALID_TYPES = "Operator '%s' cannot be applied to '%s', '%s'."
-    const val BINOP_TUPLE_TYPE = "%s side of binary expressions can only have one type but has '%s'."
+    public const val BINOP_INVALID_TYPES: String = "Operator '%s' cannot be applied to '%s', '%s'."
+    public const val BINOP_TUPLE_TYPE: String = "%s side of binary expressions can only have one type but has '%s'."
 
     // call expression specific
-    const val COMMAND_REFERENCE_UNRESOLVED = "'%s' cannot be resolved to a command."
-    const val COMMAND_NOARGS_EXPECTED = "'%s' is expected to have no arguments but has '%s'."
-    const val PROC_REFERENCE_UNRESOLVED = "'~%s' cannot be resolved to a proc."
-    const val PROC_NOARGS_EXPECTED = "'~%s' is expected to have no arguments but has '%s'."
-    const val JUMP_REFERENCE_UNRESOLVED = "'@%s' cannot be resolved to a label."
-    const val JUMP_NOARGS_EXPECTED = "'@%s' is expected to have no arguments but has '%s'."
-    const val CLIENTSCRIPT_REFERENCE_UNRESOLVED = "'%s' cannot be resolved to a clientscript."
-    const val CLIENTSCRIPT_NOARGS_EXPECTED = "'%s' is expected to have no arguments but has '%s'."
-    const val HOOK_TRANSMIT_LIST_UNEXPECTED = "Unexpected hook transmit list."
+    public const val COMMAND_REFERENCE_UNRESOLVED: String = "'%s' cannot be resolved to a command."
+    public const val COMMAND_NOARGS_EXPECTED: String = "'%s' is expected to have no arguments but has '%s'."
+    public const val PROC_REFERENCE_UNRESOLVED: String = "'~%s' cannot be resolved to a proc."
+    public const val PROC_NOARGS_EXPECTED: String = "'~%s' is expected to have no arguments but has '%s'."
+    public const val JUMP_REFERENCE_UNRESOLVED: String = "'@%s' cannot be resolved to a label."
+    public const val JUMP_NOARGS_EXPECTED: String = "'@%s' is expected to have no arguments but has '%s'."
+    public const val CLIENTSCRIPT_REFERENCE_UNRESOLVED: String = "'%s' cannot be resolved to a clientscript."
+    public const val CLIENTSCRIPT_NOARGS_EXPECTED: String = "'%s' is expected to have no arguments but has '%s'."
+    public const val HOOK_TRANSMIT_LIST_UNEXPECTED: String = "Unexpected hook transmit list."
 
     // local variable specific
-    const val LOCAL_DECLARATION_INVALID_TYPE = "'%s' is not allowed to be declared as a type."
-    const val LOCAL_REFERENCE_UNRESOLVED = "'$%s' cannot be resolved to a local variable."
-    const val LOCAL_REFERENCE_NOT_ARRAY = "Access of indexed value of non-array type variable '$%s'."
-    const val LOCAL_ARRAY_INVALID_TYPE = "'%s' is not allowed to be used as an array."
-    const val LOCAL_ARRAY_REFERENCE_NOINDEX = "'$%s' is a reference to an array variable without specifying the index."
+    public const val LOCAL_DECLARATION_INVALID_TYPE: String = "'%s' is not allowed to be declared as a type."
+    public const val LOCAL_REFERENCE_UNRESOLVED: String = "'$%s' cannot be resolved to a local variable."
+    public const val LOCAL_REFERENCE_NOT_ARRAY: String = "Access of indexed value of non-array type variable '$%s'."
+    public const val LOCAL_ARRAY_INVALID_TYPE: String = "'%s' is not allowed to be used as an array."
+    public const val LOCAL_ARRAY_REFERENCE_NOINDEX: String =
+        "'$%s' is a reference to an array variable without specifying the index."
 
     // game var specific
-    const val GAME_REFERENCE_UNRESOLVED = "'%%%s' cannot be resolved to a game variable."
+    public const val GAME_REFERENCE_UNRESOLVED: String = "'%%%s' cannot be resolved to a game variable."
 
     // constant variable specific
-    const val CONSTANT_REFERENCE_UNRESOLVED = "'^%s' cannot be resolved to a constant."
-    const val CONSTANT_CYCLIC_REF = "Cyclic constant references are not permitted: %s."
-    const val CONSTANT_UNKNOWN_TYPE = "Unable to infer type for '^%s'."
-    const val CONSTANT_PARSE_ERROR = "Unable to parse constant value of '%s' into type '%s'."
-    const val CONSTANT_NONCONSTANT = "Constant value of '%s' evaluated to a non-constant expression."
+    public const val CONSTANT_REFERENCE_UNRESOLVED: String = "'^%s' cannot be resolved to a constant."
+    public const val CONSTANT_CYCLIC_REF: String = "Cyclic constant references are not permitted: %s."
+    public const val CONSTANT_UNKNOWN_TYPE: String = "Unable to infer type for '^%s'."
+    public const val CONSTANT_PARSE_ERROR: String = "Unable to parse constant value of '%s' into type '%s'."
+    public const val CONSTANT_NONCONSTANT: String = "Constant value of '%s' evaluated to a non-constant expression."
 
     // prefix/postfix operator specific
-    const val FIX_INVALID_VARIABLE_KIND = "%s operator '%s' cannot be applied to arrays."
-    const val FIX_OPERATOR_INVALID_TYPE = "%s operator '%s' cannot be applied to type '%s'."
+    public const val FIX_INVALID_VARIABLE_KIND: String = "%s operator '%s' cannot be applied to arrays."
+    public const val FIX_OPERATOR_INVALID_TYPE: String = "%s operator '%s' cannot be applied to type '%s'."
 
     // feature specific errors
-    const val FEATURE_UNSUPPORTED = "Compiler feature '%s' is not enabled."
+    public const val FEATURE_UNSUPPORTED: String = "Compiler feature '%s' is not enabled."
 }
