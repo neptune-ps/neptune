@@ -16,6 +16,7 @@ import me.filby.neptune.runescript.compiler.trigger.TriggerManager
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TypeManager
+import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
 import me.filby.neptune.runescript.compiler.writer.ScriptWriter
 import me.filby.neptune.runescript.parser.ScriptParser
@@ -81,6 +82,9 @@ public open class ScriptCompiler(
     init {
         // register the core types
         types.registerAll<PrimitiveType>()
+        if (features.arraysV2) {
+            types.register("array", ArrayType(MetaType.Any))
+        }
         setupDefaultTypeCheckers()
 
         // register the command trigger
