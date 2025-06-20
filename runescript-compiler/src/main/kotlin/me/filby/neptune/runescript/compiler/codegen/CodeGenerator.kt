@@ -427,7 +427,8 @@ public class CodeGenerator(
                 is Int -> instruction(Opcode.PushConstantInt, default)
                 is String -> instruction(Opcode.PushConstantString, default)
                 is Long -> instruction(Opcode.PushConstantLong, default)
-                else -> error("Unsupported default type: ${default?.javaClass?.simpleName}")
+                null -> instruction(Opcode.PushConstantNull)
+                else -> error("Unsupported default type: ${default.javaClass.simpleName}")
             }
         }
         instruction(Opcode.PopLocalVar, symbol)
