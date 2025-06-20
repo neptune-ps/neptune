@@ -82,6 +82,8 @@ public open class ScriptCompiler(
     init {
         // register the core types
         types.registerAll<PrimitiveType>()
+        types.register(MetaType.Any)
+        types.register("type", MetaType.Type(MetaType.Any))
         if (features.arraysV2) {
             types.register("array", ArrayType(MetaType.Any))
         }
