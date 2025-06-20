@@ -125,6 +125,14 @@ public open class ScriptCompiler(
                 types.check(left.transmitListType, right.transmitListType)
         }
 
+        // checker for ArrayType which requires exact match on inner types, with a special case to
+        // allow anyarray <- typearray
+        types.addTypeChecker { left, right ->
+            left is ArrayType &&
+                right is ArrayType &&
+                (left.inner == right.inner || left.inner == MetaType.Any)
+        }
+
         // checker for WrappedType that compares the inner types
         types.addTypeChecker { left, right ->
             left is WrappedType &&
