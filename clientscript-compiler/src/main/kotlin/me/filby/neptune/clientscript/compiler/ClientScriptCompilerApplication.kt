@@ -141,6 +141,7 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
             "cc_create_optional_assert_new" to "ccCreateAssertNewArg",
             "prefix_postfix_expressions" to "prefixPostfixExpressions",
             "arrays_v2" to "arraysV2",
+            "simplified_type_codes" to "simplifiedTypeCodes",
         )
         mapping<BinaryFileWriterConfig>("output" to "outputPath")
     }
@@ -163,6 +164,7 @@ private fun getDefaultFeaturesForVersion(versionProperty: TomlValue?): ClientScr
         ccCreateAssertNewArg = version >= 230,
         prefixPostfixExpressions = false,
         arraysV2 = version >= 231,
+        simplifiedTypeCodes = version >= 231,
     )
 }
 

@@ -7,4 +7,5 @@ data class ClientScriptCompilerFeatureSet(
     val ccCreateAssertNewArg: Boolean,
     override val prefixPostfixExpressions: Boolean,
     override val arraysV2: Boolean,
+    override val simplifiedTypeCodes: Boolean,
 ) : CompilerFeatureSet
