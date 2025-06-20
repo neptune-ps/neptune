@@ -61,6 +61,11 @@ internal class PreTypeChecking(
     private val table get() = tables.first()
 
     /**
+     * A cached reference to a [Type] representing a `type`.
+     */
+    private val typeType = typeManager.find("type")
+
+    /**
      * A cached reference to a [Type] representing a `category`.
      */
     private val categoryType = typeManager.findOrNull("category")
@@ -323,12 +328,13 @@ internal class PreTypeChecking(
             // manually disable stringarray since it is marked as allowed now but should
             // remain disabled for old arrays.
             parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
-        } else if (features.arraysV2 && arrayType != null && type == arrayType) {
-            // TODO better way to deal with this instead of hardcoding for each specialized type
-            // disable the use of 'array' type outside of command signatures
+        } else {
             val script = checkNotNull(parameter.findParentByType<Script>())
             if (script.triggerType != CommandTrigger) {
-                parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
+                // TODO better way to deal with this instead of hardcoding for each specialized type
+                if (type == MetaType.Any || type == typeType || type == arrayType) {
+                    parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
+                }
             }
         }
 
