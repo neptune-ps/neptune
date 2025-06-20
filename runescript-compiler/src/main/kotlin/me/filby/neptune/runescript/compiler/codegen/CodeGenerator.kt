@@ -72,6 +72,7 @@ import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
+import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
 /**
@@ -698,10 +699,9 @@ public class CodeGenerator(
 
         // convert the parameter type to a list and generate a string with all the type char codes combined
         val argumentTypes = TupleType.toList(symbol.parameters)
-        var argumentTypesShort = argumentTypes.mapNotNull { it.code }.joinToString("")
-
-        // safety check in case there was a type with no char code defined
-        check(argumentTypes.size == argumentTypesShort.length)
+        var argumentTypesShort = argumentTypes
+            .map(::typeToCharCode)
+            .joinToString("")
 
         // write the clientscript reference and arguments
         instruction(Opcode.PushConstantSymbol, symbol)
@@ -720,6 +720,21 @@ public class CodeGenerator(
 
         // write the argument types
         instruction(Opcode.PushConstantString, argumentTypesShort)
+    }
+
+    private fun typeToCharCode(type: Type): Char {
+        val code = if (features.simplifiedTypeCodes) {
+            when (type.baseType) {
+                BaseVarType.INTEGER -> 'i'
+                BaseVarType.STRING -> 's'
+                BaseVarType.LONG -> 'l'
+                BaseVarType.ARRAY -> type.code
+                null -> null
+            }
+        } else {
+            type.code
+        }
+        return code ?: error("Invalid char code for type: ${type.representation}")
     }
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
