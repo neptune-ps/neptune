@@ -2,17 +2,21 @@ package me.filby.neptune.runescript.compiler.type.wrapped
 
 import com.google.common.base.MoreObjects
 import me.filby.neptune.runescript.compiler.type.BaseVarType
+import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.Type
 
 /**
  * A [Type] that represents an array of another type.
  */
-public data class ArrayType(public override val inner: Type) : WrappedType {
+public data class ArrayType(public val inner: Type) : Type {
     init {
         assert(inner !is ArrayType)
     }
 
-    override val representation: String = "${inner.representation}array"
+    override val representation: String = when (inner) {
+        MetaType.Any -> "array"
+        else -> "${inner.representation}array"
+    }
 
     override val code: Char = when (inner.baseType) {
         BaseVarType.INTEGER -> INTARRAY_CHAR
