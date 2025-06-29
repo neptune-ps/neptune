@@ -45,7 +45,10 @@ public sealed class MetaType(private val name: String) : MainType {
     public data class Type(override val inner: MainType) :
         MetaType("type"),
         WrappedType {
-        override val representation: String = "type<${inner.representation}>"
+        override val representation: String = when (inner) {
+            Any -> "type"
+            else -> "type<${inner.representation}>"
+        }
     }
 
     /**
