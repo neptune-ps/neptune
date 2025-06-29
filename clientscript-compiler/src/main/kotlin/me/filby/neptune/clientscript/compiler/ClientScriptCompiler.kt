@@ -4,8 +4,20 @@ import me.filby.neptune.clientscript.compiler.command.CcCreateCommandHandler
 import me.filby.neptune.clientscript.compiler.command.DbFindCommandHandler
 import me.filby.neptune.clientscript.compiler.command.DbGetFieldCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumCommandHandler
+import me.filby.neptune.clientscript.compiler.command.EnumGetInputsOutputsCommandHandler
 import me.filby.neptune.clientscript.compiler.command.ParamCommandHandler
 import me.filby.neptune.clientscript.compiler.command.PlaceholderCommand
+import me.filby.neptune.clientscript.compiler.command.array.ArrayCompareCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArrayCopyCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArrayCreateCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArrayDeleteCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArrayFillCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArrayInsertCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArrayInsertallCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArrayMinMaxCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArrayPushCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArrayPushallCommandHandler
+import me.filby.neptune.clientscript.compiler.command.array.ArraySearchCommandHandler
 import me.filby.neptune.clientscript.compiler.command.debug.DumpCommandHandler
 import me.filby.neptune.clientscript.compiler.command.debug.ScriptCommandHandler
 import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerFeatureSet
@@ -90,6 +102,25 @@ class ClientScriptCompiler(
             addDynamicCommandHandler("db_find_refine_with_count", DbFindCommandHandler(true))
         }
         addDynamicCommandHandler("db_getfield", DbGetFieldCommandHandler())
+
+        if (features.arraysV2) {
+            addDynamicCommandHandler("array_compare", ArrayCompareCommandHandler())
+            addDynamicCommandHandler("array_indexof", ArraySearchCommandHandler())
+            addDynamicCommandHandler("array_lastindexof", ArraySearchCommandHandler())
+            addDynamicCommandHandler("array_count", ArraySearchCommandHandler())
+            addDynamicCommandHandler("array_min", ArrayMinMaxCommandHandler())
+            addDynamicCommandHandler("array_max", ArrayMinMaxCommandHandler())
+            addDynamicCommandHandler("array_fill", ArrayFillCommandHandler())
+            addDynamicCommandHandler("array_copy", ArrayCopyCommandHandler())
+            addDynamicCommandHandler("array_create", ArrayCreateCommandHandler())
+            addDynamicCommandHandler("array_push", ArrayPushCommandHandler())
+            addDynamicCommandHandler("array_insert", ArrayInsertCommandHandler())
+            addDynamicCommandHandler("array_delete", ArrayDeleteCommandHandler())
+            addDynamicCommandHandler("array_pushall", ArrayPushallCommandHandler())
+            addDynamicCommandHandler("array_insertall", ArrayInsertallCommandHandler())
+            addDynamicCommandHandler("enum_getinputs", EnumGetInputsOutputsCommandHandler())
+            addDynamicCommandHandler("enum_getoutputs", EnumGetInputsOutputsCommandHandler())
+        }
 
         addDynamicCommandHandler("event_opbase", PlaceholderCommand(PrimitiveType.STRING, "event_opbase"))
         addDynamicCommandHandler("event_mousex", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 1))
