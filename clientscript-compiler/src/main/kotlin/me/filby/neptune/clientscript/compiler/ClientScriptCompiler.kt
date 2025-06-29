@@ -5,6 +5,8 @@ import me.filby.neptune.clientscript.compiler.command.DbFindCommandHandler
 import me.filby.neptune.clientscript.compiler.command.DbGetFieldCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumGetInputsOutputsCommandHandler
+import me.filby.neptune.clientscript.compiler.command.IfParamCommandHandler
+import me.filby.neptune.clientscript.compiler.command.IfSetParamCommandHandler
 import me.filby.neptune.clientscript.compiler.command.ParamCommandHandler
 import me.filby.neptune.clientscript.compiler.command.PlaceholderCommand
 import me.filby.neptune.clientscript.compiler.command.array.ArrayCompareCommandHandler
@@ -54,6 +56,7 @@ class ClientScriptCompiler(
 
         // register types
         types.registerAll<ScriptVarType>()
+        types.register("param", ParamCommandHandler.PARAM_ANY)
         types.changeOptions("long") {
             allowDeclaration = false
         }
@@ -91,6 +94,10 @@ class ClientScriptCompiler(
         addDynamicCommandHandler("nc_param", ParamCommandHandler(ScriptVarType.NPC))
         addDynamicCommandHandler("lc_param", ParamCommandHandler(ScriptVarType.LOC))
         addDynamicCommandHandler("struct_param", ParamCommandHandler(ScriptVarType.STRUCT))
+        addDynamicCommandHandler("if_param", IfParamCommandHandler(cc = false))
+        addDynamicCommandHandler("cc_param", IfParamCommandHandler(cc = true), dot = true)
+        addDynamicCommandHandler("if_setparam", IfSetParamCommandHandler(cc = false))
+        addDynamicCommandHandler("cc_setparam", IfSetParamCommandHandler(cc = true), dot = true)
 
         if (features.dbFindReturnsCount) {
             addDynamicCommandHandler("db_find", DbFindCommandHandler(true))
