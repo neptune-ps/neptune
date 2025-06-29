@@ -6,7 +6,6 @@ import me.filby.neptune.runescript.compiler.configuration.command.CodeGeneratorC
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
-import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
@@ -41,18 +40,13 @@ class DbFindCommandHandler(private val withCount: Boolean) : DynamicCommandHandl
     override fun CodeGeneratorContext.generateCode() {
         // should not get to this point unless first argument is a dbcolumn
         val columnType = (expression.arguments[0].type as DbColumnType).inner
-        val stackType = when (val baseType = columnType.baseType) {
-            BaseVarType.INTEGER -> 0
-            BaseVarType.LONG -> 1
-            BaseVarType.STRING -> 2
-            else -> error("Unsupported base type: $baseType")
-        }
+        val stackType = checkNotNull(columnType.baseType)
 
         // emit the arguments
         expression.arguments.visit()
 
         // emit the stack type to pop the key value from
-        instruction(Opcode.PushConstantInt, stackType)
+        instruction(Opcode.PushConstantInt, stackType.id)
 
         // emit the command
         command()
