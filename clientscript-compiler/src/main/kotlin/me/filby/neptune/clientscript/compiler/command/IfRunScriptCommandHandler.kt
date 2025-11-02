@@ -22,7 +22,7 @@ import me.filby.neptune.runescript.compiler.type.Type
 class IfRunScriptCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         val ifScript = checkArgument(0, IF_SCRIPT_ANY)
-        val button = checkArgument(1, ScriptVarType.COMPONENT)
+        val com = checkArgument(1, ScriptVarType.COMPONENT)
         checkArgument(2, PrimitiveType.INT)
 
         val expectedTypesList = arrayListOf(
@@ -41,13 +41,14 @@ class IfRunScriptCommandHandler : DynamicCommandHandler {
         }
 
         if (checkArgumentTypes(TupleType.fromList(expectedTypesList))) {
-            // button shouldn't be null here since we're within the block that check the expected types
+            // button shouldn't be null here since we're within the block that checks the expected types
             // which requires at least 3 arguments.
-            if (button != null && button !is Identifier) {
+            if (com != null && com !is Identifier) {
                 // the semantics of this command requires the component to be a static reference to
                 // look up the proper script. it isn't technically necessary currently, but we still
                 // check for it to make migration easier later on.
-                button.reportError(diagnostics, "Component reference must be constant.")
+                // Note: it is currently unknown exactly how the component is involved with the resolution.
+                com.reportError(diagnostics, "Component reference must be constant.")
             }
         }
 
