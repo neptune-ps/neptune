@@ -7,6 +7,7 @@ import me.filby.neptune.runescript.ast.expr.CallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
+import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.VariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
@@ -103,9 +104,9 @@ public var VariableExpression.reference: Symbol? by Node.attributeOrNull("refere
 public var CallExpression.reference: Symbol? by Node.attributeOrNull("symbol")
 
 /**
- * An optional symbol assigned to [StringLiteral]s if the string is meant to represent some other reference.
+ * An optional symbol assigned to [Literal]s if the string is meant to represent some other reference.
  */
-public var StringLiteral.reference: Symbol? by Node.attributeOrNull("symbol")
+public var Literal<*>.reference: Symbol? by Node.attributeOrNull("symbol")
 
 /**
  * An optional expression that was parsed from within the string literal.

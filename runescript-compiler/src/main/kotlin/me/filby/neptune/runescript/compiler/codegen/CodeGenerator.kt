@@ -406,8 +406,7 @@ public class CodeGenerator(
     private fun resolveConstantValue(expression: Expression): Any? = when (expression) {
         is ConstantVariableExpression -> expression.subExpression?.let { resolveConstantValue(it) }
         is Identifier -> expression.reference
-        is StringLiteral -> expression.reference ?: expression.value
-        is Literal<*> -> expression.value
+        is Literal<*> -> expression.reference ?: expression.value
         else -> null
     }
 
@@ -740,6 +739,14 @@ public class CodeGenerator(
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
         integerLiteral.lineInstruction()
+
+        // push the reference if one exists
+        val reference = integerLiteral.reference
+        if (reference != null) {
+            instruction(Opcode.PushConstantSymbol, reference)
+            return
+        }
+
         instruction(Opcode.PushConstantInt, integerLiteral.value)
     }
 

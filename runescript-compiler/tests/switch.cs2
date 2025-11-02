@@ -6,3 +6,8 @@ switch_int ($test) {
     case 2 : // do nothing
     case 3 : error("Not hit.");
 }
+
+switch_locshape (1) {
+    case 1 : // ok
+    case default : error("Not hit.");
+}
