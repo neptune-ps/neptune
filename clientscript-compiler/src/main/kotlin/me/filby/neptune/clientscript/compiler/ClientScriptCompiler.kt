@@ -26,6 +26,7 @@ import me.filby.neptune.clientscript.compiler.command.debug.ScriptCommandHandler
 import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerFeatureSet
 import me.filby.neptune.clientscript.compiler.trigger.ClientTriggerType
 import me.filby.neptune.clientscript.compiler.type.DbColumnType
+import me.filby.neptune.clientscript.compiler.type.IfScriptType
 import me.filby.neptune.clientscript.compiler.type.ParamType
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.ScriptCompiler
@@ -68,6 +69,7 @@ class ClientScriptCompiler(
         types.register("invhook", MetaType.Hook(ScriptVarType.INV))
         types.register("varphook", MetaType.Hook(VarPlayerType(MetaType.Any)))
         types.register("dbcolumn", DbColumnType(MetaType.Any))
+        types.register("ifscript", IfScriptType(MetaType.Any))
         types.register(
             "gclientclicknpc",
             MetaType.Script(ClientTriggerType.GCLIENTCLICKNPC, MetaType.Unit, MetaType.Unit),
@@ -183,6 +185,7 @@ class ClientScriptCompiler(
         addSymLoader("hitmark", ScriptVarType.HITMARK)
         addSymLoader("hunt", ScriptVarType.HUNT)
         addSymLoader("idkit", ScriptVarType.IDKIT)
+        addSymLoader("if_script") { IfScriptType(it) }
         addSymLoader("interface", ScriptVarType.INTERFACE)
         addSymLoader("inv", ScriptVarType.INV)
         addSymLoader("jingle", ScriptVarType.JINGLE)
