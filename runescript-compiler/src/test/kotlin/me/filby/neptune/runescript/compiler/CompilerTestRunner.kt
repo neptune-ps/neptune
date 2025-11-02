@@ -83,6 +83,9 @@ private fun testScriptFile(scriptFile: File): Boolean {
     // setup npc type
     compiler.types.register("npc")
 
+    // setup locshape type
+    compiler.types.register("locshape")
+
     compiler.diagnosticsHandler = diagnosticsHandler
     compiler.run()
 
@@ -180,6 +183,7 @@ private class CommandSymbolLoader : SymbolLoader {
         addBasic(VarClientType(PrimitiveType.STRING), "varcstr")
         addBasic(compiler.types.find("npc"), "hans")
         addBasic(compiler.types.find("npc"), "complex npc name")
+        addBasic(compiler.types.find("locshape"), "1")
 
         // constants
         addConstant("max_32bit_int", "2147483647")

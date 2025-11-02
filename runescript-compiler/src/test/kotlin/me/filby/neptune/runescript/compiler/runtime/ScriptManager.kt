@@ -1,6 +1,7 @@
 package me.filby.neptune.runescript.compiler.runtime
 
 import com.google.common.collect.HashMultimap
+import me.filby.neptune.runescript.compiler.symbol.BasicSymbol
 import me.filby.neptune.runescript.compiler.symbol.ScriptSymbol
 import me.filby.neptune.runescript.compiler.symbol.Symbol
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
@@ -46,6 +47,9 @@ class ScriptManager :
     override fun get(symbol: Symbol): Int {
         if (symbol is ScriptSymbol) {
             return findOrGenerateId("[${symbol.trigger.identifier},${symbol.name}]")
+        }
+        if (symbol is BasicSymbol) {
+            return findOrGenerateId("${symbol.type.representation}:${symbol.name}")
         }
         error("Unsupported symbol: $symbol")
     }

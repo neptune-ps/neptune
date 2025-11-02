@@ -924,7 +924,16 @@ public class TypeChecking(
     }
 
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
-        integerLiteral.type = PrimitiveType.INT
+        val hint = integerLiteral.typeHint
+
+        // this logic is a simplified version from string literals
+        if (hint == null || hint == MetaType.Unit || typeManager.check(hint, PrimitiveType.INT)) {
+            integerLiteral.type = PrimitiveType.INT
+        } else if (hint !in LITERAL_TYPES) {
+            integerLiteral.reference = resolveSymbol(integerLiteral, integerLiteral.value.toString(), hint)
+        } else {
+            integerLiteral.type = PrimitiveType.INT
+        }
     }
 
     override fun visitCoordLiteral(coordLiteral: CoordLiteral) {
