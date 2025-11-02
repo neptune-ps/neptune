@@ -1,5 +1,6 @@
 package me.filby.neptune.clientscript.compiler.command
 
+import me.filby.neptune.clientscript.compiler.type.IfScriptType
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.compiler.codegen.Opcode
@@ -20,22 +21,26 @@ import me.filby.neptune.runescript.compiler.type.Type
  */
 class IfRunScriptCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
-        checkArgument(0, PrimitiveType.INT)
+        val ifScript = checkArgument(0, IF_SCRIPT_ANY)
         val button = checkArgument(1, ScriptVarType.COMPONENT)
         checkArgument(2, PrimitiveType.INT)
 
-        val expectedTypes = arrayListOf<Type>(
-            PrimitiveType.INT,
+        val expectedTypesList = arrayListOf(
+            IF_SCRIPT_ANY,
             ScriptVarType.COMPONENT,
             PrimitiveType.INT,
         )
 
-        for (i in 3 until expression.arguments.size) {
-            checkArgument(i, MetaType.Any)
-            expectedTypes += MetaType.Any
+        val ifScriptExpressionType = ifScript?.type
+        if (ifScriptExpressionType is IfScriptType) {
+            val types = TupleType.toList(ifScriptExpressionType.inner)
+            for ((i, type) in types.withIndex()) {
+                checkArgument(3 + i, type)
+                expectedTypesList += type
+            }
         }
 
-        if (checkArgumentTypes(TupleType.fromList(expectedTypes))) {
+        if (checkArgumentTypes(TupleType.fromList(expectedTypesList))) {
             // button shouldn't be null here since we're within the block that check the expected types
             // which requires at least 3 arguments.
             if (button != null && button !is Identifier) {
@@ -75,5 +80,9 @@ class IfRunScriptCommandHandler : DynamicCommandHandler {
             null -> null
         }
         return code ?: error("Invalid char code for type: ${type.representation}")
+    }
+
+    private companion object {
+        val IF_SCRIPT_ANY = IfScriptType(MetaType.Any)
     }
 }

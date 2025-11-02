@@ -26,9 +26,9 @@ class TsvSymbolLoader(
 
                 val id = split[0].toInt()
                 val name = split[1]
-                val subTypes = if (split.size >= 3) {
+                val subTypes = if (split.size >= 3 && split[2].isNotBlank()) {
                     val typeSplit = split[2].split(',')
-                    val types = typeSplit.map { typeName -> compiler.types.find(typeName) }
+                    val types = typeSplit.map { typeName -> compiler.types.find(typeName, allowArray = true) }
                     TupleType.fromList(types)
                 } else {
                     MetaType.Unit
