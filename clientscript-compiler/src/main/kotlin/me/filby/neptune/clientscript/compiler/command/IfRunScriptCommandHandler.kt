@@ -77,7 +77,7 @@ class IfRunScriptCommandHandler : DynamicCommandHandler {
             BaseVarType.INTEGER -> 'i'
             BaseVarType.STRING -> 's'
             BaseVarType.LONG -> 'l'
-            BaseVarType.ARRAY -> type.code
+            BaseVarType.ARRAY -> '*'
             null -> null
         }
         return code ?: error("Invalid char code for type: ${type.representation}")
