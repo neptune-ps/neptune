@@ -104,7 +104,7 @@ public var VariableExpression.reference: Symbol? by Node.attributeOrNull("refere
 public var CallExpression.reference: Symbol? by Node.attributeOrNull("symbol")
 
 /**
- * An optional symbol assigned to [Literal]s if the string is meant to represent some other reference.
+ * An optional symbol assigned to [Literal]s if the literal is meant to represent some other reference.
  */
 public var Literal<*>.reference: Symbol? by Node.attributeOrNull("symbol")
 
