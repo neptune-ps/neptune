@@ -606,7 +606,7 @@ public class TypeChecking(
     }
 
     override fun visitCommandCallExpression(commandCallExpression: CommandCallExpression) {
-        val name = commandCallExpression.name.text
+        val name = commandCallExpression.nameString
 
         // attempt to call the dynamic command handlers type checker (if one exists)
         if (checkDynamicCommand(name, commandCallExpression)) {
