@@ -2,6 +2,7 @@ package me.filby.neptune.clientscript.compiler.command
 
 import me.filby.neptune.clientscript.compiler.type.IfScriptType
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
+import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.configuration.command.CodeGeneratorContext
@@ -15,9 +16,17 @@ import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 
 /**
- * A temporary command handler implementation for `if_runscript`. This implementation does
- * not verify any argument types except for the first 3. The first argument is assumed to
- * be a script id, but for now we will just directly pass in an id.
+ * Handles the `if_runscript*` command. This command accepts a secondary set of arguments
+ * that are forwarded to the server and used within the invoked script.
+ *
+ * The component argument must be known at compile time. The script lookup is performed by
+ * looking up a [IfScriptType], which defines the expected argument types required to invoke
+ * the target script.
+ *
+ * Example:
+ * ```
+ * if_runscript*(some_script, inter:comp, null)(true)
+ * ```
  */
 class IfRunScriptCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
@@ -31,15 +40,6 @@ class IfRunScriptCommandHandler : DynamicCommandHandler {
             PrimitiveType.INT,
         )
 
-        val ifScriptExpressionType = ifScript?.type
-        if (ifScriptExpressionType is IfScriptType) {
-            val types = TupleType.toList(ifScriptExpressionType.inner)
-            for ((i, type) in types.withIndex()) {
-                checkArgument(3 + i, type)
-                expectedTypesList += type
-            }
-        }
-
         if (checkArgumentTypes(TupleType.fromList(expectedTypesList))) {
             // button shouldn't be null here since we're within the block that checks the expected types
             // which requires at least 3 arguments.
@@ -52,16 +52,29 @@ class IfRunScriptCommandHandler : DynamicCommandHandler {
             }
         }
 
+        val ifScriptExpressionType = ifScript?.type
+        if (ifScriptExpressionType is IfScriptType) {
+            val types = TupleType.toList(ifScriptExpressionType.inner)
+            for ((i, type) in types.withIndex()) {
+                checkArgument(i, type, args2 = true)
+            }
+            checkArgumentTypes(ifScriptExpressionType.inner, args2 = true)
+        }
+
         expression.type = MetaType.Unit
     }
 
     override fun CodeGeneratorContext.generateCode() {
-        val arguments = expression.arguments
+        val call = expression as CommandCallExpression
+
+        val arguments = call.arguments
         arguments.visit()
 
-        if (arguments.size > 3) {
-            val shortTypes = arguments
-                .subList(3, arguments.size)
+        val arguments2 = call.arguments2
+        arguments2.visit()
+
+        if (arguments2 != null) {
+            val shortTypes = arguments2
                 .map { typeToCharCode(it.type) }
                 .joinToString("")
             instruction(Opcode.PushConstantString, shortTypes)
