@@ -116,7 +116,7 @@ class ClientScriptCompiler(
         addDynamicCommandHandler("if_setparam", IfSetParamCommandHandler(cc = false))
         addDynamicCommandHandler("cc_setparam", IfSetParamCommandHandler(cc = true), dot = true)
 
-        addDynamicCommandHandler("if_runscript", IfRunScriptCommandHandler())
+        addDynamicCommandHandler("if_runscript*", IfRunScriptCommandHandler())
         addDynamicCommandHandler("if_find_child", IfFindChildCommandHandler(), dot = true)
         addDynamicCommandHandler("if_children_filter", IfChildrenFilterCommandHandler())
 
