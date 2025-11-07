@@ -5,6 +5,8 @@ import me.filby.neptune.clientscript.compiler.command.DbFindCommandHandler
 import me.filby.neptune.clientscript.compiler.command.DbGetFieldCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumGetInputsOutputsCommandHandler
+import me.filby.neptune.clientscript.compiler.command.IfChildrenFilterCommandHandler
+import me.filby.neptune.clientscript.compiler.command.IfFindChildCommandHandler
 import me.filby.neptune.clientscript.compiler.command.IfParamCommandHandler
 import me.filby.neptune.clientscript.compiler.command.IfRunScriptCommandHandler
 import me.filby.neptune.clientscript.compiler.command.IfSetParamCommandHandler
@@ -115,6 +117,8 @@ class ClientScriptCompiler(
         addDynamicCommandHandler("cc_setparam", IfSetParamCommandHandler(cc = true), dot = true)
 
         addDynamicCommandHandler("if_runscript", IfRunScriptCommandHandler())
+        addDynamicCommandHandler("if_find_child", IfFindChildCommandHandler(), dot = true)
+        addDynamicCommandHandler("if_children_filter", IfChildrenFilterCommandHandler())
 
         if (features.dbFindReturnsCount) {
             addDynamicCommandHandler("db_find", DbFindCommandHandler(true))
