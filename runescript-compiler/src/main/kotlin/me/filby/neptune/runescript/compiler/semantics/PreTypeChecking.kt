@@ -106,6 +106,13 @@ internal class PreTypeChecking(
             script.triggerType = trigger
         }
 
+        if (script.isStar && trigger != CommandTrigger) {
+            // only commands should allow the * symbol after a name
+            // the only reason the * symbol is allowed is to allow defining cases like
+            // "npc_queue" and "npc_queue*" as two different commands since they have different semantics.
+            script.name.reportError(DiagnosticMessage.SCRIPT_COMMAND_ONLY)
+        }
+
         // verify subject matched what the trigger requires
         checkScriptSubject(trigger, script)
 
@@ -150,13 +157,13 @@ internal class PreTypeChecking(
             // attempt to insert the script into the root table and error if failed to insert
             val scriptSymbol = ScriptSymbol.ClientScriptSymbol(
                 trigger,
-                script.name.text,
+                script.nameString,
                 script.parameterType,
                 script.returnType,
             )
             val inserted = rootTable.insert(SymbolType.ClientScript(trigger), scriptSymbol)
             if (!inserted) {
-                script.reportError(DiagnosticMessage.SCRIPT_REDECLARATION, trigger.identifier, script.name.text)
+                script.reportError(DiagnosticMessage.SCRIPT_REDECLARATION, trigger.identifier, script.nameString)
             } else {
                 // only set the symbol if it was actually inserted
                 script.symbol = scriptSymbol

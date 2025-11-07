@@ -2,6 +2,7 @@ package me.filby.neptune.runescript.compiler.configuration.command
 
 import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.expr.CallExpression
+import me.filby.neptune.runescript.ast.expr.CommandCallExpression
 import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.Expression
 import me.filby.neptune.runescript.ast.expr.Identifier
@@ -65,10 +66,22 @@ public data class TypeCheckingContext(
         }
 
     /**
+     * Helper function that returns the requested argument list.
+     */
+    private fun getArgumentsList(args2: Boolean = false): List<Expression> =
+        if (args2 && expression is CommandCallExpression) {
+            expression.arguments2 ?: emptyList()
+        } else {
+            expression.arguments
+        }
+
+    /**
      * Checks the argument at [index]. If the argument exists then the `typeHint` of the
      * expression is set to [typeHint] and the argument is then passed through the visitor like
      * normal. Accessing `type` after this is safe as long as returned value is not `null`. The
      * returned value will only be `null` if the argument requested is out of bounds.
+     *
+     * Using [args2] will check [CommandCallExpression.arguments2] instead of [arguments].
      *
      * Example:
      * ```
@@ -76,16 +89,17 @@ public data class TypeCheckingContext(
      * checkArgument(0, typeHint = PrimitiveType.OBJ)
      *
      * // verify the types match, if mismatch let the function report the error
-     * checkParameterTypes(expected = PrimitiveType.OBJ)
+     * checkArgumentTypes(expected = PrimitiveType.OBJ)
      * ```
      *
      * @see checkTypeArgument
      */
-    public fun checkArgument(index: Int, typeHint: Type?): Expression? {
-        if (index !in expression.arguments.indices) {
+    public fun checkArgument(index: Int, typeHint: Type?, args2: Boolean = false): Expression? {
+        val arguments = getArgumentsList(args2)
+        if (index !in arguments.indices) {
             return null
         }
-        val argument = expression.arguments[index]
+        val argument = arguments[index]
         argument.visit(typeHint)
         return argument
     }
@@ -158,10 +172,12 @@ public data class TypeCheckingContext(
      * checkArgumentTypes(expected = PrimitiveType.INT)
      * ```
      */
-    public fun checkArgumentTypes(expected: Type, reportError: Boolean = true): Boolean {
+    public fun checkArgumentTypes(expected: Type, reportError: Boolean = true, args2: Boolean = false): Boolean {
+        val arguments = getArgumentsList(args2)
+
         // collect the argument types while visiting any arguments that have no type defined
         val argumentTypes = mutableListOf<Type>()
-        for (arg in expression.arguments) {
+        for (arg in arguments) {
             if (arg.nullableType == null) {
                 arg.visit()
             }

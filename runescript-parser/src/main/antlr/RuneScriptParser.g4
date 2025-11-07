@@ -9,7 +9,7 @@ scriptFile
     ;
 
 script
-    : LBRACK trigger=identifier COMMA name=identifier RBRACK
+    : LBRACK trigger=identifier COMMA name=identifier MUL? RBRACK
       ((LPAREN parameterList? RPAREN) (LPAREN typeList? RPAREN)?)?
       statement*
     ;
@@ -135,9 +135,10 @@ arithmetic
     ;
 
 call
-    : identifier LPAREN expressionList? RPAREN                                  # CommandCallExpression
-    | TILDE identifier (LPAREN expressionList? RPAREN)?                         # ProcCallExpression
-    | AT identifier (LPAREN expressionList? RPAREN)?                            # JumpCallExpression
+    : identifier MUL LPAREN expressionList? RPAREN LPAREN expressionList? RPAREN    # CommandCallExpression
+    | identifier LPAREN expressionList? RPAREN                                      # CommandCallExpression
+    | TILDE identifier (LPAREN expressionList? RPAREN)?                             # ProcCallExpression
+    | AT identifier (LPAREN expressionList? RPAREN)?                                # JumpCallExpression
     ;
 
 // invoked manually to parse clientscript references (e.g. cc_setonop)

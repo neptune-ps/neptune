@@ -24,10 +24,14 @@ public class Script(
     source: NodeSourceLocation,
     public val trigger: Identifier,
     public val name: Identifier,
+    public val isStar: Boolean,
     public val parameters: List<Parameter>?,
     public val returnTokens: List<Token>?,
     public val statements: List<Statement>,
 ) : Node(source) {
+    public val nameString: String
+        get() = if (isStar) "${name.text}*" else name.text
+
     init {
         addChild(trigger)
         addChild(name)
@@ -42,7 +46,7 @@ public class Script(
 
     override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitScript(this)
 
-    override fun hashCode(): Int = Objects.hash(trigger, name, parameters, returnTokens, statements)
+    override fun hashCode(): Int = Objects.hash(trigger, name, isStar, parameters, returnTokens, statements)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -55,6 +59,7 @@ public class Script(
 
         return trigger == other.trigger &&
             name == other.name &&
+            isStar == other.isStar &&
             parameters == other.parameters &&
             returnTokens == other.returnTokens &&
             statements == other.statements
@@ -63,6 +68,7 @@ public class Script(
     override fun toString(): String = MoreObjects.toStringHelper(this)
         .add("trigger", trigger)
         .add("name", name)
+        .add("isStar", isStar)
         .add("parameters", parameters)
         .add("returnTokens", returnTokens)
         .add("statements", statements)
