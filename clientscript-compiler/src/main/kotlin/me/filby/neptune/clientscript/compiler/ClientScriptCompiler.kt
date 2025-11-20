@@ -175,11 +175,11 @@ class ClientScriptCompiler(
         addSymLoader("chatcat", ScriptVarType.CHATCAT)
         addSymLoader("chatphrase", ScriptVarType.CHATPHRASE)
         addSymLoader("clientinterface", ScriptVarType.CLIENTINTERFACE)
-        addSymLoader("component", ScriptVarType.COMPONENT)
+        addSymLoader("component", ScriptVarType.COMPONENT, idSupplier = ::parseComponentId)
         addSymLoader("controller", ScriptVarType.CONTROLLER)
         addSymLoader("cursor", ScriptVarType.CURSOR)
         addSymLoader("cutscene", ScriptVarType.CUTSCENE)
-        addSymLoader("dbcolumn") { DbColumnType(it) }
+        addSymLoader("dbcolumn", typeSupplier = { DbColumnType(it) }, idSupplier = ::parseDbColumnId)
         addSymLoader("dbrow", ScriptVarType.DBROW)
         addSymLoader("dbtable", ScriptVarType.DBTABLE)
         addSymLoader("enum", ScriptVarType.ENUM)
@@ -189,7 +189,7 @@ class ClientScriptCompiler(
         addSymLoader("hitmark", ScriptVarType.HITMARK)
         addSymLoader("hunt", ScriptVarType.HUNT)
         addSymLoader("idkit", ScriptVarType.IDKIT)
-        addSymLoader("if_script") { IfScriptType(it) }
+        addSymLoader("if_script", typeSupplier = { IfScriptType(it) })
         addSymLoader("interface", ScriptVarType.INTERFACE)
         addSymLoader("inv", ScriptVarType.INV)
         addSymLoader("jingle", ScriptVarType.JINGLE)
@@ -206,7 +206,7 @@ class ClientScriptCompiler(
         addSymLoader("npc_stat", ScriptVarType.NPC_STAT)
         addSymLoader("obj", ScriptVarType.NAMEDOBJ)
         addSymLoader("overlayinterface", ScriptVarType.OVERLAYINTERFACE)
-        addSymLoader("param") { ParamType(it) }
+        addSymLoader("param", typeSupplier = { ParamType(it) })
         addSymLoader("quest", ScriptVarType.QUEST)
         addSymLoader("seq", ScriptVarType.SEQ)
         addSymLoader("gamelogevent", ScriptVarType.GAMELOGEVENT)
@@ -222,14 +222,41 @@ class ClientScriptCompiler(
         addSymLoader("texture", ScriptVarType.TEXTURE)
         addSymLoader("toplevelinterface", ScriptVarType.TOPLEVELINTERFACE)
         addSymLoader("varbit", VarBitType)
-        addSymLoader("varc") { VarClientType(it) }
-        addSymLoader("varclan") { VarClanType(it) }
-        addSymLoader("varclansetting") { VarClanSettingsType(it) }
-        addSymLoader("varcstr") { VarClientType(PrimitiveType.STRING) }
-        addSymLoader("varp") { VarPlayerType(it) }
+        addSymLoader("varc", typeSupplier = { VarClientType(it) })
+        addSymLoader("varclan", typeSupplier = { VarClanType(it) })
+        addSymLoader("varclansetting", typeSupplier = { VarClanSettingsType(it) })
+        addSymLoader("varcstr", typeSupplier = { VarClientType(PrimitiveType.STRING) })
+        addSymLoader("varp", typeSupplier = { VarPlayerType(it) })
         addSymLoader("vorbis", ScriptVarType.VORBIS)
         addSymLoader("wma", ScriptVarType.MAPAREA)
         addSymLoader("writeinv", ScriptVarType.WRITEINV)
+    }
+
+    /**
+     * Parses a component id from `<ifid>:<comid>` or just `<comid>` format.
+     */
+    private fun parseComponentId(str: String): Int {
+        val parts = str.split(":", limit = 2)
+        if (parts.size == 1) {
+            return parts[0].toInt()
+        }
+        val ifid = parts[0].toInt()
+        val comid = parts[1].toInt()
+        return (ifid shl 16) or comid
+    }
+
+    /**
+     * Parses a dbcolumn id from `<table>:<column>` or `<table>:<column>:<tuple>` format.
+     */
+    private fun parseDbColumnId(str: String): Int {
+        val parts = str.split(":", limit = 3)
+        if (parts.size == 1) {
+            return parts[0].toInt()
+        }
+        val table = parts[0].toInt()
+        val column = parts[1].toInt()
+        val tuple = parts.getOrNull(2)?.toInt() ?: -1
+        return (table shl 12) or (column shl 4) or (tuple + 1 and 0xf)
     }
 
     /**
@@ -261,19 +288,23 @@ class ClientScriptCompiler(
     /**
      * Helper for loading external symbols from `sym` files with a specific [type].
      */
-    private fun addSymLoader(name: String, type: Type) {
-        addSymLoader(name) { type }
+    private fun addSymLoader(name: String, type: Type, idSupplier: (str: String) -> Int = { str -> str.toInt() }) {
+        addSymLoader(name = name, typeSupplier = { type }, idSupplier)
     }
 
     /**
      * Helper for loading external symbols from `sym` files with subtypes.
      */
-    private fun addSymLoader(name: String, typeSuppler: (subTypes: Type) -> Type) {
+    private fun addSymLoader(
+        name: String,
+        typeSupplier: (subTypes: Type) -> Type,
+        idSupplier: (str: String) -> Int = { str -> str.toInt() },
+    ) {
         for (symbolPath in symbolPaths) {
             // look for {symbol_path}/{name}.sym
             val typeFile = symbolPath.resolve("$name.sym")
             if (typeFile.exists()) {
-                addSymbolLoader(TsvSymbolLoader(mapper, typeFile, typeSuppler))
+                addSymbolLoader(TsvSymbolLoader(mapper, typeFile, typeSupplier, idSupplier))
             }
 
             // look for {symbol_path}/{name}/**.sym
@@ -284,7 +315,7 @@ class ClientScriptCompiler(
                     .walkTopDown()
                     .filter { it.isFile && it.extension == "sym" }
                 for (file in files) {
-                    addSymbolLoader(TsvSymbolLoader(mapper, file.toPath(), typeSuppler))
+                    addSymbolLoader(TsvSymbolLoader(mapper, file.toPath(), typeSupplier, idSupplier))
                 }
             }
         }
