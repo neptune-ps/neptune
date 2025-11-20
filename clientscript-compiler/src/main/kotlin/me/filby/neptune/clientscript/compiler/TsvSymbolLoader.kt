@@ -13,6 +13,7 @@ class TsvSymbolLoader(
     private val mapper: SymbolMapper,
     private val path: Path,
     private val typeSupplier: (subTypes: Type) -> Type,
+    private val idSupplier: (str: String) -> Int = { str -> str.toInt() },
 ) : SymbolLoader {
     constructor(mapper: SymbolMapper, path: Path, type: Type) : this(mapper, path, { type })
 
@@ -24,7 +25,7 @@ class TsvSymbolLoader(
                     continue
                 }
 
-                val id = split[0].toInt()
+                val id = idSupplier(split[0])
                 val name = split[1]
                 val subTypes = if (split.size >= 3 && split[2].isNotBlank()) {
                     val typeSplit = split[2].split(',')
