@@ -10,7 +10,7 @@ import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
-class IfChildrenFilterCommandHandler : DynamicCommandHandler {
+class IfQueryRefineCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         // check param reference
         val paramExpr = checkArgument(0, ParamCommandHandler.PARAM_ANY)

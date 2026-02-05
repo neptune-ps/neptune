@@ -11,7 +11,7 @@ import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
-class IfFindChildCommandHandler : DynamicCommandHandler {
+class CcFindParamCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         checkArgument(0, ScriptVarType.COMPONENT)
         val param1Expr = checkArgument(1, ParamCommandHandler.PARAM_ANY)

@@ -1,13 +1,13 @@
 package me.filby.neptune.clientscript.compiler
 
 import me.filby.neptune.clientscript.compiler.command.CcCreateCommandHandler
+import me.filby.neptune.clientscript.compiler.command.CcFindParamCommandHandler
 import me.filby.neptune.clientscript.compiler.command.DbFindCommandHandler
 import me.filby.neptune.clientscript.compiler.command.DbGetFieldCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumCommandHandler
 import me.filby.neptune.clientscript.compiler.command.EnumGetInputsOutputsCommandHandler
-import me.filby.neptune.clientscript.compiler.command.IfChildrenFilterCommandHandler
-import me.filby.neptune.clientscript.compiler.command.IfFindChildCommandHandler
 import me.filby.neptune.clientscript.compiler.command.IfParamCommandHandler
+import me.filby.neptune.clientscript.compiler.command.IfQueryRefineCommandHandler
 import me.filby.neptune.clientscript.compiler.command.IfRunScriptCommandHandler
 import me.filby.neptune.clientscript.compiler.command.IfSetParamCommandHandler
 import me.filby.neptune.clientscript.compiler.command.ParamCommandHandler
@@ -117,8 +117,8 @@ class ClientScriptCompiler(
         addDynamicCommandHandler("cc_setparam", IfSetParamCommandHandler(cc = true), dot = true)
 
         addDynamicCommandHandler("if_runscript*", IfRunScriptCommandHandler())
-        addDynamicCommandHandler("if_find_child", IfFindChildCommandHandler(), dot = true)
-        addDynamicCommandHandler("if_children_filter", IfChildrenFilterCommandHandler())
+        addDynamicCommandHandler("cc_find_param", CcFindParamCommandHandler(), dot = true)
+        addDynamicCommandHandler("if_query_refine", IfQueryRefineCommandHandler())
 
         if (features.dbFindReturnsCount) {
             addDynamicCommandHandler("db_find", DbFindCommandHandler(true))
