@@ -1,7 +1,7 @@
 [proc,test]()(int,long)
 def_int     $a = 0;
 def_int     $b = ""; // Expect: Type mismatch: 'string' was given but 'int' was expected.
-def_string  $c = 0;  // Expect: Type mismatch: 'int' was given but 'string' was expected.
+def_string  $c = $a; // Expect: Type mismatch: 'int' was given but 'string' was expected.
 def_long    $d = 0;  // Expect: Type mismatch: 'int' was given but 'long' was expected.
 
 // Expect: Type mismatch: 'int' was given but 'boolean' was expected.
@@ -11,7 +11,7 @@ $e, $e = 0, 1;
 $e, $e = ^false, ^true;
 
 // Expect: Operator '=' cannot be applied to 'string', 'int'.
-if ("" = 1) {
+if ("" = $a) {
 
 }
 

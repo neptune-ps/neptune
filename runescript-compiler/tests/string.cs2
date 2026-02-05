@@ -1,0 +1,17 @@
+// verifies other literal types convert to a string properly
+[test,literal_to_string]
+// normal string literal
+def_string $a = "hello";
+assert_equals_obj("hello", $a);
+
+// int literal to string
+def_string $b = 1;
+assert_equals_obj("1", $b);
+
+// boolean literal to string
+def_string $c = true;
+assert_equals_obj("true", $c);
+
+// coord literal to string (not implemented currently)
+// def_string $d = 0_0_0_0_0;
+// assert_equals_obj("0_0_0_0_0", $d);

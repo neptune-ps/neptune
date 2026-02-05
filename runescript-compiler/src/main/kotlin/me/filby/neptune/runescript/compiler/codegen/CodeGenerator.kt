@@ -747,6 +747,11 @@ public class CodeGenerator(
             return
         }
 
+        if (integerLiteral.type == PrimitiveType.STRING) {
+            instruction(Opcode.PushConstantString, integerLiteral.value.toString())
+            return
+        }
+
         instruction(Opcode.PushConstantInt, integerLiteral.value)
     }
 
@@ -757,6 +762,12 @@ public class CodeGenerator(
 
     override fun visitBooleanLiteral(booleanLiteral: BooleanLiteral) {
         booleanLiteral.lineInstruction()
+
+        if (booleanLiteral.type == PrimitiveType.STRING) {
+            instruction(Opcode.PushConstantString, booleanLiteral.value.toString())
+            return
+        }
+
         instruction(Opcode.PushConstantInt, if (booleanLiteral.value) 1 else 0)
     }
 

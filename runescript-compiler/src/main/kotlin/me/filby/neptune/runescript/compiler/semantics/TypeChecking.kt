@@ -933,6 +933,8 @@ public class TypeChecking(
             integerLiteral.reference = resolveSymbol(integerLiteral, integerLiteral.value.toString(), hint)
         } else if (hint == PrimitiveType.BOOLEAN && (integerLiteral.value == 0 || integerLiteral.value == 1)) {
             integerLiteral.type = PrimitiveType.BOOLEAN
+        } else if (hint == PrimitiveType.STRING) {
+            integerLiteral.type = PrimitiveType.STRING
         } else {
             integerLiteral.type = PrimitiveType.INT
         }
@@ -943,7 +945,13 @@ public class TypeChecking(
     }
 
     override fun visitBooleanLiteral(booleanLiteral: BooleanLiteral) {
-        booleanLiteral.type = PrimitiveType.BOOLEAN
+        val hint = booleanLiteral.typeHint
+
+        if (hint == PrimitiveType.STRING) {
+            booleanLiteral.type = PrimitiveType.STRING
+        } else {
+            booleanLiteral.type = PrimitiveType.BOOLEAN
+        }
     }
 
     override fun visitCharacterLiteral(characterLiteral: CharacterLiteral) {

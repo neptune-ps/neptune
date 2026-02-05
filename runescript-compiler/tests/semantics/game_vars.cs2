@@ -11,7 +11,7 @@ def_int $a;
 %varbit = true; // Expect: Type mismatch: 'boolean' was given but 'int' was expected.
 
 %varcstr = "";
-%varcstr = 1; // Expect: Type mismatch: 'int' was given but 'string' was expected.
+%varcstr = $a; // Expect: Type mismatch: 'int' was given but 'string' was expected.
 
 $a, %varp = %varp, $a;
 %varbit, $a, %varp = %varc, %varcstr, %varc; // Expect: Type mismatch: 'int,string,int' was given but 'int,int,int' was expected.
