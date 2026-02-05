@@ -838,13 +838,17 @@ public class CodeGenerator(
     }
 
     override fun visitIdentifier(identifier: Identifier) {
+        identifier.lineInstruction()
+
         val reference = identifier.reference
-        if (reference == null) {
+        if (reference == null && identifier.type == PrimitiveType.STRING) {
+            // this is for when the identifier is just being treated as a string literal
+            instruction(Opcode.PushConstantString, identifier.text)
+            return
+        } else if (reference == null) {
             identifier.reportError(DiagnosticMessage.SYMBOL_IS_NULL)
             return
         }
-
-        identifier.lineInstruction()
 
         // add the instruction based on the reference type
         if (features.arraysV2 && reference is LocalVariableSymbol) {

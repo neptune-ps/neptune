@@ -74,6 +74,11 @@ class TestOpcodes {
         pushInt(str1.compareTo(str2))
     }
 
+    @Instruction(TEST_RETURN_STRING)
+    fun ScriptState._test_return_string() {
+        pushObj("Hello, World!")
+    }
+
     private fun ScriptState.scriptError(mes: String) {
         val error = buildString {
             append(scriptPath)
@@ -110,5 +115,6 @@ class TestOpcodes {
         const val INT_TO_LONG = ERROR + 7
         const val LONG_TO_INT = ERROR + 8
         const val COMPARE = ERROR + 9
+        const val TEST_RETURN_STRING = ERROR + 10
     }
 }

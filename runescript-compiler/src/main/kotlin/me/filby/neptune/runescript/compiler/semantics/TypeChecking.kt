@@ -1052,7 +1052,7 @@ public class TypeChecking(
         }
 
         // error is reported in resolveSymbol
-        val symbol = resolveSymbol(identifier, name, hint) ?: return
+        val symbol = resolveSymbol(identifier, name, hint, allowToString = true) ?: return
         if (symbol is ScriptSymbol && symbol.trigger == CommandTrigger && symbol.parameters != MetaType.Unit) {
             identifier.reportError(
                 DiagnosticMessage.GENERIC_TYPE_MISMATCH,
@@ -1112,7 +1112,7 @@ public class TypeChecking(
         fixExpression.type = variable.type
     }
 
-    private fun resolveSymbol(node: Expression, name: String, hint: Type?): Symbol? {
+    private fun resolveSymbol(node: Expression, name: String, hint: Type?, allowToString: Boolean = false): Symbol? {
         // look through the current scopes table for a symbol with the given name and type
         var symbol: Symbol? = null
         var symbolType: Type? = null
@@ -1137,7 +1137,11 @@ public class TypeChecking(
             }
         }
 
-        if (symbol == null) {
+        if (allowToString && hint == PrimitiveType.STRING && allowStringConversion(symbol)) {
+            // treat the identifier as just a string
+            node.type = PrimitiveType.STRING
+            return null
+        } else if (symbol == null) {
             // unable to resolve the symbol
             node.type = MetaType.Error
             node.reportError(DiagnosticMessage.GENERIC_UNRESOLVED_SYMBOL, name)
@@ -1156,6 +1160,12 @@ public class TypeChecking(
         node.type = symbolType
         return symbol
     }
+
+    /**
+     * Checks if the symbol reference allows being converted to just a string.
+     */
+    private fun allowStringConversion(symbol: Symbol?): Boolean =
+        !(symbol is ScriptSymbol && symbol.trigger == CommandTrigger)
 
     /**
      * Attempts to figure out the return type of [symbol].

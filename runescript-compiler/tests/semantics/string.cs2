@@ -1,0 +1,9 @@
+[proc,test]
+// this is allowed since the identifier does not refer to a command
+def_string $a = not_a_command;
+
+// this ends up producing two errors, but the main thing to test is that
+// referring to a command will not allow it to convert to a string
+// Expect: Type mismatch: '<unit>' was given but 'any,any' was expected.
+// Expect: Type mismatch: '<unit>' was given but 'string' was expected.
+def_string $b = assert_equals_obj;

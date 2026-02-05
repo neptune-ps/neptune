@@ -4,6 +4,15 @@
 def_string $a = "hello";
 assert_equals_obj("hello", $a);
 
+// test converting identifier to string
+$a = hello;
+assert_equals_obj("hello", $a);
+
+// tests that a command returning a string is not converted
+// to a string literal with just the command name
+$a = test_return_string;
+assert_equals_obj("Hello, World!", $a);
+
 // int literal to string
 def_string $b = 1;
 assert_equals_obj("1", $b);
