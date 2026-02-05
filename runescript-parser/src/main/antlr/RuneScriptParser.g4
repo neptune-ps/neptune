@@ -222,6 +222,7 @@ identifier
 // advanced identifier that allows more keywords
 advancedIdentifier
     : identifier
+    | INTEGER_LITERAL
     | IF
     | ELSE
     | WHILE

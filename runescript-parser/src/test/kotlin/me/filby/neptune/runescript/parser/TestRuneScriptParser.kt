@@ -129,8 +129,8 @@ class TestRuneScriptParser {
     @ParameterizedTest
     @ValueSource(
         strings = [
-            "local", "local_array", "local_prefix", "local_postfix",
-            "game", "game_prefix", "game_postfix",
+            "local", "local_digit", "local_array", "local_prefix", "local_postfix",
+            "game", "game_digit", "game_prefix", "game_postfix",
             "constant",
         ],
     )
