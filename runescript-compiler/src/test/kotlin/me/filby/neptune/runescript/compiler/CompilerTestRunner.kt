@@ -189,6 +189,8 @@ private class CommandSymbolLoader : SymbolLoader {
         addConstant("max_32bit_int", "2147483647")
         addConstant("min_32bit_int", "-2147483648")
         addConstant("quote", "\"")
+        addConstant("false", "0")
+        addConstant("true", "1")
 
         // cyclic reference constants
         addConstant("a", "^b")

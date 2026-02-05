@@ -931,6 +931,8 @@ public class TypeChecking(
             integerLiteral.type = PrimitiveType.INT
         } else if (hint !in LITERAL_TYPES) {
             integerLiteral.reference = resolveSymbol(integerLiteral, integerLiteral.value.toString(), hint)
+        } else if (hint == PrimitiveType.BOOLEAN && (integerLiteral.value == 0 || integerLiteral.value == 1)) {
+            integerLiteral.type = PrimitiveType.BOOLEAN
         } else {
             integerLiteral.type = PrimitiveType.INT
         }
