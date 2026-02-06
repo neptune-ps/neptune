@@ -6,5 +6,4 @@ JoinedStringExpression() 1:1
     IntegerLiteral(value=1) 1:16
     Token(text=+) 1:18
     IntegerLiteral(value=1) 1:20
- BasicStringPart(value=".") 1:23
- BasicStringPart(value="\") 1:24
+ BasicStringPart(value=".\") 1:23

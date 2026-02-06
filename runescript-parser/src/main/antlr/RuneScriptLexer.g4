@@ -76,7 +76,7 @@ WHITESPACE      : [ \t\n\r]+ -> channel(HIDDEN) ;
 mode String ;
 
 QUOTE_CLOSE         : '"' {depth--;} -> popMode ;
-STRING_TEXT         : StringEscapeSequence | ~('\\' | '"' | '<' | '\r' | '\n')+ ;
+STRING_TEXT         : (StringEscapeSequence | ~('\\' | '"' | '<' | '\r' | '\n'))+ ;
 STRING_TAG          : '<' Tag ('=' ~('<' | '>')+)? '>' ;
 STRING_CLOSE_TAG    : '</' Tag '>' ;
 STRING_PARTIAL_TAG  : '<' Tag '=' ;
