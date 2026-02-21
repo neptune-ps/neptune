@@ -43,7 +43,7 @@ enum class ClientTriggerType(
     ),
     INV_CHANGED(
         18,
-        subjectMode = SubjectMode.Type(ScriptVarType.INV),
+        subjectMode = SubjectMode.Type(ScriptVarType.INV, category = false),
         allowParameters = true,
         parameters = TupleType(
             PrimitiveType.INT,
