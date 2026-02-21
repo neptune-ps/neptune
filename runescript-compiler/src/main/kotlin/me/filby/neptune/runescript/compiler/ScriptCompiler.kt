@@ -8,7 +8,7 @@ import me.filby.neptune.runescript.compiler.configuration.SymbolLoader
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostics
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticsHandler
-import me.filby.neptune.runescript.compiler.semantics.PreTypeChecking
+import me.filby.neptune.runescript.compiler.semantics.ScriptRegistration
 import me.filby.neptune.runescript.compiler.semantics.TypeChecking
 import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
@@ -262,18 +262,18 @@ public open class ScriptCompiler(
     private fun analyze(files: List<ScriptFile>): Boolean {
         val diagnostics = Diagnostics()
 
-        // pre-type check: this adds all scripts to the symbol table for lookup in the next phase
-        logger.debug { "Starting pre-type checking" }
-        val preTypeCheckingTime = measureTimeMillis {
-            val preTypeChecking = PreTypeChecking(types, triggers, rootTable, diagnostics, features)
+        // script registration: this adds all scripts to the symbol table for lookup in the next phase
+        logger.debug { "Starting script registration" }
+        val scriptRegistrationTime = measureTimeMillis {
+            val scriptRegistration = ScriptRegistration(types, triggers, rootTable, diagnostics, features)
             for (file in files) {
                 val time = measureTimeMillis {
-                    file.accept(preTypeChecking)
+                    file.accept(scriptRegistration)
                 }
-                logger.trace { "Pre-type checked ${file.source.name} in ${time}ms" }
+                logger.trace { "Registered scripts in ${file.source.name} in ${time}ms" }
             }
         }
-        logger.debug { "Finished pre-type checking in ${preTypeCheckingTime}ms" }
+        logger.debug { "Finished script registration in ${scriptRegistrationTime}ms" }
 
         // type check: this does all major type checking
         logger.debug { "Starting type checking" }

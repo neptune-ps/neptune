@@ -11,7 +11,6 @@ import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.VariableExpression
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
-import me.filby.neptune.runescript.ast.statement.BlockStatement
 import me.filby.neptune.runescript.ast.statement.DeclarationStatement
 import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
@@ -59,11 +58,6 @@ internal var Script.scope by Node.attribute<SymbolTable>("block")
 internal var Parameter.symbol by Node.attribute<LocalVariableSymbol>("symbol")
 
 /**
- * The [SymbolTable] of the block.
- */
-internal var BlockStatement.scope by Node.attribute<SymbolTable>("scope")
-
-/**
  * The type the switch statement accepts.
  */
 internal var SwitchStatement.type by Node.attribute<Type>("type")
@@ -72,11 +66,6 @@ internal var SwitchStatement.type by Node.attribute<Type>("type")
  * The default case assigned to the statement.
  */
 internal var SwitchStatement.defaultCase by Node.attributeOrNull<SwitchCase>("defaultCase")
-
-/**
- * The [SymbolTable] of the case block.
- */
-internal var SwitchCase.scope by Node.attribute<SymbolTable>("scope")
 
 /**
  * The symbol that the statement declared.

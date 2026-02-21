@@ -88,7 +88,7 @@ import org.antlr.v4.runtime.Recognizer
 
 /**
  * An implementation of [AstVisitor] that implements all remaining semantic/type
- * checking required to safely build scripts. This implementation assumes [PreTypeChecking]
+ * checking required to safely build scripts. This implementation assumes [ScriptRegistration]
  * is run beforehand.
  */
 public class TypeChecking(
@@ -140,7 +140,7 @@ public class TypeChecking(
     /**
      * Sets the active [table] to [newTable] and runs [block] then sets [table] back to what it was originally.
      */
-    private inline fun scoped(newTable: SymbolTable, block: () -> Unit) {
+    private inline fun scoped(newTable: SymbolTable = table.createSubTable(), block: () -> Unit) {
         val oldTable = table
         table = newTable
         block()
@@ -161,7 +161,7 @@ public class TypeChecking(
     }
 
     override fun visitBlockStatement(blockStatement: BlockStatement) {
-        scoped(blockStatement.scope) {
+        scoped {
             // visit all statements
             blockStatement.statements.visit()
         }
@@ -240,13 +240,24 @@ public class TypeChecking(
     }
 
     override fun visitSwitchStatement(switchStatement: SwitchStatement) {
-        val expectedType = switchStatement.type
+        val typeName = switchStatement.typeToken.text.removePrefix("switch_")
+        val type = typeManager.findOrNull(typeName) ?: MetaType.Error
+
+        // notify invalid type
+        if (type == MetaType.Error) {
+            switchStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
+        } else if (!type.options.allowSwitch) {
+            switchStatement.typeToken.reportError(DiagnosticMessage.SWITCH_INVALID_TYPE, type.representation)
+        }
+
+        // set the type which is used by the switch cases to find their expected value types
+        switchStatement.type = type
 
         // type hint the condition and visit it
         val condition = switchStatement.condition
-        condition.typeHint = expectedType
+        condition.typeHint = type
         condition.visit()
-        checkTypeMatch(condition, expectedType, condition.type)
+        checkTypeMatch(condition, type, condition.type)
 
         // TODO check for duplicate case labels (other than default)
         // visit all the cases, cases will be type checked there.
@@ -287,7 +298,7 @@ public class TypeChecking(
             checkTypeMatch(key, switchType, key.type)
         }
 
-        scoped(switchCase.scope) {
+        scoped {
             // visit the statements
             switchCase.statements.visit()
         }

@@ -5,9 +5,6 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
-import me.filby.neptune.runescript.ast.statement.BlockStatement
-import me.filby.neptune.runescript.ast.statement.SwitchCase
-import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.compiler.CompilerFeatureSet
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
@@ -27,7 +24,6 @@ import me.filby.neptune.runescript.compiler.trigger.SubjectMode
 import me.filby.neptune.runescript.compiler.trigger.TriggerManager
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.triggerType
-import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
@@ -36,14 +32,9 @@ import me.filby.neptune.runescript.compiler.type.TypeManager
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
 /**
- * An [AstVisitor] implementation that handles the following.
- *
- * - Script declarations
- * - Switch statement type declaration, which is used later on in [TypeChecking]
- * - Local variable declarations
- * - Constant references
+ * An [AstVisitor] implementation that handles registering scripts and validating their parameters and return types.
  */
-internal class PreTypeChecking(
+internal class ScriptRegistration(
     private val typeManager: TypeManager,
     private val triggerManager: TriggerManager,
     private val rootTable: SymbolTable,
@@ -169,9 +160,6 @@ internal class PreTypeChecking(
                 script.symbol = scriptSymbol
             }
         }
-
-        // visit the code
-        script.statements.visit()
 
         // set the root symbol table for the script
         script.scope = table
@@ -355,55 +343,6 @@ internal class PreTypeChecking(
         parameter.symbol = symbol
     }
 
-    override fun visitBlockStatement(blockStatement: BlockStatement) {
-        createScopedTable {
-            // visit inner statements
-            blockStatement.statements.visit()
-
-            // set the symbol table for the block
-            blockStatement.scope = table
-        }
-    }
-
-    override fun visitSwitchStatement(switchStatement: SwitchStatement) {
-        val typeName = switchStatement.typeToken.text.removePrefix("switch_")
-        val type = typeManager.findOrNull(typeName)
-
-        // notify invalid type
-        if (type == null) {
-            switchStatement.typeToken.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeName)
-        } else if (!type.options.allowSwitch) {
-            switchStatement.typeToken.reportError(DiagnosticMessage.SWITCH_INVALID_TYPE, type.representation)
-        }
-
-        // visit the condition to resolve any reference
-        switchStatement.condition.accept(this)
-
-        // visit the cases to resolve references in them
-        switchStatement.cases.visit()
-
-        // set the expected type of the switch cases
-        switchStatement.type = type ?: MetaType.Error
-    }
-
-    override fun visitSwitchCase(switchCase: SwitchCase) {
-        // visit the keys to set any types that can be set early
-        switchCase.keys.visit()
-
-        // create a new scope and visit the statements in it
-        createScopedTable {
-            // visit inner statements
-            switchCase.statements.visit()
-
-            // set the symbol table for the block
-            switchCase.scope = table
-        }
-    }
-
-    override fun visitNode(node: Node) {
-        node.children.visit()
-    }
-
     /**
      * Helper function to report a diagnostic with the type of [DiagnosticType.INFO].
      */
@@ -430,7 +369,7 @@ internal class PreTypeChecking(
      */
     private fun List<Node>.visit() {
         for (n in this) {
-            n.accept(this@PreTypeChecking)
+            n.accept(this@ScriptRegistration)
         }
     }
 }
