@@ -51,7 +51,12 @@ subprojects {
 
         dependencies {
             implementation(libs.inlineLogger)
-            implementation(libs.guava)
+            implementation(libs.guava) {
+                exclude("com.google.code.findbugs", "jsr305")
+                exclude("com.google.errorprone", "error_prone_annotations")
+                exclude("com.google.j2objc", "j2objc-annotations")
+                exclude("org.codehaus.mojo", "animal-sniffer-annotations")
+            }
 
             testImplementation(kotlin("test-junit5"))
             testImplementation(libs.junit.api)

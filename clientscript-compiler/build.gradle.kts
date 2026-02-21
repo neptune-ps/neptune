@@ -12,7 +12,9 @@ dependencies {
     implementation(libs.netty.buffer)
     implementation(libs.fourkoma)
     implementation(libs.clikt)
-    implementation(libs.gson)
+    implementation(libs.gson) {
+        exclude("com.google.errorprone", "error_prone_annotations")
+    }
     implementation(libs.logback)
 }
 
