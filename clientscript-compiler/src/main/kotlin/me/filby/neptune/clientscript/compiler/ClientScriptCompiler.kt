@@ -70,6 +70,8 @@ class ClientScriptCompiler(
         types.register("stathook", MetaType.Hook(ScriptVarType.STAT))
         types.register("invhook", MetaType.Hook(ScriptVarType.INV))
         types.register("varphook", MetaType.Hook(VarPlayerType(MetaType.Any)))
+        types.register("varchook", MetaType.Hook(VarClientType(MetaType.Any)))
+        types.register("varcstrhook", MetaType.Hook(VarClientType(PrimitiveType.STRING)))
         types.register("dbcolumn", DbColumnType(MetaType.Any))
         types.register("ifscript", IfScriptType(MetaType.Any))
         types.register(
@@ -92,6 +94,11 @@ class ClientScriptCompiler(
             "gclientclicktile",
             MetaType.Script(ClientTriggerType.GCLIENTCLICKTILE, MetaType.Unit, MetaType.Unit),
         )
+        val basetypeint = types.register("basetypeint") {
+            allowSwitch = false
+            allowArray = false
+            allowDeclaration = false
+        }
 
         // allow assignment of namedobj to obj
         types.addTypeChecker { left, right -> left == ScriptVarType.OBJ && right == ScriptVarType.NAMEDOBJ }
@@ -101,6 +108,9 @@ class ClientScriptCompiler(
             (left is VarPlayerType && left.inner == PrimitiveType.INT && right == ScriptVarType.VARP) ||
                 (left == ScriptVarType.VARP && right is VarPlayerType && right.inner == PrimitiveType.INT)
         }
+
+        // special type that allows any types with a base type of int
+        types.addTypeChecker { left, right -> left == basetypeint && right.baseType == left.baseType }
 
         // register the dynamic command handlers
         if (features.ccCreateAssertNewArg) {

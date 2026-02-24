@@ -81,7 +81,7 @@ abstract class BinaryScriptWriter(
     }
 
     override fun BinaryScriptWriterContext.writePushConstantNull() {
-        instruction(ClientScriptOpcode.PUSH_CONSTANT_NULL, 0)
+        error("Not supported.")
     }
 
     override fun BinaryScriptWriterContext.writePushLocalVar(symbol: LocalVariableSymbol) {
@@ -114,8 +114,8 @@ abstract class BinaryScriptWriter(
                 BaseVarType.STRING -> ClientScriptOpcode.PUSH_VARC_STRING
                 else -> error(type.inner)
             }
-            is VarClanType -> ClientScriptOpcode.PUSH_VARCLAN
-            is VarClanSettingsType -> ClientScriptOpcode.PUSH_VARCLANSETTING
+            is VarClanType -> error("VarClanType not supported.")
+            is VarClanSettingsType -> error("VarClanSettingsType not supported.")
             else -> error(symbol)
         }
         instruction(opcode, id)
