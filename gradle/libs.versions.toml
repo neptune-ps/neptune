@@ -10,7 +10,8 @@ clikt = "5.0.2"
 gson = "2.11.0"
 
 [libraries]
-antlr = { module = "org.antlr:antlr4", version.ref = "antlr" }
+antlrCore = { module = "org.antlr:antlr4", version.ref = "antlr" }
+antlrRuntime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 inlineLogger = { module = "com.michael-bull.kotlin-inline-logger:kotlin-inline-logger", version.ref = "inlineLogger" }
