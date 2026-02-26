@@ -8,7 +8,16 @@ val antlrOutput = "src/main/java/me/filby/neptune/runescript/antlr"
 val antlrPackage = "me.filby.neptune.runescript.antlr"
 
 dependencies {
-    antlr(libs.antlr)
+    antlr(libs.antlrCore)
+    api(libs.antlrRuntime)
+}
+
+// the gradle antlr plugin adds all of antlr to runtimeClasspath,
+// workaround that https://github.com/gradle/gradle/issues/820
+configurations {
+    api {
+        setExtendsFrom(extendsFrom.filterNot { it == antlr.get() })
+    }
 }
 
 kotlin {

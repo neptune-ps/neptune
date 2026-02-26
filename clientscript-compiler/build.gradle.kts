@@ -6,9 +6,7 @@ plugins {
 version = "1.0.1-SNAPSHOT"
 
 dependencies {
-    api(project(":runescript-compiler")) {
-        exclude("com.ibm.icu", "icu4j")
-    }
+    api(project(":runescript-compiler"))
     implementation(libs.netty.buffer)
     implementation(libs.fourkoma)
     implementation(libs.clikt)
