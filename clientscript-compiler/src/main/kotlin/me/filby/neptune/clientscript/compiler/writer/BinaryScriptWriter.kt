@@ -169,6 +169,7 @@ abstract class BinaryScriptWriter(
 
     private fun findCaseKeyValue(key: Any) = when (key) {
         is Int -> key
+        is Boolean -> if (key) 1 else 0
         is Symbol -> idProvider.get(key)
         else -> error(key)
     }
