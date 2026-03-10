@@ -19,6 +19,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.EmptyStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionListContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ExpressionStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.GameVariableContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.HexLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IdentifierContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IfStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.IntegerLiteralContext
@@ -265,14 +266,10 @@ public class AstBuilder(private val source: String, private val lineOffset: Int,
     override fun visitConstantVariable(ctx: ConstantVariableContext): Node =
         ConstantVariableExpression(ctx.location, ctx.advancedIdentifier().visit())
 
-    override fun visitIntegerLiteral(ctx: IntegerLiteralContext): Node {
-        val text = ctx.text
-        if (text.length > 1 && text[0] == '0' && (text[1] == 'x' || text[1] == 'X')) {
-            // hex, trim 0x
-            return IntegerLiteral(ctx.location, text.substring(2).toLong(16).toInt())
-        }
-        return IntegerLiteral(ctx.location, text.toInt())
-    }
+    override fun visitIntegerLiteral(ctx: IntegerLiteralContext): Node = IntegerLiteral(ctx.location, ctx.text.toInt())
+
+    override fun visitHexLiteral(ctx: HexLiteralContext): Node =
+        IntegerLiteral(ctx.location, ctx.text.substring(2).toLong(16).toInt())
 
     override fun visitCoordLiteral(ctx: RuneScriptParser.CoordLiteralContext): Node {
         val text = ctx.text
