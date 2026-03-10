@@ -11,6 +11,7 @@ import me.filby.neptune.runescript.ast.expr.ConstantVariableExpression
 import me.filby.neptune.runescript.ast.expr.ExpressionStringPart
 import me.filby.neptune.runescript.ast.expr.GameVariableExpression
 import me.filby.neptune.runescript.ast.expr.Identifier
+import me.filby.neptune.runescript.ast.expr.IntegerLiteral
 import me.filby.neptune.runescript.ast.expr.JoinedStringExpression
 import me.filby.neptune.runescript.ast.expr.Literal
 import me.filby.neptune.runescript.ast.expr.LocalVariableExpression
@@ -61,6 +62,11 @@ class ExpressionGenerator : AstVisitor<String> {
 
     override fun visitConstantVariableExpression(constantVariableExpression: ConstantVariableExpression): String =
         "^${constantVariableExpression.name.visit()}"
+
+    override fun visitIntegerLiteral(integerLiteral: IntegerLiteral): String = when (integerLiteral.radix) {
+        IntegerLiteral.RADIX_HEXADECIMAL -> "0x${integerLiteral.value}"
+        else -> integerLiteral.value
+    }
 
     override fun visitCharacterLiteral(characterLiteral: CharacterLiteral): String = "'${characterLiteral.value}'"
 
