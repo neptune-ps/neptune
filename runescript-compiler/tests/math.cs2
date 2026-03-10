@@ -19,17 +19,17 @@ return($num);
 
 [test,long_math]
 // long math tests
-def_long $a = int_to_long(500);
-def_long $b = int_to_long(7);
+def_long $a = 500;
+def_long $b = 7;
 
-assert_equals_long(int_to_long(507),  calc($a + $b));
-assert_equals_long(int_to_long(493),  calc($a - $b));
-assert_equals_long(int_to_long(3500), calc($a * $b));
-assert_equals_long(int_to_long(71),   calc($a / $b));
-assert_equals_long(int_to_long(3),    calc($a % $b));
-assert_equals_long(int_to_long(503),  calc($a | $b));
-assert_equals_long(int_to_long(4),    calc($a & $b));
-assert_equals_long(int_to_long(1014), calc($a + ~return_self_long(calc($a + $b)) + $b));
+assert_equals_long(507,  calc($a + $b));
+assert_equals_long(493,  calc($a - $b));
+assert_equals_long(3500, calc($a * $b));
+assert_equals_long(71,   calc($a / $b));
+assert_equals_long(3,    calc($a % $b));
+assert_equals_long(503,  calc($a | $b));
+assert_equals_long(4,    calc($a & $b));
+assert_equals_long(1014, calc($a + ~return_self_long(calc($a + $b)) + $b));
 
 [proc,return_self_long](long $num)(long)
 return($num);
@@ -70,35 +70,35 @@ assert_equals(1, $a);
 [test,prefix_postfix_long]
 def_long $a;
 
-$a = int_to_long(0);
+$a = 0;
 // push a, increment a
-assert_equals_long(int_to_long(0), $a++);
-assert_equals_long(int_to_long(1), $a);
+assert_equals_long(0, $a++);
+assert_equals_long(1, $a);
 
-$a = int_to_long(1);
+$a = 1;
 // push a, decrement a
-assert_equals_long(int_to_long(1), $a--);
-assert_equals_long(int_to_long(0), $a);
+assert_equals_long(1, $a--);
+assert_equals_long(0, $a);
 
-$a = int_to_long(0);
+$a = 0;
 // increment a, push a
-assert_equals_long(int_to_long(1), ++$a);
-assert_equals_long(int_to_long(1), $a);
+assert_equals_long(1, ++$a);
+assert_equals_long(1, $a);
 
-$a = int_to_long(1);
+$a = 1;
 // decrement a, push a
-assert_equals_long(int_to_long(0), --$a);
-assert_equals_long(int_to_long(0), $a);
+assert_equals_long(0, --$a);
+assert_equals_long(0, $a);
 
 // testing postfix inside of calc
-$a = int_to_long(0);
-assert_equals_long(int_to_long(2), calc($a++ + int_to_long(2)));
-assert_equals_long(int_to_long(1), $a);
+$a = 0;
+assert_equals_long(2, calc($a++ + 2));
+assert_equals_long(1, $a);
 
 // testing prefix inside of calc
-$a = int_to_long(0);
-assert_equals_long(int_to_long(3), calc(++$a + int_to_long(2)));
-assert_equals_long(int_to_long(1), $a);
+$a = 0;
+assert_equals_long(3, calc(++$a + 2));
+assert_equals_long(1, $a);
 
 [test,hex_literals]
 // int hex tests
