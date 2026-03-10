@@ -937,18 +937,71 @@ public class TypeChecking(
     override fun visitIntegerLiteral(integerLiteral: IntegerLiteral) {
         val hint = integerLiteral.typeHint
 
-        // this logic is a simplified version from string literals
-        if (hint == null || hint == MetaType.Unit || typeManager.check(hint, PrimitiveType.INT)) {
-            integerLiteral.type = PrimitiveType.INT
-        } else if (hint !in LITERAL_TYPES) {
-            integerLiteral.reference = resolveSymbol(integerLiteral, integerLiteral.value.toString(), hint)
-        } else if (hint == PrimitiveType.BOOLEAN && (integerLiteral.value == 0 || integerLiteral.value == 1)) {
-            integerLiteral.type = PrimitiveType.BOOLEAN
-        } else if (hint == PrimitiveType.STRING) {
+        // allow number value to be implicitly converted to a string
+        if (hint == PrimitiveType.STRING) {
             integerLiteral.type = PrimitiveType.STRING
-        } else {
-            integerLiteral.type = PrimitiveType.INT
+            return
         }
+
+        // allow 0 and 1 to be implicitly converted to boolean
+        if (hint == PrimitiveType.BOOLEAN && isBooleanCompatible(integerLiteral.value, integerLiteral.radix)) {
+            // we can just convert the value to an int safely since we know the value is 0 or 1.
+            integerLiteral.numberValue = integerLiteral.value.toInt()
+            integerLiteral.type = PrimitiveType.BOOLEAN
+            return
+        }
+
+        // allow number value to be a reference to a non-number type
+        if (hint != null && hint != MetaType.Error && hint != MetaType.Unit && hint !in LITERAL_TYPES) {
+            integerLiteral.reference = resolveSymbol(integerLiteral, integerLiteral.value, hint)
+            return
+        }
+
+        val type = when (hint) {
+            PrimitiveType.INT -> PrimitiveType.INT
+            PrimitiveType.LONG -> PrimitiveType.LONG
+            else -> {
+                // we default to int to give a safe fallback when the hint is invalid.
+                PrimitiveType.INT
+            }
+        }
+
+        val numericValue = parseNumericValue(integerLiteral.value, integerLiteral.radix, type)
+        if (numericValue == null) {
+            integerLiteral.reportError(DiagnosticMessage.INTEGER_VALUE_OUT_OF_RANGE, type.representation)
+            integerLiteral.type = MetaType.Error
+            return
+        }
+
+        integerLiteral.numberValue = numericValue
+        integerLiteral.type = type
+    }
+
+    /**
+     * Checks if the given [value] and [radix] can be used as a boolean.
+     */
+    private fun isBooleanCompatible(value: String, radix: Int): Boolean =
+        radix == IntegerLiteral.RADIX_DECIMAL && (value == "0" || value == "1")
+
+    /**
+     * Attempts to parse the [value] as a [Number] using the specified [radix]. The return
+     * value will be an [Int] or [Long] depending on the [type] specified.
+     *
+     * When the radix is not decimal (e.g., hexadecimal), the value is parsed as an unsigned number
+     * and then converted back to the signed target type.
+     */
+    private fun parseNumericValue(value: String, radix: Int, type: Type): Number? = when (type) {
+        PrimitiveType.INT -> if (radix == IntegerLiteral.RADIX_DECIMAL) {
+            value.toIntOrNull(radix)
+        } else {
+            value.toUIntOrNull(radix)?.toInt()
+        }
+        PrimitiveType.LONG -> if (radix == IntegerLiteral.RADIX_DECIMAL) {
+            value.toLongOrNull(radix)
+        } else {
+            value.toULongOrNull(radix)?.toLong()
+        }
+        else -> error("Unexpected type: $type")
     }
 
     override fun visitCoordLiteral(coordLiteral: CoordLiteral) {

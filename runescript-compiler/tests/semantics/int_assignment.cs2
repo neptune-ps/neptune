@@ -2,7 +2,12 @@
 def_int     $a = 0;
 def_int     $b = ""; // Expect: Type mismatch: 'string' was given but 'int' was expected.
 def_string  $c = $a; // Expect: Type mismatch: 'int' was given but 'string' was expected.
-def_long    $d = 0;  // Expect: Type mismatch: 'int' was given but 'long' was expected.
+def_long    $d = 0; // Ok, int literals can be treated as longs.
+
+// Expect: Type mismatch: 'boolean' was given but 'int' was expected.
+$a = true;
+// Expect: Type mismatch: 'boolean' was given but 'long' was expected.
+$d = true;
 
 // Expect: Type mismatch: 'int' was given but 'boolean' was expected.
 def_boolean $e = 1234;
@@ -16,9 +21,30 @@ if ("" = $a) {
 }
 
 // Expect: Operator '=' cannot be applied to 'long', 'int'.
-if ($d = 1) {
+if ($d = long_to_int(1)) {
 
 }
 
+// Hexadecimal literals
+def_int $f = 0x10;
+def_long $g = 0x10;
+def_int $h = 0x7FFFFFFF;
+def_long $i = 0x80000000;
+
+// Large numeric literals
+def_long $j = 2147483648;
+def_long $k = -2147483649;
+
+// Context-aware literals in calc
+def_long $l = calc(1 + 1);
+def_long $m = calc($d + 1);
+
+// Literals assigned to non-literal types (symbol resolution)
+def_locshape $n = 1;
+def_npc $o = 100; // Expect: '100' could not be resolved to a symbol.
+
+// Invalid numeric values (overflow for the target type)
+def_int $p = 2147483648; // Expect: Integer value is out of range for type 'int'.
+
 // Expect: Type mismatch: 'int,int' was given but 'int,long' was expected.
-return(1, 1);
+return(1, long_to_int(1));

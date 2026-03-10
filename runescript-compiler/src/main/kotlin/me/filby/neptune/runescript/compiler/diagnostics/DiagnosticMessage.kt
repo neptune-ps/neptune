@@ -33,6 +33,7 @@ public object DiagnosticMessage {
     public const val GENERIC_TYPE_MISMATCH: String = "Type mismatch: '%s' was given but '%s' was expected."
     public const val GENERIC_UNRESOLVED_SYMBOL: String = "'%s' could not be resolved to a symbol."
     public const val ARITHMETIC_INVALID_TYPE: String = "Type mismatch: '%s' was given but 'int' or 'long' was expected."
+    public const val INTEGER_VALUE_OUT_OF_RANGE: String = "Integer value is out of range for type '%s'."
 
     // script node specific
     public const val SCRIPT_REDECLARATION: String = "[%s,%s] is already defined."

@@ -266,10 +266,14 @@ public class AstBuilder(private val source: String, private val lineOffset: Int,
     override fun visitConstantVariable(ctx: ConstantVariableContext): Node =
         ConstantVariableExpression(ctx.location, ctx.advancedIdentifier().visit())
 
-    override fun visitIntegerLiteral(ctx: IntegerLiteralContext): Node = IntegerLiteral(ctx.location, ctx.text.toInt())
+    override fun visitIntegerLiteral(ctx: IntegerLiteralContext): Node = IntegerLiteral(
+        ctx.location,
+        ctx.text,
+        radix = IntegerLiteral.RADIX_DECIMAL,
+    )
 
     override fun visitHexLiteral(ctx: HexLiteralContext): Node =
-        IntegerLiteral(ctx.location, ctx.text.substring(2).toLong(16).toInt())
+        IntegerLiteral(ctx.location, ctx.text.substring(2), radix = IntegerLiteral.RADIX_HEXADECIMAL)
 
     override fun visitCoordLiteral(ctx: RuneScriptParser.CoordLiteralContext): Node {
         val text = ctx.text

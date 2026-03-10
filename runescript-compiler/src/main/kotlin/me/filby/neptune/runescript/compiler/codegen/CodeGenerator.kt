@@ -406,6 +406,7 @@ public class CodeGenerator(
     private fun resolveConstantValue(expression: Expression): Any? = when (expression) {
         is ConstantVariableExpression -> expression.subExpression?.let { resolveConstantValue(it) }
         is Identifier -> expression.reference
+        is IntegerLiteral -> expression.reference ?: expression.numberValue
         is Literal<*> -> expression.reference ?: expression.value
         else -> null
     }
@@ -748,11 +749,15 @@ public class CodeGenerator(
         }
 
         if (integerLiteral.type == PrimitiveType.STRING) {
-            instruction(Opcode.PushConstantString, integerLiteral.value.toString())
+            instruction(Opcode.PushConstantString, integerLiteral.value)
             return
         }
 
-        instruction(Opcode.PushConstantInt, integerLiteral.value)
+        when (val numberValue = integerLiteral.numberValue) {
+            is Int -> instruction(Opcode.PushConstantInt, numberValue)
+            is Long -> instruction(Opcode.PushConstantLong, numberValue)
+            else -> error("Number value is not an Int or Long: $numberValue")
+        }
     }
 
     override fun visitCoordLiteral(coordLiteral: CoordLiteral) {

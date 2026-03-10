@@ -36,8 +36,38 @@ public sealed class Literal<T>(source: NodeSourceLocation, public val value: T) 
  * 123456
  * ```
  */
-public class IntegerLiteral(source: NodeSourceLocation, value: Int) : Literal<Int>(source, value) {
+public class IntegerLiteral(source: NodeSourceLocation, value: String, public val radix: Int) :
+    Literal<String>(source, value) {
+    /**
+     * The numeric value of this literal. If `null` the value hasn't been parsed yet.
+     */
+    public var numberValue: Number? = null
+
     override fun <R> accept(visitor: AstVisitor<R>): R = visitor.visitIntegerLiteral(this)
+
+    override fun hashCode(): Int = Objects.hash(value, radix)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        if (other !is IntegerLiteral) {
+            return false
+        }
+
+        return value == other.value && radix == other.radix
+    }
+
+    override fun toString(): String = MoreObjects.toStringHelper(this)
+        .add("value", value)
+        .add("radix", radix)
+        .toString()
+
+    public companion object {
+        public const val RADIX_DECIMAL: Int = 10
+        public const val RADIX_HEXADECIMAL: Int = 16
+    }
 }
 
 /**

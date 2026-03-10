@@ -99,3 +99,17 @@ assert_equals_long(int_to_long(1), $a);
 $a = int_to_long(0);
 assert_equals_long(int_to_long(3), calc(++$a + int_to_long(2)));
 assert_equals_long(int_to_long(1), $a);
+
+[test,hex_literals]
+// int hex tests
+assert_equals(-1, 0xFFFFFFFF);
+assert_equals(2147483647, 0x7FFFFFFF);
+assert_equals(-2147483648, 0x80000000);
+assert_equals(255, 0xFF);
+
+// long hex tests
+assert_equals_long(-1, 0xFFFFFFFFFFFFFFFF);
+assert_equals_long(2147483647, 0x7FFFFFFF);
+assert_equals_long(4294967295, 0xFFFFFFFF);
+assert_equals_long(9223372036854775807, 0x7FFFFFFFFFFFFFFF);
+assert_equals_long(-9223372036854775808, 0x8000000000000000);
