@@ -117,6 +117,7 @@ class ClientScriptCompiler(
         addDynamicCommandHandler("nc_param", ParamCommandHandler(ScriptVarType.NPC))
         addDynamicCommandHandler("lc_param", ParamCommandHandler(ScriptVarType.LOC))
         addDynamicCommandHandler("struct_param", ParamCommandHandler(ScriptVarType.STRUCT))
+        addDynamicCommandHandler("inv_param", ParamCommandHandler(ScriptVarType.INV))
         addDynamicCommandHandler("if_param", IfParamCommandHandler(cc = false))
         addDynamicCommandHandler("cc_param", IfParamCommandHandler(cc = true), dot = true)
         addDynamicCommandHandler("if_setparam", IfSetParamCommandHandler(cc = false))
