@@ -728,7 +728,7 @@ public class CodeGenerator(
             when (type.baseType) {
                 BaseVarType.INTEGER -> 'i'
                 BaseVarType.STRING -> 's'
-                BaseVarType.LONG -> 'l'
+                BaseVarType.LONG -> 'Ï'
                 BaseVarType.ARRAY -> type.code
                 null -> null
             }
