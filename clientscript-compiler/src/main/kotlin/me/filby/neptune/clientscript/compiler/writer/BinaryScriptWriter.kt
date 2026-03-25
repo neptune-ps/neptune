@@ -30,9 +30,9 @@ import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
  */
 abstract class BinaryScriptWriter(
     idProvider: IdProvider,
-    features: ClientScriptCompilerFeatureSet,
+    override val features: ClientScriptCompilerFeatureSet,
     private val allocator: ByteBufAllocator = ByteBufAllocator.DEFAULT,
-) : BaseScriptWriter<BinaryScriptWriterContext>(idProvider, features) {
+) : BaseScriptWriter<BinaryScriptWriterContext>(idProvider) {
     /**
      * Handles the binary output of [script] where [data] is the script in a binary format.
      *
@@ -50,7 +50,7 @@ abstract class BinaryScriptWriter(
     }
 
     override fun createContext(script: RuneScript): BinaryScriptWriterContext =
-        BinaryScriptWriterContext(script, allocator, features.arraysV2)
+        BinaryScriptWriterContext(script, allocator, features.arraysV2, features.longSupport)
 
     override fun BinaryScriptWriterContext.enterBlock(block: Block) {
         // NO-OP
@@ -65,7 +65,7 @@ abstract class BinaryScriptWriter(
     }
 
     override fun BinaryScriptWriterContext.writePushConstantLong(value: Long) {
-        error("Not supported.")
+        instruction(ClientScriptOpcode.PUSH_CONSTANT_LONG, value)
     }
 
     override fun BinaryScriptWriterContext.writePushConstantSymbol(value: Symbol) {
@@ -89,6 +89,7 @@ abstract class BinaryScriptWriter(
         val op = when (symbol.type.baseType?.stackType) {
             StackType.OBJECT -> ClientScriptOpcode.PUSH_STRING_LOCAL
             StackType.INTEGER -> ClientScriptOpcode.PUSH_INT_LOCAL
+            StackType.LONG -> ClientScriptOpcode.PUSH_LONG_LOCAL
             else -> error(symbol)
         }
         instruction(op, id)
@@ -99,6 +100,7 @@ abstract class BinaryScriptWriter(
         val op = when (symbol.type.baseType?.stackType) {
             StackType.OBJECT -> ClientScriptOpcode.POP_STRING_LOCAL
             StackType.INTEGER -> ClientScriptOpcode.POP_INT_LOCAL
+            StackType.LONG -> ClientScriptOpcode.POP_LONG_LOCAL
             else -> error(symbol)
         }
         instruction(op, id)
@@ -112,6 +114,7 @@ abstract class BinaryScriptWriter(
             is VarClientType -> when (type.inner.baseType) {
                 BaseVarType.INTEGER -> ClientScriptOpcode.PUSH_VARC_INT
                 BaseVarType.STRING -> ClientScriptOpcode.PUSH_VARC_STRING
+                BaseVarType.LONG -> ClientScriptOpcode.PUSH_VARC_LONG
                 else -> error(type.inner)
             }
             is VarClanType -> ClientScriptOpcode.PUSH_VARCLAN
@@ -129,6 +132,7 @@ abstract class BinaryScriptWriter(
             is VarClientType -> when (type.inner.baseType) {
                 BaseVarType.INTEGER -> ClientScriptOpcode.POP_VARC_INT
                 BaseVarType.STRING -> ClientScriptOpcode.POP_VARC_STRING
+                BaseVarType.LONG -> ClientScriptOpcode.POP_VARC_LONG
                 else -> error(type.inner)
             }
             else -> error(symbol)
@@ -183,6 +187,12 @@ abstract class BinaryScriptWriter(
             Opcode.BranchGreaterThan -> ClientScriptOpcode.BRANCH_GREATER_THAN
             Opcode.BranchLessThanOrEquals -> ClientScriptOpcode.BRANCH_LESS_THAN_OR_EQUALS
             Opcode.BranchGreaterThanOrEquals -> ClientScriptOpcode.BRANCH_GREATER_THAN_OR_EQUALS
+            Opcode.LongBranchNot -> ClientScriptOpcode.LONG_BRANCH_NOT
+            Opcode.LongBranchEquals -> ClientScriptOpcode.LONG_BRANCH_EQUALS
+            Opcode.LongBranchLessThan -> ClientScriptOpcode.LONG_BRANCH_LESS_THAN
+            Opcode.LongBranchGreaterThan -> ClientScriptOpcode.LONG_BRANCH_GREATER_THAN
+            Opcode.LongBranchLessThanOrEquals -> ClientScriptOpcode.LONG_BRANCH_LESS_THAN_OR_EQUALS
+            Opcode.LongBranchGreaterThanOrEquals -> ClientScriptOpcode.LONG_BRANCH_GREATER_THAN_OR_EQUALS
             else -> error(opcode)
         }
         val jumpLocation = jumpTable[label] ?: error("Label not found: $label")
@@ -197,6 +207,7 @@ abstract class BinaryScriptWriter(
         val op = when (baseType) {
             BaseVarType.INTEGER -> ClientScriptOpcode.POP_INT_DISCARD
             BaseVarType.STRING -> ClientScriptOpcode.POP_STRING_DISCARD
+            BaseVarType.LONG -> ClientScriptOpcode.POP_LONG_DISCARD
             else -> error(baseType)
         }
         instruction(op, 0)
@@ -230,6 +241,13 @@ abstract class BinaryScriptWriter(
             Opcode.Modulo -> ClientScriptOpcode.MODULO
             Opcode.Or -> ClientScriptOpcode.OR
             Opcode.And -> ClientScriptOpcode.AND
+            Opcode.LongAdd -> ClientScriptOpcode.LONG_ADD
+            Opcode.LongSub -> ClientScriptOpcode.LONG_SUB
+            Opcode.LongMultiply -> ClientScriptOpcode.LONG_MULTIPLY
+            Opcode.LongDivide -> ClientScriptOpcode.LONG_DIVIDE
+            Opcode.LongModulo -> ClientScriptOpcode.LONG_MODULO
+            Opcode.LongOr -> ClientScriptOpcode.LONG_OR
+            Opcode.LongAnd -> ClientScriptOpcode.LONG_AND
             else -> error(opcode)
         }
         instruction(op, 0)

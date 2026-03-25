@@ -16,8 +16,8 @@ import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
 import me.filby.neptune.runescript.runtime.impl.opcodes.BaseCoreOpcodes
 import kotlin.code
 
-internal class TestScriptWriter(private val scriptManager: ScriptManager, features: CompilerFeatureSet) :
-    BaseScriptWriter<TestScriptWriterContext>(scriptManager, features) {
+internal class TestScriptWriter(private val scriptManager: ScriptManager, override val features: CompilerFeatureSet) :
+    BaseScriptWriter<TestScriptWriterContext>(scriptManager) {
     override fun finishWrite(script: RuneScript, context: TestScriptWriterContext) {
         scriptManager.add(script.trigger, context.build())
     }

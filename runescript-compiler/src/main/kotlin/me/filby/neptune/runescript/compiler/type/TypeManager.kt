@@ -88,6 +88,18 @@ public class TypeManager {
     }
 
     /**
+     * Searches for all types with the given [baseType] and allows changing the [TypeOptions]
+     */
+    public fun changeOptions(baseType: BaseVarType, builder: TypeBuilder) {
+        for (type in nameToType.values) {
+            if (type.baseType == baseType) {
+                val options = type.options as MutableTypeOptions
+                options.builder()
+            }
+        }
+    }
+
+    /**
      * Finds a type by [name]. If [allowArray] is enabled, names ending with `array`
      * will attempt to find and wrap the type with [ArrayType].
      *

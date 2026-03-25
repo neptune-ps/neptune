@@ -13,6 +13,7 @@ class BinaryScriptWriterContext(
     script: RuneScript,
     private val allocator: ByteBufAllocator,
     private val arraysV2: Boolean,
+    private val longSupport: Boolean,
 ) : BaseScriptWriter.BaseScriptWriterContext(script) {
     /**
      * The buffer that contains all instruction information.
@@ -51,6 +52,12 @@ class BinaryScriptWriterContext(
         instructionBuffer.writeString(operand)
     }
 
+    fun instruction(opcode: ClientScriptOpcode, operand: Long) {
+        instructionCount += 1
+        instructionBuffer.writeShort(opcode.id)
+        instructionBuffer.writeLong(operand)
+    }
+
     fun switch(id: Int, block: () -> Int) {
         instruction(ClientScriptOpcode.SWITCH, id)
 
@@ -75,8 +82,14 @@ class BinaryScriptWriterContext(
         buf.writeInt(instructionCount)
         buf.writeShort(locals.getLocalCount(StackType.INTEGER, arraysV2))
         buf.writeShort(locals.getLocalCount(StackType.OBJECT, arraysV2))
+        if (longSupport) {
+            buf.writeShort(locals.getLocalCount(StackType.LONG, arraysV2))
+        }
         buf.writeShort(locals.getParameterCount(StackType.INTEGER, arraysV2))
         buf.writeShort(locals.getParameterCount(StackType.OBJECT, arraysV2))
+        if (longSupport) {
+            buf.writeShort(locals.getParameterCount(StackType.LONG, arraysV2))
+        }
         buf.writeByte(script.switchTables.size)
         buf.writeBytes(switchBuffer)
         buf.writeShort(switchBufferSize + 1)

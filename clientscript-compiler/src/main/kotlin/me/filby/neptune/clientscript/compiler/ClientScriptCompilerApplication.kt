@@ -142,6 +142,7 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
             "prefix_postfix_expressions" to "prefixPostfixExpressions",
             "arrays_v2" to "arraysV2",
             "simplified_type_codes" to "simplifiedTypeCodes",
+            "long_support" to "longSupport",
         )
         mapping<BinaryFileWriterConfig>("output" to "outputPath")
     }
@@ -165,6 +166,7 @@ private fun getDefaultFeaturesForVersion(versionProperty: TomlValue?): ClientScr
         prefixPostfixExpressions = false,
         arraysV2 = version >= 231,
         simplifiedTypeCodes = version >= 231,
+        longSupport = version >= 237,
     )
 }
 

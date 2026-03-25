@@ -8,4 +8,5 @@ data class ClientScriptCompilerFeatureSet(
     override val prefixPostfixExpressions: Boolean,
     override val arraysV2: Boolean,
     override val simplifiedTypeCodes: Boolean,
+    val longSupport: Boolean,
 ) : CompilerFeatureSet

@@ -32,6 +32,7 @@ import me.filby.neptune.clientscript.compiler.type.IfScriptType
 import me.filby.neptune.clientscript.compiler.type.ParamType
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.ScriptCompiler
+import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.Type
@@ -61,8 +62,13 @@ class ClientScriptCompiler(
         // register types
         types.registerAll<ScriptVarType>()
         types.register("param", ParamCommandHandler.PARAM_ANY)
-        types.changeOptions("long") {
-            allowDeclaration = false
+
+        if (!features.longSupport) {
+            types.changeOptions(BaseVarType.LONG) {
+                allowDeclaration = false
+                allowSwitch = false
+                allowDeclaration = false
+            }
         }
 
         // special types for commands

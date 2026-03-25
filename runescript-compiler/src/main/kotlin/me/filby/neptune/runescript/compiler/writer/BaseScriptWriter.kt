@@ -22,10 +22,11 @@ import java.util.TreeMap
  * A basic implementation of [ScriptWriter] with some utility functions for writing
  * a script.
  */
-public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(
-    public val idProvider: IdProvider,
-    protected val features: CompilerFeatureSet,
-) : ScriptWriter {
+public abstract class BaseScriptWriter<T : BaseScriptWriterContext>(public val idProvider: IdProvider) : ScriptWriter {
+    // abstract property so implementations can define a subtype of CompilerFeatureSet
+    // and still use it without needing to cast.
+    protected abstract val features: CompilerFeatureSet
+
     override fun write(script: RuneScript) {
         createContext(script).use { context ->
             for (block in script.blocks) {
