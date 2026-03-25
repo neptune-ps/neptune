@@ -89,9 +89,9 @@ class IfRunScriptCommandHandler : DynamicCommandHandler {
         val code = when (type.baseType) {
             BaseVarType.INTEGER -> 'i'
             BaseVarType.STRING -> 's'
-            BaseVarType.LONG -> 'l'
+            // BaseVarType.LONG -> 'Ï'
             BaseVarType.ARRAY -> '*'
-            null -> null
+            else -> null
         }
         return code ?: error("Invalid char code for type: ${type.representation}")
     }
