@@ -111,10 +111,10 @@ abstract class BinaryScriptWriter(
         val opcode = when (val type = symbol.type) {
             is VarPlayerType -> ClientScriptOpcode.PUSH_VARP
             is VarBitType -> ClientScriptOpcode.PUSH_VARBIT
-            is VarClientType -> when (type.inner.baseType) {
-                BaseVarType.INTEGER -> ClientScriptOpcode.PUSH_VARC_INT
-                BaseVarType.STRING -> ClientScriptOpcode.PUSH_VARC_STRING
-                BaseVarType.LONG -> ClientScriptOpcode.PUSH_VARC_LONG
+            is VarClientType -> when (type.inner.baseType?.stackType) {
+                StackType.INTEGER -> ClientScriptOpcode.PUSH_VARC_INT
+                StackType.OBJECT -> ClientScriptOpcode.PUSH_VARC_STRING
+                StackType.LONG -> ClientScriptOpcode.PUSH_VARC_LONG
                 else -> error(type.inner)
             }
             is VarClanType -> ClientScriptOpcode.PUSH_VARCLAN
@@ -129,10 +129,10 @@ abstract class BinaryScriptWriter(
         val opcode = when (val type = symbol.type) {
             is VarPlayerType -> ClientScriptOpcode.POP_VARP
             is VarBitType -> ClientScriptOpcode.POP_VARBIT
-            is VarClientType -> when (type.inner.baseType) {
-                BaseVarType.INTEGER -> ClientScriptOpcode.POP_VARC_INT
-                BaseVarType.STRING -> ClientScriptOpcode.POP_VARC_STRING
-                BaseVarType.LONG -> ClientScriptOpcode.POP_VARC_LONG
+            is VarClientType -> when (type.inner.baseType?.stackType) {
+                StackType.INTEGER -> ClientScriptOpcode.POP_VARC_INT
+                StackType.OBJECT -> ClientScriptOpcode.POP_VARC_STRING
+                StackType.LONG -> ClientScriptOpcode.POP_VARC_LONG
                 else -> error(type.inner)
             }
             else -> error(symbol)
