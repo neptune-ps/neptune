@@ -93,6 +93,9 @@ public object DiagnosticMessage {
     public const val CONSTANT_PARSE_ERROR: String = "Unable to parse constant value of '%s' into type '%s'."
     public const val CONSTANT_NONCONSTANT: String = "Constant value of '%s' evaluated to a non-constant expression."
 
+    // null literal specific
+    public const val NULL_AMBIGUOUS: String = "Cannot infer type of 'null' from context."
+
     // prefix/postfix operator specific
     public const val FIX_INVALID_VARIABLE_KIND: String = "%s operator '%s' cannot be applied to arrays."
     public const val FIX_OPERATOR_INVALID_TYPE: String = "%s operator '%s' cannot be applied to type '%s'."

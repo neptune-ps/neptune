@@ -78,6 +78,11 @@ if (true) {
 // Empty statement
 ;
 
+// Expression statement that is just a NullLiteral, this is disallowed because there is
+// nothing to type hint the null literal to.
+// Expect: Cannot infer type of 'null' from context.
+null;
+
 // dummy proc that returns multiple things
 [proc,tuple]()(boolean,boolean)
 

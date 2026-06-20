@@ -1028,7 +1028,8 @@ public class TypeChecking(
             nullLiteral.type = hint
             return
         }
-        nullLiteral.type = PrimitiveType.INT
+        nullLiteral.type = MetaType.Error
+        nullLiteral.reportError(DiagnosticMessage.NULL_AMBIGUOUS)
     }
 
     override fun visitStringLiteral(stringLiteral: StringLiteral) {
