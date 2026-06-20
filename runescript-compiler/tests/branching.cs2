@@ -42,8 +42,8 @@ if (0 <= 0 & 0 >= 0) {
 
 [test,long_branching]
 // unable to make long literals at the time of writing this, so need to create variables with default val
-def_long $a;
-def_long $b;
+def_long $a = 0;
+def_long $b = 0;
 
 // test long equal operator
 if ($a = $b) {
@@ -68,6 +68,76 @@ if ($a <= $b & $a >= $b) {
     // pass
 } else {
     error("Long branch test failed.");
+}
+
+[test,long_null_inference]
+def_long $a = null;
+
+// null on left, $a drives the type
+if (null = $a) {
+    // pass
+} else {
+    error("Null type inference failed.");
+}
+
+// null on right
+if ($a = null) {
+    // pass
+} else {
+    error("Null type inference failed.");
+}
+
+[test,long_literal_inference]
+def_long $a = 0;
+
+// literal on left, long var on right
+if (0 = $a) {
+    // pass
+} else {
+    error("Long literal inference failed.");
+}
+
+// relational, literal on left
+if (0 <= $a & $a >= 0) {
+    // pass
+} else {
+    error("Long literal inference failed.");
+}
+
+// large literal that exceeds int range on left
+if (2147483648 > $a | $a < 2147483648) {
+    // pass
+} else {
+    error("Long literal inference failed.");
+}
+
+[test,long_calc_inference]
+def_long $a = 0;
+
+// calc infers long from inner var, literal infers long from calc result
+if (calc($a + 1) = 1) {
+    // pass
+} else {
+    error("Calc long inference failed.");
+}
+
+if (calc($a + 1) > 0) {
+    // pass
+} else {
+    error("Calc long inference failed.");
+}
+
+// literal on left inside calc, long var drives the type
+if (calc(1 + $a) = 1) {
+    // pass
+} else {
+    error("Calc long inference failed.");
+}
+
+if (calc($a + 1) > $a) {
+    // pass
+} else {
+    error("Calc long inference failed.");
 }
 
 [test,complex_branching]

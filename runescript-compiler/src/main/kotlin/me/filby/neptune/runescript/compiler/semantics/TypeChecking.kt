@@ -483,24 +483,7 @@ public class TypeChecking(
             else -> null
         }
 
-        // if required type is set we should type hint with those, otherwise use the opposite
-        // sides type as a hint.
-        if (allowedTypes != null) {
-            left.typeHint = allowedTypes.first()
-            right.typeHint = allowedTypes.first()
-        } else {
-            // assign the type hints using the opposite side if it isn't already assigned.
-            left.typeHint = if (left.typeHint != null) left.typeHint else right.nullableType
-            right.typeHint = if (right.typeHint != null) right.typeHint else left.nullableType
-        }
-
-        // TODO better logic for this to allow things such as 'if (null ! $var)', should also revisit the above
-        // visit left side to get the type for hinting to the right side if needed
-        left.visit()
-
-        // type hint right if not already hinted to the left type and then visit
-        right.typeHint = right.typeHint ?: left.type
-        right.visit()
+        visitHintedPair(left, right)
 
         // verify the left and right type only return 1 type that is not 'unit'.
         if (left.type is TupleType || right.type is TupleType) {
@@ -565,26 +548,22 @@ public class TypeChecking(
         val right = arithmeticExpression.right
         val operator = arithmeticExpression.operator
 
-        // arithmetic expression only expect int or long return types, but just allow
-        val expectedType = when (val hint = arithmeticExpression.typeHint) {
-            null -> PrimitiveType.INT
-            else -> hint
+        val hint = arithmeticExpression.typeHint
+        if (hint != null) {
+            left.typeHint = hint
+            left.visit()
+
+            right.typeHint = hint
+            right.visit()
+        } else {
+            visitHintedPair(left, right)
         }
-
-        // visit left-hand side
-        left.typeHint = expectedType
-        left.visit()
-
-        // visit right-hand side
-        right.typeHint = expectedType
-        right.visit()
 
         // verify if both sides are int or long and are of the same type
         if (
             !checkTypeMatchAny(left, ALLOWED_ARITHMETIC_TYPES, left.type) ||
             !checkTypeMatchAny(left, ALLOWED_ARITHMETIC_TYPES, right.type) ||
-            !checkTypeMatch(left, expectedType, left.type, reportError = false) ||
-            !checkTypeMatch(right, expectedType, right.type, reportError = false)
+            !checkTypeMatch(left, left.type, right.type, reportError = false)
         ) {
             operator.reportError(
                 DiagnosticMessage.BINOP_INVALID_TYPES,
@@ -596,15 +575,42 @@ public class TypeChecking(
             return
         }
 
-        arithmeticExpression.type = expectedType
+        arithmeticExpression.type = left.type
+    }
+
+    private fun visitHintedPair(left: Expression, right: Expression) {
+        // visit the side with a concrete type first so it can hint the other.
+        // if neither has a concrete type, left visits first by default.
+        if (left.hasConcreteType() || !right.hasConcreteType()) {
+            left.visit()
+            right.typeHint = left.type
+            right.visit()
+        } else {
+            right.visit()
+            left.typeHint = right.type
+            left.visit()
+        }
+    }
+
+    private fun Expression.hasConcreteType(): Boolean = when (this) {
+        is CommandCallExpression -> true
+        is ProcCallExpression -> true
+        is ConditionExpression -> true
+        is GameVariableExpression -> true
+        is LocalVariableExpression -> true
+        is JoinedStringExpression -> true
+        is StringLiteral -> true
+        is CharacterLiteral -> true
+        is CoordLiteral -> true
+        is ParenthesizedExpression -> expression.hasConcreteType()
+        else -> false
     }
 
     override fun visitCalcExpression(calcExpression: CalcExpression) {
-        val typeHint = calcExpression.typeHint ?: PrimitiveType.INT
         val innerExpression = calcExpression.expression
 
         // hint to the expression that we expect an int
-        innerExpression.typeHint = typeHint
+        innerExpression.typeHint = calcExpression.typeHint
         innerExpression.visit()
 
         // verify type is an int

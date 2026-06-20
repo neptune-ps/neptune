@@ -3,3 +3,33 @@ def_string $text = null;
 if (compare($text, "null") ! 0) {
     error("$text does not equal \"null\".");
 }
+
+[test,null_npc_inference]
+def_npc $a = hans;
+def_npc $b = null;
+
+// null on right, npc drives the type
+if ($a ! null) {
+    // pass
+} else {
+    error("Null npc inference failed.");
+}
+
+// null on left, npc drives the type
+if (null ! $a) {
+    // pass
+} else {
+    error("Null npc inference failed.");
+}
+
+if ($b = null) {
+    // pass
+} else {
+    error("Null npc inference failed.");
+}
+
+if (null = $b) {
+    // pass
+} else {
+    error("Null npc inference failed.");
+}
