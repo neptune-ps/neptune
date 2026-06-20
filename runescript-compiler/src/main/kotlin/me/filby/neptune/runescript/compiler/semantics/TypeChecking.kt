@@ -821,6 +821,7 @@ public class TypeChecking(
         val indexExpression = localVariableExpression.index
         if (symbol.type is ArrayType && indexExpression != null) {
             // visit the index to set the type of any references
+            indexExpression.typeHint = PrimitiveType.INT
             indexExpression.visit()
             checkTypeMatch(indexExpression, PrimitiveType.INT, indexExpression.type)
 
