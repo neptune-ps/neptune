@@ -610,7 +610,6 @@ public class TypeChecking(
     override fun visitCalcExpression(calcExpression: CalcExpression) {
         val innerExpression = calcExpression.expression
 
-        // hint to the expression that we expect an int
         innerExpression.typeHint = calcExpression.typeHint
         innerExpression.visit()
 
