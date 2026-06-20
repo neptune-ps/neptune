@@ -22,7 +22,7 @@ public enum class PrimitiveType(
         allowSwitch = false
     }),
     CHAR('z', defaultValue = -1),
-    LONG('Ï', BaseVarType.LONG, defaultValue = -1L, {
+    LONG('Ï', BaseVarType.LONG, defaultValue = 0L, {
         allowArray = false
         allowSwitch = false
     }),
