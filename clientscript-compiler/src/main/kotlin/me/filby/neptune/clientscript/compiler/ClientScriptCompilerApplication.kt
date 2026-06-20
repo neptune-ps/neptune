@@ -20,6 +20,7 @@ import me.filby.neptune.clientscript.compiler.configuration.BinaryFileWriterConf
 import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerConfig
 import me.filby.neptune.clientscript.compiler.configuration.ClientScriptCompilerFeatureSet
 import me.filby.neptune.clientscript.compiler.writer.BinaryFileScriptWriter
+import me.filby.neptune.clientscript.compiler.writer.BinaryScriptWriter.DebugMode
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -81,7 +82,7 @@ class ClientScriptCommand : CliktCommand(name = "cs2") {
         val mapper = SymbolMapper()
         val writer = if (binaryWriterConfig != null) {
             val outputPath = basePath.resolve(binaryWriterConfig.outputPath)
-            BinaryFileScriptWriter(outputPath, mapper, features)
+            BinaryFileScriptWriter(outputPath, mapper, sourcePaths, binaryWriterConfig.debugMode, features)
         } else {
             null
         }
@@ -144,7 +145,16 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
             "simplified_type_codes" to "simplifiedTypeCodes",
             "long_support" to "longSupport",
         )
-        mapping<BinaryFileWriterConfig>("output" to "outputPath")
+        mapping<BinaryFileWriterConfig>("output" to "outputPath", "debug" to "debugMode")
+
+        decoder { it: TomlValue.String ->
+            when (it.value) {
+                "none" -> DebugMode.NONE
+                "name" -> DebugMode.NAME
+                "full" -> DebugMode.FULL
+                else -> pass()
+            }
+        }
     }
     logger.info { "Loading configuration from $configPath." }
     return tomlMapper.decode<ClientScriptCompilerConfig>(document)

@@ -3,14 +3,20 @@ package me.filby.neptune.clientscript.compiler.writer
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufAllocator
 import me.filby.neptune.clientscript.compiler.ClientScriptOpcode
+import me.filby.neptune.clientscript.compiler.writer.BinaryScriptWriter.DebugMode
 import me.filby.neptune.runescript.compiler.codegen.script.RuneScript
 import me.filby.neptune.runescript.compiler.type.StackType
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter.Companion.getLocalCount
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter.Companion.getParameterCount
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.relativeTo
 
 class BinaryScriptWriterContext(
     script: RuneScript,
+    private val sourcePaths: List<Path>,
+    private val debugMode: DebugMode,
     private val allocator: ByteBufAllocator,
     private val arraysV2: Boolean,
     private val longSupport: Boolean,
@@ -77,7 +83,7 @@ class BinaryScriptWriterContext(
         val locals = script.locals
         val switchBufferSize = switchBuffer.writerIndex()
 
-        buf.writeString(script.fullName)
+        buf.writeString(script.debugInfo())
         buf.writeBytes(instructionBuffer)
         buf.writeInt(instructionCount)
         buf.writeShort(locals.getLocalCount(StackType.INTEGER, arraysV2))
@@ -98,7 +104,7 @@ class BinaryScriptWriterContext(
 
     private fun calculateBufferSize(): Int {
         var size = 0
-        size += script.fullName.length + 1
+        size += script.debugInfo().length + 1
         size += instructionBuffer.readableBytes()
         size += 4 // instruction count
         size += 2 * 4 // local var counts
@@ -118,6 +124,28 @@ class BinaryScriptWriterContext(
             writeByte(wideToCp1252(char))
         }
         writeByte(0)
+    }
+
+    private fun RuneScript.debugInfo(): String = when (debugMode) {
+        DebugMode.NONE -> ""
+        DebugMode.NAME -> fullName
+        DebugMode.FULL -> "${relativeSource()} $fullName"
+    }
+
+    private fun RuneScript.relativeSource(): String {
+        val sourcePath = try {
+            Path(sourceName)
+        } catch (_: Exception) {
+            return sourceName
+        }
+
+        for (root in sourcePaths) {
+            if (sourcePath.startsWith(root)) {
+                // note: for consistency, always use `/` for path separator
+                return sourcePath.relativeTo(root).joinToString("/")
+            }
+        }
+        return sourceName
     }
 
     private companion object {

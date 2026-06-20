@@ -20,9 +20,11 @@ import kotlin.io.path.outputStream
 class BinaryFileScriptWriter(
     private val output: Path,
     idProvider: IdProvider,
+    sourcePaths: List<Path>,
+    debugMode: DebugMode,
     features: ClientScriptCompilerFeatureSet,
     allocator: ByteBufAllocator = ByteBufAllocator.DEFAULT,
-) : BinaryScriptWriter(idProvider, features, allocator) {
+) : BinaryScriptWriter(idProvider, sourcePaths, debugMode, features, allocator) {
     init {
         if (output.notExists()) {
             output.createDirectories()

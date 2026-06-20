@@ -23,6 +23,7 @@ import me.filby.neptune.runescript.compiler.type.wrapped.VarClanType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarClientType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarPlayerType
 import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
+import java.nio.file.Path
 
 /**
  * A `ScriptWriter` implementation that writes to a [ByteBuf]. Implementations
@@ -30,9 +31,28 @@ import me.filby.neptune.runescript.compiler.writer.BaseScriptWriter
  */
 abstract class BinaryScriptWriter(
     idProvider: IdProvider,
+    private val sourcePaths: List<Path>,
+    private val debugMode: DebugMode,
     override val features: ClientScriptCompilerFeatureSet,
     private val allocator: ByteBufAllocator = ByteBufAllocator.DEFAULT,
 ) : BaseScriptWriter<BinaryScriptWriterContext>(idProvider) {
+    enum class DebugMode {
+        /**
+         * No debug information is included.
+         */
+        NONE,
+
+        /**
+         * Include only the script name.
+         */
+        NAME,
+
+        /**
+         * Includes the source path and script name.
+         */
+        FULL,
+    }
+
     /**
      * Handles the binary output of [script] where [data] is the script in a binary format.
      *
@@ -49,8 +69,14 @@ abstract class BinaryScriptWriter(
         }
     }
 
-    override fun createContext(script: RuneScript): BinaryScriptWriterContext =
-        BinaryScriptWriterContext(script, allocator, features.arraysV2, features.longSupport)
+    override fun createContext(script: RuneScript): BinaryScriptWriterContext = BinaryScriptWriterContext(
+        script,
+        sourcePaths,
+        debugMode,
+        allocator,
+        features.arraysV2,
+        features.longSupport,
+    )
 
     override fun BinaryScriptWriterContext.enterBlock(block: Block) {
         // NO-OP
