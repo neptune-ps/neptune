@@ -14,6 +14,11 @@ assert_equals(503,  calc($a | $b));
 assert_equals(4,    calc($a & $b));
 assert_equals(1014, calc($a + ~return_self_int(calc($a + $b)) + $b));
 
+// check type inference with constant first and concrete type on right side
+if (calc(^max_32bit_int - $a * $b) ! 2147480147) {
+    error("Expected 2147480147");
+}
+
 [proc,return_self_int](int $num)(int)
 return($num);
 

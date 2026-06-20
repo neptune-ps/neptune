@@ -596,6 +596,7 @@ public class TypeChecking(
         is CommandCallExpression -> true
         is ProcCallExpression -> true
         is ConditionExpression -> true
+        is ArithmeticExpression -> left.hasConcreteType() || right.hasConcreteType()
         is GameVariableExpression -> true
         is LocalVariableExpression -> true
         is JoinedStringExpression -> true
