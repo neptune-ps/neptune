@@ -107,7 +107,7 @@ class BinaryScriptWriterContext(
         size += script.debugInfo().length + 1
         size += instructionBuffer.readableBytes()
         size += 4 // instruction count
-        size += 2 * 4 // local var counts
+        size += if (longSupport) 2 * 6 else 2 * 4 // local var counts
         size += 1 // switch table count
         size += switchBuffer.readableBytes()
         size += 2 // switch buffer size
