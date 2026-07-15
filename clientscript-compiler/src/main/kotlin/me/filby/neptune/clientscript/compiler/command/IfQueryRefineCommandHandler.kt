@@ -1,13 +1,13 @@
 package me.filby.neptune.clientscript.compiler.command
 
 import me.filby.neptune.clientscript.compiler.type.ParamType
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.configuration.command.CodeGeneratorContext
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
 class IfQueryRefineCommandHandler : DynamicCommandHandler {
@@ -22,7 +22,7 @@ class IfQueryRefineCommandHandler : DynamicCommandHandler {
             paramReturnType ?: MetaType.Any,
         )
         checkArgumentTypes(expectedTypes)
-        expression.type = PrimitiveType.INT
+        expression.type = ScriptVarType.INT
     }
 
     override fun CodeGeneratorContext.generateCode() {

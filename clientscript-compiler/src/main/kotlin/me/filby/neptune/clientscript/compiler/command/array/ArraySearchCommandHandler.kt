@@ -7,7 +7,6 @@ import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommand
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
@@ -28,8 +27,8 @@ class ArraySearchCommandHandler : DynamicCommandHandler {
         val arrayExprType = arrayExpr?.type
         val arrayExprInnerType = (arrayExprType as? ArrayType)?.inner
         checkArgument(1, arrayExprInnerType)
-        checkArgument(2, PrimitiveType.INT)
-        checkArgument(3, PrimitiveType.INT)
+        checkArgument(2, ScriptVarType.INT)
+        checkArgument(3, ScriptVarType.INT)
 
         // check the base signature matches
         if (checkArgumentTypes(BASE_EXPECTED_TYPES) && arrayExprType is ArrayType) {
@@ -40,11 +39,11 @@ class ArraySearchCommandHandler : DynamicCommandHandler {
             } else {
                 arrayExprType.inner
             }
-            val expectedTypes = TupleType(arrayExprType, searchType, PrimitiveType.INT, PrimitiveType.INT)
+            val expectedTypes = TupleType(arrayExprType, searchType, ScriptVarType.INT, ScriptVarType.INT)
             checkArgumentTypes(expectedTypes)
         }
 
-        expression.type = PrimitiveType.INT
+        expression.type = ScriptVarType.INT
     }
 
     override fun CodeGeneratorContext.generateCode() {
@@ -60,8 +59,8 @@ class ArraySearchCommandHandler : DynamicCommandHandler {
         val BASE_EXPECTED_TYPES = TupleType(
             ArrayType(MetaType.Any),
             MetaType.Any,
-            PrimitiveType.INT,
-            PrimitiveType.INT,
+            ScriptVarType.INT,
+            ScriptVarType.INT,
         )
     }
 }

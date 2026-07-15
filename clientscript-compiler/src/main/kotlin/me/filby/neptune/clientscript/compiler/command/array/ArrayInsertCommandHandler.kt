@@ -1,12 +1,12 @@
 package me.filby.neptune.clientscript.compiler.command.array
 
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.configuration.command.CodeGeneratorContext
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
@@ -25,12 +25,12 @@ class ArrayInsertCommandHandler : DynamicCommandHandler {
         val arrayExprType = arrayExpr?.type
         val arrayExprInnerType = (arrayExprType as? ArrayType)?.inner
         checkArgument(1, arrayExprInnerType)
-        checkArgument(2, PrimitiveType.INT)
+        checkArgument(2, ScriptVarType.INT)
 
         // check the base signature matches
         if (checkArgumentTypes(BASE_EXPECTED_TYPES) && arrayExprType is ArrayType) {
             // expect (array<T>, T, int)
-            val expectedTypes = TupleType(arrayExprType, arrayExprType.inner, PrimitiveType.INT)
+            val expectedTypes = TupleType(arrayExprType, arrayExprType.inner, ScriptVarType.INT)
             checkArgumentTypes(expectedTypes)
         }
 
@@ -50,7 +50,7 @@ class ArrayInsertCommandHandler : DynamicCommandHandler {
         val BASE_EXPECTED_TYPES = TupleType(
             ArrayType(MetaType.Any),
             MetaType.Any,
-            PrimitiveType.INT,
+            ScriptVarType.INT,
         )
     }
 }

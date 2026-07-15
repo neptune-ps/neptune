@@ -11,7 +11,6 @@ import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingCo
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 
@@ -32,12 +31,12 @@ class IfRunScriptCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         val ifScript = checkArgument(0, IF_SCRIPT_ANY)
         val com = checkArgument(1, ScriptVarType.COMPONENT)
-        checkArgument(2, PrimitiveType.INT)
+        checkArgument(2, ScriptVarType.INT)
 
         val expectedTypesList = arrayListOf(
             IF_SCRIPT_ANY,
             ScriptVarType.COMPONENT,
-            PrimitiveType.INT,
+            ScriptVarType.INT,
         )
 
         if (checkArgumentTypes(TupleType.fromList(expectedTypesList))) {

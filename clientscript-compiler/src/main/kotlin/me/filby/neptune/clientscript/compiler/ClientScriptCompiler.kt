@@ -34,7 +34,6 @@ import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.ScriptCompiler
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.VarBitType
 import me.filby.neptune.runescript.compiler.type.wrapped.VarClanSettingsType
@@ -53,7 +52,7 @@ class ClientScriptCompiler(
     features: ClientScriptCompilerFeatureSet,
     private val symbolPaths: List<Path>,
     private val mapper: SymbolMapper,
-) : ScriptCompiler(sourcePaths, libraryPaths, scriptWriter, features) {
+) : ScriptCompiler(sourcePaths, libraryPaths, scriptWriter, features, ClientScriptCompilerBuiltins) {
     fun setup() {
         val features = features as ClientScriptCompilerFeatureSet
 
@@ -104,8 +103,8 @@ class ClientScriptCompiler(
 
         // treat varp as alias of varp<int>
         types.addTypeChecker { left, right ->
-            (left is VarPlayerType && left.inner == PrimitiveType.INT && right == ScriptVarType.VARP) ||
-                (left == ScriptVarType.VARP && right is VarPlayerType && right.inner == PrimitiveType.INT)
+            (left is VarPlayerType && left.inner == ScriptVarType.INT && right == ScriptVarType.VARP) ||
+                (left == ScriptVarType.VARP && right is VarPlayerType && right.inner == ScriptVarType.INT)
         }
 
         // register the dynamic command handlers
@@ -157,16 +156,16 @@ class ClientScriptCompiler(
             addDynamicCommandHandler("enum_getoutputs", EnumGetInputsOutputsCommandHandler())
         }
 
-        addDynamicCommandHandler("event_opbase", PlaceholderCommand(PrimitiveType.STRING, "event_opbase"))
-        addDynamicCommandHandler("event_mousex", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 1))
-        addDynamicCommandHandler("event_mousey", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 2))
+        addDynamicCommandHandler("event_opbase", PlaceholderCommand(ScriptVarType.STRING, "event_opbase"))
+        addDynamicCommandHandler("event_mousex", PlaceholderCommand(ScriptVarType.INT, Int.MIN_VALUE + 1))
+        addDynamicCommandHandler("event_mousey", PlaceholderCommand(ScriptVarType.INT, Int.MIN_VALUE + 2))
         addDynamicCommandHandler("event_com", PlaceholderCommand(ScriptVarType.COMPONENT, Int.MIN_VALUE + 3))
-        addDynamicCommandHandler("event_op", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 4))
-        addDynamicCommandHandler("event_comsubid", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 5))
+        addDynamicCommandHandler("event_op", PlaceholderCommand(ScriptVarType.INT, Int.MIN_VALUE + 4))
+        addDynamicCommandHandler("event_comsubid", PlaceholderCommand(ScriptVarType.INT, Int.MIN_VALUE + 5))
         addDynamicCommandHandler("event_com2", PlaceholderCommand(ScriptVarType.COMPONENT, Int.MIN_VALUE + 6))
-        addDynamicCommandHandler("event_comsubid2", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 7))
-        addDynamicCommandHandler("event_keycode", PlaceholderCommand(PrimitiveType.INT, Int.MIN_VALUE + 8))
-        addDynamicCommandHandler("event_keychar", PlaceholderCommand(PrimitiveType.CHAR, Int.MIN_VALUE + 9))
+        addDynamicCommandHandler("event_comsubid2", PlaceholderCommand(ScriptVarType.INT, Int.MIN_VALUE + 7))
+        addDynamicCommandHandler("event_keycode", PlaceholderCommand(ScriptVarType.INT, Int.MIN_VALUE + 8))
+        addDynamicCommandHandler("event_keychar", PlaceholderCommand(ScriptVarType.CHAR, Int.MIN_VALUE + 9))
 
         addDynamicCommandHandler("dump", DumpCommandHandler())
         addDynamicCommandHandler("script", ScriptCommandHandler())
@@ -228,11 +227,11 @@ class ClientScriptCompiler(
         addSymLoader("synth", ScriptVarType.SYNTH)
         addSymLoader("texture", ScriptVarType.TEXTURE)
         addSymLoader("toplevelinterface", ScriptVarType.TOPLEVELINTERFACE)
-        addSymLoader("varbit", VarBitType)
+        addSymLoader("varbit", VarBitType(ScriptVarType.INT))
         addSymLoader("varc", typeSupplier = { VarClientType(it) })
         addSymLoader("varclan", typeSupplier = { VarClanType(it) })
         addSymLoader("varclansetting", typeSupplier = { VarClanSettingsType(it) })
-        addSymLoader("varcstr", typeSupplier = { VarClientType(PrimitiveType.STRING) })
+        addSymLoader("varcstr", typeSupplier = { VarClientType(ScriptVarType.STRING) })
         addSymLoader("varp", typeSupplier = { VarPlayerType(it) })
         addSymLoader("vorbis", ScriptVarType.VORBIS)
         addSymLoader("wma", ScriptVarType.MAPAREA)

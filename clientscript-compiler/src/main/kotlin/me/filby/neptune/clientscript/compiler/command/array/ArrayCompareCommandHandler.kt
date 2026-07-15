@@ -1,10 +1,10 @@
 package me.filby.neptune.clientscript.compiler.command.array
 
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
@@ -29,7 +29,7 @@ class ArrayCompareCommandHandler : DynamicCommandHandler {
             checkArgumentTypes(expectedTypes)
         }
 
-        expression.type = PrimitiveType.INT
+        expression.type = ScriptVarType.INT
     }
 
     private companion object {

@@ -14,7 +14,6 @@ import me.filby.neptune.runescript.compiler.symbol.SymbolTable
 import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.trigger.TriggerManager
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TypeManager
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 import me.filby.neptune.runescript.compiler.type.wrapped.WrappedType
@@ -33,6 +32,7 @@ public open class ScriptCompiler(
     libraryPaths: List<Path>,
     private val scriptWriter: ScriptWriter?,
     public open val features: CompilerFeatureSet,
+    private val builtins: CompilerBuiltins,
 ) {
     /**
      * Logger for this class.
@@ -81,7 +81,6 @@ public open class ScriptCompiler(
 
     init {
         // register the core types
-        types.registerAll<PrimitiveType>()
         types.register(MetaType.Any)
         types.register("type", MetaType.Type(MetaType.Any))
         if (features.arraysV2) {
@@ -265,7 +264,7 @@ public open class ScriptCompiler(
         // script registration: this adds all scripts to the symbol table for lookup in the next phase
         logger.debug { "Starting script registration" }
         val scriptRegistrationTime = measureTimeMillis {
-            val scriptRegistration = ScriptRegistration(types, triggers, rootTable, diagnostics, features)
+            val scriptRegistration = ScriptRegistration(types, triggers, rootTable, diagnostics, features, builtins)
             for (file in files) {
                 val time = measureTimeMillis {
                     file.accept(scriptRegistration)
@@ -278,7 +277,15 @@ public open class ScriptCompiler(
         // type check: this does all major type checking
         logger.debug { "Starting type checking" }
         val typeCheckingTime = measureTimeMillis {
-            val typeChecking = TypeChecking(types, triggers, rootTable, dynamicCommandHandlers, diagnostics, features)
+            val typeChecking = TypeChecking(
+                types,
+                triggers,
+                rootTable,
+                dynamicCommandHandlers,
+                diagnostics,
+                features,
+                builtins,
+            )
             for (file in files) {
                 val time = measureTimeMillis {
                     file.accept(typeChecking)
@@ -310,7 +317,7 @@ public open class ScriptCompiler(
         val codegenTime = measureTimeMillis {
             for (file in files) {
                 val time = measureTimeMillis {
-                    val codegen = CodeGenerator(rootTable, dynamicCommandHandlers, diagnostics, features)
+                    val codegen = CodeGenerator(rootTable, dynamicCommandHandlers, diagnostics, features, builtins)
                     file.accept(codegen)
                     scripts.addAll(codegen.scripts)
                 }

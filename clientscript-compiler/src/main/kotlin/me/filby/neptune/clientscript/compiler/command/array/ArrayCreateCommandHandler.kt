@@ -1,10 +1,10 @@
 package me.filby.neptune.clientscript.compiler.command.array
 
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
@@ -21,8 +21,8 @@ class ArrayCreateCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         val typeExpr = checkTypeArgument(0)
         val type = typeExpr?.type as? MetaType.Type
-        checkArgument(1, PrimitiveType.INT)
-        checkArgument(2, PrimitiveType.INT)
+        checkArgument(1, ScriptVarType.INT)
+        checkArgument(2, ScriptVarType.INT)
 
         // check the base signature matches
         if (!checkArgumentTypes(BASE_EXPECTED_TYPES) || type == null) {
@@ -36,8 +36,8 @@ class ArrayCreateCommandHandler : DynamicCommandHandler {
     private companion object {
         val BASE_EXPECTED_TYPES = TupleType(
             MetaType.Type(MetaType.Any),
-            PrimitiveType.INT,
-            PrimitiveType.INT,
+            ScriptVarType.INT,
+            ScriptVarType.INT,
         )
     }
 }

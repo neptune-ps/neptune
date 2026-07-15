@@ -1,13 +1,13 @@
 package me.filby.neptune.clientscript.compiler.command
 
 import me.filby.neptune.clientscript.compiler.type.DbColumnType
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.configuration.command.CodeGeneratorContext
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
 class DbFindCommandHandler(private val withCount: Boolean) : DynamicCommandHandler {
@@ -34,7 +34,7 @@ class DbFindCommandHandler(private val withCount: Boolean) : DynamicCommandHandl
         }
 
         // set the return type
-        expression.type = if (withCount) PrimitiveType.INT else MetaType.Unit
+        expression.type = if (withCount) ScriptVarType.INT else MetaType.Unit
     }
 
     override fun CodeGeneratorContext.generateCode() {

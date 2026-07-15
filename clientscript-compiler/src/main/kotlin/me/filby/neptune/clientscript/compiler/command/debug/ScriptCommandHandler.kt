@@ -1,5 +1,6 @@
 package me.filby.neptune.clientscript.compiler.command.debug
 
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.configuration.command.CodeGeneratorContext
@@ -7,7 +8,6 @@ import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommand
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 
 /**
  * Dynamic command handler that replaces the call with a string constant containing
@@ -16,7 +16,7 @@ import me.filby.neptune.runescript.compiler.type.PrimitiveType
 class ScriptCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         checkArgumentTypes(MetaType.Unit)
-        expression.type = PrimitiveType.STRING
+        expression.type = ScriptVarType.STRING
     }
 
     override fun CodeGeneratorContext.generateCode() {

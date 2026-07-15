@@ -7,7 +7,6 @@ import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommand
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
 /**
@@ -16,19 +15,19 @@ import me.filby.neptune.runescript.compiler.type.TupleType
 class CcCreateCommandHandler : DynamicCommandHandler {
     override fun TypeCheckingContext.typeCheck() {
         checkArgument(0, ScriptVarType.COMPONENT) // layer
-        checkArgument(1, PrimitiveType.INT) // type
-        checkArgument(2, PrimitiveType.INT) // subid
-        val requireNew = checkArgument(3, PrimitiveType.BOOLEAN)
+        checkArgument(1, ScriptVarType.INT) // type
+        checkArgument(2, ScriptVarType.INT) // subid
+        val requireNew = checkArgument(3, ScriptVarType.BOOLEAN)
 
         val expectedTypes = mutableListOf(
             ScriptVarType.COMPONENT,
-            PrimitiveType.INT,
-            PrimitiveType.INT,
+            ScriptVarType.INT,
+            ScriptVarType.INT,
         )
 
         // if a 4th argument is supplied then we want to make sure it's a boolean
         if (requireNew != null) {
-            expectedTypes += PrimitiveType.BOOLEAN
+            expectedTypes += ScriptVarType.BOOLEAN
         }
 
         checkArgumentTypes(TupleType.fromList(expectedTypes))
