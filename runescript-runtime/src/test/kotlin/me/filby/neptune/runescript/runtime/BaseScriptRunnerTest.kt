@@ -1,6 +1,5 @@
 package me.filby.neptune.runescript.runtime
 
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.runtime.impl.BaseScriptRunner
 import me.filby.neptune.runescript.runtime.impl.ScriptProvider
 import me.filby.neptune.runescript.runtime.impl.opcodes.BaseCoreOpcodes
@@ -76,7 +75,7 @@ class BaseScriptRunnerTest {
 
             // def_int $array(2);
             instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT, 2)
-            instruction(BaseCoreOpcodes.DEFINE_ARRAY, (arrayId shl 16) or PrimitiveType.INT.code!!.code)
+            instruction(BaseCoreOpcodes.DEFINE_ARRAY, (arrayId shl 16) or INT_CODE)
 
             // $array(0) = 1337;
             instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT, 0)
@@ -118,7 +117,7 @@ class BaseScriptRunnerTest {
 
             // def_string $array(2);
             instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT, 2)
-            instruction(BaseCoreOpcodes.DEFINE_ARRAY, (arrayId shl 16) or PrimitiveType.STRING.code!!.code)
+            instruction(BaseCoreOpcodes.DEFINE_ARRAY, (arrayId shl 16) or STRING_CODE)
 
             // $array(0) = "Hello world!";
             instruction(BaseCoreOpcodes.PUSH_CONSTANT_INT, 0)
@@ -149,6 +148,16 @@ class BaseScriptRunnerTest {
     }
 
     private companion object {
+        /**
+         * The char code for the basic `int` type.
+         */
+        private const val INT_CODE = 'i'.code
+
+        /**
+         * The char code for the basic `string` type.
+         */
+        private const val STRING_CODE = 's'.code
+
         val scriptProvider = object : ScriptProvider {
             override fun get(id: Int): Script {
                 error("unsupported")

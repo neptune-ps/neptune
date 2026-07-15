@@ -1,5 +1,6 @@
 package me.filby.neptune.runescript.compiler.type
 
+import me.filby.neptune.runescript.compiler.ScriptVarType
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 
@@ -8,40 +9,40 @@ class TypeTest {
     fun testTupleType() {
         val type = TupleType(
             TupleType(
-                PrimitiveType.INT,
-                PrimitiveType.STRING,
-                PrimitiveType.STRING,
+                ScriptVarType.INT,
+                ScriptVarType.STRING,
+                ScriptVarType.STRING,
             ),
-            PrimitiveType.STRING,
+            ScriptVarType.STRING,
             TupleType(
-                PrimitiveType.INT,
-                PrimitiveType.STRING,
+                ScriptVarType.INT,
+                ScriptVarType.STRING,
             ),
-            PrimitiveType.LONG,
-            PrimitiveType.BOOLEAN,
+            ScriptVarType.LONG,
+            ScriptVarType.BOOLEAN,
             TupleType(
                 TupleType(
-                    PrimitiveType.LONG,
-                    PrimitiveType.BOOLEAN,
+                    ScriptVarType.LONG,
+                    ScriptVarType.BOOLEAN,
                 ),
-                PrimitiveType.INT,
+                ScriptVarType.INT,
             ),
         )
 
         // test if tuple type flattens properly
         assertContentEquals(
             arrayOf(
-                PrimitiveType.INT,
-                PrimitiveType.STRING,
-                PrimitiveType.STRING,
-                PrimitiveType.STRING,
-                PrimitiveType.INT,
-                PrimitiveType.STRING,
-                PrimitiveType.LONG,
-                PrimitiveType.BOOLEAN,
-                PrimitiveType.LONG,
-                PrimitiveType.BOOLEAN,
-                PrimitiveType.INT,
+                ScriptVarType.INT,
+                ScriptVarType.STRING,
+                ScriptVarType.STRING,
+                ScriptVarType.STRING,
+                ScriptVarType.INT,
+                ScriptVarType.STRING,
+                ScriptVarType.LONG,
+                ScriptVarType.BOOLEAN,
+                ScriptVarType.LONG,
+                ScriptVarType.BOOLEAN,
+                ScriptVarType.INT,
             ),
             type.children,
         )

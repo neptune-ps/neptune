@@ -8,7 +8,6 @@ import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommand
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 
@@ -30,7 +29,7 @@ class IfSetParamCommandHandler(private val cc: Boolean) : DynamicCommandHandler 
         checkArgument(1, paramReturnType)
         if (!cc) {
             checkArgument(2, ScriptVarType.COMPONENT)
-            checkArgument(3, PrimitiveType.INT)
+            checkArgument(3, ScriptVarType.INT)
         }
 
         // define the expected types based on what is currently known
@@ -48,7 +47,7 @@ class IfSetParamCommandHandler(private val cc: Boolean) : DynamicCommandHandler 
                     ParamCommandHandler.PARAM_ANY,
                     paramReturnType,
                     ScriptVarType.COMPONENT,
-                    PrimitiveType.INT,
+                    ScriptVarType.INT,
                 )
             } else {
                 TupleType(ParamCommandHandler.PARAM_ANY, paramReturnType)
@@ -78,7 +77,7 @@ class IfSetParamCommandHandler(private val cc: Boolean) : DynamicCommandHandler 
             ParamCommandHandler.PARAM_ANY,
             MetaType.Any,
             ScriptVarType.COMPONENT,
-            PrimitiveType.INT,
+            ScriptVarType.INT,
         )
         val CC_BASE_EXPECTED_TYPES = TupleType(ParamCommandHandler.PARAM_ANY, MetaType.Any)
     }

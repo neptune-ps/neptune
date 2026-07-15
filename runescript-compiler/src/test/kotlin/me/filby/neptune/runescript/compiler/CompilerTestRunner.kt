@@ -15,7 +15,6 @@ import me.filby.neptune.runescript.compiler.symbol.SymbolType
 import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.trigger.TestTriggerType
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.VarBitType
@@ -70,7 +69,9 @@ private fun testScriptFile(scriptFile: File): Boolean {
         emptyList(),
         writer,
         features,
+        TestScriptBuiltins,
     )
+    compiler.types.registerAll<ScriptVarType>()
     compiler.triggers.registerAll<TestTriggerType>()
     compiler.addSymbolLoader(CommandSymbolLoader())
 
@@ -177,10 +178,10 @@ private fun createRuntime(scriptManager: ScriptManager, features: TestCompilerFe
 private class CommandSymbolLoader : SymbolLoader {
     override fun SymbolTable.load(compiler: ScriptCompiler) {
         // fake config symbols
-        addBasic(VarPlayerType(PrimitiveType.INT), "varp")
-        addBasic(VarBitType, "varbit")
-        addBasic(VarClientType(PrimitiveType.INT), "varc")
-        addBasic(VarClientType(PrimitiveType.STRING), "varcstr")
+        addBasic(VarPlayerType(ScriptVarType.INT), "varp")
+        addBasic(VarBitType(ScriptVarType.INT), "varbit")
+        addBasic(VarClientType(ScriptVarType.INT), "varc")
+        addBasic(VarClientType(ScriptVarType.STRING), "varcstr")
         addBasic(compiler.types.find("npc"), "hans")
         addBasic(compiler.types.find("npc"), "complex npc name")
         addBasic(compiler.types.find("locshape"), "1")
@@ -200,25 +201,25 @@ private class CommandSymbolLoader : SymbolLoader {
         // general commands
         addCommand("jump", compiler.types.find("label"), MetaType.Nothing)
         addCommand("gosub", compiler.types.find("proc"))
-        addCommand("println", PrimitiveType.STRING)
-        addCommand("tostring", PrimitiveType.INT, PrimitiveType.STRING)
-        addCommand("int_to_long", PrimitiveType.INT, PrimitiveType.LONG)
-        addCommand("long_to_int", PrimitiveType.LONG, PrimitiveType.INT)
-        addCommand("compare", TupleType(PrimitiveType.STRING, PrimitiveType.STRING), PrimitiveType.INT)
+        addCommand("println", ScriptVarType.STRING)
+        addCommand("tostring", ScriptVarType.INT, ScriptVarType.STRING)
+        addCommand("int_to_long", ScriptVarType.INT, ScriptVarType.LONG)
+        addCommand("long_to_int", ScriptVarType.LONG, ScriptVarType.INT)
+        addCommand("compare", TupleType(ScriptVarType.STRING, ScriptVarType.STRING), ScriptVarType.INT)
 
         // special commands that are only intended on testing semantic checker and are not intended to be run
         addCommand("call_label_with_args", MetaType.Script(TestTriggerType.LABEL, MetaType.Any, MetaType.Nothing))
 
         // test specific commands
         // TODO implement the argument checks better once dynamic command handling is added to compiler
-        addCommand("error", PrimitiveType.STRING)
-        addCommand("assert_equals", TupleType(PrimitiveType.INT, PrimitiveType.INT))
+        addCommand("error", ScriptVarType.STRING)
+        addCommand("assert_equals", TupleType(ScriptVarType.INT, ScriptVarType.INT))
         addCommand("assert_equals_obj", TupleType(MetaType.Any, MetaType.Any))
-        addCommand("assert_equals_long", TupleType(PrimitiveType.LONG, PrimitiveType.LONG))
+        addCommand("assert_equals_long", TupleType(ScriptVarType.LONG, ScriptVarType.LONG))
         addCommand("assert_not", TupleType(MetaType.Any, MetaType.Any))
         addCommand("assert_not_obj", TupleType(MetaType.Any, MetaType.Any))
-        addCommand("assert_not_long", TupleType(PrimitiveType.LONG, PrimitiveType.LONG))
-        addCommand("test_return_string", returns = PrimitiveType.STRING)
+        addCommand("assert_not_long", TupleType(ScriptVarType.LONG, ScriptVarType.LONG))
+        addCommand("test_return_string", returns = ScriptVarType.STRING)
     }
 
     fun SymbolTable.addCommand(name: String, parameters: Type = MetaType.Unit, returns: Type = MetaType.Unit) {

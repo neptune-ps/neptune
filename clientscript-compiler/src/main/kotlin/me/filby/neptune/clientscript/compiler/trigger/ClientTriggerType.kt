@@ -3,7 +3,6 @@ package me.filby.neptune.clientscript.compiler.trigger
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.trigger.SubjectMode
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 
@@ -27,31 +26,31 @@ enum class ClientTriggerType(
         15,
         subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT),
         allowParameters = true,
-        parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT),
+        parameters = TupleType(ScriptVarType.INT, ScriptVarType.INT),
     ),
     WORLDMAPELEMENTMOUSELEAVE(
         16,
         subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT),
         allowParameters = true,
-        parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT),
+        parameters = TupleType(ScriptVarType.INT, ScriptVarType.INT),
     ),
     WORLDMAPELEMENTMOUSEREPEAT(
         17,
         subjectMode = SubjectMode.Type(ScriptVarType.MAPELEMENT),
         allowParameters = true,
-        parameters = TupleType(PrimitiveType.INT, PrimitiveType.INT),
+        parameters = TupleType(ScriptVarType.INT, ScriptVarType.INT),
     ),
     INV_CHANGED(
         18,
         subjectMode = SubjectMode.Type(ScriptVarType.INV, category = false),
         allowParameters = true,
         parameters = TupleType(
-            PrimitiveType.INT,
-            PrimitiveType.INT,
-            PrimitiveType.INT,
+            ScriptVarType.INT,
+            ScriptVarType.INT,
+            ScriptVarType.INT,
             ScriptVarType.OBJ,
             ScriptVarType.OBJ,
-            PrimitiveType.INT,
+            ScriptVarType.INT,
         ),
     ),
     GCLIENTCLICKNPC(30),

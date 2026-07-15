@@ -5,6 +5,7 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Parameter
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
+import me.filby.neptune.runescript.compiler.CompilerBuiltins
 import me.filby.neptune.runescript.compiler.CompilerFeatureSet
 import me.filby.neptune.runescript.compiler.diagnostics.Diagnostic
 import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
@@ -25,7 +26,6 @@ import me.filby.neptune.runescript.compiler.trigger.TriggerManager
 import me.filby.neptune.runescript.compiler.trigger.TriggerType
 import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.TypeManager
@@ -40,6 +40,7 @@ internal class ScriptRegistration(
     private val rootTable: SymbolTable,
     private val diagnostics: Diagnostics,
     private val features: CompilerFeatureSet,
+    private val builtins: CompilerBuiltins,
 ) : AstVisitor<Unit> {
     /**
      * A stack of symbol tables to use through the script file.
@@ -319,7 +320,7 @@ internal class ScriptRegistration(
         // type isn't valid, report the error
         if (type == null) {
             parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)
-        } else if (!features.arraysV2 && type is ArrayType && type.inner == PrimitiveType.STRING) {
+        } else if (!features.arraysV2 && type is ArrayType && type.inner == builtins.string) {
             // manually disable stringarray since it is marked as allowed now but should
             // remain disabled for old arrays.
             parameter.reportError(DiagnosticMessage.GENERIC_INVALID_TYPE, typeText)

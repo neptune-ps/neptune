@@ -1,7 +1,10 @@
 package me.filby.neptune.clientscript.compiler.type
 
 import me.filby.neptune.runescript.compiler.type.BaseVarType
+import me.filby.neptune.runescript.compiler.type.MutableTypeOptions
 import me.filby.neptune.runescript.compiler.type.Type
+import me.filby.neptune.runescript.compiler.type.TypeBuilder
+import me.filby.neptune.runescript.compiler.type.TypeOptions
 
 @Suppress("ktlint:standard:spacing-between-declarations-with-comments")
 enum class ScriptVarType(
@@ -9,9 +12,10 @@ enum class ScriptVarType(
     override val baseType: BaseVarType = BaseVarType.INTEGER,
     override val defaultValue: Any? = -1,
     representation: String? = null,
+    builder: TypeBuilder? = null,
 ) : Type {
-    // INT
-    // BOOLEAN
+    INT('i', defaultValue = 0),
+    BOOLEAN('1', defaultValue = 0),
     HASH32('2'),
     QUEST(':'),
     QUESTHELP(';'),
@@ -31,7 +35,7 @@ enum class ScriptVarType(
     NPC_STAT('T'),
     WRITEINV('V'),
     MAPAREA('`', representation = "wma"),
-    // COORDGRID
+    COORDGRID('c', representation = "coord"),
     GRAPHIC('d'),
     CHATPHRASE('e'),
     FONTMETRICS('f'),
@@ -45,13 +49,16 @@ enum class ScriptVarType(
     OBJ('o'),
     PLAYER_UID('p'),
     REGION_UID('r'),
-    // STRING
+    STRING('s', BaseVarType.STRING, defaultValue = "", builder = {
+        allowArray = true
+        allowSwitch = false
+    }),
     SPOTANIM('t'),
     NPC_UID('u'),
     INV('v'),
     TEXTURE('x'),
     CATEGORY('y'),
-    // CHAR
+    CHAR('z'),
     LASER('|'),
     BAS('€'),
     CONTROLLER('ƒ'),
@@ -116,7 +123,10 @@ enum class ScriptVarType(
     TEMP_HISCORE_CONTRIBUTE_RESULT('à', representation = "temphiscorecontributeresult"),
     AUDIOGROUP('À'),
     AUDIOMIXBUSS('Ò', representation = "audiobuss"),
-    // LONG
+    LONG('Ï', BaseVarType.LONG, defaultValue = 0L, builder = {
+        allowArray = false
+        allowSwitch = false
+    }),
     CRM_CHANNEL('Ì'),
     HTTP_IMAGE('É'),
     POP_UP_DISPLAY_BEHAVIOUR('Ê', representation = "popupdisplaybehaviour"),
@@ -139,4 +149,5 @@ enum class ScriptVarType(
     ;
 
     override val representation: String = representation ?: name.lowercase()
+    override val options: TypeOptions = MutableTypeOptions().apply { builder?.invoke(this) }
 }

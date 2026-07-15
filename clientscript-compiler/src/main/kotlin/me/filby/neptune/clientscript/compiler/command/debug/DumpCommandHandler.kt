@@ -1,5 +1,6 @@
 package me.filby.neptune.clientscript.compiler.command.debug
 
+import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.clientscript.compiler.util.ExpressionGenerator
 import me.filby.neptune.runescript.compiler.codegen.Opcode
 import me.filby.neptune.runescript.compiler.configuration.command.CodeGeneratorContext
@@ -10,7 +11,6 @@ import me.filby.neptune.runescript.compiler.trigger.CommandTrigger
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 
@@ -38,7 +38,7 @@ class DumpCommandHandler : DynamicCommandHandler {
             }
         }
 
-        expression.type = PrimitiveType.STRING
+        expression.type = ScriptVarType.STRING
     }
 
     override fun CodeGeneratorContext.generateCode() {
@@ -70,7 +70,7 @@ class DumpCommandHandler : DynamicCommandHandler {
     }
 
     private fun CodeGeneratorContext.typeToString(type: Type) {
-        val conversionCommandName = if (type == PrimitiveType.STRING) {
+        val conversionCommandName = if (type == ScriptVarType.STRING) {
             "escape"
         } else if (type.baseType == BaseVarType.INTEGER) {
             "tostring"

@@ -43,6 +43,7 @@ import me.filby.neptune.runescript.ast.statement.IfStatement
 import me.filby.neptune.runescript.ast.statement.ReturnStatement
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
+import me.filby.neptune.runescript.compiler.CompilerBuiltins
 import me.filby.neptune.runescript.compiler.CompilerFeatureSet
 import me.filby.neptune.runescript.compiler.codegen.script.Block
 import me.filby.neptune.runescript.compiler.codegen.script.Label
@@ -70,7 +71,6 @@ import me.filby.neptune.runescript.compiler.triggerType
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.BaseVarType
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
@@ -83,6 +83,7 @@ public class CodeGenerator(
     private val dynamicCommands: MutableMap<String, DynamicCommandHandler>,
     private val diagnostics: Diagnostics,
     private val features: CompilerFeatureSet,
+    private val builtins: CompilerBuiltins,
 ) : AstVisitor<Unit> {
     /**
      * An instance of a [LabelGenerator] used to created labels within the instance.
@@ -214,7 +215,7 @@ public class CodeGenerator(
 
         val types = TupleType.toList(script.returnType)
         for (type in types) {
-            if (type == PrimitiveType.INT) {
+            if (type == builtins.int) {
                 instruction(Opcode.PushConstantInt, 0)
             } else if (type.baseType == BaseVarType.INTEGER) {
                 instruction(Opcode.PushConstantInt, -1)
@@ -604,7 +605,7 @@ public class CodeGenerator(
         }
 
         when (variable.type) {
-            PrimitiveType.INT -> {
+            builtins.int -> {
                 // push the constant value of 1
                 instruction(Opcode.PushConstantInt, 1)
 
@@ -615,7 +616,7 @@ public class CodeGenerator(
                     instruction(Opcode.Sub)
                 }
             }
-            PrimitiveType.LONG -> {
+            builtins.long -> {
                 // push the constant value of 1
                 instruction(Opcode.PushConstantLong, 1L)
 
@@ -748,7 +749,7 @@ public class CodeGenerator(
             return
         }
 
-        if (integerLiteral.type == PrimitiveType.STRING) {
+        if (integerLiteral.type == builtins.string) {
             instruction(Opcode.PushConstantString, integerLiteral.value)
             return
         }
@@ -768,7 +769,7 @@ public class CodeGenerator(
     override fun visitBooleanLiteral(booleanLiteral: BooleanLiteral) {
         booleanLiteral.lineInstruction()
 
-        if (booleanLiteral.type == PrimitiveType.STRING) {
+        if (booleanLiteral.type == builtins.string) {
             instruction(Opcode.PushConstantString, booleanLiteral.value.toString())
             return
         }
@@ -846,7 +847,7 @@ public class CodeGenerator(
         identifier.lineInstruction()
 
         val reference = identifier.reference
-        if (reference == null && identifier.type == PrimitiveType.STRING) {
+        if (reference == null && identifier.type == builtins.string) {
             // this is for when the identifier is just being treated as a string literal
             instruction(Opcode.PushConstantString, identifier.text)
             return

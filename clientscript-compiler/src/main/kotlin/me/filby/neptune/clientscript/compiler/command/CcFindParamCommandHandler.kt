@@ -8,7 +8,6 @@ import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommand
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
 class CcFindParamCommandHandler : DynamicCommandHandler {
@@ -43,7 +42,7 @@ class CcFindParamCommandHandler : DynamicCommandHandler {
         }
 
         checkArgumentTypes(expectedTypes)
-        expression.type = PrimitiveType.BOOLEAN
+        expression.type = ScriptVarType.BOOLEAN
     }
 
     override fun CodeGeneratorContext.generateCode() {

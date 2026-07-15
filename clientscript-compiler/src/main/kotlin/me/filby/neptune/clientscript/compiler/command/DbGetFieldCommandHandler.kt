@@ -6,7 +6,6 @@ import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommand
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.PrimitiveType
 import me.filby.neptune.runescript.compiler.type.TupleType
 
 /**
@@ -27,7 +26,7 @@ class DbGetFieldCommandHandler : DynamicCommandHandler {
         val columnExpr = checkArgument(1, DbColumnType(MetaType.Any))
 
         // check field id as int
-        checkArgument(2, PrimitiveType.INT)
+        checkArgument(2, ScriptVarType.INT)
 
         // typehint the second argument using the dbcolumn type if it was valid
         val columnReturnType = (columnExpr?.type as? DbColumnType)?.inner
@@ -36,7 +35,7 @@ class DbGetFieldCommandHandler : DynamicCommandHandler {
         val expectedTypes = TupleType(
             ScriptVarType.DBROW,
             DbColumnType(columnReturnType ?: MetaType.Any),
-            PrimitiveType.INT,
+            ScriptVarType.INT,
         )
 
         // compare the expected types with the actual types

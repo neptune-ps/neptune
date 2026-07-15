@@ -86,10 +86,10 @@ public data class TypeCheckingContext(
      * Example:
      * ```
      * // check the argument with a type hint of obj
-     * checkArgument(0, typeHint = PrimitiveType.OBJ)
+     * checkArgument(0, typeHint = ScriptVarType.OBJ)
      *
      * // verify the types match, if mismatch let the function report the error
-     * checkArgumentTypes(expected = PrimitiveType.OBJ)
+     * checkArgumentTypes(expected = ScriptVarType.OBJ)
      * ```
      *
      * @see checkTypeArgument
@@ -166,10 +166,10 @@ public data class TypeCheckingContext(
      * Then it if verifying that the arguments passed to the command actually matches a single `int`.
      * ```
      * // check the argument while type hinting it as an int
-     * checkArgument(0, typeHint = PrimitiveType.INT)
+     * checkArgument(0, typeHint = ScriptVarType.INT)
      *
      * // actually verify the arguments match to a single int
-     * checkArgumentTypes(expected = PrimitiveType.INT)
+     * checkArgumentTypes(expected = ScriptVarType.INT)
      * ```
      */
     public fun checkArgumentTypes(expected: Type, reportError: Boolean = true, args2: Boolean = false): Boolean {
