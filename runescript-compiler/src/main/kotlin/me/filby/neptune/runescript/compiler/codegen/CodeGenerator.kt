@@ -826,11 +826,42 @@ public class CodeGenerator(
     }
 
     override fun visitJoinedStringExpression(joinedStringExpression: JoinedStringExpression) {
-        joinedStringExpression.parts.visit()
+        val parts = joinedStringExpression.parts
+        if (features.foldJoinedStringConstants) {
+            val constant = StringBuilder()
+            var segments = 0
+            for ((index, part) in parts.withIndex()) {
+                part.lineInstruction()
+                when (part) {
+                    is BasicStringPart -> {
+                        constant.append(part.value)
+                        if (index == parts.lastIndex || parts[index + 1] !is BasicStringPart) {
+                            instruction(Opcode.PushConstantString, constant.toString())
+                            constant.clear()
+                            segments++
+                        }
+                    }
+                    is ExpressionStringPart -> {
+                        // ExpressionStringPart(ConstantVariableExpression) is still processed here on purpose, as they
+                        // should not be included in the folded constant. OSRS-240 does not fold strings that come from
+                        // ^constants. RS3 folds strings, but it is unverified whether it makes the same exception.
+                        part.expression.visit()
+                        segments++
+                    }
+                }
+            }
 
-        if (joinedStringExpression.parts.size > 1) {
-            joinedStringExpression.lineInstruction()
-            instruction(Opcode.JoinString, joinedStringExpression.parts.size)
+            check(segments > 0) { "Expected at least one segment in joined string" }
+            if (segments > 1) {
+                joinedStringExpression.lineInstruction()
+                instruction(Opcode.JoinString, segments)
+            }
+        } else {
+            parts.visit()
+            if (parts.size > 1) {
+                joinedStringExpression.lineInstruction()
+                instruction(Opcode.JoinString, parts.size)
+            }
         }
     }
 
@@ -839,7 +870,6 @@ public class CodeGenerator(
         when (stringPart) {
             is BasicStringPart -> instruction(Opcode.PushConstantString, stringPart.value)
             is ExpressionStringPart -> stringPart.expression.visit()
-            else -> error("Unsupported StringPart: ${stringPart::class}")
         }
     }
 

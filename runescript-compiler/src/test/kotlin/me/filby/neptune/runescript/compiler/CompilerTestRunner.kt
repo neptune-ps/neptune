@@ -133,6 +133,7 @@ private fun parseCompilerFeatureSet(file: File): TestCompilerFeatureSet = file.u
             when (key) {
                 "prefix_postfix_expressions" -> featureSet.prefixPostfixExpressions = value.toBoolean()
                 "arrays_v2" -> featureSet.arraysV2 = value.toBoolean()
+                "fold_joined_string_constants" -> featureSet.foldJoinedStringConstants = value.toBoolean()
                 else -> error("Unknown feature '$key' in $file.")
             }
         } else if (line.startsWith("//")) {

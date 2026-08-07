@@ -1,0 +1,33 @@
+/// fold_joined_string_constants = true
+
+// Simple test that makes sure the folding still outputs the expected,
+// in this case the escaped tags are a single string constant, and
+// with fold_joined_string_constants enabled the latter one is too.
+// However, this is just testing functionality and not codegen output,
+// so these two strings will equal unless the folding somehow dropped
+// one of the string parts.
+[test,fold_joined_string_constants]
+def_string $a = "Hello";
+def_string $b = "world";
+
+// constants only -> folds to 1 segment, no JoinString at all
+assert_equals_obj("\<br>a\<br>b", "<br>a<br>b");
+
+// leading constant run, trailing expression
+assert_equals_obj("\<br>Hello", "<br><$a>");
+
+// leading expression, trailing constant run
+assert_equals_obj("Hello\<br>", "<$a><br>");
+
+// adjacent expressions with no constant between them
+assert_equals_obj("HelloworldHello", "<$a><$b><$a>");
+
+// single expression part -> 1 segment, no JoinString
+assert_equals_obj("Hello", "<$a>");
+
+// empty string, and a constant that resolves to a literal
+assert_equals_obj("", "");
+assert_equals_obj("\"Hello\"", "<^quote><$a><^quote>");
+
+// nested joined string inside an expression part
+assert_equals_obj("Hello world!", "<$a> <$b>!");

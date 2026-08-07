@@ -4,4 +4,5 @@ class TestCompilerFeatureSet : CompilerFeatureSet {
     override var prefixPostfixExpressions = false
     override var arraysV2 = false
     override val simplifiedTypeCodes: Boolean = false
+    override var foldJoinedStringConstants: Boolean = false
 }
