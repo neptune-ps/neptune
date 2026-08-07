@@ -1,0 +1,27 @@
+/// string_templates = true
+/// fold_joined_string_constants = true
+
+// Tests the `text_pronoun` string template, which is the only template
+// currently supported. Templates are emitted as a plain string constant
+// containing the raw template text, so the runtime value is the template
+// itself rather than anything evaluated by the compiler.
+[test,string_templates]
+def_string $a = "Hello";
+
+// a template on its own is the whole string
+assert_equals_obj("\<text_pronoun(he,she,they)>", "<text_pronoun(he,she,they)>");
+
+// the template body may contain quotes without ending the string
+assert_equals_obj("\<text_pronoun(sir,madam,\"\")>", "<text_pronoun(sir,madam,"")>");
+
+// surrounded by literal text
+assert_equals_obj("Good day, \<text_pronoun(sir,madam,friend)>!", "Good day, <text_pronoun(sir,madam,friend)>!");
+
+// adjacent to tags
+assert_equals_obj("\<col=ff0000>\<text_pronoun(he,she,they)>\</col>", "<col=ff0000><text_pronoun(he,she,they)></col>");
+
+// adjacent to an expression part
+assert_equals_obj("Hello \<text_pronoun(he,she,they)>", "<$a> <text_pronoun(he,she,they)>");
+
+// multiple templates within a single string
+assert_equals_obj("\<text_pronoun(he,she,they)> and \<text_pronoun(him,her,them)>", "<text_pronoun(he,she,they)> and <text_pronoun(him,her,them)>");

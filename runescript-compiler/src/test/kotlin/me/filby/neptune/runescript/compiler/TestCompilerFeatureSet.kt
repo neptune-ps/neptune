@@ -5,4 +5,5 @@ class TestCompilerFeatureSet : CompilerFeatureSet {
     override var arraysV2 = false
     override val simplifiedTypeCodes: Boolean = false
     override var foldJoinedStringConstants: Boolean = false
+    override var stringTemplates: Boolean = false
 }

@@ -235,7 +235,7 @@ public open class ScriptCompiler(
 
                 val time = measureTimeMillis {
                     val errorListener = ParserErrorListener(file.absolutePath, diagnostics)
-                    val node = ScriptParser.createScriptFile(file.toPath(), errorListener)
+                    val node = ScriptParser.createScriptFile(file.toPath(), errorListener, features.stringTemplates)
                     if (node != null) {
                         fileNodes += node
                     }

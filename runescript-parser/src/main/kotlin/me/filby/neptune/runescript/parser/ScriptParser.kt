@@ -13,26 +13,40 @@ import org.antlr.v4.runtime.ParserRuleContext
 import java.nio.file.Path
 
 public object ScriptParser {
-    public fun createScriptFile(input: Path, errorListener: ANTLRErrorListener? = null): ScriptFile? {
+    public fun createScriptFile(
+        input: Path,
+        errorListener: ANTLRErrorListener? = null,
+        stringTemplates: Boolean = false,
+    ): ScriptFile? {
         val absoluteNormalized = input.toAbsolutePath().normalize()
         return invokeParser(
             CharStreams.fromPath(absoluteNormalized),
             RuneScriptParser::scriptFile,
             errorListener,
+            stringTemplates = stringTemplates,
         ) as? ScriptFile
     }
 
-    public fun createScriptFile(scriptFile: String, errorListener: ANTLRErrorListener? = null): ScriptFile? =
-        invokeParser(
-            CharStreams.fromString(scriptFile, "<source>"),
-            RuneScriptParser::scriptFile,
-            errorListener,
-        ) as? ScriptFile
+    public fun createScriptFile(
+        scriptFile: String,
+        errorListener: ANTLRErrorListener? = null,
+        stringTemplates: Boolean = false,
+    ): ScriptFile? = invokeParser(
+        CharStreams.fromString(scriptFile, "<source>"),
+        RuneScriptParser::scriptFile,
+        errorListener,
+        stringTemplates = stringTemplates,
+    ) as? ScriptFile
 
-    public fun createScript(script: String, errorListener: ANTLRErrorListener? = null): Script? = invokeParser(
+    public fun createScript(
+        script: String,
+        errorListener: ANTLRErrorListener? = null,
+        stringTemplates: Boolean = false,
+    ): Script? = invokeParser(
         CharStreams.fromString(script, "<source>"),
         RuneScriptParser::script,
         errorListener,
+        stringTemplates = stringTemplates,
     ) as? Script
 
     public fun invokeParser(
@@ -41,8 +55,11 @@ public object ScriptParser {
         errorListener: ANTLRErrorListener? = null,
         lineOffset: Int = 0,
         columnOffset: Int = 0,
+        stringTemplates: Boolean = false,
     ): Node? {
         val lexer = RuneScriptLexer(stream)
+        lexer.stringTemplates = stringTemplates
+
         val tokens = CommonTokenStream(lexer)
         val parser = RuneScriptParser(tokens)
 

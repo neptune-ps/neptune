@@ -76,6 +76,7 @@ import me.filby.neptune.runescript.ast.expr.PrefixExpression
 import me.filby.neptune.runescript.ast.expr.ProcCallExpression
 import me.filby.neptune.runescript.ast.expr.StringLiteral
 import me.filby.neptune.runescript.ast.expr.StringPart
+import me.filby.neptune.runescript.ast.expr.StringTemplateStringPart
 import me.filby.neptune.runescript.ast.statement.ArrayDeclarationStatement
 import me.filby.neptune.runescript.ast.statement.AssignmentStatement
 import me.filby.neptune.runescript.ast.statement.BlockStatement
@@ -88,6 +89,7 @@ import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import org.antlr.v4.runtime.ParserRuleContext
+import org.antlr.v4.runtime.tree.TerminalNode
 
 /**
  * A visitor that converts an antlr parse tree into an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree). See
@@ -323,13 +325,19 @@ public class AstBuilder(private val source: String, private val lineOffset: Int,
                 is StringPTagContext -> {
                     parts += PTagStringPart(child.location, child.text)
                 }
+                is RuneScriptParser.StringTemplateContext -> {
+                    parts += StringTemplateStringPart(child.location, child.text)
+                }
                 is StringExpressionContext -> {
                     // visit the inner expression
                     val expression = child.expression().visit<Expression>()
                     parts += ExpressionStringPart(child.location, expression)
                 }
+                is TerminalNode -> {
+                    // noop, we don't care about the terminal nodes (double quotes)
+                }
                 else -> {
-                    // noop, any other rules are things we don't care about (e.g. double quotes)
+                    error("unexpected child type: ${child.javaClass.name}")
                 }
             }
         }

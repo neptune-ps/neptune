@@ -2,6 +2,7 @@ lexer grammar RuneScriptLexer;
 
 @members {
 private int depth = 0;
+public boolean stringTemplates = false;
 }
 
 // symbols
@@ -83,6 +84,7 @@ STRING_PARTIAL_TAG  : '<' Tag '=' ;
 STRING_P_TAG        : '<p,' ~('<' | '>')+ '>'  ;
 STRING_EXPR_START   : '<' -> pushMode(DEFAULT_MODE) ;
 STRING_EXPR_END     : '>' ;
+STRING_TEMPLATE     : {stringTemplates}? '<text_pronoun(' ~[<>\r\n]* ')>' ;
 
 // allows escaping specific characters in a string
 fragment StringEscapeSequence

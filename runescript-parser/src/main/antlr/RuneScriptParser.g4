@@ -191,7 +191,7 @@ stringLiteralContent
     ;
 
 joinedString
-    : QUOTE_OPEN (stringLiteralContent | stringTag | stringPTag | stringExpression)* QUOTE_CLOSE
+    : QUOTE_OPEN (stringLiteralContent | stringTag | stringPTag | stringTemplate | stringExpression)* QUOTE_CLOSE
     ;
 
 stringTag
@@ -202,6 +202,10 @@ stringTag
 
 stringPTag
     : STRING_P_TAG
+    ;
+
+stringTemplate
+    : STRING_TEMPLATE
     ;
 
 stringExpression

@@ -42,6 +42,11 @@ public open class BasicStringPart(source: NodeSourceLocation, public val value: 
 public class PTagStringPart(source: NodeSourceLocation, text: String) : BasicStringPart(source, text)
 
 /**
+ * A basic part that contains a string template.
+ */
+public class StringTemplateStringPart(source: NodeSourceLocation, text: String) : BasicStringPart(source, text)
+
+/**
  * A part that contains an [Expression] that will be executed.
  */
 public class ExpressionStringPart(source: NodeSourceLocation, public val expression: Expression) : StringPart(source) {
