@@ -3,6 +3,30 @@ lexer grammar RuneScriptLexer;
 @members {
 private int depth = 0;
 public boolean stringTemplates = false;
+
+// type of the last token emitted on the default channel
+private int lastType = -1;
+
+@Override
+public Token emit() {
+    Token token = super.emit();
+    if (token.getChannel() == DEFAULT_TOKEN_CHANNEL) {
+        lastType = token.getType();
+    }
+    return token;
+}
+
+// whether the next token directly follows a prefix that makes it a variable, constant, proc or label name
+private boolean afterNamePrefix() {
+    return lastType == DOLLAR || lastType == MOD || lastType == CARET || lastType == TILDE || lastType == AT;
+}
+
+// whether the text lexed so far starts with a literal followed by '+', which makes the '+' an addition
+private boolean startsWithLiteralPlus() {
+    String text = getText();
+    String head = text.substring(0, text.indexOf('+'));
+    return head.matches("[0-9]+|0[xX][0-9a-fA-F]+|[0-9]+(_[0-9]+){4}|true|false|null");
+}
 }
 
 // symbols
@@ -59,6 +83,10 @@ LINE_COMMENT    : '//' .*? ('\n' | EOF) -> channel(HIDDEN) ;
 BLOCK_COMMENT   : '/*' .*? '*/' -> channel(HIDDEN) ;
 
 // a basic digit rule
+fragment IdentifierChar
+    : [a-zA-Z0-9_.:]
+    ;
+
 fragment Digit
     : [0-9]
     ;
@@ -70,7 +98,12 @@ fragment CharEscapeSequence
 
 // special
 QUOTE_OPEN      : '"' {depth++;} -> pushMode(String) ;
-IDENTIFIER      : [a-zA-Z0-9_.:]+ ;
+// config names may contain '+' (e.g. dragon_dagger_p++, antidote+4, cheese+tom_batta). a name after a prefix
+// ($a+1, ~b+1) or a literal (1+2, 0xff+1, true+1) still ends at the '+', but an unprefixed config name doesn't:
+// calc(bones+1) reads as the name bones+1, so write calc(bones + 1)
+PLUS_IDENTIFIER : {!afterNamePrefix()}? IdentifierChar+ ('+' IdentifierChar*)+ {!startsWithLiteralPlus()}?
+                  -> type(IDENTIFIER) ;
+IDENTIFIER      : IdentifierChar+ ;
 WHITESPACE      : [ \t\n\r]+ -> channel(HIDDEN) ;
 
 // string interpolation support

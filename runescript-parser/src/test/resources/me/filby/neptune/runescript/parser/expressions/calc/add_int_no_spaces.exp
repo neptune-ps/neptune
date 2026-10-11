@@ -1,0 +1,5 @@
+CalcExpression() 1:1
+ ArithmeticExpression() 1:6
+  IntegerLiteral(value=1) 1:6
+  Token(text=+) 1:7
+  IntegerLiteral(value=1) 1:8
