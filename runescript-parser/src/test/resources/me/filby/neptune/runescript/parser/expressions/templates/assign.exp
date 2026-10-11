@@ -1,0 +1,12 @@
+JoinedStringExpression() 1:1
+ StringTemplateStringPart(value="<str_he=") 1:2
+ ExpressionStringPart() 1:10
+  LocalVariableExpression() 1:11
+   Identifier(text="string0") 1:12
+ StringTemplateStringPart(value=">") 1:20
+ StringTemplateStringPart(value="<str_she=") 1:21
+ ExpressionStringPart() 1:30
+  LocalVariableExpression() 1:31
+   Identifier(text="string1") 1:32
+ StringTemplateStringPart(value=">") 1:40
+ StringTemplateStringPart(value="<switch,pronoun,"<str_he>","<str_she>","">") 1:41

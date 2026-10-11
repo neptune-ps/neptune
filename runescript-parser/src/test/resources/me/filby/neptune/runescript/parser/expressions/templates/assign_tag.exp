@@ -1,0 +1,12 @@
+JoinedStringExpression() 1:1
+ StringTemplateStringPart(value="<str_tag=") 1:2
+ StringTemplateStringPart(value="<col=ffffff>") 1:11
+ StringTemplateStringPart(value="Bob") 1:23
+ StringTemplateStringPart(value="</col>") 1:26
+ StringTemplateStringPart(value=">") 1:32
+ StringTemplateStringPart(value="<str_b=") 1:33
+ StringTemplateStringPart(value="<br>") 1:40
+ ExpressionStringPart() 1:44
+  LocalVariableExpression() 1:45
+   Identifier(text="y") 1:46
+ StringTemplateStringPart(value=">") 1:48

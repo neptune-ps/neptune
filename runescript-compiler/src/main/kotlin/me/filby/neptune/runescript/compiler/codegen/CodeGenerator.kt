@@ -835,8 +835,7 @@ public class CodeGenerator(
                 when (part) {
                     is BasicStringPart -> {
                         // StringTemplateStringPart extends BasicStringPart, so templates are included in the folded
-                        // constant. This is unverified against official output, as the only known usage places a
-                        // template next to a proc expression, which forces it onto its own segment regardless.
+                        // constant.
                         constant.append(part.value)
                         if (index == parts.lastIndex || parts[index + 1] !is BasicStringPart) {
                             instruction(Opcode.PushConstantString, constant.toString())
