@@ -41,6 +41,8 @@ enum class ClientScriptOpcode(val id: Int, val largeOperand: Boolean = false) {
     PUSH_CONSTANT_LONG(61),
     POP_LONG_DISCARD(62),
     PUSH_CONSTANT_NULL(63),
+    PUSH_VARP_LONG(64, true),
+    POP_VARP_LONG(65, true),
     PUSH_LONG_LOCAL(66, true),
     POP_LONG_LOCAL(67, true),
     LONG_BRANCH_NOT(68, true),

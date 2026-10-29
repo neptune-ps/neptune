@@ -57,6 +57,6 @@ class IfParamCommandHandler(private val cc: Boolean) : DynamicCommandHandler {
             ScriptVarType.COMPONENT,
             ScriptVarType.INT,
         )
-        val CC_BASE_EXPECTED_TYPES = TupleType(ParamCommandHandler.PARAM_ANY)
+        val CC_BASE_EXPECTED_TYPES = ParamCommandHandler.PARAM_ANY
     }
 }

@@ -191,7 +191,7 @@ stringLiteralContent
     ;
 
 joinedString
-    : QUOTE_OPEN (stringLiteralContent | stringTag | stringPTag | stringTemplate | stringExpression)* QUOTE_CLOSE
+    : QUOTE_OPEN (stringLiteralContent | stringTag | stringPTag | stringTemplate | stringTemplateAssignment | stringExpression)* QUOTE_CLOSE
     ;
 
 stringTag
@@ -205,7 +205,17 @@ stringPTag
     ;
 
 stringTemplate
-    : STRING_TEMPLATE
+    : STRING_TEMPLATE_VARIABLE
+    | STRING_TEMPLATE_START templatePart* TEMPLATE_CLOSE
+    ;
+
+templatePart
+    : TEMPLATE_TEXT
+    | TEMPLATE_OPEN templatePart* TEMPLATE_CLOSE
+    ;
+
+stringTemplateAssignment
+    : STRING_TEMPLATE_ASSIGN_START (TEMPLATE_TEXT | stringExpression)* TEMPLATE_CLOSE
     ;
 
 stringExpression

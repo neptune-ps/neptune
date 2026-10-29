@@ -1,0 +1,2 @@
+JoinedStringExpression() 1:1
+ StringTemplateStringPart(value="<switch,int5,a\,b,c\>d,\"q\">") 1:2

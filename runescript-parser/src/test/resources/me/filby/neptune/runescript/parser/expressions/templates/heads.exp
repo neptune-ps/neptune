@@ -1,0 +1,12 @@
+JoinedStringExpression() 1:1
+ StringTemplateStringPart(value="<cond,int_5>5,<col=00ff00>high</col>,<col=ff0000>low</col>>") 1:2
+ BasicStringPart(value=" ") 1:61
+ StringTemplateStringPart(value="<int_x:spacer>") 1:62
+ BasicStringPart(value=" ") 1:76
+ StringTemplateStringPart(value="<text_pronoun(<col=1>sir</col>,madam,"")>") 1:77
+ BasicStringPart(value=" ") 1:118
+ StringTemplateStringPart(value="<bool_b>") 1:119
+ BasicStringPart(value=" ") 1:127
+ StringTemplateStringPart(value="<long_l=") 1:128
+ StringTemplateStringPart(value="5") 1:136
+ StringTemplateStringPart(value=">") 1:137

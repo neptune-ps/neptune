@@ -199,6 +199,7 @@ internal class TestScriptWriter(private val scriptManager: ScriptManager, overri
             "long_to_int" to TestOpcodes.LONG_TO_INT,
             "compare" to TestOpcodes.COMPARE,
             "test_return_string" to TestOpcodes.TEST_RETURN_STRING,
+            "str_test_return_string" to TestOpcodes.TEST_RETURN_STRING,
         )
     }
 }
