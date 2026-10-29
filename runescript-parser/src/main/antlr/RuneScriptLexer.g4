@@ -117,7 +117,40 @@ STRING_PARTIAL_TAG  : '<' Tag '=' ;
 STRING_P_TAG        : '<p,' ~('<' | '>')+ '>'  ;
 STRING_EXPR_START   : '<' -> pushMode(DEFAULT_MODE) ;
 STRING_EXPR_END     : '>' ;
-STRING_TEMPLATE     : {stringTemplates}? '<text_pronoun(' ~[<>\r\n]* ')>' ;
+
+// template heads include cond's condition so comparison operators are not treated as delimiters
+STRING_TEMPLATE_START
+    : {stringTemplates}? '<' ('switch,' | 'cond,' ~[,"\r\n]* ',' | 'text_pronoun(') -> pushMode(StringTemplate) ;
+
+// template variable reads exclude parentheses so <str_name()> is an expression and <str_name> is a template
+STRING_TEMPLATE_VARIABLE
+    : {stringTemplates}? '<' TemplateVariableHead ~[<>()=,"\r\n]* '>' ;
+
+// assignment heads stop at '=' so the value can contain parentheses and interpolated expressions
+STRING_TEMPLATE_ASSIGN_START
+    : {stringTemplates}? '<' TemplateVariableHead ~[<>()=,"\r\n]* '=' -> pushMode(StringTemplateValue) ;
+
+mode StringTemplate ;
+
+TEMPLATE_TEXT       : ('\\' [<>] | ~[<>\r\n])+ ;
+TEMPLATE_OPEN       : '<' -> pushMode(StringTemplate) ;
+TEMPLATE_CLOSE      : '>' -> popMode ;
+
+// assignment values allow interpolated expressions, while complete display tags remain text
+mode StringTemplateValue ;
+
+VALUE_TAG           : ('<' Tag ('=' ~('<' | '>')+)? '>' | '</' Tag '>') -> type(TEMPLATE_TEXT) ;
+VALUE_TEXT          : ('\\' [<>] | ~[<>\r\n])+ -> type(TEMPLATE_TEXT) ;
+VALUE_EXPR_START    : '<' -> type(STRING_EXPR_START), pushMode(DEFAULT_MODE) ;
+VALUE_CLOSE         : '>' -> type(TEMPLATE_CLOSE), popMode ;
+
+// requires the underscore used by game templates to avoid matching commands such as struct_param
+fragment TemplateVariableHead
+    : 'int_'
+    | 'long_'
+    | 'str_'
+    | 'bool_'
+    ;
 
 // allows escaping specific characters in a string
 fragment StringEscapeSequence
@@ -134,4 +167,8 @@ fragment Tag
     | 'img'
     | 'gt'
     | 'lt'
+    | 'at'
+    | 'n'
+    | 'shy'
+    | 'nbh'
     ;

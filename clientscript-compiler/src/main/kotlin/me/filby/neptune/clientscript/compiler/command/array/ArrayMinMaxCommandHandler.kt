@@ -5,7 +5,6 @@ import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommand
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
-import me.filby.neptune.runescript.compiler.type.TupleType
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
 /**
@@ -41,7 +40,7 @@ class ArrayMinMaxCommandHandler : DynamicCommandHandler {
 
     private companion object {
         const val INVALID_TYPE_MESSAGE = "Type mismatch: '%s' was given but 'intarray' or 'stringarray' was expected."
-        val BASE_EXPECTED_TYPES = TupleType(ArrayType(MetaType.Any))
+        val BASE_EXPECTED_TYPES = ArrayType(MetaType.Any)
         val ALLOWED_TYPES = listOf(ScriptVarType.INT, ScriptVarType.STRING)
     }
 }

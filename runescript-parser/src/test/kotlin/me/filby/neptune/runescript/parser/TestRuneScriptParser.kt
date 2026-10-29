@@ -149,6 +149,13 @@ class TestRuneScriptParser {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = ["heads", "switch", "switch_escapes", "assign", "assign_tag", "assign_value"])
+    @Order(EXPRESSION)
+    fun testStringTemplate(test: String) {
+        runFileTest("expressions/templates/$test", RuneScriptParser::joinedString, stringTemplates = true)
+    }
+
+    @ParameterizedTest
     @ValueSource(
         strings = [
             "null",
@@ -190,11 +197,16 @@ class TestRuneScriptParser {
         /**
          * Loads `<name>.src` and parses it into an AST then compares it to `<name>.exp`.
          */
-        private fun runFileTest(name: String, entry: (RuneScriptParser) -> ParserRuleContext) = doubleUse(
+        private fun runFileTest(
+            name: String,
+            entry: (RuneScriptParser) -> ParserRuleContext,
+            stringTemplates: Boolean = false,
+        ) = doubleUse(
             this::class.java.getResourceAsStream("$name.src") ?: error("$name.src does not exist"),
             this::class.java.getResourceAsStream("$name.exp") ?: error("$name.exp does not exist"),
         ) { input, output ->
-            val ast = invokeParser(CharStreams.fromStream(input), entry) ?: error("parse error")
+            val ast = invokeParser(CharStreams.fromStream(input), entry, stringTemplates = stringTemplates)
+                ?: error("parse error")
             val tree = ast.toStringTree().trim()
             val expectedTree = output.bufferedReader().use { it.readText() }.replace("\r", "").trim()
             assertEquals(expectedTree, tree, "$name.src != $name.exp")
