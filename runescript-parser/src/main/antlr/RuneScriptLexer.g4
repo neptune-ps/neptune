@@ -101,7 +101,7 @@ QUOTE_OPEN      : '"' {depth++;} -> pushMode(String) ;
 // config names may contain '+' (e.g. dragon_dagger_p++, antidote+4, cheese+tom_batta). a name after a prefix
 // ($a+1, ~b+1) or a literal (1+2, 0xff+1, true+1) still ends at the '+', but an unprefixed config name doesn't:
 // calc(bones+1) reads as the name bones+1, so write calc(bones + 1)
-PLUS_IDENTIFIER : {!afterNamePrefix()}? IdentifierChar+ ('+' IdentifierChar*)+ {!startsWithLiteralPlus()}?
+PLUS_IDENTIFIER : IdentifierChar+ ('+' IdentifierChar*)+ {!afterNamePrefix() && !startsWithLiteralPlus()}?
                   -> type(IDENTIFIER) ;
 IDENTIFIER      : IdentifierChar+ ;
 WHITESPACE      : [ \t\n\r]+ -> channel(HIDDEN) ;
