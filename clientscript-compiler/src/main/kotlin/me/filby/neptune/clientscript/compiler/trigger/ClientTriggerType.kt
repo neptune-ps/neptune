@@ -81,6 +81,14 @@ enum class ClientTriggerType(
     ONCLICKPLAYER(81, subjectMode = SubjectMode.None),
     ONMINIMENUOPEN(82, subjectMode = SubjectMode.None),
     ONMINIMENUCLOSE(83, subjectMode = SubjectMode.None),
+    INTERPOLATE(
+        86,
+        subjectMode = SubjectMode.Name,
+        allowParameters = true,
+        parameters = ScriptVarType.INT,
+        allowReturns = true,
+        returns = ScriptVarType.INT,
+    ),
     ;
 
     override val identifier: String get() = name.lowercase()

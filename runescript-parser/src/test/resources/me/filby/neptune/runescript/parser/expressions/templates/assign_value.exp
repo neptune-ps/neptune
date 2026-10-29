@@ -1,0 +1,22 @@
+JoinedStringExpression() 1:1
+ StringTemplateStringPart(value="<str_c=") 1:2
+ ExpressionStringPart() 1:9
+  CommandCallExpression() 1:10
+   Identifier(text="tostring") 1:10
+   IntegerLiteral(value=FFFFFF) 1:19
+   IntegerLiteral(value=16) 1:29
+ StringTemplateStringPart(value=">") 1:33
+ StringTemplateStringPart(value="<int_n=") 1:34
+ ExpressionStringPart() 1:41
+  CalcExpression() 1:42
+   ArithmeticExpression() 1:47
+    IntegerLiteral(value=1) 1:47
+    Token(text=+) 1:49
+    IntegerLiteral(value=2) 1:51
+ StringTemplateStringPart(value=">") 1:54
+ StringTemplateStringPart(value="<str_t=") 1:55
+ StringTemplateStringPart(value="plain ") 1:62
+ ExpressionStringPart() 1:68
+  StringLiteral(value="lit") 1:69
+ StringTemplateStringPart(value=" text") 1:75
+ StringTemplateStringPart(value=">") 1:80
