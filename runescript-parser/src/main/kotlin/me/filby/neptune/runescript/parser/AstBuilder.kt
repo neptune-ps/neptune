@@ -41,6 +41,8 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContentCo
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringPTagContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringTagContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.StringTemplateAssignmentContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.StringTemplateContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.SwitchCaseContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.SwitchStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.WhileStatementContext
@@ -332,8 +334,20 @@ public class AstBuilder(
                 is StringPTagContext -> {
                     parts += PTagStringPart(child.location, child.text)
                 }
-                is RuneScriptParser.StringTemplateContext -> {
+                is StringTemplateContext -> {
                     parts += StringTemplateStringPart(child.location, child.text)
+                }
+                is StringTemplateAssignmentContext -> {
+                    // preserve template escapes and leave adjacent text folding to codegen
+                    for (part in child.children) {
+                        when (part) {
+                            is TerminalNode -> parts += StringTemplateStringPart(part.symbol.location, part.text)
+                            is StringExpressionContext -> {
+                                val expression = part.expression().visit<Expression>()
+                                parts += ExpressionStringPart(part.location, expression)
+                            }
+                        }
+                    }
                 }
                 is StringExpressionContext -> {
                     // visit the inner expression

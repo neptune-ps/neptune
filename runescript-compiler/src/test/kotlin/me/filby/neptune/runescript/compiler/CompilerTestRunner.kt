@@ -222,6 +222,7 @@ private class CommandSymbolLoader : SymbolLoader {
         addCommand("assert_not_obj", TupleType(MetaType.Any, MetaType.Any))
         addCommand("assert_not_long", TupleType(ScriptVarType.LONG, ScriptVarType.LONG))
         addCommand("test_return_string", returns = ScriptVarType.STRING)
+        addCommand("str_test_return_string", returns = ScriptVarType.STRING)
     }
 
     fun SymbolTable.addCommand(name: String, parameters: Type = MetaType.Unit, returns: Type = MetaType.Unit) {

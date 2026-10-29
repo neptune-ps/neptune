@@ -135,7 +135,11 @@ abstract class BinaryScriptWriter(
     override fun BinaryScriptWriterContext.writePushVar(symbol: BasicSymbol) {
         val id = idProvider.get(symbol)
         val opcode = when (val type = symbol.type) {
-            is VarPlayerType -> ClientScriptOpcode.PUSH_VARP
+            is VarPlayerType -> when (type.inner.baseType?.stackType) {
+                StackType.INTEGER -> ClientScriptOpcode.PUSH_VARP
+                StackType.LONG -> ClientScriptOpcode.PUSH_VARP_LONG
+                else -> error(type.inner)
+            }
             is VarBitType -> ClientScriptOpcode.PUSH_VARBIT
             is VarClientType -> when (type.inner.baseType?.stackType) {
                 StackType.INTEGER -> ClientScriptOpcode.PUSH_VARC_INT
@@ -153,7 +157,11 @@ abstract class BinaryScriptWriter(
     override fun BinaryScriptWriterContext.writePopVar(symbol: BasicSymbol) {
         val id = idProvider.get(symbol)
         val opcode = when (val type = symbol.type) {
-            is VarPlayerType -> ClientScriptOpcode.POP_VARP
+            is VarPlayerType -> when (type.inner.baseType?.stackType) {
+                StackType.INTEGER -> ClientScriptOpcode.POP_VARP
+                StackType.LONG -> ClientScriptOpcode.POP_VARP_LONG
+                else -> error(type.inner)
+            }
             is VarBitType -> ClientScriptOpcode.POP_VARBIT
             is VarClientType -> when (type.inner.baseType?.stackType) {
                 StackType.INTEGER -> ClientScriptOpcode.POP_VARC_INT
