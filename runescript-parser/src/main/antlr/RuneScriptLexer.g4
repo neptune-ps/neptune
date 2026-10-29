@@ -87,15 +87,15 @@ STRING_EXPR_END     : '>' ;
 
 // template heads include cond's condition so comparison operators are not treated as delimiters
 STRING_TEMPLATE_START
-    : {stringTemplates}? '<' ('switch,' | 'cond,' ~[,"\r\n]* ',' | 'text_pronoun(') -> pushMode(StringTemplate) ;
+    : '<' ('switch,' | 'cond,' ~[,"\r\n]* ',' | 'text_pronoun(') {stringTemplates}? -> pushMode(StringTemplate) ;
 
 // template variable reads exclude parentheses so <str_name()> is an expression and <str_name> is a template
 STRING_TEMPLATE_VARIABLE
-    : {stringTemplates}? '<' TemplateVariableHead ~[<>()=,"\r\n]* '>' ;
+    : '<' TemplateVariableHead ~[<>()=,"\r\n]* '>' {stringTemplates}? ;
 
 // assignment heads stop at '=' so the value can contain parentheses and interpolated expressions
 STRING_TEMPLATE_ASSIGN_START
-    : {stringTemplates}? '<' TemplateVariableHead ~[<>()=,"\r\n]* '=' -> pushMode(StringTemplateValue) ;
+    : '<' TemplateVariableHead ~[<>()=,"\r\n]* '=' {stringTemplates}? -> pushMode(StringTemplateValue) ;
 
 mode StringTemplate ;
 
