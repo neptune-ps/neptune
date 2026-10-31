@@ -106,6 +106,8 @@ class TestRuneScriptParser {
             "add", "sub", "multiply", "divide",
             "modulo", "and", "or",
             "precedence_core", "precedence_bitwise",
+            "add_int_no_spaces", "add_hex_no_spaces", "add_coord_no_spaces", "add_local_no_spaces",
+            "add_proc_no_spaces",
         ],
     )
     @Order(EXPRESSION)
@@ -170,7 +172,12 @@ class TestRuneScriptParser {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["basic", "digit_start", "component", "hex", "dot", "keyword"])
+    @ValueSource(
+        strings = [
+            "basic", "digit_start", "component", "hex", "dot", "keyword",
+            "plus_suffix", "plus_infix", "plus_digit",
+        ],
+    )
     @Order(EXPRESSION)
     fun testIdentifier(test: String) {
         runFileTest("expressions/identifiers/$test", RuneScriptParser::identifier)

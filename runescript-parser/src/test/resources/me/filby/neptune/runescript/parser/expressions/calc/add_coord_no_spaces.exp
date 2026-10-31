@@ -1,0 +1,5 @@
+CalcExpression() 1:1
+ ArithmeticExpression() 1:6
+  CoordLiteral(value=52432000) 1:6
+  Token(text=+) 1:17
+  IntegerLiteral(value=1) 1:18

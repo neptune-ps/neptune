@@ -1,0 +1,6 @@
+CalcExpression() 1:1
+ ArithmeticExpression() 1:6
+  LocalVariableExpression() 1:6
+   Identifier(text="a") 1:7
+  Token(text=+) 1:8
+  IntegerLiteral(value=1) 1:9
