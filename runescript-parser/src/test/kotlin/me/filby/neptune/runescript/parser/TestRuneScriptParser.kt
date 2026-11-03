@@ -147,7 +147,9 @@ class TestRuneScriptParser {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["heads", "switch", "switch_escapes", "assign", "assign_tag", "assign_value"])
+    @ValueSource(
+        strings = ["heads", "switch", "switch_escapes", "assign", "assign_tag", "assign_value", "variable_names"],
+    )
     @Order(EXPRESSION)
     fun testStringTemplate(test: String) {
         runFileTest("expressions/templates/$test", RuneScriptParser::joinedString, stringTemplates = true)

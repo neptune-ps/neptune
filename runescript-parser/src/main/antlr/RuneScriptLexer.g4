@@ -111,12 +111,11 @@ VALUE_TEXT          : ('\\' [<>] | ~[<>\r\n])+ -> type(TEMPLATE_TEXT) ;
 VALUE_EXPR_START    : '<' -> type(STRING_EXPR_START), pushMode(DEFAULT_MODE) ;
 VALUE_CLOSE         : '>' -> type(TEMPLATE_CLOSE), popMode ;
 
-// requires the underscore used by game templates to avoid matching commands such as struct_param
 fragment TemplateVariableHead
-    : 'int_'
-    | 'long_'
-    | 'str_'
-    | 'bool_'
+    : 'int'
+    | 'long'
+    | 'str'
+    | 'bool'
     ;
 
 // allows escaping specific characters in a string

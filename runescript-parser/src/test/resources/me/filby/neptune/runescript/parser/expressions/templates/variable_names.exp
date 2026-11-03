@@ -1,0 +1,18 @@
+JoinedStringExpression() 1:1
+ StringTemplateStringPart(value="<str0=") 1:2
+ ExpressionStringPart() 1:8
+  LocalVariableExpression() 1:9
+   Identifier(text="value") 1:10
+ StringTemplateStringPart(value=">") 1:16
+ StringTemplateStringPart(value="<str0>") 1:17
+ StringTemplateStringPart(value="<int0>") 1:23
+ StringTemplateStringPart(value="<long0>") 1:29
+ StringTemplateStringPart(value="<bool0>") 1:36
+ ExpressionStringPart() 1:43
+  CommandCallExpression() 1:44
+   Identifier(text="struct_param") 1:44
+   IntegerLiteral(value=1) 1:57
+   IntegerLiteral(value=2) 1:60
+ ExpressionStringPart() 1:63
+  CommandCallExpression() 1:64
+   Identifier(text="str_something") 1:64

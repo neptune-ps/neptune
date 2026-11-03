@@ -37,6 +37,9 @@ assert_equals_obj("\<switch,int5,a\\,b,c\\>d,e>", "<switch,int5,a\,b,c\>d,e>");
 // surrounded by text and an expression part
 assert_equals_obj("Hello \<switch,pronoun,sir,madam,\"\">!", "<$a> <switch,pronoun,sir,madam,"">!");
 
+// template variable names just start with the type
+assert_equals_obj("\<str0=Hello>\<str0>", "<str0=<$a>><str0>");
+
 // a template variable assigned from an interpolated value, then read back by a switch
 assert_equals_obj("\<str_he=he>\<switch,pronoun,\"\<str_he>\",x,\"\">", "<str_he=<$he>><switch,pronoun,"<str_he>",x,"">");
 
