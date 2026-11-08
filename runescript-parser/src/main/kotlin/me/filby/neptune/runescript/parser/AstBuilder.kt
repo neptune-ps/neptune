@@ -35,6 +35,7 @@ import me.filby.neptune.runescript.antlr.RuneScriptParser.ProcCallExpressionCont
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ReturnStatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.ScriptFileContext
+import me.filby.neptune.runescript.antlr.RuneScriptParser.StatementContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringExpressionContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContentContext
 import me.filby.neptune.runescript.antlr.RuneScriptParser.StringLiteralContext
@@ -91,16 +92,24 @@ import me.filby.neptune.runescript.ast.statement.SwitchCase
 import me.filby.neptune.runescript.ast.statement.SwitchStatement
 import me.filby.neptune.runescript.ast.statement.WhileStatement
 import org.antlr.v4.runtime.ParserRuleContext
+import org.antlr.v4.runtime.tree.ErrorNode
 import org.antlr.v4.runtime.tree.TerminalNode
 
 /**
  * A visitor that converts an antlr parse tree into an [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree). See
  * [Node] implementations for all possible pieces of the tree.
  */
-public class AstBuilder(private val source: String, private val lineOffset: Int, private val columnOffset: Int) :
-    RuneScriptParserBaseVisitor<Node>() {
-    override fun visitScriptFile(ctx: ScriptFileContext): Node =
-        ScriptFile(ctx.location, ctx.script().map { it.visit() })
+public class AstBuilder(
+    private val source: String,
+    private val lineOffset: Int,
+    private val columnOffset: Int,
+    private val recover: Boolean = false,
+) : RuneScriptParserBaseVisitor<Node>() {
+    override fun visitScriptFile(ctx: ScriptFileContext): Node {
+        // a script with a broken header can't be named reliably, so recovery drops it with its statements
+        val scripts = if (recover) ctx.script().filterNot { it.hasHeaderSyntaxError() } else ctx.script()
+        return ScriptFile(ctx.location, scripts.visitAll())
+    }
 
     override fun visitScript(ctx: ScriptContext): Node {
         val returns = ctx.typeList()?.IDENTIFIER()?.map { it.symbol.toAstToken() }
@@ -111,7 +120,7 @@ public class AstBuilder(private val source: String, private val lineOffset: Int,
             isStar = ctx.MUL() != null,
             parameters = ctx.parameterList()?.parameter()?.map { it.visit() },
             returnTokens = returns,
-            statements = ctx.statement().map { it.visit() },
+            statements = ctx.statement().visitAll(),
         )
     }
 
@@ -123,9 +132,7 @@ public class AstBuilder(private val source: String, private val lineOffset: Int,
 
     override fun visitBlockStatement(ctx: BlockStatementContext): Node = BlockStatement(
         ctx.location,
-        ctx.statement().map {
-            it.visit()
-        },
+        ctx.statement().visitAll(),
     )
 
     override fun visitReturnStatement(ctx: ReturnStatementContext): Node =
@@ -154,7 +161,7 @@ public class AstBuilder(private val source: String, private val lineOffset: Int,
     override fun visitSwitchCase(ctx: SwitchCaseContext): Node = SwitchCase(
         source = ctx.location,
         keys = ctx.expressionList()?.visit() ?: emptyList(),
-        statements = ctx.statement()?.map { it.visit() } ?: emptyList(),
+        statements = ctx.statement()?.visitAll() ?: emptyList(),
     )
 
     override fun visitDeclarationStatement(ctx: DeclarationStatementContext): Node = DeclarationStatement(
@@ -395,6 +402,36 @@ public class AstBuilder(private val source: String, private val lineOffset: Int,
      */
     @Suppress("UNCHECKED_CAST")
     private fun <T : Node> ParserRuleContext.visit(): T = visit(this) as T
+
+    /**
+     * Visits every context. When recovering, a context that syntax errors left incomplete is dropped instead of
+     * failing the whole tree. Failures in contexts without syntax errors are still thrown.
+     */
+    private fun <T : Node> List<ParserRuleContext>.visitAll(): List<T> = if (recover) {
+        mapNotNull { ctx ->
+            try {
+                ctx.visit<T>()
+            } catch (e: RuntimeException) {
+                if (!ctx.hasSyntaxError()) throw e
+                null
+            }
+        }
+    } else {
+        map { it.visit() }
+    }
+
+    /**
+     * Returns whether the parser reported a syntax error in the script's header, before its first statement.
+     */
+    private fun ScriptContext.hasHeaderSyntaxError(): Boolean = children.orEmpty()
+        .takeWhile { it !is StatementContext }
+        .any { it is ErrorNode || (it is ParserRuleContext && it.hasSyntaxError()) }
+
+    /**
+     * Returns whether the parser reported a syntax error inside this context.
+     */
+    private fun ParserRuleContext.hasSyntaxError(): Boolean = exception != null ||
+        children.orEmpty().any { it is ErrorNode || (it is ParserRuleContext && it.hasSyntaxError()) }
 
     /**
      * Helper that converts an [ExpressionListContext] to a [List] of [Expression]s.

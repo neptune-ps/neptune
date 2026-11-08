@@ -17,6 +17,7 @@ public object ScriptParser {
         input: Path,
         errorListener: ANTLRErrorListener? = null,
         stringTemplates: Boolean = false,
+        recover: Boolean = false,
     ): ScriptFile? {
         val absoluteNormalized = input.toAbsolutePath().normalize()
         return invokeParser(
@@ -24,6 +25,7 @@ public object ScriptParser {
             RuneScriptParser::scriptFile,
             errorListener,
             stringTemplates = stringTemplates,
+            recover = recover,
         ) as? ScriptFile
     }
 
@@ -31,22 +33,26 @@ public object ScriptParser {
         scriptFile: String,
         errorListener: ANTLRErrorListener? = null,
         stringTemplates: Boolean = false,
+        recover: Boolean = false,
     ): ScriptFile? = invokeParser(
         CharStreams.fromString(scriptFile, "<source>"),
         RuneScriptParser::scriptFile,
         errorListener,
         stringTemplates = stringTemplates,
+        recover = recover,
     ) as? ScriptFile
 
     public fun createScript(
         script: String,
         errorListener: ANTLRErrorListener? = null,
         stringTemplates: Boolean = false,
+        recover: Boolean = false,
     ): Script? = invokeParser(
         CharStreams.fromString(script, "<source>"),
         RuneScriptParser::script,
         errorListener,
         stringTemplates = stringTemplates,
+        recover = recover,
     ) as? Script
 
     public fun invokeParser(
@@ -56,6 +62,7 @@ public object ScriptParser {
         lineOffset: Int = 0,
         columnOffset: Int = 0,
         stringTemplates: Boolean = false,
+        recover: Boolean = false,
     ): Node? {
         val lexer = RuneScriptLexer(stream)
         lexer.stringTemplates = stringTemplates
@@ -74,11 +81,11 @@ public object ScriptParser {
 
         val tree = entry(parser)
 
-        // if there were any errors detected, return null for the whole node
-        if (parser.numberOfSyntaxErrors > 0) {
+        // if there were any errors detected, return null for the whole node, unless the caller wants what parsed
+        if (parser.numberOfSyntaxErrors > 0 && !recover) {
             return null
         }
 
-        return AstBuilder(stream.sourceName, lineOffset, columnOffset).visit(tree)
+        return AstBuilder(stream.sourceName, lineOffset, columnOffset, recover).visit(tree)
     }
 }
