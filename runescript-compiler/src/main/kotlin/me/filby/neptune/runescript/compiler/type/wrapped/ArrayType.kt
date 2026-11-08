@@ -18,9 +18,10 @@ public data class ArrayType(public val inner: Type) : Type {
         else -> "${inner.representation}array"
     }
 
-    override val code: Char = when (inner.baseType) {
+    override val code: Char? = when (inner.baseType) {
         BaseVarType.INTEGER -> INTARRAY_CHAR
         BaseVarType.STRING -> STRINGARRAY_CHAR
+        BaseVarType.LONG -> null
         else -> error("Invalid type: $inner")
     }
 

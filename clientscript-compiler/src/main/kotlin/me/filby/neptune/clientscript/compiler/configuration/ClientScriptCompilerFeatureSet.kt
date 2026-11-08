@@ -11,4 +11,5 @@ data class ClientScriptCompilerFeatureSet(
     val longSupport: Boolean,
     override val foldJoinedStringConstants: Boolean,
     override val stringTemplates: Boolean,
+    val longArraySupport: Boolean,
 ) : CompilerFeatureSet

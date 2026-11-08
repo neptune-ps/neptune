@@ -146,6 +146,7 @@ private fun loadConfig(configPath: Path): ClientScriptCompilerConfig {
             "long_support" to "longSupport",
             "fold_joined_string_constants" to "foldJoinedStringConstants",
             "string_templates" to "stringTemplates",
+            "longarray_support" to "longArraySupport",
         )
         mapping<BinaryFileWriterConfig>("output" to "outputPath", "debug" to "debugMode")
 
@@ -181,6 +182,7 @@ private fun getDefaultFeaturesForVersion(versionProperty: TomlValue?): ClientScr
         longSupport = version >= 237,
         foldJoinedStringConstants = version >= 240,
         stringTemplates = version >= 240,
+        longArraySupport = version >= 242,
     )
 }
 

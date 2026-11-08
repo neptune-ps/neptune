@@ -5,6 +5,7 @@ import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommand
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
+import me.filby.neptune.runescript.compiler.type.Type
 import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
 
 /**
@@ -17,7 +18,15 @@ import me.filby.neptune.runescript.compiler.type.wrapped.ArrayType
  * def_int $max = array_max($intarray);
  * ```
  */
-class ArrayMinMaxCommandHandler : DynamicCommandHandler {
+class ArrayMinMaxCommandHandler(longArraySupport: Boolean) : DynamicCommandHandler {
+    private val allowedTypes = buildList {
+        add(ArrayType(ScriptVarType.INT))
+        add(ArrayType(ScriptVarType.STRING))
+        if (longArraySupport) {
+            add(ArrayType(ScriptVarType.LONG))
+        }
+    }
+
     override fun TypeCheckingContext.typeCheck() {
         val array1Expr = checkArgument(0, ArrayType(MetaType.Any))
         val array1ExprType = array1Expr?.type
@@ -28,9 +37,14 @@ class ArrayMinMaxCommandHandler : DynamicCommandHandler {
             return
         }
 
-        val validType = ALLOWED_TYPES.any { checkArgumentTypes(ArrayType(it), false) }
+        val validType = allowedTypes.any { checkArgumentTypes(it, false) }
         if (!validType) {
-            expression.reportError(diagnostics, INVALID_TYPE_MESSAGE, array1ExprType.representation)
+            expression.reportError(
+                diagnostics,
+                INVALID_TYPE_MESSAGE,
+                array1ExprType.representation,
+                allowedTypes.joinWithOr(),
+            )
             expression.type = MetaType.Error
             return
         }
@@ -39,8 +53,16 @@ class ArrayMinMaxCommandHandler : DynamicCommandHandler {
     }
 
     private companion object {
-        const val INVALID_TYPE_MESSAGE = "Type mismatch: '%s' was given but 'intarray' or 'stringarray' was expected."
+        const val INVALID_TYPE_MESSAGE = "Type mismatch: '%s' was given but %s was expected."
         val BASE_EXPECTED_TYPES = ArrayType(MetaType.Any)
-        val ALLOWED_TYPES = listOf(ScriptVarType.INT, ScriptVarType.STRING)
+
+        fun List<Type>.joinWithOr(): String {
+            val names = map { "'${it.representation}'" }
+            return when (names.size) {
+                0, 1 -> names.joinToString()
+                2 -> names.joinToString(" or ")
+                else -> "${names.dropLast(1).joinToString(", ")}, or ${names.last()}"
+            }
+        }
     }
 }

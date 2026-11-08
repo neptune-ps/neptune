@@ -62,7 +62,11 @@ class ClientScriptCompiler(
         types.registerAll<ScriptVarType>()
         types.register("param", ParamCommandHandler.PARAM_ANY)
 
-        if (!features.longSupport) {
+        if (features.longSupport) {
+            types.changeOptions("long") {
+                allowArray = features.longArraySupport
+            }
+        } else {
             types.changeOptions(BaseVarType.LONG) {
                 allowDeclaration = false
                 allowSwitch = false
@@ -142,8 +146,9 @@ class ClientScriptCompiler(
             addDynamicCommandHandler("array_indexof", ArraySearchCommandHandler())
             addDynamicCommandHandler("array_lastindexof", ArraySearchCommandHandler())
             addDynamicCommandHandler("array_count", ArraySearchCommandHandler())
-            addDynamicCommandHandler("array_min", ArrayMinMaxCommandHandler())
-            addDynamicCommandHandler("array_max", ArrayMinMaxCommandHandler())
+            val arrayMinMax = ArrayMinMaxCommandHandler(features.longArraySupport)
+            addDynamicCommandHandler("array_min", arrayMinMax)
+            addDynamicCommandHandler("array_max", arrayMinMax)
             addDynamicCommandHandler("array_fill", ArrayFillCommandHandler())
             addDynamicCommandHandler("array_copy", ArrayCopyCommandHandler())
             addDynamicCommandHandler("array_create", ArrayCreateCommandHandler())

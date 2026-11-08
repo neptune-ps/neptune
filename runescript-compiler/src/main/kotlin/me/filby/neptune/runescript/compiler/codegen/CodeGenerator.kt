@@ -702,7 +702,7 @@ public class CodeGenerator(
         // convert the parameter type to a list and generate a string with all the type char codes combined
         val argumentTypes = TupleType.toList(symbol.parameters)
         var argumentTypesShort = argumentTypes
-            .map(::typeToCharCode)
+            .map(::hookTypeToCharCode)
             .joinToString("")
 
         // write the clientscript reference and arguments
@@ -724,7 +724,15 @@ public class CodeGenerator(
         instruction(Opcode.PushConstantString, argumentTypesShort)
     }
 
-    private fun typeToCharCode(type: Type): Char {
+    private fun hookTypeToCharCode(type: Type): Char {
+        if (features.arraysV2 && type is ArrayType && type.inner.baseType == BaseVarType.LONG) {
+            // long arrays have no dedicated type code. hooks pop an existing object
+            // for W, X, or s, so W can carry a long array. this only works for hooks
+            // because runclientscript uses W to build an int array from packet data.
+            // whether the real runescript compiler allows this is unknown.
+            return 'W'
+        }
+
         val code = if (features.simplifiedTypeCodes) {
             when (type.baseType) {
                 BaseVarType.INTEGER -> 'i'
