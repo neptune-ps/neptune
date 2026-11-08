@@ -3,6 +3,7 @@ package me.filby.neptune.clientscript.compiler.command.array
 import me.filby.neptune.clientscript.compiler.type.ScriptVarType
 import me.filby.neptune.runescript.compiler.configuration.command.DynamicCommandHandler
 import me.filby.neptune.runescript.compiler.configuration.command.TypeCheckingContext
+import me.filby.neptune.runescript.compiler.diagnostics.DiagnosticMessage
 import me.filby.neptune.runescript.compiler.type
 import me.filby.neptune.runescript.compiler.type.MetaType
 import me.filby.neptune.runescript.compiler.type.TupleType
@@ -26,6 +27,12 @@ class ArrayCreateCommandHandler : DynamicCommandHandler {
 
         // check the base signature matches
         if (!checkArgumentTypes(BASE_EXPECTED_TYPES) || type == null) {
+            expression.type = MetaType.Error
+            return
+        }
+
+        if (!type.inner.options.allowArray) {
+            typeExpr.reportError(diagnostics, DiagnosticMessage.LOCAL_ARRAY_INVALID_TYPE, type.inner.representation)
             expression.type = MetaType.Error
             return
         }
