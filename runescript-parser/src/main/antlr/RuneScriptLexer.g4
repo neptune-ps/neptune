@@ -3,6 +3,24 @@ lexer grammar RuneScriptLexer;
 @members {
 private int depth = 0;
 public boolean stringTemplates = false;
+
+// line and column of each open string's quote, innermost last
+private final java.util.ArrayDeque<int[]> openQuotes = new java.util.ArrayDeque<>();
+
+// reports the innermost open string as unterminated, at its opening quote
+private void reportUnterminatedString() {
+    int[] quote = openQuotes.pop();
+    getErrorListenerDispatch().syntaxError(this, null, quote[0], quote[1], "unterminated string", null);
+}
+
+// strings still open at the end of input are unterminated too
+@Override
+public Token emitEOF() {
+    while (!openQuotes.isEmpty()) {
+        reportUnterminatedString();
+    }
+    return super.emitEOF();
+}
 }
 
 // symbols
@@ -69,14 +87,17 @@ fragment CharEscapeSequence
     ;
 
 // special
-QUOTE_OPEN      : '"' {depth++;} -> pushMode(String) ;
+QUOTE_OPEN      : '"' {depth++; openQuotes.push(new int[] {_tokenStartLine, _tokenStartCharPositionInLine});}
+                  -> pushMode(String) ;
 IDENTIFIER      : [a-zA-Z0-9_.:]+ ;
 WHITESPACE      : [ \t\n\r]+ -> channel(HIDDEN) ;
 
 // string interpolation support
 mode String ;
 
-QUOTE_CLOSE         : '"' {depth--;} -> popMode ;
+QUOTE_CLOSE         : '"' {depth--; openQuotes.pop();} -> popMode ;
+// a line break inside a string: report it and end the string there, so the lines after it lex normally
+STRING_UNTERMINATED : '\r'? '\n' {depth--; reportUnterminatedString();} -> type(QUOTE_CLOSE), popMode ;
 STRING_TEXT         : (StringEscapeSequence | ~('\\' | '"' | '<' | '\r' | '\n'))+ ;
 STRING_TAG          : '<' Tag ('=' ~('<' | '>')+)? '>' ;
 STRING_CLOSE_TAG    : '</' Tag '>' ;

@@ -6,10 +6,13 @@ import me.filby.neptune.runescript.ast.Node
 import me.filby.neptune.runescript.ast.Script
 import me.filby.neptune.runescript.ast.ScriptFile
 import org.antlr.v4.runtime.ANTLRErrorListener
+import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CharStream
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.ParserRuleContext
+import org.antlr.v4.runtime.RecognitionException
+import org.antlr.v4.runtime.Recognizer
 import java.nio.file.Path
 
 public object ScriptParser {
@@ -72,10 +75,27 @@ public object ScriptParser {
             parser.addErrorListener(errorListener)
         }
 
+        // count lexer errors too: some, like an unterminated string, leave a token stream the parser accepts
+        val lexerErrors = object : BaseErrorListener() {
+            var count = 0
+
+            override fun syntaxError(
+                recognizer: Recognizer<*, *>?,
+                offendingSymbol: Any?,
+                line: Int,
+                charPositionInLine: Int,
+                msg: String?,
+                e: RecognitionException?,
+            ) {
+                count++
+            }
+        }
+        lexer.addErrorListener(lexerErrors)
+
         val tree = entry(parser)
 
         // if there were any errors detected, return null for the whole node
-        if (parser.numberOfSyntaxErrors > 0) {
+        if (parser.numberOfSyntaxErrors > 0 || lexerErrors.count > 0) {
             return null
         }
 
